@@ -1,0 +1,101 @@
+"use client";
+
+import Image from "next/image";
+import { Game } from "@/data/games";
+
+interface GameCardProps {
+  game: Game;
+  showProgress?: boolean;
+  size?: "sm" | "md" | "lg";
+}
+
+const platformColors: Record<string, string> = {
+  PC: "bg-blue-600",
+  PS5: "bg-indigo-600",
+  Xbox: "bg-green-600",
+  Switch: "bg-red-600",
+  "Steam Deck": "bg-cyan-600",
+};
+
+export default function GameCard({
+  game,
+  showProgress = false,
+  size = "md",
+}: GameCardProps) {
+  const sizes = {
+    sm: "w-36 h-52",
+    md: "w-44 h-64",
+    lg: "w-56 h-80",
+  };
+
+  return (
+    <div
+      className={`group relative flex-shrink-0 ${sizes[size]} cursor-pointer transition-transform duration-300 hover:scale-105 hover:z-10`}
+    >
+      {/* Cover */}
+      <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20">
+        {/* Placeholder gradient if image fails */}
+        <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+
+        <Image
+          src={game.cover}
+          alt={game.title}
+          fill
+          className="object-cover transition-opacity duration-500 group-hover:opacity-90"
+          sizes="(max-width: 768px) 144px, 224px"
+          unoptimized
+          onError={(e) => {
+            // fallback handled by the gradient behind
+            (e.target as HTMLImageElement).style.display = "none";
+          }}
+        />
+
+        {/* Gradient overlay at bottom */}
+        <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+        {/* Title */}
+        <div className="absolute bottom-0 left-0 right-0 p-3">
+          <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white drop-shadow-md">
+            {game.title}
+          </h3>
+
+          {/* Platforms */}
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {game.platforms.slice(0, 3).map((p) => (
+              <span
+                key={p}
+                className={`rounded px-1.5 py-0.5 text-[10px] font-medium text-white ${platformColors[p] || "bg-zinc-600"}`}
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Progress bar */}
+        {showProgress && game.progress !== undefined && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40">
+            <div
+              className="h-full bg-accent transition-all duration-500"
+              style={{ width: `${game.progress}%` }}
+            />
+          </div>
+        )}
+
+        {/* Hover play overlay */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="h-6 w-6 ml-0.5"
+            >
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
