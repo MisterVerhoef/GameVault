@@ -1,39 +1,29 @@
+"use client";
+
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import {
-  recentlyPlayed,
-  actionGames,
-  rpgGames,
-  indieGames,
-  multiplayerGames,
-} from "@/data/games";
+import { allGames } from "@/data/games";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      <main>
+      <main className="pb-16">
         <Hero />
 
         <GameRow
           title="Continue Playing"
-          games={recentlyPlayed}
+          games={allGames.filter((g) => g.progress !== undefined)}
           showProgress
           size="lg"
         />
 
-        <GameRow title="Action" games={actionGames} />
-
-        <GameRow title="RPG" games={rpgGames} />
-
-        <GameRow title="Indie Favorites" games={indieGames} />
-
-        <GameRow title="Multiplayer" games={multiplayerGames} />
+        <GameRow title="All Games" games={allGames} />
       </main>
 
-      <footer className="mt-12 border-t border-white/5 py-6 text-center text-xs text-muted sm:mt-16 sm:py-8 sm:text-sm">
+      <footer className="mt-16 border-t border-white/5 py-8 text-center text-sm text-muted">
         <p>GameVault — Jellyfin / Emby style landscape game library</p>
         <p className="mt-1 opacity-60">Built with Next.js + Tailwind CSS</p>
       </footer>
