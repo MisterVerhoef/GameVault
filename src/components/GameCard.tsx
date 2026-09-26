@@ -22,10 +22,11 @@ export default function GameCard({
   showProgress = false,
   size = "md",
 }: GameCardProps) {
+  // Responsive sizes: compact on portrait/mobile, full size from lg and up
   const sizes = {
-    sm: "w-36 h-52",
-    md: "w-44 h-64",
-    lg: "w-56 h-80",
+    sm: "w-28 h-40 lg:w-36 lg:h-52",
+    md: "w-32 h-48 lg:w-44 lg:h-64",
+    lg: "w-40 h-56 lg:w-56 lg:h-80",
   };
 
   return (
@@ -42,10 +43,9 @@ export default function GameCard({
           alt={game.title}
           fill
           className="object-cover transition-opacity duration-500 group-hover:opacity-90"
-          sizes="(max-width: 768px) 144px, 224px"
+          sizes="(max-width: 1024px) 128px, 224px"
           unoptimized
           onError={(e) => {
-            // fallback handled by the gradient behind
             (e.target as HTMLImageElement).style.display = "none";
           }}
         />
@@ -54,17 +54,17 @@ export default function GameCard({
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
         {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="line-clamp-2 text-sm font-semibold leading-tight text-white drop-shadow-md">
+        <div className="absolute bottom-0 left-0 right-0 p-2 lg:p-3">
+          <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-white drop-shadow-md sm:text-sm lg:text-sm">
             {game.title}
           </h3>
 
           {/* Platforms */}
-          <div className="mt-1.5 flex flex-wrap gap-1">
+          <div className="mt-1 flex flex-wrap gap-1">
             {game.platforms.slice(0, 3).map((p) => (
               <span
                 key={p}
-                className={`rounded px-1.5 py-0.5 text-[10px] font-medium text-white ${platformColors[p] || "bg-zinc-600"}`}
+                className={`rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px] ${platformColors[p] || "bg-zinc-600"}`}
               >
                 {p}
               </span>

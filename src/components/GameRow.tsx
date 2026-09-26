@@ -30,10 +30,11 @@ export default function GameRow({
     <section className="relative mb-8">
       {/* Title */}
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+        <h2 className="text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
           {title}
         </h2>
-        <div className="flex gap-2">
+        {/* Scroll buttons: only on desktop */}
+        <div className="hidden gap-2 lg:flex">
           <button
             onClick={() => scroll("left")}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground"
@@ -80,7 +81,7 @@ export default function GameRow({
       {/* Horizontal scroll row */}
       <div
         ref={scrollRef}
-        className="row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 sm:px-6 lg:px-8"
+        className="row-scroll scrollbar-hide flex gap-3 overflow-x-auto px-4 pb-4 sm:gap-4 sm:px-6 lg:px-8"
       >
         {games.map((game) => (
           <GameCard
