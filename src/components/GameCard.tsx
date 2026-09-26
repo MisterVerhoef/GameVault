@@ -30,17 +30,19 @@ export default function GameCard({
   };
 
   return (
-    <div
-      className={`group relative flex-shrink-0 ${sizes[size]} cursor-pointer transition-transform duration-300 hover:scale-105 hover:z-10`}
+    <button
+      type="button"
+      aria-label={`Open ${game.title}`}
+      className={`group relative flex-shrink-0 cursor-pointer text-left focus:outline-none ${sizes[size]}`}
     >
       {/* Cover */}
-      <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20">
+      <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20 group-focus-visible:ring-2 group-focus-visible:ring-accent">
         {/* Placeholder gradient if image fails */}
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
 
         <Image
           src={game.cover}
-          alt={game.title}
+          alt={`${game.title} cover art`}
           fill
           className="object-cover transition-opacity duration-500 group-hover:opacity-90"
           sizes="(max-width: 1024px) 128px, 224px"
@@ -74,7 +76,14 @@ export default function GameCard({
 
         {/* Progress bar */}
         {showProgress && game.progress !== undefined && (
-          <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40">
+          <div
+            role="progressbar"
+            aria-label={`${game.title} progress`}
+            aria-valuenow={game.progress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            className="absolute bottom-0 left-0 right-0 h-1 bg-black/40"
+          >
             <div
               className="h-full bg-accent transition-all duration-500"
               style={{ width: `${game.progress}%` }}
@@ -83,12 +92,13 @@ export default function GameCard({
         )}
 
         {/* Hover play overlay */}
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
               fill="currentColor"
+              aria-hidden="true"
               className="h-6 w-6 ml-0.5"
             >
               <path d="M8 5v14l11-7z" />
@@ -96,6 +106,6 @@ export default function GameCard({
           </div>
         </div>
       </div>
-    </div>
+    </button>
   );
 }
