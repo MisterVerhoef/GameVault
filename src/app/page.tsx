@@ -33,7 +33,7 @@ export default function Home() {
         <GameRow title="Multiplayer" games={multiplayerGames} />
       </main>
 
-      <footer className="mt-16 border-t border-white/5 py-8 text-center text-sm text-muted">
+      <footer className="mt-10 border-t border-white/5 py-6 text-center text-xs text-muted sm:mt-16 sm:py-8 sm:text-sm">
         <p>GameVault — Jellyfin / Emby style landscape game library</p>
         <p className="mt-1 opacity-60">Built with Next.js + Tailwind CSS</p>
       </footer>
