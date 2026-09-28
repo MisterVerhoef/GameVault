@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Platform, PLATFORM_COLORS } from "@/data/games";
+import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
   onPlatformSelect?: (platform: Platform | null) => void;
@@ -67,8 +68,9 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
           ))}
         </div>
 
-        {/* Search + Profile + Hamburger */}
+        {/* Theme toggle + Search + Profile + Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3">
+          <ThemeToggle />
           {/* Search icon (mobile toggle) */}
           <button
             onClick={() => setSearchOpen((v) => !v)}

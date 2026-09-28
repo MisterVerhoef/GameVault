@@ -9,6 +9,26 @@
   --muted: #a1a1aa;
 }
 
+/* Light theme variables */
+[data-theme="light"] {
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --accent: #3b82f6;
+  --muted: #71717a;
+}
+
+/* Dark theme variables (default) */
+[data-theme="dark"] {
+  --background: #0c0c0f;
+  --foreground: #f4f4f5;
+  --card: #18181b;
+  --card-hover: #27272a;
+  --accent: #3b82f6;
+  --muted: #a1a1aa;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -18,6 +38,23 @@
   --color-muted: var(--muted);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+/* Apply theme based on class */
+.dark {
+  --background: #0c0c0f;
+  --foreground: #f4f4f5;
+  --card: #18181b;
+  --card-hover: #27272a;
+  --muted: #a1a1aa;
+}
+
+.light {
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --muted: #71717a;
 }
 
 body {
