@@ -1,11 +1,29 @@
 "use client";
 
 import { useState } from "react";
+import { Platform, PLATFORM_COLORS } from "@/data/games";
 
-export default function Navbar() {
+interface NavbarProps {
+  onPlatformSelect?: (platform: Platform | null) => void;
+  onSearch?: (query: string) => void;
+}
+
+export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+
+  const handlePlatformSelect = (platform: Platform | null) => {
+    setSelectedPlatform(platform);
+    onPlatformSelect?.(platform);
+    setMenuOpen(false);
+  };
+
+  const handleSearch = (query: string) => {
+    setSearch(query);
+    onSearch?.(query);
+  };
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
@@ -32,6 +50,22 @@ export default function Navbar() {
             </a>
           ))}
         </nav>
+
+        {/* Platform filter buttons (desktop) */}
+        <div className="hidden items-center gap-2 md:flex">
+          {(["PC", "PS5", "Xbox", "Switch"] as Platform[]).map((platform) => (
+            <button
+              key={platform}
+              onClick={() => handlePlatformSelect(selectedPlatform === platform ? null : platform)}
+              aria-label={`Filter by ${platform}`}
+              aria-pressed={selectedPlatform === platform}
+              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === platform ? `bg-[${PLATFORM_COLORS[platform]}] text-white` : "bg-card text-muted hover:text-foreground"}`}
+              style={selectedPlatform === platform ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
+            >
+              {platform}
+            </button>
+          ))}
+        </div>
 
         {/* Search + Profile + Hamburger */}
         <div className="flex items-center gap-2 sm:gap-3">
@@ -85,7 +119,7 @@ export default function Navbar() {
               type="search"
               placeholder="Search games..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => handleSearch(e.target.value)}
               className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </div>
@@ -166,6 +200,20 @@ export default function Navbar() {
                 {item}
               </a>
             ))}
+            {/* Platform filters in mobile menu */}
+            <div className="mt-2 border-t border-white/5 pt-2">
+              <p className="px-3 py-1 text-xs font-medium text-muted">Filter by Platform</p>
+              {(["PC", "PS5", "Xbox", "Switch"] as Platform[]).map((platform) => (
+                <button
+                  key={platform}
+                  onClick={() => handlePlatformSelect(selectedPlatform === platform ? null : platform)}
+                  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedPlatform === platform ? `text-white` : "text-muted hover:text-foreground"}`}
+                  style={selectedPlatform === platform ? { color: PLATFORM_COLORS[platform] } : {}}
+                >
+                  {platform}
+                </button>
+              ))}
+            </div>
           </div>
         </nav>
       )}
