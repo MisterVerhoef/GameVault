@@ -12,6 +12,19 @@
 - platform specific theme colors (Xbox green, PS5 blue, Switch red)
 - Sticky glassmorphism navbar with search
 - Fully responsive
+- Every platform has it own color scheme when selected
+- Main platforms are pc, xbox, Playstation, Nintendo. Smaller or older platforms like sega, Atari, CDO, CDI are placed in a dropdown menu.
+
+## Each game has a number of sections
+- Description
+- DLC  
+- Trailers
+- Screenshots
+- Review blurps
+- Achievements list
+- Collections of it has sequels/ prequals or spinoffs
+- Walkthrough links
+- Similar games
 
 ## Quick Start
 
