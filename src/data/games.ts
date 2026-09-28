@@ -14,7 +14,6 @@ export interface Game {
   cover: string;
   platforms: Platform[];
   genre: string;
-  progress?: number; // 0-100 for "Continue Gaming"
   year?: number;
   rating?: number;
   description?: string;
@@ -38,7 +37,7 @@ export const pcGames: Game[] = [
     cover: cover("Baldur's Gate 3", "2a1a0a"),
     platforms: ["PC"],
     genre: "RPG",
-    progress: 42,
+    
     year: 2023,
     rating: 9.7,
     description: "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat.",
@@ -50,7 +49,7 @@ export const pcGames: Game[] = [
     cover: cover("Cyberpunk 2077", "0a1a2a"),
     platforms: ["PC"],
     genre: "Action",
-    progress: 88,
+    
     year: 2020,
     rating: 8.8,
     description: "An open-world RPG set in Night City, with deep customization and immersive storytelling.",
@@ -62,7 +61,7 @@ export const pcGames: Game[] = [
     cover: cover("Elden Ring", "1a0a0a"),
     platforms: ["PC"],
     genre: "Action",
-    progress: 67,
+    
     year: 2022,
     rating: 9.5,
     description: "An open-world Soulslike with challenging combat and deep lore.",
@@ -85,7 +84,7 @@ export const pcGames: Game[] = [
     cover: cover("Black Myth", "1a0a2a"),
     platforms: ["PC"],
     genre: "Action",
-    progress: 15,
+    
     year: 2024,
     rating: 8.9,
     description: "A visually stunning action-adventure game inspired by Chinese mythology.",
@@ -101,7 +100,7 @@ export const ps5Games: Game[] = [
     cover: cover("God of War", "1a1a0a"),
     platforms: ["PS5"],
     genre: "Action",
-    progress: 90,
+    
     year: 2022,
     rating: 9.4,
     description: "Kratos and Atreus embark on a mythic journey through the Nine Realms.",
@@ -124,7 +123,7 @@ export const ps5Games: Game[] = [
     cover: cover("FF XVI", "1a0a1a"),
     platforms: ["PS5"],
     genre: "RPG",
-    progress: 30,
+    
     year: 2023,
     rating: 8.7,
     description: "A dark fantasy epic with real-time combat and a gripping political narrative.",
@@ -162,7 +161,7 @@ export const xboxGames: Game[] = [
     cover: cover("Starfield", "0a0a2a"),
     platforms: ["Xbox"],
     genre: "RPG",
-    progress: 20,
+    
     year: 2023,
     rating: 7.8,
     description: "Explore the settled systems and uncover the mysteries of the universe.",
@@ -174,7 +173,7 @@ export const xboxGames: Game[] = [
     cover: cover("Forza H5", "0a2a0a"),
     platforms: ["Xbox"],
     genre: "Racing",
-    progress: 75,
+    
     year: 2021,
     rating: 9.0,
     description: "The ultimate open-world racing experience in Mexico.",
@@ -186,7 +185,7 @@ export const xboxGames: Game[] = [
     cover: cover("Halo Infinite", "0a1a2a"),
     platforms: ["Xbox"],
     genre: "Shooter",
-    progress: 60,
+    
     year: 2021,
     rating: 8.5,
     description: "Master Chief returns in a new chapter of the legendary Halo franchise.",
@@ -209,7 +208,7 @@ export const xboxGames: Game[] = [
     cover: cover("Sea of Thieves", "0a1a2a"),
     platforms: ["Xbox"],
     genre: "Adventure",
-    progress: 40,
+    
     year: 2018,
     rating: 8.2,
     description: "A shared-world adventure game with piracy, exploration, and treasure hunting.",
@@ -225,7 +224,7 @@ export const switchGames: Game[] = [
     cover: cover("Zelda TotK", "0a2a1a"),
     platforms: ["Switch"],
     genre: "Adventure",
-    progress: 71,
+    
     year: 2023,
     rating: 9.6,
     description: "Link's greatest adventure yet, with new abilities and a vast open world.",
@@ -257,7 +256,7 @@ export const switchGames: Game[] = [
     cover: cover("Mario Kart 8", "2a0a0a"),
     platforms: ["Switch"],
     genre: "Racing",
-    progress: 80,
+    
     year: 2017,
     rating: 9.1,
     description: "The definitive kart racing experience with all DLC included.",
@@ -268,7 +267,7 @@ export const switchGames: Game[] = [
     cover: cover("Animal Crossing", "0a2a1a"),
     platforms: ["Switch"],
     genre: "Simulation",
-    progress: 95,
+    
     year: 2020,
     rating: 8.9,
     description: "Build your own island paradise in this relaxing life simulation game.",
@@ -430,10 +429,9 @@ export function getGamesByPlatform(platform: Platform): Game[] {
   return allGames.filter(game => game.platforms.includes(platform));
 }
 
-// Get featured game (highest progress from recently played)
+// Get featured game (first from recently played)
 export function getFeaturedGame(): Game {
-  const gameWithProgress = recentlyPlayed.find(g => g.progress !== undefined);
-  return gameWithProgress || recentlyPlayed[0];
+  return recentlyPlayed[0];
 }
 
 // Get games by genre

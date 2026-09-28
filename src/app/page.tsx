@@ -41,7 +41,7 @@ export default function Home() {
         Switch: switchGames,
       };
       const games = platformGames[selectedPlatform as keyof typeof platformGames] || [];
-      return games.find(g => g.progress !== undefined) || games[0] || recentlyPlayed[0];
+      return games[0] || recentlyPlayed[0];
     }
     return recentlyPlayed[0];
   };
@@ -64,9 +64,8 @@ export default function Home() {
         <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
 
         <GameRow
-          title="Continue Playing"
+          title="Featured Games"
           games={filterGames(recentlyPlayed)}
-          showProgress
           size="lg"
         />
 
@@ -93,7 +92,7 @@ export default function Home() {
       {/* Responsive footer: smaller on mobile, sticks to bottom on tall screens */}
       <footer className="mt-12 border-t border-white/5 px-4 py-6 text-center text-sm text-muted sm:mt-16 sm:py-8">
         <p className="px-2 leading-relaxed">
-          GameVault — Jellyfin / Emby style game library
+          GameVault  Jellyfin / Emby style game library
         </p>
         <p className="mt-1 px-2 text-xs opacity-60 sm:text-sm">
           Built with Next.js + Tailwind CSS

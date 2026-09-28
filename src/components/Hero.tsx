@@ -49,7 +49,7 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
         {/* Info */}
         <div className="flex flex-1 flex-col gap-3 text-center lg:text-left">
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
-            Continue Playing
+            Featured Game
           </p>
           <h1 className="text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {featured.title}
@@ -74,42 +74,7 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
             </div>
           </div>
 
-          {/* Progress */}
-          {featured.progress !== undefined && (
-            <div className="mt-1 mx-auto w-full max-w-xs lg:mx-0">
-              <div className="mb-1 flex justify-between text-xs text-muted">
-                <span id="hero-progress-label">Progress</span>
-                <span aria-hidden="true">{featured.progress}%</span>
-              </div>
-              <div
-                role="progressbar"
-                aria-labelledby="hero-progress-label"
-                aria-valuenow={featured.progress}
-                aria-valuemin={0}
-                aria-valuemax={100}
-                className="h-1.5 overflow-hidden rounded-full bg-white/10"
-              >
-                <div
-                  className="h-full rounded-full transition-all"
-                  style={{ width: `${featured.progress}%`, backgroundColor: themeColor }}
-                />
-              </div>
-            </div>
-          )}
-
           <div className="mt-4 flex flex-wrap justify-center gap-3 lg:justify-start">
-            <button className="flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background" style={{ backgroundColor: themeColor }}>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-                className="h-5 w-5"
-              >
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              Resume
-            </button>
             <button className="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background" style={{ borderColor: `${themeColor}33` }}>
               Details
             </button>

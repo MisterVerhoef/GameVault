@@ -74,23 +74,6 @@ export default function GameCard({
           </div>
         </div>
 
-        {/* Progress bar */}
-        {showProgress && game.progress !== undefined && (
-          <div
-            role="progressbar"
-            aria-label={`${game.title} progress`}
-            aria-valuenow={game.progress}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            className="absolute bottom-0 left-0 right-0 h-1 bg-black/40"
-          >
-            <div
-              className="h-full bg-accent transition-all duration-500"
-              style={{ width: `${game.progress}%` }}
-            />
-          </div>
-        )}
-
         {/* Hover play overlay */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg">
