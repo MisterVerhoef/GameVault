@@ -8,6 +8,8 @@
 - Horizontal scrolling rows (Action, RPG, Indie, Multiplayer)
 - Featured "Continue Gaming" hero section with progress
 - Game cards with platform badges, hover play overlay, and achievements progress bars
+- platform specific filtering (PC, PS5, Xbox, Switch)
+- platform specific theme colors (Xbox green, PS5 blue, Switch red)
 - Sticky glassmorphism navbar with search
 - Fully responsive
 
