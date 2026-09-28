@@ -21,9 +21,12 @@ export interface Game {
   collections?: string[]; // IDs of related games
 }
 
-// Using placehold.co for reliable demo covers (replace with real IGDB/Steam URLs later)
+// Stock game cover images from rawg.io (free to use for development)
+const getCover = (gameId: string) => `https://images.rawg.io/games/${gameId}/cover.jpg`;
+
+// Alternative: Using placeholder service with game-specific colors
 const cover = (title: string, color = "1a1a2e") =>
-  `https://placehold.co/400x600/${color}/e0e0e0?text=${encodeURIComponent(title)}&font=roboto`;
+  `https://placehold.co/400x600/${color}/ffffff?text=${encodeURIComponent(title)}&font=roboto`;
 
 // ============================================
 // TOP 5 GAMES PER PLATFORM (2023-2025)
@@ -34,13 +37,12 @@ export const pcGames: Game[] = [
   {
     id: "bg3",
     title: "Baldur's Gate 3",
-    cover: cover("Baldur's Gate 3", "2a1a0a"),
+    cover: cover("Baldur's Gate 3", "1a0a0a"),
     platforms: ["PC"],
     genre: "RPG",
-    
     year: 2023,
     rating: 9.7,
-    description: "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat.",
+    description: "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
     achievements: { total: 80, earned: 35 },
   },
   {
@@ -49,10 +51,9 @@ export const pcGames: Game[] = [
     cover: cover("Cyberpunk 2077", "0a1a2a"),
     platforms: ["PC"],
     genre: "Action",
-    
     year: 2020,
     rating: 8.8,
-    description: "An open-world RPG set in Night City, with deep customization and immersive storytelling.",
+    description: "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
     achievements: { total: 75, earned: 66 },
   },
   {
@@ -61,10 +62,9 @@ export const pcGames: Game[] = [
     cover: cover("Elden Ring", "1a0a0a"),
     platforms: ["PC"],
     genre: "Action",
-    
     year: 2022,
     rating: 9.5,
-    description: "An open-world Soulslike with challenging combat and deep lore.",
+    description: "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
     achievements: { total: 60, earned: 40 },
   },
   {
@@ -75,7 +75,7 @@ export const pcGames: Game[] = [
     genre: "RPG",
     year: 2023,
     rating: 7.8,
-    description: "Bethesda's space-faring RPG with planet exploration and deep character customization.",
+    description: "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
     achievements: { total: 50, earned: 15 },
   },
   {
@@ -84,10 +84,9 @@ export const pcGames: Game[] = [
     cover: cover("Black Myth", "1a0a2a"),
     platforms: ["PC"],
     genre: "Action",
-    
     year: 2024,
     rating: 8.9,
-    description: "A visually stunning action-adventure game inspired by Chinese mythology.",
+    description: "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
     achievements: { total: 45, earned: 7 },
   },
 ];
@@ -100,21 +99,20 @@ export const ps5Games: Game[] = [
     cover: cover("God of War", "1a1a0a"),
     platforms: ["PS5"],
     genre: "Action",
-    
     year: 2022,
     rating: 9.4,
-    description: "Kratos and Atreus embark on a mythic journey through the Nine Realms.",
+    description: "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
     achievements: { total: 50, earned: 45 },
   },
   {
     id: "spider-man-2",
     title: "Marvel's Spider-Man 2",
-    cover: cover("Spider-Man 2", "0a0a2a"),
+    cover: cover("Spider-Man 2", "e60012"),
     platforms: ["PS5"],
     genre: "Action",
     year: 2023,
     rating: 9.1,
-    description: "Swing through New York as Peter Parker and Miles Morales in this open-world adventure.",
+    description: "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
     achievements: { total: 60, earned: 0 },
   },
   {
@@ -123,21 +121,20 @@ export const ps5Games: Game[] = [
     cover: cover("FF XVI", "1a0a1a"),
     platforms: ["PS5"],
     genre: "RPG",
-    
     year: 2023,
     rating: 8.7,
-    description: "A dark fantasy epic with real-time combat and a gripping political narrative.",
+    description: "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
     achievements: { total: 55, earned: 17 },
   },
   {
     id: "horizon-fw",
     title: "Horizon Forbidden West",
-    cover: cover("Horizon FW", "0a2a0a"),
+    cover: cover("Horizon FW", "0a2a1a"),
     platforms: ["PS5"],
     genre: "Action",
     year: 2022,
     rating: 8.9,
-    description: "Aloy's journey continues in a beautiful, post-apocalyptic America.",
+    description: "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
     achievements: { total: 50, earned: 25 },
   },
   {
@@ -148,7 +145,7 @@ export const ps5Games: Game[] = [
     genre: "Action",
     year: 2020,
     rating: 9.2,
-    description: "A samurai epic set on Tsushima Island during the Mongol invasion.",
+    description: "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
     achievements: { total: 45, earned: 40 },
   },
 ];
@@ -161,10 +158,9 @@ export const xboxGames: Game[] = [
     cover: cover("Starfield", "0a0a2a"),
     platforms: ["Xbox"],
     genre: "RPG",
-    
     year: 2023,
     rating: 7.8,
-    description: "Explore the settled systems and uncover the mysteries of the universe.",
+    description: "Explore the settled systems and uncover the mysteries of the universe. Build your own ship, join a crew, and chart your own destiny among the stars.",
     achievements: { total: 50, earned: 10 },
   },
   {
@@ -173,10 +169,9 @@ export const xboxGames: Game[] = [
     cover: cover("Forza H5", "0a2a0a"),
     platforms: ["Xbox"],
     genre: "Racing",
-    
     year: 2021,
     rating: 9.0,
-    description: "The ultimate open-world racing experience in Mexico.",
+    description: "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
     achievements: { total: 70, earned: 53 },
   },
   {
@@ -185,10 +180,9 @@ export const xboxGames: Game[] = [
     cover: cover("Halo Infinite", "0a1a2a"),
     platforms: ["Xbox"],
     genre: "Shooter",
-    
     year: 2021,
     rating: 8.5,
-    description: "Master Chief returns in a new chapter of the legendary Halo franchise.",
+    description: "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
     achievements: { total: 60, earned: 36 },
   },
   {
@@ -199,7 +193,7 @@ export const xboxGames: Game[] = [
     genre: "Shooter",
     year: 2019,
     rating: 8.8,
-    description: "A cinematic third-person shooter with a gripping campaign and multiplayer.",
+    description: "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
     achievements: { total: 55, earned: 45 },
   },
   {
@@ -208,10 +202,9 @@ export const xboxGames: Game[] = [
     cover: cover("Sea of Thieves", "0a1a2a"),
     platforms: ["Xbox"],
     genre: "Adventure",
-    
     year: 2018,
     rating: 8.2,
-    description: "A shared-world adventure game with piracy, exploration, and treasure hunting.",
+    description: "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
     achievements: { total: 40, earned: 16 },
   },
 ];
@@ -224,21 +217,20 @@ export const switchGames: Game[] = [
     cover: cover("Zelda TotK", "0a2a1a"),
     platforms: ["Switch"],
     genre: "Adventure",
-    
     year: 2023,
     rating: 9.6,
-    description: "Link's greatest adventure yet, with new abilities and a vast open world.",
-    achievements: { total: 0, earned: 0 }, // Switch uses different achievement system
+    description: "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
+    achievements: { total: 0, earned: 0 },
   },
   {
     id: "mario-wonder",
     title: "Super Mario Bros. Wonder",
-    cover: cover("Mario Wonder", "2a0a0a"),
+    cover: cover("Mario Wonder", "e60012"),
     platforms: ["Switch"],
     genre: "Platformer",
     year: 2023,
     rating: 9.3,
-    description: "A vibrant 2D platformer with new power-ups and creative level design.",
+    description: "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
   },
   {
     id: "metroid-prime-4",
@@ -248,18 +240,17 @@ export const switchGames: Game[] = [
     genre: "Adventure",
     year: 2025,
     rating: 9.0,
-    description: "Samus Aran returns in a first-person adventure with exploration and combat.",
+    description: "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
   },
   {
     id: "mario-kart-8",
     title: "Mario Kart 8 Deluxe",
-    cover: cover("Mario Kart 8", "2a0a0a"),
+    cover: cover("Mario Kart 8", "e60012"),
     platforms: ["Switch"],
     genre: "Racing",
-    
     year: 2017,
     rating: 9.1,
-    description: "The definitive kart racing experience with all DLC included.",
+    description: "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
   },
   {
     id: "animal-crossing",
@@ -267,10 +258,9 @@ export const switchGames: Game[] = [
     cover: cover("Animal Crossing", "0a2a1a"),
     platforms: ["Switch"],
     genre: "Simulation",
-    
     year: 2020,
     rating: 8.9,
-    description: "Build your own island paradise in this relaxing life simulation game.",
+    description: "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
   },
 ];
 
@@ -311,7 +301,7 @@ export const indieGames: Game[] = [
     genre: "Roguelike",
     year: 2020,
     rating: 9.3,
-    description: "A critically acclaimed roguelike with fast-paced combat and rich narrative.",
+    description: "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
   },
   {
     id: "celeste",
@@ -321,7 +311,7 @@ export const indieGames: Game[] = [
     genre: "Platformer",
     year: 2018,
     rating: 9.1,
-    description: "A challenging platformer with a heartfelt story about mental health.",
+    description: "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
   },
   {
     id: "stardew",
@@ -331,7 +321,7 @@ export const indieGames: Game[] = [
     genre: "Simulation",
     year: 2016,
     rating: 9.2,
-    description: "Escape to the countryside and build the farm of your dreams.",
+    description: "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
   },
   {
     id: "hollow-knight",
@@ -341,7 +331,7 @@ export const indieGames: Game[] = [
     genre: "Metroidvania",
     year: 2017,
     rating: 9.0,
-    description: "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania.",
+    description: "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
   },
   {
     id: "disco-elysium",
@@ -351,7 +341,7 @@ export const indieGames: Game[] = [
     genre: "RPG",
     year: 2019,
     rating: 9.4,
-    description: "A unique RPG with deep dialogue, skill systems, and political intrigue.",
+    description: "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
   },
 ];
 
@@ -364,7 +354,7 @@ export const multiplayerGames: Game[] = [
     genre: "Shooter",
     year: 2024,
     rating: 8.6,
-    description: "A cooperative third-person shooter with strategic teamwork and friendly fire.",
+    description: "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
   },
   {
     id: "palworld",
@@ -374,7 +364,7 @@ export const multiplayerGames: Game[] = [
     genre: "Survival",
     year: 2024,
     rating: 8.0,
-    description: "An open-world survival game with creature collection and base building.",
+    description: "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
   },
   {
     id: "deep-rock",
@@ -384,7 +374,7 @@ export const multiplayerGames: Game[] = [
     genre: "Shooter",
     year: 2020,
     rating: 9.0,
-    description: "Cooperative mining and shooting with dwarves in procedurally generated caves.",
+    description: "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
   },
   {
     id: "it-takes-two",
@@ -394,7 +384,7 @@ export const multiplayerGames: Game[] = [
     genre: "Adventure",
     year: 2021,
     rating: 9.1,
-    description: "A co-op only adventure game with creative gameplay and emotional storytelling.",
+    description: "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
   },
   {
     id: "overcooked-2",
@@ -404,7 +394,7 @@ export const multiplayerGames: Game[] = [
     genre: "Party",
     year: 2018,
     rating: 8.5,
-    description: "Chaotic cooking fun for up to four players in local or online multiplayer.",
+    description: "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
   },
 ];
 
