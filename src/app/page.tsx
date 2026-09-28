@@ -4,14 +4,14 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, PLATFORM_COLORS, pcGames, ps5Games, xboxGames, switchGames, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, allGames } from "@/data/games";
+import { Platform, PLATFORM_COLORS, Game, pcGames, ps5Games, xboxGames, switchGames, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, allGames } from "@/data/games";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter games based on selected platform and search query
-  const filterGames = (games: any[]) => {
+  const filterGames = (games: Game[]) => {
     let filtered = [...games];
     
     // Filter by platform
@@ -92,7 +92,7 @@ export default function Home() {
       {/* Responsive footer: smaller on mobile, sticks to bottom on tall screens */}
       <footer className="mt-12 border-t border-white/5 px-4 py-6 text-center text-sm text-muted sm:mt-16 sm:py-8">
         <p className="px-2 leading-relaxed">
-          GameVault  Jellyfin / Emby style game library
+          GameVault — Jellyfin / Emby style game library
         </p>
         <p className="mt-1 px-2 text-xs opacity-60 sm:text-sm">
           Built with Next.js + Tailwind CSS

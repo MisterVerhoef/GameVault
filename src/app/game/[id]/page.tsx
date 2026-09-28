@@ -1,9 +1,16 @@
 import { notFound } from "next/navigation";
+import Link from "next/link";
 import { allGames, Platform, PLATFORM_COLORS } from "@/data/games";
 import Image from "next/image";
 
-export default function GameDetailPage({ params }: { params: { id: string } }) {
-  const game = allGames.find(g => g.id === params.id);
+interface GameDetailPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default async function GameDetailPage({ params }: GameDetailPageProps) {
+  // Resolve params promise for SSR compatibility
+  const resolvedParams = await params;
+  const game = allGames.find(g => g.id === resolvedParams.id);
   
   if (!game) {
     notFound();
@@ -21,7 +28,7 @@ export default function GameDetailPage({ params }: { params: { id: string } }) {
       {/* Header with back button */}
       <header className="relative sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <a
+          <Link
             href="/"
             className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label="Back to home"
@@ -36,7 +43,7 @@ export default function GameDetailPage({ params }: { params: { id: string } }) {
             >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
-          </a>
+          </Link>
           <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
             {game.title}
           </h1>
@@ -47,7 +54,7 @@ export default function GameDetailPage({ params }: { params: { id: string } }) {
         {/* Hero section with cover art */}
         <section className="relative mb-12 flex flex-col gap-6 lg:flex-row lg:gap-12">
           {/* Cover art */}
-          <div className="mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64" style={{ borderColor: `${themeColor}33` }}>
+          <div className="relative mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64" style={{ borderColor: `${themeColor}33` }}>
             <Image
               src={game.cover}
               alt={game.title}
@@ -67,12 +74,12 @@ export default function GameDetailPage({ params }: { params: { id: string } }) {
               </h2>
               <div className="mt-2 flex items-center gap-3 text-sm text-muted">
                 <span>{game.year}</span>
-                <span aria-hidden="true">2</span>
+                <span aria-hidden="true">•</span>
                 <span className="text-yellow-400" aria-label={`Rating ${game.rating} out of 10`}>
-                  <span aria-hidden="true">605 </span>
+                  <span aria-hidden="true">★ </span>
                   {game.rating}
                 </span>
-                <span aria-hidden="true">2</span>
+                <span aria-hidden="true">•</span>
                 <span className="font-medium">{game.genre}</span>
               </div>
             </div>

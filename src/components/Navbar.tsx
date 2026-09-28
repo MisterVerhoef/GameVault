@@ -60,7 +60,7 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
               onClick={() => handlePlatformSelect(selectedPlatform === platform ? null : platform)}
               aria-label={`Filter by ${platform}`}
               aria-pressed={selectedPlatform === platform}
-              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === platform ? `bg-[${PLATFORM_COLORS[platform]}] text-white` : "bg-card text-muted hover:text-foreground"}`}
+              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === platform ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
               style={selectedPlatform === platform ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
             >
               {platform}
@@ -182,7 +182,7 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
             type="search"
             placeholder="Search games..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => handleSearch(e.target.value)}
             className="h-9 w-full rounded-full border border-white/10 bg-card px-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
           />
         </div>

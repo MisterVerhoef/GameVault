@@ -71,8 +71,8 @@ export default function ThemeToggle() {
 
   const getLabel = () => {
     if (theme === "dark") return "Switch to light mode";
-    if (theme === "light") return "Switch to dark mode";
-    return "Switch theme";
+    if (theme === "light") return "Switch to system theme";
+    return "Switch to dark mode";
   };
 
   return (
