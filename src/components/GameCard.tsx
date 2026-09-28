@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Game } from "@/data/games";
+import { useRouter } from "next/navigation";
 
 interface GameCardProps {
   game: Game;
@@ -22,6 +23,12 @@ export default function GameCard({
   showProgress = false,
   size = "md",
 }: GameCardProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/game/${game.id}`);
+  };
+
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
   const sizes = {
     sm: "w-28 h-40 lg:w-36 lg:h-52",
@@ -33,6 +40,7 @@ export default function GameCard({
     <button
       type="button"
       aria-label={`Open ${game.title}`}
+      onClick={handleClick}
       className={`group relative flex-shrink-0 cursor-pointer text-left focus:outline-none ${sizes[size]}`}
     >
       {/* Cover */}
