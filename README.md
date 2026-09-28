@@ -5,9 +5,9 @@
 ## Features
 
 - Dark cinematic landscape layout
-- Horizontal scrolling rows (Continue Playing, Action, RPG, Indie, Multiplayer)
-- Featured "Continue Playing" hero section with progress
-- Game cards with platform badges, hover play overlay, and progress bars
+- Horizontal scrolling rows (Action, RPG, Indie, Multiplayer)
+- Featured "Continue Gaming" hero section with progress
+- Game cards with platform badges, hover play overlay, and achievements progress bars
 - Sticky glassmorphism navbar with search
 - Fully responsive
 
