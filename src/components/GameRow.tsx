@@ -23,7 +23,13 @@ export default function GameRow({
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const amount = direction === "left" ? -600 : 600;
-      scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      scrollRef.current.scrollBy({
+        left: amount,
+        behavior: reduceMotion ? "auto" : "smooth",
+      });
     }
   };
 
