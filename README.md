@@ -1,6 +1,6 @@
 # GameVault
 
-**Jellyfin / Emby style landscape game library** built with Next.js + React + Tailwind CSS.
+**Jellyfin / Emby Plex media manager game library** built with Next.js + React + Tailwind CSS.
 
 ## Features
 
