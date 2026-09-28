@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Game } from "@/data/games";
+import { useRouter } from "next/navigation";
 
 interface GameCardProps {
   game: Game;
@@ -22,6 +23,12 @@ export default function GameCard({
   showProgress = false,
   size = "md",
 }: GameCardProps) {
+  const router = useRouter();
+
+  const handleClick = () => {
+    router.push(`/game/${game.id}`);
+  };
+
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
   const sizes = {
     sm: "w-28 h-40 lg:w-36 lg:h-52",
@@ -33,6 +40,7 @@ export default function GameCard({
     <button
       type="button"
       aria-label={`Open ${game.title}`}
+      onClick={handleClick}
       className={`group relative flex-shrink-0 cursor-pointer text-left focus:outline-none ${sizes[size]}`}
     >
       {/* Cover */}
@@ -71,38 +79,6 @@ export default function GameCard({
                 {p}
               </span>
             ))}
-          </div>
-        </div>
-
-        {/* Progress bar */}
-        {showProgress && game.progress !== undefined && (
-          <div
-            role="progressbar"
-            aria-label={`${game.title} progress`}
-            aria-valuenow={game.progress}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            className="absolute bottom-0 left-0 right-0 h-1 bg-black/40"
-          >
-            <div
-              className="h-full bg-accent transition-all duration-500"
-              style={{ width: `${game.progress}%` }}
-            />
-          </div>
-        )}
-
-        {/* Hover play overlay */}
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-visible:opacity-100">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/90 text-white shadow-lg">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
-              className="h-6 w-6 ml-0.5"
-            >
-              <path d="M8 5v14l11-7z" />
-            </svg>
           </div>
         </div>
       </div>

@@ -9,6 +9,24 @@
   --muted: #a1a1aa;
 }
 
+/* Light theme - override CSS variables */
+:root.light {
+  --background: #fafafa;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --muted: #71717a;
+}
+
+/* Dark theme - default, but explicitly set for clarity */
+:root.dark {
+  --background: #0c0c0f;
+  --foreground: #f4f4f5;
+  --card: #18181b;
+  --card-hover: #27272a;
+  --muted: #a1a1aa;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -31,6 +49,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
