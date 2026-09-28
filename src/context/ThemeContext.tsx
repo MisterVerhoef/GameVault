@@ -12,10 +12,10 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("system");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
-    // Check for saved theme preference or default to system
+    // Check for saved theme preference or default to dark
     const savedTheme = localStorage.getItem("gamevault-theme") as Theme | null;
     if (savedTheme) {
       setTheme(savedTheme);
@@ -30,15 +30,17 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     // Save theme preference to localStorage
     localStorage.setItem("gamevault-theme", theme);
     
-    // Apply theme to document
+    // Apply theme to document root
     const root = document.documentElement;
     
+    // Remove all theme classes
+    root.classList.remove("light", "dark");
+    
+    // Add the current theme class
     if (theme === "system") {
       const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.remove("light", "dark");
       root.classList.add(prefersDark ? "dark" : "light");
     } else {
-      root.classList.remove("light", "dark");
       root.classList.add(theme);
     }
   }, [theme]);

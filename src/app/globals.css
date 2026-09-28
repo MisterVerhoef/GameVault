@@ -9,23 +9,21 @@
   --muted: #a1a1aa;
 }
 
-/* Light theme variables */
-[data-theme="light"] {
+/* Light theme - override CSS variables */
+:root.light {
   --background: #fafafa;
   --foreground: #18181b;
   --card: #ffffff;
   --card-hover: #f4f4f5;
-  --accent: #3b82f6;
   --muted: #71717a;
 }
 
-/* Dark theme variables (default) */
-[data-theme="dark"] {
+/* Dark theme - default, but explicitly set for clarity */
+:root.dark {
   --background: #0c0c0f;
   --foreground: #f4f4f5;
   --card: #18181b;
   --card-hover: #27272a;
-  --accent: #3b82f6;
   --muted: #a1a1aa;
 }
 
@@ -40,23 +38,6 @@
   --font-mono: var(--font-geist-mono);
 }
 
-/* Apply theme based on class */
-.dark {
-  --background: #0c0c0f;
-  --foreground: #f4f4f5;
-  --card: #18181b;
-  --card-hover: #27272a;
-  --muted: #a1a1aa;
-}
-
-.light {
-  --background: #fafafa;
-  --foreground: #18181b;
-  --card: #ffffff;
-  --card-hover: #f4f4f5;
-  --muted: #71717a;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -68,6 +49,7 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
