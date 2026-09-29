@@ -21,16 +21,18 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
       <div className="absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
-        <div className="relative h-full w-full overflow-hidden">
-          <Image
-            src={featured.cover}
-            alt=""
-            fill
-            className="object-cover opacity-30 blur-2xl scale-110"
-            unoptimized
-            priority
-          />
-        </div>
+      </div>
+      
+      {/* Background image container - relative for Image fill */}
+      <div className="relative h-full w-full">
+        <Image
+          src={featured.cover}
+          alt=""
+          fill
+          className="object-cover opacity-30 blur-2xl scale-110"
+          unoptimized
+          priority
+        />
       </div>
 
       <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-16">
@@ -56,12 +58,12 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.year}</span>
-            <span aria-hidden="true">2</span>
+            <span aria-hidden="true">•</span>
             <span className="text-yellow-400" aria-label={`Rating ${featured.rating} out of 10`}>
-              <span aria-hidden="true">605 </span>
+              <span aria-hidden="true">★ </span>
               {featured.rating}
             </span>
-            <span aria-hidden="true">2</span>
+            <span aria-hidden="true">•</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
               {featured.platforms.map((p: Platform) => (
                 <span
