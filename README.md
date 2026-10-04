@@ -50,12 +50,22 @@ src/
 │   ├── GameRow.tsx     # Horizontal scroll row
 │   └── GameCard.tsx    # Individual game poster
 └── data/
-    └── games.ts        # Sample game data
+    ├── catalogue.ts    # Catalogue validation and fallback normalisation
+    └── games.ts        # Canonical development source and catalogue access
+public/
+└── catalog/
+    └── games-index.json # Generated static catalogue consumed by the UI
 ```
 
 ## Customization
 
-- Replace covers in `src/data/games.ts` with real IGDB / Steam image URLs
+- Replace or extend the canonical data in `src/data/games.ts`, then regenerate the checked-in index:
+
+```bash
+npm run catalogue:generate
+```
+
+- Replace covers with real IGDB / Steam image URLs
 - Add more rows or filter by platform
 - Connect to a real backend / Steam API / GOG / etc.
 
