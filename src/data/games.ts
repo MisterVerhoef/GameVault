@@ -558,11 +558,28 @@ export function getGamesByGenre(genre: string): Game[] {
   return allGames.filter(game => game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()));
 }
 
-// Search games by title
+function buildSearchText(game: Game) {
+  return [
+    game.id,
+    game.slug,
+    game.title,
+    game.summary ?? "",
+    game.description ?? "",
+    ...game.genres,
+    ...game.themes,
+    ...game.developers.map((company) => company.name),
+    ...game.publishers.map((company) => company.name),
+    ...game.franchises,
+    ...game.collections,
+  ]
+    .join(" ")
+    .toLowerCase();
+}
+
+// Search games across the generated catalogue metadata.
 export function searchGames(query: string): Game[] {
-  const lowerQuery = query.toLowerCase();
-  return allGames.filter(game => 
-    game.title.toLowerCase().includes(lowerQuery) ||
-    game.genres.some((genre) => genre.toLowerCase().includes(lowerQuery))
-  );
+  const lowerQuery = query.trim().toLowerCase();
+  if (!lowerQuery) return allGames;
+
+  return allGames.filter((game) => buildSearchText(game).includes(lowerQuery));
 }

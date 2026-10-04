@@ -93,10 +93,27 @@ export interface ExternalGameRecord {
   warnings?: string[];
 }
 
+function normalizeMediaUrl(value?: string): string | undefined {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  return trimmed.replace(/^\/\//, "https://");
+}
+
 function asImage(value: ExternalGameRecord["cover"] | ExternalGameRecord["background"], fallback?: string) {
-  if (typeof value === "string") return { url: value };
-  if (value && typeof value.url === "string") return value;
-  return fallback ? { url: fallback } : undefined;
+  if (typeof value === "string") {
+    const url = normalizeMediaUrl(value);
+    return url ? { url } : undefined;
+  }
+  if (value && typeof value.url === "string") {
+    const url = normalizeMediaUrl(value.url);
+    return url ? { ...value, url } : undefined;
+  }
+  if (fallback) {
+    const url = normalizeMediaUrl(fallback);
+    return url ? { url } : undefined;
+  }
+  return undefined;
 }
 
 export function normalizeExternalGame(record: ExternalGameRecord, provider: string, updatedAt: string): Game {
@@ -127,8 +144,16 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     background: asImage(record.background, record.backgroundUrl),
     rating: record.rating,
     ratingCount: record.ratingCount,
-    screenshots: record.screenshots ?? [],
-    videos: record.videos ?? [],
+    screenshots: (record.screenshots ?? []).map((image) => ({
+      url: normalizeMediaUrl(image.url) ?? "",
+      width: image.width,
+      height: image.height,
+    })).filter((image) => image.url),
+    videos: (record.videos ?? []).map((video) => ({
+      id: video.id,
+      name: video.name,
+      url: normalizeMediaUrl(video.url) ?? video.url,
+    })),
     websites: record.websites ?? [],
     dlc: record.dlc ?? [],
     expansions: record.expansions ?? [],
