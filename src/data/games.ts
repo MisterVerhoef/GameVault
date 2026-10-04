@@ -1,3 +1,6 @@
+import generatedCatalogue from "../../public/catalog/games-index.json";
+import { normalizeCatalogue } from "./catalogue";
+
 export type Platform = "PC" | "PS5" | "Xbox" | "Switch";
 
 // Platform theme colors (Xbox green, PS5 blue, Switch red, PC purple)
@@ -507,7 +510,7 @@ const sourceGames = [
   ...multiplayerGamesSource,
 ];
 
-export const allGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGame) => {
+export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGame) => {
   const existing = games.find((game) => game.id === sourceGame.id);
   if (existing) {
     existing.platforms = Array.from(new Set([...existing.platforms, ...sourceGame.platforms]));
@@ -517,6 +520,8 @@ export const allGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGame) =
   games.push(toCanonicalGame(sourceGame));
   return games;
 }, []);
+
+export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
 
 const gamesById = new Map(allGames.map((game) => [game.id, game]));
 const getGames = (ids: string[]) => ids.flatMap((id) => {

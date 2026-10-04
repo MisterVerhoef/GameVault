@@ -1,0 +1,1186 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-04T17:04:42.232Z",
+  "games": [
+    {
+      "id": "bg3",
+      "slug": "bg3",
+      "title": "Baldur's Gate 3",
+      "summary": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
+      "description": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
+      "releaseYear": 2023,
+      "genres": [
+        "RPG"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Baldur's%20Gate%203&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 80,
+        "earned": 35
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "bg3"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.7
+    },
+    {
+      "id": "cyberpunk",
+      "slug": "cyberpunk",
+      "title": "Cyberpunk 2077",
+      "summary": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
+      "description": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
+      "releaseYear": 2020,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Cyberpunk%202077&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 75,
+        "earned": 66
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "cyberpunk"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.8
+    },
+    {
+      "id": "elden-ring",
+      "slug": "elden-ring",
+      "title": "Elden Ring",
+      "summary": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
+      "description": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
+      "releaseYear": 2022,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Elden%20Ring&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 60,
+        "earned": 40
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "elden-ring"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.5
+    },
+    {
+      "id": "starfield",
+      "slug": "starfield",
+      "title": "Starfield",
+      "summary": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
+      "description": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
+      "releaseYear": 2023,
+      "genres": [
+        "RPG"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a0a2a/ffffff?text=Starfield&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 50,
+        "earned": 15
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "starfield"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 7.8
+    },
+    {
+      "id": "black-myth",
+      "slug": "black-myth",
+      "title": "Black Myth: Wukong",
+      "summary": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
+      "description": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
+      "releaseYear": 2024,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a2a/ffffff?text=Black%20Myth&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 45,
+        "earned": 7
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "black-myth"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.9
+    },
+    {
+      "id": "god-of-war",
+      "slug": "god-of-war",
+      "title": "God of War Ragnarök",
+      "summary": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
+      "description": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
+      "releaseYear": 2022,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a1a0a/ffffff?text=God%20of%20War&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 50,
+        "earned": 45
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "god-of-war"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.4
+    },
+    {
+      "id": "spider-man-2",
+      "slug": "spider-man-2",
+      "title": "Marvel's Spider-Man 2",
+      "summary": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
+      "description": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
+      "releaseYear": 2023,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/e60012/ffffff?text=Spider-Man%202&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 60,
+        "earned": 0
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "spider-man-2"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.1
+    },
+    {
+      "id": "ff16",
+      "slug": "ff16",
+      "title": "Final Fantasy XVI",
+      "summary": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
+      "description": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
+      "releaseYear": 2023,
+      "genres": [
+        "RPG"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a1a/ffffff?text=FF%20XVI&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 55,
+        "earned": 17
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "ff16"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.7
+    },
+    {
+      "id": "horizon-fw",
+      "slug": "horizon-fw",
+      "title": "Horizon Forbidden West",
+      "summary": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
+      "description": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
+      "releaseYear": 2022,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Horizon%20FW&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 50,
+        "earned": 25
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "horizon-fw"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.9
+    },
+    {
+      "id": "ghost-tsushima",
+      "slug": "ghost-tsushima",
+      "title": "Ghost of Tsushima",
+      "summary": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
+      "description": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
+      "releaseYear": 2020,
+      "genres": [
+        "Action"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a1a1a/ffffff?text=Ghost%20of%20Tsushima&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 45,
+        "earned": 40
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "ghost-tsushima"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.2
+    },
+    {
+      "id": "forza-horizon-5",
+      "slug": "forza-horizon-5",
+      "title": "Forza Horizon 5",
+      "summary": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
+      "description": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
+      "releaseYear": 2021,
+      "genres": [
+        "Racing"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a0a/ffffff?text=Forza%20H5&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 70,
+        "earned": 53
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "forza-horizon-5"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9
+    },
+    {
+      "id": "halo-infinite",
+      "slug": "halo-infinite",
+      "title": "Halo Infinite",
+      "summary": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
+      "description": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
+      "releaseYear": 2021,
+      "genres": [
+        "Shooter"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Halo%20Infinite&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 60,
+        "earned": 36
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "halo-infinite"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.5
+    },
+    {
+      "id": "gears-5",
+      "slug": "gears-5",
+      "title": "Gears 5",
+      "summary": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
+      "description": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
+      "releaseYear": 2019,
+      "genres": [
+        "Shooter"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Gears%205&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 55,
+        "earned": 45
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "gears-5"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.8
+    },
+    {
+      "id": "sea-of-thieves",
+      "slug": "sea-of-thieves",
+      "title": "Sea of Thieves",
+      "summary": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
+      "description": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
+      "releaseYear": 2018,
+      "genres": [
+        "Adventure"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Sea%20of%20Thieves&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 40,
+        "earned": 16
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "sea-of-thieves"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.2
+    },
+    {
+      "id": "zelda-totk",
+      "slug": "zelda-totk",
+      "title": "The Legend of Zelda: Tears of the Kingdom",
+      "summary": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
+      "description": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
+      "releaseYear": 2023,
+      "genres": [
+        "Adventure"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Zelda%20TotK&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "achievements": {
+        "total": 0,
+        "earned": 0
+      },
+      "source": [
+        {
+          "provider": "demo",
+          "id": "zelda-totk"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.6
+    },
+    {
+      "id": "mario-wonder",
+      "slug": "mario-wonder",
+      "title": "Super Mario Bros. Wonder",
+      "summary": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
+      "description": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
+      "releaseYear": 2023,
+      "genres": [
+        "Platformer"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Wonder&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "mario-wonder"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.3
+    },
+    {
+      "id": "metroid-prime-4",
+      "slug": "metroid-prime-4",
+      "title": "Metroid Prime 4",
+      "summary": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
+      "description": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
+      "releaseYear": 2025,
+      "genres": [
+        "Adventure"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a2a/ffffff?text=Metroid%20Prime%204&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "metroid-prime-4"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9
+    },
+    {
+      "id": "mario-kart-8",
+      "slug": "mario-kart-8",
+      "title": "Mario Kart 8 Deluxe",
+      "summary": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
+      "description": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
+      "releaseYear": 2017,
+      "genres": [
+        "Racing"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Kart%208&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "mario-kart-8"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.1
+    },
+    {
+      "id": "animal-crossing",
+      "slug": "animal-crossing",
+      "title": "Animal Crossing: New Horizons",
+      "summary": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
+      "description": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
+      "releaseYear": 2020,
+      "genres": [
+        "Simulation"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Animal%20Crossing&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "animal-crossing"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.9
+    },
+    {
+      "id": "hades",
+      "slug": "hades",
+      "title": "Hades",
+      "summary": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
+      "description": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
+      "releaseYear": 2020,
+      "genres": [
+        "Roguelike"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/2a0a0a/ffffff?text=Hades&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "hades"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.3
+    },
+    {
+      "id": "celeste",
+      "slug": "celeste",
+      "title": "Celeste",
+      "summary": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
+      "description": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
+      "releaseYear": 2018,
+      "genres": [
+        "Platformer"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/2a1a2a/ffffff?text=Celeste&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "celeste"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.1
+    },
+    {
+      "id": "stardew",
+      "slug": "stardew",
+      "title": "Stardew Valley",
+      "summary": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
+      "description": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
+      "releaseYear": 2016,
+      "genres": [
+        "Simulation"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Stardew%20Valley&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "stardew"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.2
+    },
+    {
+      "id": "hollow-knight",
+      "slug": "hollow-knight",
+      "title": "Hollow Knight",
+      "summary": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
+      "description": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
+      "releaseYear": 2017,
+      "genres": [
+        "Metroidvania"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a2a0a/ffffff?text=Hollow%20Knight&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "hollow-knight"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9
+    },
+    {
+      "id": "disco-elysium",
+      "slug": "disco-elysium",
+      "title": "Disco Elysium",
+      "summary": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
+      "description": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
+      "releaseYear": 2019,
+      "genres": [
+        "RPG"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "PS5",
+        "Xbox",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a1a0a/ffffff?text=Disco%20Elysium&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "disco-elysium"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.4
+    },
+    {
+      "id": "helldivers-2",
+      "slug": "helldivers-2",
+      "title": "Helldivers 2",
+      "summary": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
+      "description": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
+      "releaseYear": 2024,
+      "genres": [
+        "Shooter"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/2a1a0a/ffffff?text=Helldivers%202&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "helldivers-2"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.6
+    },
+    {
+      "id": "palworld",
+      "slug": "palworld",
+      "title": "Palworld",
+      "summary": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
+      "description": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
+      "releaseYear": 2024,
+      "genres": [
+        "Survival"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/0a2a2a/ffffff?text=Palworld&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "palworld"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8
+    },
+    {
+      "id": "deep-rock",
+      "slug": "deep-rock",
+      "title": "Deep Rock Galactic",
+      "summary": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
+      "description": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
+      "releaseYear": 2020,
+      "genres": [
+        "Shooter"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "PS5",
+        "Xbox"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Deep%20Rock&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "deep-rock"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9
+    },
+    {
+      "id": "it-takes-two",
+      "slug": "it-takes-two",
+      "title": "It Takes Two",
+      "summary": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
+      "description": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
+      "releaseYear": 2021,
+      "genres": [
+        "Adventure"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "PS5",
+        "Xbox",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/2a0a1a/ffffff?text=It%20Takes%20Two&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "it-takes-two"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 9.1
+    },
+    {
+      "id": "overcooked-2",
+      "slug": "overcooked-2",
+      "title": "Overcooked! 2",
+      "summary": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
+      "description": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
+      "releaseYear": 2018,
+      "genres": [
+        "Party"
+      ],
+      "themes": [],
+      "developers": [],
+      "publishers": [],
+      "platforms": [
+        "PC",
+        "PS5",
+        "Xbox",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://placehold.co/400x600/2a1a0a/ffffff?text=Overcooked%202&font=roboto"
+      },
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "demo",
+          "id": "overcooked-2"
+        }
+      ],
+      "updatedAt": "2026-01-01",
+      "rating": 8.5
+    }
+  ]
+}
