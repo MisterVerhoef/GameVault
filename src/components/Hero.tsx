@@ -23,7 +23,7 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
         <div className="relative h-full w-full overflow-hidden">
           <Image
-            src={featured.cover}
+            src={featured.cover?.url ?? ""}
             alt=""
             fill
             className="object-cover opacity-30 blur-2xl scale-110"
@@ -37,7 +37,7 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
         {/* Cover art — centered on mobile, side on desktop */}
         <div className="mx-auto h-52 w-36 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-72 sm:w-48 lg:mx-0 lg:h-80 lg:w-56" style={{ borderColor: `${themeColor}33` }}>
           <Image
-            src={featured.cover}
+            src={featured.cover?.url ?? ""}
             alt={featured.title}
             fill
             className="object-cover"
@@ -55,10 +55,10 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
             {featured.title}
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
-            <span>{featured.year}</span>
+            <span>{featured.releaseYear}</span>
             <span aria-hidden="true">2</span>
             <span className="text-yellow-400" aria-label={`Rating ${featured.rating} out of 10`}>
-              <span aria-hidden="true">605 </span>
+              <span aria-hidden="true">★ </span>
               {featured.rating}
             </span>
             <span aria-hidden="true">2</span>

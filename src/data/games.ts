@@ -8,7 +8,81 @@ export const PLATFORM_COLORS: Record<Platform, string> = {
   Switch: "#E60012",  // Red
 };
 
+export interface CompanyRef {
+  id: string;
+  name: string;
+}
+
+export interface ImageAsset {
+  url: string;
+  width?: number;
+  height?: number;
+}
+
+export interface VideoAsset {
+  id: string;
+  name?: string;
+  url: string;
+}
+
+export interface ExternalLink {
+  label: string;
+  url: string;
+  category?: "store" | "website" | "community";
+}
+
+export interface ContentRef {
+  id: string;
+  title: string;
+}
+
+export interface RelatedGame extends ContentRef {
+  relation: "sequel" | "prequel" | "spinoff" | "collection" | "remake";
+}
+
+export interface AchievementSummary {
+  total: number;
+  earned: number;
+}
+
+export interface SourceRef {
+  provider: string;
+  id: string;
+}
+
 export interface Game {
+  id: string;
+  slug: string;
+  title: string;
+  summary?: string;
+  description?: string;
+  releaseYear?: number;
+  genres: string[];
+  themes: string[];
+  developers: CompanyRef[];
+  publishers: CompanyRef[];
+  platforms: Platform[];
+  cover?: ImageAsset;
+  background?: ImageAsset;
+  rating?: number;
+  ratingCount?: number;
+  screenshots: ImageAsset[];
+  videos: VideoAsset[];
+  websites: ExternalLink[];
+  dlc: ContentRef[];
+  expansions: ContentRef[];
+  editions: ContentRef[];
+  relatedGames: RelatedGame[];
+  similarGames: ContentRef[];
+  franchises: string[];
+  collections: string[];
+  achievements?: AchievementSummary;
+  source: SourceRef[];
+  updatedAt: string;
+}
+
+/** Shape retained while the demo catalogue is migrated to the canonical model. */
+interface LegacyGame {
   id: string;
   title: string;
   cover: string;
@@ -17,8 +91,55 @@ export interface Game {
   year?: number;
   rating?: number;
   description?: string;
-  achievements?: { total: number; earned: number };
-  collections?: string[]; // IDs of related games
+  achievements?: AchievementSummary;
+  collections?: string[];
+}
+
+const now = "2026-01-01";
+
+function toCanonicalGame(game: LegacyGame): Game {
+  return {
+    id: game.id,
+    slug: game.id,
+    title: game.title,
+    summary: game.description,
+    description: game.description,
+    releaseYear: game.year,
+    genres: [game.genre],
+    themes: [],
+    developers: [],
+    publishers: [],
+    platforms: game.platforms,
+    cover: { url: game.cover },
+    screenshots: [],
+    videos: [],
+    websites: [],
+    dlc: [],
+    expansions: [],
+    editions: [],
+    relatedGames: [],
+    similarGames: [],
+    franchises: [],
+    collections: game.collections ?? [],
+    achievements: game.achievements,
+    source: [{ provider: "demo", id: game.id }],
+    updatedAt: now,
+    rating: game.rating,
+  };
+}
+
+/** Compatibility view used by the existing presentation components. */
+export function toLegacyGame(game: Game): LegacyGame & {
+  cover: string;
+  genre: string;
+  year?: number;
+} {
+  return {
+    ...game,
+    cover: game.cover?.url ?? "",
+    genre: game.genres[0] ?? "Unknown",
+    year: game.releaseYear,
+  };
 }
 
 // Stock game cover images from rawg.io (free to use for development)
@@ -33,7 +154,7 @@ const cover = (title: string, color = "1a1a2e") =>
 // ============================================
 
 // PC Top 5
-export const pcGames: Game[] = [
+const pcGamesSource: LegacyGame[] = [
   {
     id: "bg3",
     title: "Baldur's Gate 3",
@@ -92,7 +213,7 @@ export const pcGames: Game[] = [
 ];
 
 // PS5 Top 5
-export const ps5Games: Game[] = [
+const ps5GamesSource: LegacyGame[] = [
   {
     id: "god-of-war",
     title: "God of War Ragnarök",
@@ -151,9 +272,9 @@ export const ps5Games: Game[] = [
 ];
 
 // Xbox Top 5
-export const xboxGames: Game[] = [
+const xboxGamesSource: LegacyGame[] = [
   {
-    id: "starfield-xbox",
+    id: "starfield",
     title: "Starfield",
     cover: cover("Starfield", "0a0a2a"),
     platforms: ["Xbox"],
@@ -210,7 +331,7 @@ export const xboxGames: Game[] = [
 ];
 
 // Nintendo Switch Top 5
-export const switchGames: Game[] = [
+const switchGamesSource: LegacyGame[] = [
   {
     id: "zelda-totk",
     title: "The Legend of Zelda: Tears of the Kingdom",
@@ -268,31 +389,7 @@ export const switchGames: Game[] = [
 // CATEGORIES (for genre-based browsing)
 // ============================================
 
-export const recentlyPlayed: Game[] = [
-  pcGames[0],  // Baldur's Gate 3
-  ps5Games[0], // God of War Ragnarök
-  xboxGames[1], // Forza Horizon 5
-  switchGames[0], // Zelda: Tears of the Kingdom
-  pcGames[1],  // Cyberpunk 2077
-];
-
-export const actionGames: Game[] = [
-  pcGames[2],  // Elden Ring
-  ps5Games[1], // Spider-Man 2
-  xboxGames[2], // Halo Infinite
-  switchGames[0], // Zelda: Tears of the Kingdom
-  pcGames[1],  // Cyberpunk 2077
-];
-
-export const rpgGames: Game[] = [
-  pcGames[0],  // Baldur's Gate 3
-  ps5Games[2], // Final Fantasy XVI
-  xboxGames[0], // Starfield
-  pcGames[4],  // Black Myth: Wukong
-  pcGames[2],  // Elden Ring
-];
-
-export const indieGames: Game[] = [
+const indieGamesSource: LegacyGame[] = [
   {
     id: "hades",
     title: "Hades",
@@ -345,7 +442,7 @@ export const indieGames: Game[] = [
   },
 ];
 
-export const multiplayerGames: Game[] = [
+const multiplayerGamesSource: LegacyGame[] = [
   {
     id: "helldivers-2",
     title: "Helldivers 2",
@@ -399,16 +496,43 @@ export const multiplayerGames: Game[] = [
 ];
 
 // ============================================
-// ALL GAMES (for search functionality)
+// CANONICAL CATALOGUE AND COMPATIBILITY VIEWS
 // ============================================
-export const allGames: Game[] = [
-  ...pcGames,
-  ...ps5Games,
-  ...xboxGames,
-  ...switchGames,
-  ...indieGames,
-  ...multiplayerGames,
+const sourceGames = [
+  ...pcGamesSource,
+  ...ps5GamesSource,
+  ...xboxGamesSource,
+  ...switchGamesSource,
+  ...indieGamesSource,
+  ...multiplayerGamesSource,
 ];
+
+export const allGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGame) => {
+  const existing = games.find((game) => game.id === sourceGame.id);
+  if (existing) {
+    existing.platforms = Array.from(new Set([...existing.platforms, ...sourceGame.platforms]));
+    return games;
+  }
+
+  games.push(toCanonicalGame(sourceGame));
+  return games;
+}, []);
+
+const gamesById = new Map(allGames.map((game) => [game.id, game]));
+const getGames = (ids: string[]) => ids.flatMap((id) => {
+  const game = gamesById.get(id);
+  return game ? [game] : [];
+});
+
+export const pcGames = getGamesByPlatform("PC");
+export const ps5Games = getGamesByPlatform("PS5");
+export const xboxGames = getGamesByPlatform("Xbox");
+export const switchGames = getGamesByPlatform("Switch");
+export const recentlyPlayed = getGames(["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"]);
+export const actionGames = getGames(["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"]);
+export const rpgGames = getGames(["bg3", "ff16", "starfield", "black-myth", "elden-ring"]);
+export const indieGames = getGames(indieGamesSource.map((game) => game.id));
+export const multiplayerGames = getGames(multiplayerGamesSource.map((game) => game.id));
 
 // ============================================
 // HELPER FUNCTIONS
@@ -426,7 +550,7 @@ export function getFeaturedGame(): Game {
 
 // Get games by genre
 export function getGamesByGenre(genre: string): Game[] {
-  return allGames.filter(game => game.genre.toLowerCase() === genre.toLowerCase());
+  return allGames.filter(game => game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()));
 }
 
 // Search games by title
@@ -434,6 +558,6 @@ export function searchGames(query: string): Game[] {
   const lowerQuery = query.toLowerCase();
   return allGames.filter(game => 
     game.title.toLowerCase().includes(lowerQuery) ||
-    game.genre.toLowerCase().includes(lowerQuery)
+    game.genres.some((genre) => genre.toLowerCase().includes(lowerQuery))
   );
 }
