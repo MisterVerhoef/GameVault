@@ -6,8 +6,18 @@
     "summary": "A party-based RPG about freedom, friendship, and the consequences of your choices.",
     "first_release_date": 1690848000,
     "genres": [{ "name": "Role-playing (RPG)" }],
-    "platforms": [{ "name": "PC" }, { "name": "PlayStation 5" }],
+    "themes": [{ "name": "Fantasy" }],
+    "involved_companies": [
+      { "developer": true, "company": { "id": 1, "name": "Larian Studios" } },
+      { "publisher": true, "company": { "id": 2, "name": "Larian Studios" } }
+    ],
+    "platforms": [{ "name": "PC" }, { "name": "PlayStation 5" }, { "name": "Google Stadia" }],
     "cover": { "url": "//images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg" },
+    "screenshots": [{ "url": "//images.igdb.com/igdb/image/upload/t_screenshot_big/bg3-shot.jpg", "width": 1920, "height": 1080 }],
+    "videos": [{ "id": 3, "name": "Trailer", "video_id": "abc123" }],
+    "websites": [{ "name": "Official site", "url": "https://example.com/bg3", "category": 1 }],
+    "dlcs": [{ "id": 2001, "name": "DLC One" }],
+    "franchises": [{ "name": "Baldur's Gate" }],
     "rating": 96.7,
     "rating_count": 2500
   }
