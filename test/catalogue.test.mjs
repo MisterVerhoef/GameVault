@@ -5,6 +5,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
+import { normalizeExternalGame } from "../src/data/catalogue.ts";
 
 const fixture = JSON.parse(
   await readFile(new URL("./fixtures/igdb-export.json", import.meta.url), "utf8"),
@@ -25,6 +26,19 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
   assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
   assert.deepEqual(game.warnings, ["Unsupported IGDB platform omitted: Google Stadia"]);
+});
+
+test("normalizes protocol-relative media URLs before they are rendered", () => {
+  const game = normalizeExternalGame({
+    id: "protocol-relative",
+    title: "Protocol Relative",
+    platforms: ["PC"],
+    cover: "//images.igdb.com/igdb/image/upload/t_cover_big/example.jpg",
+    screenshots: [{ url: "//images.igdb.com/igdb/image/upload/t_screenshot_big/example.jpg", width: 1920, height: 1080 }],
+  }, "igdb", "2026-01-01");
+
+  assert.equal(game.cover.url, "https://images.igdb.com/igdb/image/upload/t_cover_big/example.jpg");
+  assert.equal(game.screenshots[0].url, "https://images.igdb.com/igdb/image/upload/t_screenshot_big/example.jpg");
 });
 
 test("rejects malformed provider exports", () => {

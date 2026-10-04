@@ -4,36 +4,26 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, PLATFORM_COLORS, Game, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames } from "@/data/games";
+import { Platform, PLATFORM_COLORS, Game, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
 import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Filter games based on selected platform and search query
+  // Filter games based on selected platform and search query.
   const filterGames = (games: Game[]) => {
     let filtered = [...games];
-    
-    // Filter by platform
+
     if (selectedPlatform) {
-      filtered = filtered.filter(game => game.platforms.includes(selectedPlatform));
+      filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
     }
-    
-    // Filter by search query
-    if (searchQuery) {
-      const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(game => 
-        game.title.toLowerCase().includes(query) ||
-        game.genres.some((genre) => genre.toLowerCase().includes(query)) ||
-        game.themes.some((theme) => theme.toLowerCase().includes(query)) ||
-        game.developers.some((company) => company.name.toLowerCase().includes(query)) ||
-        game.publishers.some((company) => company.name.toLowerCase().includes(query)) ||
-        game.franchises.some((franchise) => franchise.toLowerCase().includes(query)) ||
-        game.collections.some((collection) => collection.toLowerCase().includes(query))
-      );
+
+    if (searchQuery.trim()) {
+      const matches = new Set(searchGames(searchQuery).map((game) => game.id));
+      filtered = filtered.filter((game) => matches.has(game.id));
     }
-    
+
     return filtered;
   };
 

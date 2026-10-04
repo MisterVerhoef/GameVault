@@ -77,7 +77,7 @@ For catalogue operations, run `npm run catalogue:search-index` to generate the s
 
 The personal library is stored locally in the browser. Use the home page Export and Import controls to back up or move statuses and progress as a versioned JSON file.
 
-- Replace covers with real IGDB / Steam image URLs
+- Cover art is loaded from normalized catalogue media URLs and search works across titles, genres, studios, themes, and collections.
 - Add more rows or filter by platform
 - Connect to a real backend / Steam API / GOG / etc.
 

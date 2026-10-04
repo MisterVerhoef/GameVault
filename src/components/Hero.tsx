@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { Game, recentlyPlayed, Platform, PLATFORM_COLORS } from "@/data/games";
+import { useEffect, useState } from "react";
 
 interface HeroProps {
   featuredGame?: Game;
@@ -10,6 +11,11 @@ interface HeroProps {
 
 export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
   const featured = featuredGame || recentlyPlayed[0];
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
   
   // Get primary platform for theming (use selected platform or first platform of the game)
   const primaryPlatform: Platform = selectedPlatform || featured.platforms[0];
@@ -22,28 +28,32 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
         <div className="relative h-full w-full overflow-hidden">
-          <Image
-            src={featured.cover?.url ?? ""}
-            alt=""
-            fill
-            className="object-cover opacity-30 blur-2xl scale-110"
-            unoptimized
-            priority
-          />
+          {isHydrated && featured.cover?.url && (
+            <Image
+              src={featured.cover.url}
+              alt=""
+              fill
+              className="object-cover opacity-30 blur-2xl scale-110"
+              unoptimized
+              priority
+            />
+          )}
         </div>
       </div>
 
       <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-16">
         {/* Cover art — centered on mobile, side on desktop */}
         <div className="mx-auto h-52 w-36 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-72 sm:w-48 lg:mx-0 lg:h-80 lg:w-56" style={{ borderColor: `${themeColor}33` }}>
-          <Image
-            src={featured.cover?.url ?? ""}
-            alt={featured.title}
-            fill
-            className="object-cover"
-            unoptimized
-            priority
-          />
+          {isHydrated && featured.cover?.url && (
+            <Image
+              src={featured.cover.url}
+              alt={featured.title}
+              fill
+              className="object-cover"
+              unoptimized
+              priority
+            />
+          )}
         </div>
 
         {/* Info */}
