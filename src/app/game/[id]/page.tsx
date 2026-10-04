@@ -151,6 +151,63 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             </div>
           </div>
         </section>
+
+        {(game.developers.length > 0 || game.publishers.length > 0 || game.themes.length > 0) && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Credits and themes</h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {game.developers.length > 0 && (
+                <div className="rounded-lg bg-card p-4">
+                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Developers</h3>
+                  <p className="text-sm text-foreground/80">{game.developers.map((company) => company.name).join(", ")}</p>
+                </div>
+              )}
+              {game.publishers.length > 0 && (
+                <div className="rounded-lg bg-card p-4">
+                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Publishers</h3>
+                  <p className="text-sm text-foreground/80">{game.publishers.map((company) => company.name).join(", ")}</p>
+                </div>
+              )}
+              {game.themes.length > 0 && (
+                <div className="rounded-lg bg-card p-4">
+                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Themes</h3>
+                  <p className="text-sm text-foreground/80">{game.themes.join(", ")}</p>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
+
+        {game.screenshots.length > 0 && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Screenshots</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {game.screenshots.map((screenshot) => (
+                <div key={screenshot.url} className="relative aspect-video overflow-hidden rounded-lg bg-card">
+                  <Image src={screenshot.url} alt={`${game.title} screenshot`} fill className="object-cover" unoptimized />
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0 || game.similarGames.length > 0) && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {[...game.dlc.map((item) => ["DLC", item.title] as const),
+                ...game.expansions.map((item) => ["Expansion", item.title] as const),
+                ...game.editions.map((item) => ["Edition", item.title] as const),
+                ...game.relatedGames.map((item) => [item.relation, item.title] as const),
+                ...game.similarGames.map((item) => ["Similar", item.title] as const)].map(([label, title]) => (
+                <div key={`${label}-${title}`} className="rounded-lg bg-card p-4">
+                  <span className="text-xs font-medium uppercase tracking-wider text-muted">{label}</span>
+                  <p className="mt-1 text-sm text-foreground/80">{title}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </div>
   );

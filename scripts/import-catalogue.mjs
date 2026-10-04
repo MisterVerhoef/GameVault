@@ -14,7 +14,9 @@ const inputPath = inputIndex >= 0 ? args[inputIndex + 1] : undefined;
 const provider = providerIndex >= 0 ? args[providerIndex + 1] : "import";
 const sourceVersion = versionIndex >= 0 ? args[versionIndex + 1] : undefined;
 const outputIndex = args.indexOf("--output");
+const reportIndex = args.indexOf("--report");
 const outputPathArg = outputIndex >= 0 ? args[outputIndex + 1] : undefined;
+const reportPathArg = reportIndex >= 0 ? args[reportIndex + 1] : undefined;
 
 if (!inputPath) {
   throw new Error("Usage: npm run catalogue:import -- --input <path> [--provider <name>]");
@@ -50,8 +52,9 @@ catalogueModule.filename = cataloguePath;
 catalogueModule.paths = Module._nodeModulePaths(root);
 catalogueModule._compile(compiled, cataloguePath);
 
-const { normalizeExternalGame, isGame } = catalogueModule.exports;
+const { normalizeExternalGame, isGame, auditCatalogue } = catalogueModule.exports;
 const updatedAt = new Date().toISOString().slice(0, 10);
+const warnings = records.flatMap((record) => record.warnings ?? []);
 const games = records.map((record, index) => {
   try {
     const game = normalizeExternalGame(record, provider, updatedAt);
@@ -67,6 +70,13 @@ for (const game of games) {
   if (ids.has(game.id)) throw new Error(`Duplicate imported game id: "${game.id}".`);
   ids.add(game.id);
 }
+const quality = auditCatalogue(games);
+quality.warnings = warnings;
+const reportPath = reportPathArg
+  ? path.resolve(process.cwd(), reportPathArg)
+  : path.join(root, "reports", "catalogue-quality.json");
+fs.mkdirSync(path.dirname(reportPath), { recursive: true });
+fs.writeFileSync(reportPath, `${JSON.stringify(quality, null, 2)}\n`);
 
 const outputPath = outputPathArg
   ? path.resolve(process.cwd(), outputPathArg)
@@ -88,3 +98,4 @@ fs.writeFileSync(
   }, null, 2)}\n`,
 );
 console.log(`Imported ${games.length} games from ${path.relative(root, resolvedInputPath)}`);
+console.log(`Quality report written to ${path.relative(root, reportPath)}`);

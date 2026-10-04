@@ -19,6 +19,12 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.releaseYear, 2023);
   assert.equal(game.cover, "https://images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg");
   assert.equal(game.ratingCount, 2500);
+  assert.deepEqual(game.developers, [{ id: "1", name: "Larian Studios" }]);
+  assert.equal(game.themes[0], "Fantasy");
+  assert.equal(game.screenshots[0].width, 1920);
+  assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
+  assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
+  assert.deepEqual(game.warnings, ["Unsupported IGDB platform omitted: Google Stadia"]);
 });
 
 test("rejects malformed provider exports", () => {
@@ -28,6 +34,7 @@ test("rejects malformed provider exports", () => {
 test("imports an IGDB fixture through the CLI and records provenance", async () => {
   const directory = await mkdtemp(path.join(tmpdir(), "gamevault-catalogue-"));
   const outputPath = path.join(directory, "index.json");
+  const reportPath = path.join(directory, "quality.json");
   const result = spawnSync(process.execPath, [
     "scripts/import-catalogue.mjs",
     "--input",
@@ -38,6 +45,8 @@ test("imports an IGDB fixture through the CLI and records provenance", async () 
     "fixture-2026",
     "--output",
     outputPath,
+    "--report",
+    reportPath,
   ], { encoding: "utf8" });
 
   assert.equal(result.status, 0, result.stderr);
@@ -45,6 +54,8 @@ test("imports an IGDB fixture through the CLI and records provenance", async () 
   assert.equal(imported.provenance.provider, "igdb");
   assert.equal(imported.provenance.sourceVersion, "fixture-2026");
   assert.equal(imported.provenance.sourceChecksum.length, 64);
+  const report = JSON.parse(await readFile(reportPath, "utf8"));
+  assert.deepEqual(report.warnings, ["Unsupported IGDB platform omitted: Google Stadia"]);
   await rm(directory, { recursive: true, force: true });
 });
 

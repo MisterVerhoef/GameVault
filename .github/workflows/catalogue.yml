@@ -27,5 +27,5 @@ jobs:
       - run: npm run catalogue:generate
       - run: git diff --exit-code -- public/catalog/games-index.json
       - run: npx tsc --noEmit
-      - run: npx eslint src/data/catalogue.ts scripts test
+      - run: npx eslint src/data/catalogue.ts src/app/game/[id]/page.tsx scripts test
       - run: npm run build
