@@ -7,6 +7,10 @@ interface GameDetailPageProps {
   params: Promise<{ id: string }>;
 }
 
+export function generateStaticParams() {
+  return allGames.map((game) => ({ id: game.id }));
+}
+
 export default async function GameDetailPage({ params }: GameDetailPageProps) {
   // Resolve params promise for SSR compatibility
   const resolvedParams = await params;
@@ -56,7 +60,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           {/* Cover art */}
           <div className="relative mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64" style={{ borderColor: `${themeColor}33` }}>
             <Image
-              src={game.cover}
+              src={game.cover?.url ?? ""}
               alt={game.title}
               fill
               className="object-cover"
@@ -73,14 +77,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 {game.title}
               </h2>
               <div className="mt-2 flex items-center gap-3 text-sm text-muted">
-                <span>{game.year}</span>
+                <span>{game.releaseYear}</span>
                 <span aria-hidden="true">•</span>
                 <span className="text-yellow-400" aria-label={`Rating ${game.rating} out of 10`}>
                   <span aria-hidden="true">★ </span>
                   {game.rating}
                 </span>
                 <span aria-hidden="true">•</span>
-                <span className="font-medium">{game.genre}</span>
+                <span className="font-medium">{game.genres.join(", ")}</span>
               </div>
             </div>
 
@@ -131,13 +135,13 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
                 Genre
               </h3>
-              <p className="text-sm text-foreground/80">{game.genre}</p>
+              <p className="text-sm text-foreground/80">{game.genres.join(", ")}</p>
             </div>
             <div className="rounded-lg bg-card p-4">
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
                 Release Year
               </h3>
-              <p className="text-sm text-foreground/80">{game.year}</p>
+              <p className="text-sm text-foreground/80">{game.releaseYear}</p>
             </div>
             <div className="rounded-lg bg-card p-4">
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">

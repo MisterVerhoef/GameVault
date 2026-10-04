@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, PLATFORM_COLORS, Game, pcGames, ps5Games, xboxGames, switchGames, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, allGames } from "@/data/games";
+import { Platform, PLATFORM_COLORS, Game, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames } from "@/data/games";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
@@ -24,7 +24,7 @@ export default function Home() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(game => 
         game.title.toLowerCase().includes(query) ||
-        game.genre.toLowerCase().includes(query)
+        game.genres.some((genre) => genre.toLowerCase().includes(query))
       );
     }
     
@@ -34,14 +34,7 @@ export default function Home() {
   // Get featured game based on selected platform
   const getFeaturedGame = () => {
     if (selectedPlatform) {
-      const platformGames = {
-        PC: pcGames,
-        PS5: ps5Games,
-        Xbox: xboxGames,
-        Switch: switchGames,
-      };
-      const games = platformGames[selectedPlatform as keyof typeof platformGames] || [];
-      return games[0] || recentlyPlayed[0];
+      return getGamesByPlatform(selectedPlatform)[0] || recentlyPlayed[0];
     }
     return recentlyPlayed[0];
   };
@@ -81,9 +74,7 @@ export default function Home() {
         {selectedPlatform && (
           <GameRow 
             title={`${selectedPlatform} Top Games`} 
-            games={filterGames(selectedPlatform === "PC" ? pcGames : 
-                              selectedPlatform === "PS5" ? ps5Games :
-                              selectedPlatform === "Xbox" ? xboxGames : switchGames)}
+            games={filterGames(getGamesByPlatform(selectedPlatform))}
             size="lg"
           />
         )}

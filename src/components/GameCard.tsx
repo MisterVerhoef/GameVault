@@ -49,7 +49,7 @@ export default function GameCard({
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
 
         <Image
-          src={game.cover}
+          src={game.cover?.url ?? ""}
           alt={`${game.title} cover art`}
           fill
           className="object-cover transition-opacity duration-500 group-hover:opacity-90"
