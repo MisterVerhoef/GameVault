@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
 import { Platform, PLATFORM_COLORS, Game, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames } from "@/data/games";
+import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
@@ -24,7 +25,12 @@ export default function Home() {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(game => 
         game.title.toLowerCase().includes(query) ||
-        game.genres.some((genre) => genre.toLowerCase().includes(query))
+        game.genres.some((genre) => genre.toLowerCase().includes(query)) ||
+        game.themes.some((theme) => theme.toLowerCase().includes(query)) ||
+        game.developers.some((company) => company.name.toLowerCase().includes(query)) ||
+        game.publishers.some((company) => company.name.toLowerCase().includes(query)) ||
+        game.franchises.some((franchise) => franchise.toLowerCase().includes(query)) ||
+        game.collections.some((collection) => collection.toLowerCase().includes(query))
       );
     }
     
@@ -54,6 +60,7 @@ export default function Home() {
       <Navbar onPlatformSelect={setSelectedPlatform} onSearch={setSearchQuery} />
 
       <main id="main-content" className="flex-1">
+        <LibraryToolbar />
         <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
 
         <GameRow

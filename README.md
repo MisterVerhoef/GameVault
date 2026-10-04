@@ -73,6 +73,10 @@ npm run catalogue:import -- --input ./path/to/provider-export.json --provider ig
 
 The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, ratings, release dates, companies, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
 
+For catalogue operations, run `npm run catalogue:search-index` to generate the static search index or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs.
+
+The personal library is stored locally in the browser. Use the home page Export and Import controls to back up or move statuses and progress as a versioned JSON file.
+
 - Replace covers with real IGDB / Steam image URLs
 - Add more rows or filter by platform
 - Connect to a real backend / Steam API / GOG / etc.
