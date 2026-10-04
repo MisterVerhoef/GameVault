@@ -1,0 +1,31 @@
+name: Catalogue validation
+
+on:
+  pull_request:
+    paths:
+      - "src/data/**"
+      - "scripts/**"
+      - "public/catalog/**"
+      - "test/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/catalogue.yml"
+  push:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:catalogue
+      - run: npm run catalogue:generate
+      - run: git diff --exit-code -- public/catalog/games-index.json
+      - run: npx tsc --noEmit
+      - run: npx eslint src/data/catalogue.ts scripts test
+      - run: npm run build

@@ -65,6 +65,14 @@ public/
 npm run catalogue:generate
 ```
 
+- Import a provider export without adding a backend. The input can be a JSON array or an object with a `games` array:
+
+```bash
+npm run catalogue:import -- --input ./path/to/provider-export.json --provider igdb
+```
+
+The first provider adapter targets IGDB exports and maps `id`, `name`, genres, supported platforms, cover/artwork URLs, ratings, and release dates. Add `--source-version` when importing a versioned export. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
+
 - Replace covers with real IGDB / Steam image URLs
 - Add more rows or filter by platform
 - Connect to a real backend / Steam API / GOG / etc.

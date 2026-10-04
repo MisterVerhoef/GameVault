@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "catalogue:generate": "node scripts/generate-catalogue.mjs"
+    "catalogue:generate": "node scripts/generate-catalogue.mjs",
+    "catalogue:import": "node scripts/import-catalogue.mjs",
+    "test:catalogue": "node --test test/catalogue.test.mjs"
   },
   "dependencies": {
     "next": "16.3.6",
