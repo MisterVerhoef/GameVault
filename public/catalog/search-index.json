@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "games": [
+    {
+      "id": "animal-crossing",
+      "title": "Animal Crossing: New Horizons",
+      "terms": "simulation switch"
+    },
+    {
+      "id": "bg3",
+      "title": "Baldur's Gate 3",
+      "terms": "rpg pc"
+    },
+    {
+      "id": "black-myth",
+      "title": "Black Myth: Wukong",
+      "terms": "action pc"
+    },
+    {
+      "id": "celeste",
+      "title": "Celeste",
+      "terms": "platformer pc switch"
+    },
+    {
+      "id": "cyberpunk",
+      "title": "Cyberpunk 2077",
+      "terms": "action pc"
+    },
+    {
+      "id": "deep-rock",
+      "title": "Deep Rock Galactic",
+      "terms": "shooter pc ps5 xbox"
+    },
+    {
+      "id": "disco-elysium",
+      "title": "Disco Elysium",
+      "terms": "rpg pc ps5 xbox switch"
+    },
+    {
+      "id": "elden-ring",
+      "title": "Elden Ring",
+      "terms": "action pc"
+    },
+    {
+      "id": "ff16",
+      "title": "Final Fantasy XVI",
+      "terms": "rpg ps5"
+    },
+    {
+      "id": "forza-horizon-5",
+      "title": "Forza Horizon 5",
+      "terms": "racing xbox"
+    },
+    {
+      "id": "gears-5",
+      "title": "Gears 5",
+      "terms": "shooter xbox"
+    },
+    {
+      "id": "ghost-tsushima",
+      "title": "Ghost of Tsushima",
+      "terms": "action ps5"
+    },
+    {
+      "id": "god-of-war",
+      "title": "God of War Ragnarök",
+      "terms": "action ps5"
+    },
+    {
+      "id": "hades",
+      "title": "Hades",
+      "terms": "roguelike pc switch"
+    },
+    {
+      "id": "halo-infinite",
+      "title": "Halo Infinite",
+      "terms": "shooter xbox"
+    },
+    {
+      "id": "helldivers-2",
+      "title": "Helldivers 2",
+      "terms": "shooter pc ps5"
+    },
+    {
+      "id": "hollow-knight",
+      "title": "Hollow Knight",
+      "terms": "metroidvania pc switch"
+    },
+    {
+      "id": "horizon-fw",
+      "title": "Horizon Forbidden West",
+      "terms": "action ps5"
+    },
+    {
+      "id": "it-takes-two",
+      "title": "It Takes Two",
+      "terms": "adventure pc ps5 xbox switch"
+    },
+    {
+      "id": "mario-kart-8",
+      "title": "Mario Kart 8 Deluxe",
+      "terms": "racing switch"
+    },
+    {
+      "id": "mario-wonder",
+      "title": "Super Mario Bros. Wonder",
+      "terms": "platformer switch"
+    },
+    {
+      "id": "metroid-prime-4",
+      "title": "Metroid Prime 4",
+      "terms": "adventure switch"
+    },
+    {
+      "id": "overcooked-2",
+      "title": "Overcooked! 2",
+      "terms": "party pc ps5 xbox switch"
+    },
+    {
+      "id": "palworld",
+      "title": "Palworld",
+      "terms": "survival pc xbox"
+    },
+    {
+      "id": "sea-of-thieves",
+      "title": "Sea of Thieves",
+      "terms": "adventure xbox"
+    },
+    {
+      "id": "spider-man-2",
+      "title": "Marvel's Spider-Man 2",
+      "terms": "action ps5"
+    },
+    {
+      "id": "stardew",
+      "title": "Stardew Valley",
+      "terms": "simulation pc switch"
+    },
+    {
+      "id": "starfield",
+      "title": "Starfield",
+      "terms": "rpg pc xbox"
+    },
+    {
+      "id": "zelda-totk",
+      "title": "The Legend of Zelda: Tears of the Kingdom",
+      "terms": "adventure switch"
+    }
+  ]
+}

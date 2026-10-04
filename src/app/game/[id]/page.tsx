@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allGames, Platform, PLATFORM_COLORS } from "@/data/games";
 import Image from "next/image";
+import LibraryControls from "@/components/LibraryControls";
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
@@ -114,13 +115,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             )}
 
             {/* Details button (placeholder for future functionality) */}
-            <div className="mt-4 flex gap-3">
+            <div className="mt-4 flex flex-wrap gap-3">
               <button 
                 className="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                 style={{ borderColor: `${themeColor}33`, color: themeColor }}
               >
                 View on Store
               </button>
+              <LibraryControls gameId={game.id} />
             </div>
           </div>
         </section>

@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - "src/data/**"
+      - "src/app/**"
+      - "src/components/**"
+      - "src/context/**"
       - "scripts/**"
       - "public/catalog/**"
       - "test/**"
@@ -25,7 +28,9 @@ jobs:
       - run: npm ci
       - run: npm run test:catalogue
       - run: npm run catalogue:generate
+      - run: npm run catalogue:search-index
       - run: git diff --exit-code -- public/catalog/games-index.json
+      - run: git diff --exit-code -- public/catalog/search-index.json
       - run: npx tsc --noEmit
       - run: npx eslint src/data/catalogue.ts src/app/game/[id]/page.tsx scripts test
       - run: npm run build

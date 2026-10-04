@@ -9,6 +9,8 @@
     "lint": "eslint",
     "catalogue:generate": "node scripts/generate-catalogue.mjs",
     "catalogue:import": "node scripts/import-catalogue.mjs",
+    "catalogue:search-index": "node scripts/build-search-index.mjs",
+    "catalogue:diff": "node scripts/catalogue-diff.mjs",
     "test:catalogue": "node --test test/catalogue.test.mjs"
   },
   "dependencies": {
