@@ -2,6 +2,7 @@ import fs from "node:fs";
 import Module from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import crypto from "node:crypto";
 import ts from "typescript";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -30,8 +31,19 @@ if (!Array.isArray(games) || games.length === 0) {
 
 const outputPath = path.join(root, "public", "catalog", "games-index.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+const sourceChecksum = crypto.createHash("sha256").update(source).digest("hex");
+let generatedAt = "canonical-source";
+if (fs.existsSync(outputPath)) {
+  const existing = JSON.parse(fs.readFileSync(outputPath, "utf8"));
+  generatedAt = existing.generatedAt ?? generatedAt;
+}
 fs.writeFileSync(
   outputPath,
-  `${JSON.stringify({ schemaVersion: 1, generatedAt: new Date().toISOString(), games }, null, 2)}\n`,
+  `${JSON.stringify({
+    schemaVersion: 1,
+    generatedAt,
+    provenance: { provider: "demo", sourceVersion: "canonical-source", sourceChecksum },
+    games,
+  }, null, 2)}\n`,
 );
 console.log(`Generated ${games.length} games at ${path.relative(root, outputPath)}`);

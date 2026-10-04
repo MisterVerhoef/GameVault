@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1942,
+    "name": "Baldur's Gate 3",
+    "slug": "baldurs-gate-3",
+    "summary": "A party-based RPG about freedom, friendship, and the consequences of your choices.",
+    "first_release_date": 1690848000,
+    "genres": [{ "name": "Role-playing (RPG)" }],
+    "platforms": [{ "name": "PC" }, { "name": "PlayStation 5" }],
+    "cover": { "url": "//images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg" },
+    "rating": 96.7,
+    "rating_count": 2500
+  }
+]

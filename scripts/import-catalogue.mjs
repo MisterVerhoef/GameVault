@@ -2,22 +2,33 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Module from "node:module";
+import crypto from "node:crypto";
 import ts from "typescript";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const args = process.argv.slice(2);
 const inputIndex = args.indexOf("--input");
 const providerIndex = args.indexOf("--provider");
+const versionIndex = args.indexOf("--source-version");
 const inputPath = inputIndex >= 0 ? args[inputIndex + 1] : undefined;
 const provider = providerIndex >= 0 ? args[providerIndex + 1] : "import";
+const sourceVersion = versionIndex >= 0 ? args[versionIndex + 1] : undefined;
+const outputIndex = args.indexOf("--output");
+const outputPathArg = outputIndex >= 0 ? args[outputIndex + 1] : undefined;
 
 if (!inputPath) {
   throw new Error("Usage: npm run catalogue:import -- --input <path> [--provider <name>]");
 }
 
 const resolvedInputPath = path.resolve(process.cwd(), inputPath);
-const input = JSON.parse(fs.readFileSync(resolvedInputPath, "utf8").replace(/^\uFEFF/, ""));
-const records = Array.isArray(input) ? input : input?.games;
+const inputText = fs.readFileSync(resolvedInputPath, "utf8").replace(/^\uFEFF/, "");
+const input = JSON.parse(inputText);
+const providerModule = provider === "igdb"
+  ? await import("./providers/igdb.mjs")
+  : { normalizeExport: (value) => Array.isArray(value) ? value : value?.games };
+const records = provider === "igdb"
+  ? providerModule.normalizeIgdbExport(input)
+  : providerModule.normalizeExport(input);
 if (!Array.isArray(records)) {
   throw new Error("Import input must be a JSON array or an object containing a games array.");
 }
@@ -57,10 +68,23 @@ for (const game of games) {
   ids.add(game.id);
 }
 
-const outputPath = path.join(root, "public", "catalog", "games-index.json");
+const outputPath = outputPathArg
+  ? path.resolve(process.cwd(), outputPathArg)
+  : path.join(root, "public", "catalog", "games-index.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+const sourceChecksum = crypto.createHash("sha256").update(inputText).digest("hex");
 fs.writeFileSync(
   outputPath,
-  `${JSON.stringify({ schemaVersion: 1, generatedAt: new Date().toISOString(), games }, null, 2)}\n`,
+  `${JSON.stringify({
+    schemaVersion: 1,
+    generatedAt: new Date().toISOString(),
+    provenance: {
+      provider,
+      importedAt: new Date().toISOString(),
+      ...(sourceVersion ? { sourceVersion } : {}),
+      sourceChecksum,
+    },
+    games,
+  }, null, 2)}\n`,
 );
 console.log(`Imported ${games.length} games from ${path.relative(root, resolvedInputPath)}`);

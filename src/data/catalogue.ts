@@ -3,6 +3,12 @@ import type { Game, Platform } from "./games";
 export interface CatalogueIndex {
   schemaVersion: 1;
   generatedAt: string;
+  provenance?: {
+    provider: string;
+    importedAt?: string;
+    sourceVersion?: string;
+    sourceChecksum?: string;
+  };
   games: Game[];
 }
 
@@ -125,6 +131,16 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
 
 export function validateCatalogue(value: unknown): value is CatalogueIndex {
   if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.generatedAt !== "string") {
+    return false;
+  }
+
+  if (value.provenance !== undefined && (
+    !isRecord(value.provenance) ||
+    typeof value.provenance.provider !== "string" ||
+    (value.provenance.importedAt !== undefined && typeof value.provenance.importedAt !== "string") ||
+    (value.provenance.sourceVersion !== undefined && typeof value.provenance.sourceVersion !== "string") ||
+    (value.provenance.sourceChecksum !== undefined && typeof value.provenance.sourceChecksum !== "string")
+  )) {
     return false;
   }
 

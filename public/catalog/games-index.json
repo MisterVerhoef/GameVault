@@ -1,6 +1,11 @@
 {
   "schemaVersion": 1,
   "generatedAt": "2026-10-04T17:04:42.232Z",
+  "provenance": {
+    "provider": "demo",
+    "sourceVersion": "canonical-source",
+    "sourceChecksum": "35254c6c7a04c589b86623ec2854c9d72e503b563284fc91205adb9d6e16d687"
+  },
   "games": [
     {
       "id": "bg3",
