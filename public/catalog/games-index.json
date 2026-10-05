@@ -4,7 +4,7 @@
   "provenance": {
     "provider": "demo",
     "sourceVersion": "canonical-source",
-    "sourceChecksum": "35254c6c7a04c589b86623ec2854c9d72e503b563284fc91205adb9d6e16d687"
+    "sourceChecksum": "24eb6ee8b495f5fb0871f9ec431f9dbf04f536ef25b4248206533f60db2086dc"
   },
   "games": [
     {
@@ -24,7 +24,7 @@
         "PC"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Baldur's%20Gate%203&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -66,7 +66,7 @@
         "PC"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Cyberpunk%202077&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -108,7 +108,7 @@
         "PC"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Elden%20Ring&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -151,7 +151,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a0a2a/ffffff?text=Starfield&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -193,7 +193,7 @@
         "PC"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a2a/ffffff?text=Black%20Myth&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -235,7 +235,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a1a0a/ffffff?text=God%20of%20War&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -277,7 +277,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/e60012/ffffff?text=Spider-Man%202&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1817070/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -319,7 +319,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a1a/ffffff?text=FF%20XVI&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2515020/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -361,7 +361,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Horizon%20FW&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2420110/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -403,7 +403,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a1a1a/ffffff?text=Ghost%20of%20Tsushima&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2215430/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -445,7 +445,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a2a0a/ffffff?text=Forza%20H5&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -487,7 +487,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Halo%20Infinite&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -529,7 +529,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Gears%205&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1097840/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -571,7 +571,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a1a2a/ffffff?text=Sea%20of%20Thieves&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172620/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -808,7 +808,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/2a0a0a/ffffff?text=Hades&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -847,7 +847,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/2a1a2a/ffffff?text=Celeste&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -886,7 +886,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Stardew%20Valley&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -925,7 +925,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a2a0a/ffffff?text=Hollow%20Knight&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -966,7 +966,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a1a0a/ffffff?text=Disco%20Elysium&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/632470/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -1005,7 +1005,7 @@
         "PS5"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/2a1a0a/ffffff?text=Helldivers%202&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/553850/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -1044,7 +1044,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a2a2a/ffffff?text=Palworld&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -1084,7 +1084,7 @@
         "Xbox"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/1a0a0a/ffffff?text=Deep%20Rock&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/548430/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -1125,7 +1125,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/2a0a1a/ffffff?text=It%20Takes%20Two&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1426210/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],
@@ -1166,7 +1166,7 @@
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/2a1a0a/ffffff?text=Overcooked%202&font=roboto"
+        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/728880/library_600x900_2x.jpg"
       },
       "screenshots": [],
       "videos": [],

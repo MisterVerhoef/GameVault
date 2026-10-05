@@ -145,12 +145,44 @@ export function toLegacyGame(game: Game): LegacyGame & {
   };
 }
 
-// Stock game cover images from rawg.io (free to use for development)
-const getCover = (gameId: string) => `https://images.rawg.io/games/${gameId}/cover.jpg`;
+// Steam's CDN provides stable, static cover art without requiring a runtime API call.
+const steamAppIds: Record<string, number> = {
+  "Baldur's Gate 3": 1086940,
+  "Cyberpunk 2077": 1091500,
+  "Elden Ring": 1245620,
+  Starfield: 1716740,
+  "Black Myth": 2358720,
+  "God of War": 1593500,
+  "Spider-Man 2": 1817070,
+  "FF XVI": 2515020,
+  "Horizon FW": 2420110,
+  "Ghost of Tsushima": 2215430,
+  "Forza H5": 1551360,
+  "Halo Infinite": 1240440,
+  "Gears 5": 1097840,
+  "Sea of Thieves": 1172620,
+  Hades: 1145360,
+  Celeste: 504230,
+  "Stardew Valley": 413150,
+  "Hollow Knight": 367520,
+  "Disco Elysium": 632470,
+  "Helldivers 2": 553850,
+  Palworld: 1623730,
+  "Deep Rock": 548430,
+  "It Takes Two": 1426210,
+  "Overcooked 2": 728880,
+};
 
-// Alternative: Using placeholder service with game-specific colors
+const getCover = (title: string) => {
+  const appId = steamAppIds[title];
+  return appId
+    ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/library_600x900_2x.jpg`
+    : undefined;
+};
+
+// Local catalogue entries without a Steam release retain a deterministic placeholder.
 const cover = (title: string, color = "1a1a2e") =>
-  `https://placehold.co/400x600/${color}/ffffff?text=${encodeURIComponent(title)}&font=roboto`;
+  getCover(title) ?? `https://placehold.co/400x600/${color}/ffffff?text=${encodeURIComponent(title)}&font=roboto`;
 
 // ============================================
 // TOP 5 GAMES PER PLATFORM (2023-2025)
