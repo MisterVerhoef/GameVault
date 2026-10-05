@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Game, recentlyPlayed, Platform, PLATFORM_COLORS } from "@/data/games";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 interface HeroProps {
   featuredGame?: Game;
@@ -11,11 +11,11 @@ interface HeroProps {
 
 export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
   const featured = featuredGame || recentlyPlayed[0];
-  const [isHydrated, setIsHydrated] = useState(false);
-
-  useEffect(() => {
-    setIsHydrated(true);
-  }, []);
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
   
   // Get primary platform for theming (use selected platform or first platform of the game)
   const primaryPlatform: Platform = selectedPlatform || featured.platforms[0];
