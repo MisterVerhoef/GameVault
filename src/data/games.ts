@@ -565,7 +565,9 @@ export const pcGames = getGamesByPlatform("PC");
 export const ps5Games = getGamesByPlatform("PS5");
 export const xboxGames = getGamesByPlatform("Xbox");
 export const switchGames = getGamesByPlatform("Switch");
-export const recentlyPlayed = getGames(["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"]);
+const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
+export const recentlyPlayed = getGames(recentGameIds);
+if (recentlyPlayed.length === 0) recentlyPlayed.push(...allGames.slice(0, 5));
 export const actionGames = getGames(["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"]);
 export const rpgGames = getGames(["bg3", "ff16", "starfield", "black-myth", "elden-ring"]);
 export const indieGames = getGames(indieGamesSource.map((game) => game.id));
@@ -582,7 +584,7 @@ export function getGamesByPlatform(platform: Platform): Game[] {
 
 // Get featured game (first from recently played)
 export function getFeaturedGame(): Game {
-  return recentlyPlayed[0];
+  return recentlyPlayed[0] ?? allGames[0];
 }
 
 // Get games by genre
