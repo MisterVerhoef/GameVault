@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { Game } from "@/data/games";
 import { useRouter } from "next/navigation";
+import { useSyncExternalStore } from "react";
 
 interface GameCardProps {
   game: Game;
@@ -20,10 +21,14 @@ const platformColors: Record<string, string> = {
 
 export default function GameCard({
   game,
-  showProgress = false,
   size = "md",
 }: GameCardProps) {
   const router = useRouter();
+  const isHydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
 
   const handleClick = () => {
     router.push(`/game/${game.id}`);
@@ -48,17 +53,19 @@ export default function GameCard({
         {/* Placeholder gradient if image fails */}
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
 
-        <Image
-          src={game.cover?.url ?? ""}
-          alt={`${game.title} cover art`}
-          fill
-          className="object-cover transition-opacity duration-500 group-hover:opacity-90"
-          sizes="(max-width: 1024px) 128px, 224px"
-          unoptimized
-          onError={(e) => {
-            (e.target as HTMLImageElement).style.display = "none";
-          }}
-        />
+        {isHydrated && game.cover?.url && (
+          <Image
+            src={game.cover.url}
+            alt={`${game.title} cover art`}
+            fill
+            className="object-cover transition-opacity duration-500 group-hover:opacity-90"
+            sizes="(max-width: 1024px) 128px, 224px"
+            unoptimized
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        )}
 
         {/* Gradient overlay at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
