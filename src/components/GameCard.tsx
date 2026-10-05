@@ -78,7 +78,7 @@ export default function GameCard({
 
           {/* Platforms */}
           <div className="mt-1 flex flex-wrap gap-1">
-            {game.platforms.slice(0, 3).map((p) => (
+            {Array.from(new Set(game.platforms)).slice(0, 3).map((p) => (
               <span
                 key={p}
                 className={`rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px] ${platformColors[p] || "bg-zinc-600"}`}

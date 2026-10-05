@@ -8,14 +8,22 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clientId = process.env.IGDB_CLIENT_ID;
 const clientSecret = process.env.IGDB_CLIENT_SECRET;
 const sourceVersion = process.env.IGDB_SOURCE_VERSION ?? new Date().toISOString().slice(0, 10);
-const limit = Number.parseInt(process.env.IGDB_LIMIT ?? "100", 10);
+const limit = Number.parseInt(process.env.IGDB_LIMIT ?? "500", 10);
+const pages = Number.parseInt(process.env.IGDB_PAGES ?? "5", 10);
 const minimumGames = Number.parseInt(process.env.IGDB_MIN_GAMES ?? "5", 10);
+const searchTerms = (process.env.IGDB_SEARCH_TERMS ?? "halo,the witcher")
+  .split(",")
+  .map((term) => term.trim())
+  .filter(Boolean);
 
 if (!clientId || !clientSecret) {
   throw new Error("IGDB_CLIENT_ID and IGDB_CLIENT_SECRET are required for an IGDB sync.");
 }
 if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
   throw new Error("IGDB_LIMIT must be an integer between 1 and 500.");
+}
+if (!Number.isInteger(pages) || pages < 1 || pages > 10) {
+  throw new Error("IGDB_PAGES must be an integer between 1 and 10.");
 }
 if (!Number.isInteger(minimumGames) || minimumGames < 1) {
   throw new Error("IGDB_MIN_GAMES must be a positive integer.");
@@ -32,7 +40,7 @@ const defaultQuery = [
   "franchises.name,collections.name;",
   `limit ${limit};`,
   "where platforms != null;",
-  "sort first_release_date desc;",
+  "sort rating desc;",
 ].join(" ");
 const query = process.env.IGDB_QUERY ?? defaultQuery;
 
@@ -50,25 +58,43 @@ async function requestToken() {
 }
 
 async function requestGames(token) {
-  const response = await fetch("https://api.igdb.com/v4/games", {
-    method: "POST",
-    headers: {
-      Accept: "application/json",
-      "Client-ID": clientId,
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "text/plain",
-    },
-    body: query,
-  });
-  if (!response.ok) {
-    const detail = await response.text();
-    throw new Error(`IGDB games request failed with HTTP ${response.status}: ${detail.slice(0, 300)}`);
+  const games = [];
+  async function requestPage(pageQuery) {
+    const response = await fetch("https://api.igdb.com/v4/games", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Client-ID": clientId,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "text/plain",
+      },
+      body: pageQuery,
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(`IGDB games request failed with HTTP ${response.status}: ${detail.slice(0, 300)}`);
+    }
+    const pageGames = await response.json();
+    if (!Array.isArray(pageGames)) throw new Error("IGDB returned an invalid games response.");
+    games.push(...pageGames);
+    return pageGames.length;
   }
-  const games = await response.json();
+
+  for (let page = 0; page < pages; page += 1) {
+    const pageQuery = query.replace(/\blimit\s+\d+\s*;/i, `limit ${limit}; offset ${page * limit};`);
+    const count = await requestPage(pageQuery);
+    if (count < limit) break;
+  }
+  for (const term of searchTerms) {
+    const searchQuery = defaultQuery
+      .replace(/\blimit\s+\d+\s*;/i, `search "${term.replace(/"/g, '\\"')}"; limit 100;`)
+      .replace(/sort rating desc;\s*$/i, "");
+    await requestPage(searchQuery);
+  }
   if (!Array.isArray(games) || games.length === 0) {
     throw new Error("IGDB returned no games; refusing to replace the checked-in catalogue.");
   }
-  return games;
+  return Array.from(new Map(games.map((game) => [game.id, game])).values());
 }
 
 const temporaryInput = path.join(os.tmpdir(), `gamevault-igdb-${process.pid}.json`);
