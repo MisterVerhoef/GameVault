@@ -90,5 +90,7 @@ export function normalizeIgdbExport(input) {
   if (!Array.isArray(records)) {
     throw new Error("IGDB input must be an array or an object containing a games array.");
   }
-  return records.map(normalizeIgdbRecord);
+  return records
+    .map(normalizeIgdbRecord)
+    .filter((record) => record.platforms.length > 0);
 }

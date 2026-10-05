@@ -1,482 +1,187 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-04T17:04:42.232Z",
+  "generatedAt": "2026-10-05T07:46:07.787Z",
   "provenance": {
-    "provider": "demo",
-    "sourceVersion": "canonical-source",
-    "sourceChecksum": "24eb6ee8b495f5fb0871f9ec431f9dbf04f536ef25b4248206533f60db2086dc"
+    "provider": "igdb",
+    "importedAt": "2026-10-05T07:46:07.787Z",
+    "sourceVersion": "2026-10-05",
+    "sourceChecksum": "4d9ef2b3f55e9bbb8124426155647a7fc8979c50d913995fc4dd733692af6ec3"
   },
   "games": [
     {
-      "id": "bg3",
-      "slug": "bg3",
-      "title": "Baldur's Gate 3",
-      "summary": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
-      "description": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
-      "releaseYear": 2023,
+      "id": "413972",
+      "slug": "amphibian",
+      "title": "Amphibian",
+      "summary": "A countrywide drought forces Sapo and his frog allies into war against the invading toads. As dehydration and starvation grip the pond, they must hurry to find a solution to the crisis - and liberate their homeland.",
+      "description": "A countrywide drought forces Sapo and his frog allies into war against the invading toads. As dehydration and starvation grip the pond, they must hurry to find a solution to the crisis - and liberate their homeland.",
+      "releaseYear": 2028,
       "genres": [
-        "RPG"
+        "Role-playing (RPG)",
+        "Turn-based strategy (TBS)"
       ],
       "themes": [],
-      "developers": [],
+      "developers": [
+        {
+          "id": "80278",
+          "name": "Jarcorp Interactive"
+        }
+      ],
       "publishers": [],
       "platforms": [
-        "PC"
+        "Xbox",
+        "PS5",
+        "Switch"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocph2.jpg"
       },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6hwd.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfg.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wff.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfh.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfi.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfj.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfk.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14wfl.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "194127",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=JuYhh4zSTlA"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/5014960",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://bsky.app/profile/amphibiangame.bsky.social",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://amphibiangame.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/amphibian_game",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/amphibiangame/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@amphibiangame",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/6za2K4xvcV",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 80,
-        "earned": 35
-      },
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "bg3"
+          "id": "188383",
+          "title": "Reverse: 1999"
+        },
+        {
+          "id": "215272",
+          "title": "Kid Canary & The Midnight Tower"
+        },
+        {
+          "id": "204662",
+          "title": "Momoinc"
+        },
+        {
+          "id": "191751",
+          "title": "Extrapower Attack of Darkforce"
+        },
+        {
+          "id": "186116",
+          "title": "Digimon World: Digital Card Battle"
+        },
+        {
+          "id": "184361",
+          "title": "Equipmentris"
+        },
+        {
+          "id": "183198",
+          "title": "Ruins"
+        },
+        {
+          "id": "177890",
+          "title": "The Gateway Persona"
+        },
+        {
+          "id": "176981",
+          "title": "Ludum Creare"
+        },
+        {
+          "id": "144063",
+          "title": "Fantasy Maiden Wars: Dream"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.7
-    },
-    {
-      "id": "cyberpunk",
-      "slug": "cyberpunk",
-      "title": "Cyberpunk 2077",
-      "summary": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
-      "description": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
-      "releaseYear": 2020,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
       "franchises": [],
       "collections": [],
-      "achievements": {
-        "total": 75,
-        "earned": 66
-      },
       "source": [
         {
-          "provider": "demo",
-          "id": "cyberpunk"
+          "provider": "igdb",
+          "id": "413972"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.8
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "elden-ring",
-      "slug": "elden-ring",
-      "title": "Elden Ring",
-      "summary": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
-      "description": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
-      "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 60,
-        "earned": 40
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "elden-ring"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.5
-    },
-    {
-      "id": "starfield",
-      "slug": "starfield",
-      "title": "Starfield",
-      "summary": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
-      "description": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
-      "releaseYear": 2023,
-      "genres": [
-        "RPG"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
-        "Xbox"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 50,
-        "earned": 15
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "starfield"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 7.8
-    },
-    {
-      "id": "black-myth",
-      "slug": "black-myth",
-      "title": "Black Myth: Wukong",
-      "summary": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
-      "description": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
-      "releaseYear": 2024,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 45,
-        "earned": 7
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "black-myth"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.9
-    },
-    {
-      "id": "god-of-war",
-      "slug": "god-of-war",
-      "title": "God of War Ragnarök",
-      "summary": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
-      "description": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
-      "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 50,
-        "earned": 45
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "god-of-war"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.4
-    },
-    {
-      "id": "spider-man-2",
-      "slug": "spider-man-2",
-      "title": "Marvel's Spider-Man 2",
-      "summary": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
-      "description": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
-      "releaseYear": 2023,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1817070/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 60,
-        "earned": 0
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "spider-man-2"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.1
-    },
-    {
-      "id": "ff16",
-      "slug": "ff16",
-      "title": "Final Fantasy XVI",
-      "summary": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
-      "description": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
-      "releaseYear": 2023,
-      "genres": [
-        "RPG"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2515020/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 55,
-        "earned": 17
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "ff16"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.7
-    },
-    {
-      "id": "horizon-fw",
-      "slug": "horizon-fw",
-      "title": "Horizon Forbidden West",
-      "summary": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
-      "description": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
-      "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2420110/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 50,
-        "earned": 25
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "horizon-fw"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.9
-    },
-    {
-      "id": "ghost-tsushima",
-      "slug": "ghost-tsushima",
-      "title": "Ghost of Tsushima",
-      "summary": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
-      "description": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
-      "releaseYear": 2020,
-      "genres": [
-        "Action"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2215430/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 45,
-        "earned": 40
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "ghost-tsushima"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.2
-    },
-    {
-      "id": "forza-horizon-5",
-      "slug": "forza-horizon-5",
-      "title": "Forza Horizon 5",
-      "summary": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
-      "description": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
-      "releaseYear": 2021,
-      "genres": [
-        "Racing"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "Xbox"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 70,
-        "earned": 53
-      },
-      "source": [
-        {
-          "provider": "demo",
-          "id": "forza-horizon-5"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9
-    },
-    {
-      "id": "halo-infinite",
-      "slug": "halo-infinite",
-      "title": "Halo Infinite",
-      "summary": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
-      "description": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
-      "releaseYear": 2021,
+      "id": "400301",
+      "slug": "reverse-collapse-f",
+      "title": "Reverse Collapse: F",
+      "summary": "Reverse Collapse: F is a story-focused sci-fi cooperative PvE third person shooter. It was announced during the Girls' Frontline 10th Anniversary event and is planned for 2028.",
+      "description": "In the near future, the world is polluted by Collapse particles. The war between the Antarctic Union and the URNC rages on, upsetting the bipolar world order once more. Humanity nears extinction, and contamination threatens to devour everything. But survivors have discovered a taboo that shouldn't exist, a Fake God and its strange spacetimes. To find a hope for mankind's survival, the Blessed Ones must enter these strange and dangerous worlds, guns blazing.",
+      "releaseYear": 2028,
       "genres": [
         "Shooter"
       ],
@@ -484,708 +189,3633 @@
       "developers": [],
       "publishers": [],
       "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/coc0ds.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc13yiy.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc13yiz.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc13yj0.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc13yj1.jpg",
+          "width": 1280,
+          "height": 720
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc13yj2.jpg",
+          "width": 1280,
+          "height": 720
+        }
+      ],
+      "videos": [
+        {
+          "id": "182702",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=LWAkWj4ZXxY"
+        }
+      ],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "250904",
+          "title": "Warhammer 40,000: Speed Freeks"
+        },
+        {
+          "id": "154814",
+          "title": "Arcadegeddon"
+        },
+        {
+          "id": "217601",
+          "title": "Synduality: Echo of Ada"
+        },
+        {
+          "id": "200165",
+          "title": "Call of Duty: Modern Warfare II"
+        },
+        {
+          "id": "36950",
+          "title": "Anthem"
+        },
+        {
+          "id": "119234",
+          "title": "Zombie Army 4: Dead War"
+        },
+        {
+          "id": "114009",
+          "title": "Dragon Ball Z: Kakarot"
+        },
+        {
+          "id": "141233",
+          "title": "Modern Warships"
+        },
+        {
+          "id": "520",
+          "title": "F.E.A.R. 2: Project Origin"
+        },
+        {
+          "id": "194205",
+          "title": "Gundam Evolution"
+        }
+      ],
+      "franchises": [],
+      "collections": [
+        "Girls' Frontline"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "400301"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "394524",
+      "slug": "wpca-world-phasebound-control-authority",
+      "title": "WPCA: World Phasebound Control Authority",
+      "summary": "Step into the city's shadows as defenders against the paranormal. Your mission: Contain the Phasebound Horrors, the manifested fictions encroaching upon our world and the survival of humanity.",
+      "description": "Step into the city's shadows as defenders against the paranormal. Your mission: Contain the Phasebound Horrors, the manifested fictions encroaching upon our world and the survival of humanity.",
+      "releaseYear": 2028,
+      "genres": [
+        "Role-playing (RPG)",
+        "Indie"
+      ],
+      "themes": [
+        "Action"
+      ],
+      "developers": [
+        {
+          "id": "32611",
+          "name": "5minlab Corporation"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/coctl7.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar5uw3.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6b.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6c.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6f.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k69.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6a.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6d.jpg",
+          "width": 1920,
+          "height": 1074
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc12k6e.jpg",
+          "width": 1920,
+          "height": 1074
+        }
+      ],
+      "videos": [
+        {
+          "id": "195008",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=fIFA-lY_f6o"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@wpca_official",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4455810",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/wpca_dev",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/P9bbP6Uhzn",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "28010",
+          "title": "God Eater 3"
+        },
+        {
+          "id": "283486",
+          "title": "Atlyss"
+        },
+        {
+          "id": "252839",
+          "title": "Towerborne"
+        },
+        {
+          "id": "152250",
+          "title": "Stranger of Paradise: Final Fantasy Origin"
+        },
+        {
+          "id": "22788",
+          "title": "Granblue Fantasy: Relink"
+        },
+        {
+          "id": "154814",
+          "title": "Arcadegeddon"
+        },
+        {
+          "id": "128769",
+          "title": "Captain Tsubasa: Rise of New Champions"
+        },
+        {
+          "id": "135998",
+          "title": "Warhammer 40,000: Darktide"
+        },
+        {
+          "id": "125624",
+          "title": "Grounded"
+        },
+        {
+          "id": "140427",
+          "title": "My Time at Sandrock"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "394524"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "393100",
+      "slug": "wonderful-neoran-valley",
+      "title": "Wonderful Neoran Valley",
+      "summary": "Wonderful Neoran Valley is a Monster Collector Roguelite experience, in which you will have to convince the creatures you meet to follow you and fight by your side, on your way to uncovering the dark secret that plagues the Neoran Valley.\nYes, you read that correctly: Roguelite!",
+      "description": "Wonderful Neoran Valley is a Monster Collector Roguelite experience, in which you will have to convince the creatures you meet to follow you and fight by your side, on your way to uncovering the dark secret that plagues the Neoran Valley.\nYes, you read that correctly: Roguelite!",
+      "releaseYear": 2028,
+      "genres": [
+        "Turn-based strategy (TBS)",
+        "Adventure",
+        "Indie"
+      ],
+      "themes": [],
+      "developers": [
+        {
+          "id": "74610",
+          "name": "Nara Studio"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cobojo.jpg"
+      },
+      "screenshots": [],
+      "videos": [
+        {
+          "id": "177317",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=UiJFEawf7Ao"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://wonderfulneoranvalley.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/channel/UCv444s8kubQrDDzbc8QAJhw",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "247935",
+          "title": "Only Up!"
+        },
+        {
+          "id": "199384",
+          "title": "Magical Girl Celesphonia"
+        },
+        {
+          "id": "141167",
+          "title": "Scrabdackle"
+        },
+        {
+          "id": "25559",
+          "title": "Fantasy Conquest Tactics"
+        },
+        {
+          "id": "102890",
+          "title": "Someday You'll Return"
+        },
+        {
+          "id": "89597",
+          "title": "Unbound: Worlds Apart"
+        },
+        {
+          "id": "87975",
+          "title": "Tech Support: Error Unknown"
+        },
+        {
+          "id": "2322",
+          "title": "Pokémon Mystery Dungeon: Explorers of Darkness"
+        },
+        {
+          "id": "282216",
+          "title": "Weefager"
+        },
+        {
+          "id": "253484",
+          "title": "Another Chance"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "393100"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "387656",
+      "slug": "genigods-nezha",
+      "title": "Genigods: Nezha",
+      "summary": "Genigods: Nezha is an ARPG rooted in the chaos of ancient Chinese creation mythology. Play as Spirit Pearl, the first being forged by the Goddess of Creation Nüwa. Dive into iconic Chinese genesis tales, battle Colossal Gods, and experience the unique combat of Chinese-style celestial showdowns.",
+      "description": "Genigods: Nezha is an ARPG rooted in the chaos of ancient Chinese creation mythology. Play as Spirit Pearl, the first being forged by the Goddess of Creation Nüwa. Dive into iconic Chinese genesis tales, battle Colossal Gods, and experience the unique combat of Chinese-style celestial showdowns.",
+      "releaseYear": 2028,
+      "genres": [
+        "Role-playing (RPG)",
+        "Hack and slash/Beat 'em up"
+      ],
+      "themes": [
+        "Action",
+        "Fantasy"
+      ],
+      "developers": [
+        {
+          "id": "73482",
+          "name": "Genigods Lab"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocswp.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6iye.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsv.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsw.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsl.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsm.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsn.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zso.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsp.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsq.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsr.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zss.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zst.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc14zsu.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "174886",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=M5mZseIFDmc"
+        },
+        {
+          "id": "193925",
+          "name": "Gameplay Trailer",
+          "url": "https://www.youtube.com/watch?v=4w4b5E-insM"
+        },
+        {
+          "id": "196635",
+          "name": "Dev Diary",
+          "url": "https://www.youtube.com/watch?v=rMKPwos8R6E"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4346690",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.epicgames.com/p/genigods-nezha-95a016",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.twitch.tv/directory/category/genigods-nezha",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@Genigods",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.playstation.com/en-us/concept/10015702",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.xbox.com/en-US/games/store/genigods-nezha/9n5kkbmh2049",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "196761",
+          "title": "Kingdom Hearts IV"
+        },
+        {
+          "id": "194207",
+          "title": "Valkyrie Elysium"
+        },
+        {
+          "id": "133302",
+          "title": "Scarlet Nexus"
+        },
+        {
+          "id": "127343",
+          "title": "Godfall"
+        },
+        {
+          "id": "146917",
+          "title": "Dungeons of Hinterberg"
+        },
+        {
+          "id": "136879",
+          "title": "Black Myth: Wukong"
+        },
+        {
+          "id": "92550",
+          "title": "Fable"
+        },
+        {
+          "id": "279661",
+          "title": "Monster Hunter Wilds"
+        },
+        {
+          "id": "119270",
+          "title": "Tales of Arise"
+        },
+        {
+          "id": "7222",
+          "title": "Two Worlds"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "387656"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "381234",
+      "slug": "tomb-raider-catalyst",
+      "title": "Tomb Raider: Catalyst",
+      "summary": "Set in the wake of a mythical cataclysm that has unleashed ancient secrets and awakened mysterious guardian forces, Tomb Raider: Catalyst follows Lara Croft on a new adventure across Northern India.",
+      "description": "Set in the wake of a mythical cataclysm that has unleashed ancient secrets and awakened mysterious guardian forces, Tomb Raider: Catalyst follows Lara Croft on a new adventure across Northern India.",
+      "releaseYear": 2028,
+      "genres": [
+        "Platform",
+        "Puzzle",
+        "Adventure"
+      ],
+      "themes": [
+        "Action"
+      ],
+      "developers": [
+        {
+          "id": "552",
+          "name": "Crystal Dynamics"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "31045",
+          "name": "Amazon Games"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cob0g4.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10tnp.jpg",
+          "width": 3840,
+          "height": 1633
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10tnq.jpg",
+          "width": 3840,
+          "height": 1634
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10tnr.jpg",
+          "width": 3840,
+          "height": 1634
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10tns.jpg",
+          "width": 3840,
+          "height": 1634
+        }
+      ],
+      "videos": [
+        {
+          "id": "170967",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=gOSMx7ZUiDY"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.playtombraider.com/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "122565",
+          "title": "Humanity"
+        },
+        {
+          "id": "204124",
+          "title": "Tad the Lost Explorer and the Emerald Tablet"
+        },
+        {
+          "id": "233585",
+          "title": "Hi-Fi Rush"
+        },
+        {
+          "id": "103331",
+          "title": "Trover Saves the Universe"
+        },
+        {
+          "id": "133302",
+          "title": "Scarlet Nexus"
+        },
+        {
+          "id": "128252",
+          "title": "Creepy Tale"
+        },
+        {
+          "id": "70828",
+          "title": "Raji: An Ancient Epic"
+        },
+        {
+          "id": "19241",
+          "title": "Unravel Two"
+        },
+        {
+          "id": "252839",
+          "title": "Towerborne"
+        },
+        {
+          "id": "152072",
+          "title": "Echoes of the End"
+        }
+      ],
+      "franchises": [
+        "Tomb Raider"
+      ],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "381234"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "339592",
+      "slug": "shellbound",
+      "title": "Shellbound",
+      "summary": "Shellbound is a hand-drawn 2D Metroidvania where life can only exist on a gigantic snail. Explore a vibrant world, fight bizarre flora and fauna and discover civilizations fueled by the powerful snail mucus. It is the key to your natural role: Devour everything so life itself continues to exist.",
+      "description": "You explore a living world and interact with its bizarre biology, fight and control enemies for platforming, puzzles and combat, and follow a dark, compelling narrative about the end of the colossal Snail’s life cycle and your role in it as a parasite.",
+      "releaseYear": 2028,
+      "genres": [
+        "Adventure",
+        "Indie"
+      ],
+      "themes": [
+        "Action",
+        "Fantasy",
+        "Mystery"
+      ],
+      "developers": [
+        {
+          "id": "62950",
+          "name": "Fake Lobster Games"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "80182",
+          "name": "Kinetic Publishing"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/co9o8d.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar3fqb.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa40.jpg",
+          "width": 1920,
+          "height": 1071
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa42.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa43.jpg",
+          "width": 1920,
+          "height": 1075
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa3v.jpg",
+          "width": 1839,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa3w.jpg",
+          "width": 1913,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa3x.jpg",
+          "width": 1899,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa3y.jpg",
+          "width": 1920,
+          "height": 1044
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa3z.jpg",
+          "width": 1920,
+          "height": 1079
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa41.jpg",
+          "width": 1911,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa44.jpg",
+          "width": 1902,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa45.jpg",
+          "width": 1914,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa46.jpg",
+          "width": 1912,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scwa47.jpg",
+          "width": 1919,
+          "height": 1080
+        }
+      ],
+      "videos": [],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/cMdUKqFg",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://fakelobstergames.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/fakelobstergames/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/3142470",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "144380",
+          "title": "Aeterna Noctis"
+        },
+        {
+          "id": "138365",
+          "title": "Vernal Edge"
+        },
+        {
+          "id": "110395",
+          "title": "RPG Time: The Legend of Wright"
+        },
+        {
+          "id": "146086",
+          "title": "Crowsworn"
+        },
+        {
+          "id": "89594",
+          "title": "Monster Sanctuary"
+        },
+        {
+          "id": "254728",
+          "title": "Yohane the Parhelion: Blaze in the DeepBlue"
+        },
+        {
+          "id": "127546",
+          "title": "Mortal Online 2"
+        },
+        {
+          "id": "122027",
+          "title": "3000th Duel"
+        },
+        {
+          "id": "107272",
+          "title": "AdventureQuest Worlds"
+        },
+        {
+          "id": "95356",
+          "title": "Knytt"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "339592"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "244993",
+      "slug": "neo-berlin-2087",
+      "title": "Neo Berlin 2087",
+      "summary": "A unique, Third- and First-Person Action Role-Playing Game; a deep, cinematic Detective Thriller that takes place in a dark future vision of Berlin. Solve a far-reaching conspiracy on an emotional Cyberpunk Journey about Justice, Friendship, Love, Guilt, Sacrifice and Betrayal.",
+      "description": "The story begins on a dark and ominous night, with the Neo Berlin plunged into chaos following the savage murder of the head of the police department. The enigmatic Nolan, a brilliant detective with a troubled past, is tasked with the daunting mission of finding and safeguarding the police chief's daughter, a potential key to unlocking the mystery behind her father's death. With his state-of-the-art technology, weapons, and unique abilities, Nolan embarks on a perilous journey to locate Natalie as quickly as possible. But each step he takes brings him closer to a sinister conspiracy that threatens to consume him and the entire city. As Nolan finally comes face to face with the fiercely independent and resourceful Natalie, he realizes that their fates are intertwined in ways he could never have imagined. Their connection is born out of a volatile mix of love, fear, and uncertainty, and as they navigate the treacherous path ahead, they will be forced to confront their deepest fears and confront the shadowy forces that threaten to tear them apart. In a gripping and emotionally charged tale of intrigue and betrayal, storytelling style will keep you on the edge of your seat until the very end.",
+      "releaseYear": 2028,
+      "genres": [
+        "Shooter",
+        "Role-playing (RPG)",
+        "Adventure",
+        "Indie"
+      ],
+      "themes": [
+        "Action",
+        "Science fiction",
+        "Thriller",
+        "Stealth",
+        "Mystery"
+      ],
+      "developers": [
+        {
+          "id": "38510",
+          "name": "Elysium Game Studio"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "16310",
+          "name": "ByteRockers' Games"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocost.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6fa7.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj3.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnziz.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj2.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzja.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzjf.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj0.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzjb.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzjd.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzje.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj4.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj7.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj9.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj5.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj1.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj6.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzj8.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzjg.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scnzjc.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "95935",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=vxTKjx3Y2Qo"
+        },
+        {
+          "id": "159069",
+          "name": "Gameplay Trailer",
+          "url": "https://www.youtube.com/watch?v=i8B89MssneU"
+        },
+        {
+          "id": "192882",
+          "name": "Release Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=K--t0mT9mt0"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/2326200",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.elysiumgamestudio.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.epicgames.com/en-US/p/neo-berlin-2087-500f0d",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://twitter.com/elysiumgamest",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/zMPdrQ6jf6",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@elysiumgamestudio",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.playstation.com/en-us/concept/10008070/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "43672",
+          "title": "The X-Files: Resist or Serve"
+        },
+        {
+          "id": "107318",
+          "title": "Rebel Galaxy Outlaw"
+        },
+        {
+          "id": "105269",
+          "title": "Gene Rain"
+        },
+        {
+          "id": "78547",
+          "title": "The Council"
+        },
+        {
+          "id": "200550",
+          "title": "Super Alloy Ranger"
+        },
+        {
+          "id": "20360",
+          "title": "Utopia 9: A Volatile Vacation"
+        },
+        {
+          "id": "224705",
+          "title": "Wall World"
+        },
+        {
+          "id": "115846",
+          "title": "AI Limit"
+        },
+        {
+          "id": "77488",
+          "title": "Zombotron"
+        },
+        {
+          "id": "145844",
+          "title": "Cyberika"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "244993"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "194662",
+      "slug": "the-witcher-iv",
+      "title": "The Witcher IV",
+      "summary": "The Witcher IV is a single-player, open-world RPG from CD PROJEKT RED. At the start of a new saga, players take on the role of Ciri, a professional monster slayer, and embark on a journey through a brutal dark-fantasy world.",
+      "description": "The Witcher IV is a single-player, open-world RPG from CD PROJEKT RED. At the start of a new saga, players take on the role of Ciri, a professional monster slayer, and embark on a journey through a brutal dark-fantasy world.",
+      "releaseYear": 2028,
+      "genres": [
+        "Role-playing (RPG)",
+        "Adventure"
+      ],
+      "themes": [
+        "Action",
+        "Fantasy",
+        "Drama",
+        "Open world"
+      ],
+      "developers": [
+        {
+          "id": "908",
+          "name": "CD Projekt RED"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/co95i0.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar3nks.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scus48.jpg",
+          "width": 3840,
+          "height": 2160
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scus49.jpg",
+          "width": 3840,
+          "height": 2160
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scuxde.jpg",
+          "width": 2048,
+          "height": 1152
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scuxdf.jpg",
+          "width": 2048,
+          "height": 1152
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scus4a.jpg",
+          "width": 3840,
+          "height": 2160
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scx6qk.jpg",
+          "width": 3840,
+          "height": 2160
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scx6ql.jpg",
+          "width": 3840,
+          "height": 2160
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scx6qm.jpg",
+          "width": 3840,
+          "height": 2160
+        }
+      ],
+      "videos": [
+        {
+          "id": "135489",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=54dabgZJ5YA"
+        },
+        {
+          "id": "152462",
+          "name": "Unreal Engine 5 Tech Demo",
+          "url": "https://www.youtube.com/watch?v=Nthv4xF_zHU"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://facebook.com/thewitcher",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/thewitcher",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.thewitcher.com/ca/en/witcher4",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://twitter.com/witchergame",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.reddit.com/r/witcher",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/thewitcher",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.twitch.tv/directory/category/the-witcher-1",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/invite/thewitcher",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "92550",
+          "title": "Fable"
+        },
+        {
+          "id": "133302",
+          "title": "Scarlet Nexus"
+        },
+        {
+          "id": "127343",
+          "title": "Godfall"
+        },
+        {
+          "id": "81249",
+          "title": "The Elder Scrolls VI"
+        },
+        {
+          "id": "115060",
+          "title": "Dragon's Dogma II"
+        },
+        {
+          "id": "27316",
+          "title": "A Plague Tale: Innocence"
+        },
+        {
+          "id": "196761",
+          "title": "Kingdom Hearts IV"
+        },
+        {
+          "id": "282831",
+          "title": "The Blood of Dawnwalker"
+        },
+        {
+          "id": "119270",
+          "title": "Tales of Arise"
+        },
+        {
+          "id": "279661",
+          "title": "Monster Hunter Wilds"
+        }
+      ],
+      "franchises": [
+        "The Witcher"
+      ],
+      "collections": [
+        "The Witcher"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "194662"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "141542",
+      "slug": "ark-ii",
+      "title": "Ark II",
+      "summary": "Suddenly awakened on a strange primal world filled with dinosaurs and humans struggling for dominance; you must piece together the history of how you arrived there, team-up with legendary heroes, and confront powerful dark forces seeking to control the fate of all life. Saddle up, and join the definitive next-generation survival experience with ARK 2!",
+      "description": "Suddenly awakened on a strange primal world filled with dinosaurs and humans struggling for dominance; you must piece together the history of how you arrived there, team-up with legendary heroes, and confront powerful dark forces seeking to control the fate of all life. Saddle up, and join the definitive next-generation survival experience with ARK 2!",
+      "releaseYear": 2028,
+      "genres": [
+        "Adventure",
+        "Indie"
+      ],
+      "themes": [
+        "Action",
+        "Science fiction",
+        "Survival",
+        "Open world"
+      ],
+      "developers": [
+        {
+          "id": "39120",
+          "name": "Grove Street Games"
+        },
+        {
+          "id": "5750",
+          "name": "Studio Wildcard"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
         "Xbox"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/co4v2q.jpg"
       },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6pa5.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/schds0.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/schds1.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/schds2.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc8v4i.jpg",
+          "width": 2560,
+          "height": 1354
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc8v4j.jpg",
+          "width": 2560,
+          "height": 1354
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc8v4h.jpg",
+          "width": 2560,
+          "height": 1354
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/schds3.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/schds4.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "69914",
+          "name": "Cinematic Trailer",
+          "url": "https://www.youtube.com/watch?v=DqMIxDjTTZs"
+        },
+        {
+          "id": "69915",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=D8KbXpk2J9Y"
+        },
+        {
+          "id": "43584",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=QdItfIRGdA4"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/2050420/ARK_2",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/c/Survivetheark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://twitter.com/survivetheark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.twitch.tv/directory/game/ARK%20II",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.reddit.com/r/playark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/survivetheark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "http://www.playark.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.facebook.com/survivetheark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/playark",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://ark.wiki.gg/ARK_2",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 60,
-        "earned": 36
-      },
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "halo-infinite"
+          "id": "214394",
+          "title": "Dune: Awakening"
+        },
+        {
+          "id": "252865",
+          "title": "TerraTech Worlds"
+        },
+        {
+          "id": "125624",
+          "title": "Grounded"
+        },
+        {
+          "id": "114422",
+          "title": "Last Oasis"
+        },
+        {
+          "id": "857",
+          "title": "Serious Sam: The First Encounter"
+        },
+        {
+          "id": "27011",
+          "title": "Serious Sam 4"
+        },
+        {
+          "id": "19249",
+          "title": "Empyrion: Galactic Survival"
+        },
+        {
+          "id": "3239",
+          "title": "Space Engineers"
+        },
+        {
+          "id": "239857",
+          "title": "The Front"
+        },
+        {
+          "id": "154814",
+          "title": "Arcadegeddon"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.5
+      "franchises": [],
+      "collections": [
+        "Ark"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "141542"
+        }
+      ],
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "gears-5",
-      "slug": "gears-5",
-      "title": "Gears 5",
-      "summary": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
-      "description": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
-      "releaseYear": 2019,
+      "id": "305015",
+      "slug": "precognition",
+      "title": "Precognition",
+      "summary": "PRECOGNITION follows in the footsteps of Sam Barlow’s previous game, IMMORTALITY, combining cinematic live-action sequences with non-linear storytelling and a focus on player freedom and agency. Players take on the role of Diana, a woman who discovers she can receive visions of the future after an experimental implant is embedded into her brain.",
+      "description": "PRECOGNITION follows in the footsteps of Sam Barlow’s previous game, IMMORTALITY, combining cinematic live-action sequences with non-linear storytelling and a focus on player freedom and agency. Players take on the role of Diana, a woman who discovers she can receive visions of the future after an experimental implant is embedded into her brain.",
+      "releaseYear": 2028,
       "genres": [
-        "Shooter"
+        "Adventure",
+        "Indie"
       ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
+      "themes": [
+        "Science fiction",
+        "Horror",
+        "Thriller"
+      ],
+      "developers": [
+        {
+          "id": "6026",
+          "name": "Sam Barlow"
+        },
+        {
+          "id": "31355",
+          "name": "Half Mermaid"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "80182",
+          "name": "Kinetic Publishing"
+        }
+      ],
       "platforms": [
-        "Xbox"
+        "Xbox",
+        "PS5"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1097840/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocohp.jpg"
       },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar2zi3.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scso05.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scso06.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scso08.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scso04.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/scso07.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "115549",
+          "name": "Teaser",
+          "url": "https://www.youtube.com/watch?v=n2Tt5cHdkHM"
+        },
+        {
+          "id": "192781",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=kR78s95FONk"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/channel/UCpGJhYlGvWn4XJwT2tL1W2Q",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/2771630",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://twitter.com/HalfMermaid",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.twitch.tv/directory/category/project-c",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://halfmermaid.co/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/precognitiongame",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 55,
-        "earned": 45
-      },
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "gears-5"
+          "id": "55282",
+          "title": "Infliction"
+        },
+        {
+          "id": "88116",
+          "title": "The Beast Inside"
+        },
+        {
+          "id": "19545",
+          "title": "Observer"
+        },
+        {
+          "id": "121947",
+          "title": "The Suicide of Rachel Foster"
+        },
+        {
+          "id": "109535",
+          "title": "We Were Here Together"
+        },
+        {
+          "id": "9176",
+          "title": "Call of Cthulhu"
+        },
+        {
+          "id": "145055",
+          "title": "I Saw Black Clouds"
+        },
+        {
+          "id": "256636",
+          "title": "Fears to Fathom: Ironbark Lookout"
+        },
+        {
+          "id": "235446",
+          "title": "File Destined"
+        },
+        {
+          "id": "105629",
+          "title": "The Shapeshifting Detective"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.8
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "305015"
+        }
+      ],
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "sea-of-thieves",
-      "slug": "sea-of-thieves",
-      "title": "Sea of Thieves",
-      "summary": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
-      "description": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
-      "releaseYear": 2018,
+      "id": "416132",
+      "slug": "final-fantasy-vii-revelation-story-dlc-2-vincent-and-the-turks",
+      "title": "Final Fantasy VII Revelation: Story DLC 2 - Vincent & the Turks",
+      "releaseYear": 2028,
+      "genres": [],
+      "themes": [],
+      "developers": [
+        {
+          "id": "72234",
+          "name": "Square Enix Creative Studio 1"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "26",
+          "name": "Square Enix"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6lef.jpg"
+      },
+      "screenshots": [],
+      "videos": [
+        {
+          "id": "195020",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=N99VdWs-OfE"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.nintendo.com/us/store/products/final-fantasy-vii-revelation-story-dlc-2-vincent-and-the-turks-70050000076185-switch-2/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "222372",
+          "title": "Asonde Mahjong ga Tsuyoku Naru! Ginsei Mahjong DX"
+        },
+        {
+          "id": "211607",
+          "title": "Wander Stars"
+        },
+        {
+          "id": "147778",
+          "title": "Connect It!"
+        },
+        {
+          "id": "109459",
+          "title": "Little Town Hero"
+        },
+        {
+          "id": "55282",
+          "title": "Infliction"
+        },
+        {
+          "id": "266561",
+          "title": "Gunvolt Records Cychronicle"
+        },
+        {
+          "id": "214139",
+          "title": "New Tales from the Borderlands"
+        },
+        {
+          "id": "154902",
+          "title": "Night Book"
+        },
+        {
+          "id": "121764",
+          "title": "Port Royale 4"
+        },
+        {
+          "id": "113758",
+          "title": "Alchemy Garden"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "416132"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "416131",
+      "slug": "final-fantasy-vii-revelation-story-dlc-1-sephiroth",
+      "title": "Final Fantasy VII Revelation: Story DLC 1 - Sephiroth",
+      "releaseYear": 2028,
+      "genres": [],
+      "themes": [],
+      "developers": [
+        {
+          "id": "72234",
+          "name": "Square Enix Creative Studio 1"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "26",
+          "name": "Square Enix"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6lee.jpg"
+      },
+      "screenshots": [],
+      "videos": [
+        {
+          "id": "195019",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=N99VdWs-OfE"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.nintendo.com/us/store/products/final-fantasy-vii-revelation-story-dlc-1-sephiroth-70050000076184-switch-2/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "222372",
+          "title": "Asonde Mahjong ga Tsuyoku Naru! Ginsei Mahjong DX"
+        },
+        {
+          "id": "211607",
+          "title": "Wander Stars"
+        },
+        {
+          "id": "147778",
+          "title": "Connect It!"
+        },
+        {
+          "id": "109459",
+          "title": "Little Town Hero"
+        },
+        {
+          "id": "55282",
+          "title": "Infliction"
+        },
+        {
+          "id": "266561",
+          "title": "Gunvolt Records Cychronicle"
+        },
+        {
+          "id": "214139",
+          "title": "New Tales from the Borderlands"
+        },
+        {
+          "id": "154902",
+          "title": "Night Book"
+        },
+        {
+          "id": "121764",
+          "title": "Port Royale 4"
+        },
+        {
+          "id": "113758",
+          "title": "Alchemy Garden"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "416131"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "402334",
+      "slug": "kingdom-come-salvation--1",
+      "title": "Kingdom Come: Salvation",
+      "releaseYear": 2028,
       "genres": [
+        "Role-playing (RPG)",
+        "Simulator",
         "Adventure"
       ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
+      "themes": [
+        "Action",
+        "Historical",
+        "Open world"
+      ],
+      "developers": [
+        {
+          "id": "2171",
+          "name": "Warhorse Studios"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "423",
+          "name": "Deep Silver"
+        }
+      ],
       "platforms": [
-        "Xbox"
+        "Xbox",
+        "PS5"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172620/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/coc3a1.jpg"
       },
       "screenshots": [],
       "videos": [],
-      "websites": [],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.kingdomcomerpg.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://kingdomcomedeliverance.wiki.gg/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/KingdomComeRPG",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.facebook.com/kingdomcomerpg/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/kingdomcomerpg/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@kingdomcomeRPG",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.reddit.com/r/kingdomcome/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/invite/kingdomcomedeliverance",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 40,
-        "earned": 16
-      },
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "sea-of-thieves"
+          "id": "252846",
+          "title": "Sand: Raiders Of Sophie"
+        },
+        {
+          "id": "81249",
+          "title": "The Elder Scrolls VI"
+        },
+        {
+          "id": "76747",
+          "title": "Atomic Heart"
+        },
+        {
+          "id": "92550",
+          "title": "Fable"
+        },
+        {
+          "id": "11737",
+          "title": "Outer Wilds"
+        },
+        {
+          "id": "103845",
+          "title": "Walden, a game"
+        },
+        {
+          "id": "135998",
+          "title": "Warhammer 40,000: Darktide"
+        },
+        {
+          "id": "9176",
+          "title": "Call of Cthulhu"
+        },
+        {
+          "id": "214414",
+          "title": "Where Winds Meet"
+        },
+        {
+          "id": "133302",
+          "title": "Scarlet Nexus"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.2
+      "franchises": [],
+      "collections": [
+        "Kingdom Come: Deliverance"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "402334"
+        }
+      ],
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "zelda-totk",
-      "slug": "zelda-totk",
-      "title": "The Legend of Zelda: Tears of the Kingdom",
-      "summary": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
-      "description": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
-      "releaseYear": 2023,
+      "id": "382363",
+      "slug": "off-the-grid-bad-dream--1",
+      "title": "Off The Grid: Bad Dream",
+      "summary": "Off the Grid: Bad Dream (working title: Project Escher) is a first- and third-person psychological thriller and mystery adventure developed by Rare Castle. The game follows a man who survives a fatal car crash and begins experiencing surreal dreams connected to a plane of existence beyond space and time.\n\nGameplay alternates between the protagonist’s grounded real-world life and an otherworldly dream realm, where consciousness exists as light or energy within mechanical vessels. Players explore non-Euclidean environments, solve puzzles, engage in limited combat, and make narrative choices emphasizing introspection, moral decision-making, and emotional healing over traditional horror.\n\nFeaturing cinematic storytelling, dialogue-driven encounters, and visually distinct worlds inspired by impossible geometry and classical art, Off the Grid: Bad Dream blends mystery, philosophy, and emotional depth into a story-driven experience focused on self-discovery and healing rather than fear.",
+      "description": "After surviving a fatal car crash, the protagonist begins experiencing vivid, surreal dreams that seem connected to a mysterious plane of existence beyond space and time. As he alternates between his grounded real-world life and an otherworldly realm where consciousness exists as light or energy within mechanical vessels, he uncovers hidden truths about himself and the world around him. Guided by encounters with lost, corrupted, and healed entities, the protagonist must make moral and strategic choices—deciding who to help, who to confront, and how to use his crystal core—to navigate a journey of self-discovery, emotional healing, and transcending fear.",
+      "releaseYear": 2028,
       "genres": [
-        "Adventure"
+        "Shooter",
+        "Role-playing (RPG)",
+        "Adventure",
+        "Indie"
+      ],
+      "themes": [
+        "Fantasy",
+        "Science fiction",
+        "Thriller",
+        "Mystery"
+      ],
+      "developers": [
+        {
+          "id": "72410",
+          "name": "Rare Castle"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cob66e.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar4y4w.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10xzj.jpg",
+          "width": 1920,
+          "height": 1032
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10xzk.jpg",
+          "width": 1495,
+          "height": 869
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc10xzl.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "171693",
+          "name": "Dev Diary",
+          "url": "https://www.youtube.com/watch?v=02ikyMQpYxM"
+        },
+        {
+          "id": "171694",
+          "name": "Dev Diary",
+          "url": "https://www.youtube.com/watch?v=ySKlX2SnevM"
+        },
+        {
+          "id": "172468",
+          "name": "Dev Diary",
+          "url": "https://www.youtube.com/watch?v=Z4tkXtZijUs"
+        },
+        {
+          "id": "172469",
+          "name": "Gameplay Video",
+          "url": "https://www.youtube.com/watch?v=MPB4-kPoD4A"
+        },
+        {
+          "id": "175914",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=SkC95qXXXrQ"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.rare-castle.com/project-escher/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://rarecastle.itch.io/off-the-grid-bad-dream",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.facebook.com/rarecastle",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/rare_castle",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://discord.gg/M8MWRq7j3t",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.twitch.tv/directory/category/off-the-grid-bad-dream",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.playstation.com/en-us/concept/10015425",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://grokipedia.com/page/Off_the_Grid_Bad_Dream",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/rare_castle",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@rarecastle",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "90714",
+          "title": "Martha Is Dead"
+        },
+        {
+          "id": "244993",
+          "title": "Neo Berlin 2087"
+        },
+        {
+          "id": "174608",
+          "title": "Snowbreak: Containment Zone"
+        },
+        {
+          "id": "43672",
+          "title": "The X-Files: Resist or Serve"
+        },
+        {
+          "id": "173080",
+          "title": "Phantom Blade: Executioners"
+        },
+        {
+          "id": "131886",
+          "title": "The Signifier"
+        },
+        {
+          "id": "210536",
+          "title": "Etheria: Restart"
+        },
+        {
+          "id": "74378",
+          "title": "Simulacra"
+        },
+        {
+          "id": "137286",
+          "title": "Broken Pieces"
+        },
+        {
+          "id": "224705",
+          "title": "Wall World"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "382363"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "419024",
+      "slug": "lufia-i-and-ii-the-sinistrals-saga",
+      "title": "Lufia I & II: The Sinistrals Saga",
+      "summary": "Lufia and its sequel, Lufia II, return! In a love letter to JRPG fans, these two dramatic tales of love and loss, which moved countless players to tears, are back!",
+      "description": "Lufia and its sequel, Lufia II, return! In a love letter to JRPG fans, these two dramatic tales of love and loss, which moved countless players to tears, are back!",
+      "releaseYear": 2027,
+      "genres": [
+        "Role-playing (RPG)"
       ],
       "themes": [],
       "developers": [],
       "publishers": [],
       "platforms": [
+        "PS5",
         "Switch"
       ],
       "cover": {
-        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Zelda%20TotK&font=roboto"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocy5a.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6olp.jpg"
       },
       "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "videos": [
+        {
+          "id": "197000",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=zmcOcvPbZvU"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.taito.co.jp/en/lufia",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4027620/Lufia_I__II_The_Sinistrals_Saga/",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "achievements": {
-        "total": 0,
-        "earned": 0
-      },
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "zelda-totk"
+          "id": "229919",
+          "title": "Fate/Samurai Remnant"
+        },
+        {
+          "id": "25636",
+          "title": "Nights of Azure 2: Bride of the New Moon"
+        },
+        {
+          "id": "78285",
+          "title": "Digimon World Dusk"
+        },
+        {
+          "id": "211607",
+          "title": "Wander Stars"
+        },
+        {
+          "id": "109459",
+          "title": "Little Town Hero"
+        },
+        {
+          "id": "115280",
+          "title": "Oninaki"
+        },
+        {
+          "id": "21083",
+          "title": "Wizardry: Labyrinth of Lost Souls"
+        },
+        {
+          "id": "31307",
+          "title": "Crypt of the Serpent King"
+        },
+        {
+          "id": "202761",
+          "title": "Twin Blades of the Three Kingdoms"
+        },
+        {
+          "id": "48557",
+          "title": "Ultraman Club 2: Kaette Kita Ultraman Club"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.6
-    },
-    {
-      "id": "mario-wonder",
-      "slug": "mario-wonder",
-      "title": "Super Mario Bros. Wonder",
-      "summary": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
-      "description": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
-      "releaseYear": 2023,
-      "genres": [
-        "Platformer"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Wonder&font=roboto"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
-        {
-          "provider": "demo",
-          "id": "mario-wonder"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.3
-    },
-    {
-      "id": "metroid-prime-4",
-      "slug": "metroid-prime-4",
-      "title": "Metroid Prime 4",
-      "summary": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
-      "description": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
-      "releaseYear": 2025,
-      "genres": [
-        "Adventure"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://placehold.co/400x600/1a0a2a/ffffff?text=Metroid%20Prime%204&font=roboto"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
       "franchises": [],
       "collections": [],
       "source": [
         {
-          "provider": "demo",
-          "id": "metroid-prime-4"
+          "provider": "igdb",
+          "id": "419024"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "mario-kart-8",
-      "slug": "mario-kart-8",
-      "title": "Mario Kart 8 Deluxe",
-      "summary": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
-      "description": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
-      "releaseYear": 2017,
+      "id": "418583",
+      "slug": "sid-meiers-civilization-vii-earthrise",
+      "title": "Sid Meier's Civilization VII: Earthrise",
+      "releaseYear": 2027,
       "genres": [
-        "Racing"
+        "Simulator",
+        "Strategy",
+        "Turn-based strategy (TBS)",
+        "Tactical"
       ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "Switch"
+      "themes": [
+        "Historical"
       ],
-      "cover": {
-        "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Kart%208&font=roboto"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
+      "developers": [
         {
-          "provider": "demo",
-          "id": "mario-kart-8"
+          "id": "377",
+          "name": "Firaxis Games"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.1
-    },
-    {
-      "id": "animal-crossing",
-      "slug": "animal-crossing",
-      "title": "Animal Crossing: New Horizons",
-      "summary": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
-      "description": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
-      "releaseYear": 2020,
-      "genres": [
-        "Simulation"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Animal%20Crossing&font=roboto"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
+      "publishers": [
         {
-          "provider": "demo",
-          "id": "animal-crossing"
+          "id": "20228",
+          "name": "2K"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.9
-    },
-    {
-      "id": "hades",
-      "slug": "hades",
-      "title": "Hades",
-      "summary": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
-      "description": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
-      "releaseYear": 2020,
-      "genres": [
-        "Roguelike"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
       "platforms": [
-        "PC",
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
-        {
-          "provider": "demo",
-          "id": "hades"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.3
-    },
-    {
-      "id": "celeste",
-      "slug": "celeste",
-      "title": "Celeste",
-      "summary": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
-      "description": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
-      "releaseYear": 2018,
-      "genres": [
-        "Platformer"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
-        {
-          "provider": "demo",
-          "id": "celeste"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.1
-    },
-    {
-      "id": "stardew",
-      "slug": "stardew",
-      "title": "Stardew Valley",
-      "summary": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
-      "description": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
-      "releaseYear": 2016,
-      "genres": [
-        "Simulation"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
-        {
-          "provider": "demo",
-          "id": "stardew"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.2
-    },
-    {
-      "id": "hollow-knight",
-      "slug": "hollow-knight",
-      "title": "Hollow Knight",
-      "summary": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
-      "description": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
-      "releaseYear": 2017,
-      "genres": [
-        "Metroidvania"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
-        {
-          "provider": "demo",
-          "id": "hollow-knight"
-        }
-      ],
-      "updatedAt": "2026-01-01",
-      "rating": 9
-    },
-    {
-      "id": "disco-elysium",
-      "slug": "disco-elysium",
-      "title": "Disco Elysium",
-      "summary": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
-      "description": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
-      "releaseYear": 2019,
-      "genres": [
-        "RPG"
-      ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
+        "Xbox",
         "PS5",
         "Xbox",
         "Switch"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/632470/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocxh7.jpg"
       },
       "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "videos": [
+        {
+          "id": "196663",
+          "name": "Dev Diary",
+          "url": "https://www.youtube.com/watch?v=9iUv8QS4nGM"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.epicgames.com/p/sid-meiers-civilization-vii--earthrise",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/5032500",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.xbox.com/en-US/games/store/sid-meiers-civilization-vii-earthrise/9n9fcqxfg09m",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
+      "similarGames": [
         {
-          "provider": "demo",
-          "id": "disco-elysium"
+          "id": "88461",
+          "title": "Warhammer 40,000: Mechanicus"
+        },
+        {
+          "id": "36258",
+          "title": "Order of Battle: World War II"
+        },
+        {
+          "id": "7468",
+          "title": "Tom Clancy's EndWar"
+        },
+        {
+          "id": "137070",
+          "title": "Terraformers"
+        },
+        {
+          "id": "261627",
+          "title": "Lost Eidolons: Veil of the Witch"
+        },
+        {
+          "id": "139883",
+          "title": "King Arthur: Knight's Tale"
+        },
+        {
+          "id": "28244",
+          "title": "Nobunaga's Ambition: Taishi"
+        },
+        {
+          "id": "159298",
+          "title": "Yu-Gi-Oh! Master Duel"
+        },
+        {
+          "id": "107233",
+          "title": "The Settlers: New Allies"
+        },
+        {
+          "id": "171768",
+          "title": "Voice of Cards: The Isle Dragon Roars"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.4
+      "franchises": [
+        "Sid Meier"
+      ],
+      "collections": [
+        "Civilization"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "418583"
+        }
+      ],
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "helldivers-2",
-      "slug": "helldivers-2",
-      "title": "Helldivers 2",
-      "summary": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
-      "description": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
-      "releaseYear": 2024,
+      "id": "418498",
+      "slug": "faraday-blues",
+      "title": "Faraday Blues",
+      "summary": "Faraday Blues is a surreal science fiction adventure about a daughter searching for parents who don't know she exists. Play as Lina, a mysterious girl who awakens in a place she doesn't understand. An old computer introduces her to a strange game table filled with cards. Two of them bear the faces of her parents. However, they have no idea who she is. Worse still: their lives are already marked by tragedy.",
+      "description": "Faraday Blues is a surreal science fiction adventure about a daughter searching for parents who don't know she exists. Play as Lina, a mysterious girl who awakens in a place she doesn't understand. An old computer introduces her to a strange game table filled with cards. Two of them bear the faces of her parents. However, they have no idea who she is. Worse still: their lives are already marked by tragedy.",
+      "releaseYear": 2027,
       "genres": [
-        "Shooter"
+        "Strategy",
+        "Visual Novel"
       ],
       "themes": [],
-      "developers": [],
+      "developers": [
+        {
+          "id": "6352",
+          "name": "Serenity Forge"
+        }
+      ],
       "publishers": [],
       "platforms": [
-        "PC",
+        "Xbox",
         "PS5"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/553850/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocxgl.jpg"
       },
       "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "videos": [
+        {
+          "id": "196569",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=Ua3WUTS5T70"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/5221470",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.xbox.com/en-us/games/store/faraday-blues/9nx6km512v3k",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.playstation.com/en-us/concept/10020812",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
+      "similarGames": [
+        {
+          "id": "123284",
+          "title": "Territory Idle"
+        },
+        {
+          "id": "245228",
+          "title": "Mars Blade"
+        },
+        {
+          "id": "237698",
+          "title": "Sword of Destruction II: Kyouhen no Yakata"
+        },
+        {
+          "id": "192193",
+          "title": "Vtuber Simulator"
+        },
+        {
+          "id": "32956",
+          "title": "The Afterglow of Grisaia"
+        },
+        {
+          "id": "32910",
+          "title": "The Melody of Grisaia"
+        },
+        {
+          "id": "11801",
+          "title": "Muv-Luv Photonmelodies"
+        },
+        {
+          "id": "276832",
+          "title": "Schrödinger's Call"
+        },
+        {
+          "id": "159720",
+          "title": "Milk Outside a Bag of Milk Outside a Bag of Milk"
+        },
+        {
+          "id": "130216",
+          "title": "Hardspace: Shipbreaker"
+        }
+      ],
       "franchises": [],
       "collections": [],
       "source": [
         {
-          "provider": "demo",
-          "id": "helldivers-2"
+          "provider": "igdb",
+          "id": "418498"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.6
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "palworld",
-      "slug": "palworld",
-      "title": "Palworld",
-      "summary": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
-      "description": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
-      "releaseYear": 2024,
+      "id": "418198",
+      "slug": "higurashi-no-naku-koro-ni-jong-remaster",
+      "title": "Higurashi no Naku Koro ni Jong Remaster",
+      "summary": "Higurashi no Naku Koro ni Jong arrives as a mahjong game! Harness your mahjong skills to face the tragedy! Featuring an original scenario supervised by original creator Ryukishi07 and animated cutscenes with over 7,000 frames! This is the ultimate Hinamizawa mahjong experience!",
+      "description": "Higurashi no Naku Koro ni Jong arrives as a mahjong game! Harness your mahjong skills to face the tragedy! Featuring an original scenario supervised by original creator Ryukishi07 and animated cutscenes with over 7,000 frames! This is the ultimate Hinamizawa mahjong experience!",
+      "releaseYear": 2027,
       "genres": [
-        "Survival"
+        "Adventure",
+        "Visual Novel",
+        "Card & Board Game"
       ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
-      "platforms": [
-        "PC",
-        "Xbox"
+      "themes": [
+        "Horror",
+        "Comedy",
+        "Mystery",
+        "Romance"
       ],
-      "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/library_600x900_2x.jpg"
-      },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
-      "dlc": [],
-      "expansions": [],
-      "editions": [],
-      "relatedGames": [],
-      "similarGames": [],
-      "franchises": [],
-      "collections": [],
-      "source": [
+      "developers": [
         {
-          "provider": "demo",
-          "id": "palworld"
+          "id": "13178",
+          "name": "City Connection"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8
-    },
-    {
-      "id": "deep-rock",
-      "slug": "deep-rock",
-      "title": "Deep Rock Galactic",
-      "summary": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
-      "description": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
-      "releaseYear": 2020,
-      "genres": [
-        "Shooter"
-      ],
-      "themes": [],
-      "developers": [],
       "publishers": [],
       "platforms": [
-        "PC",
         "PS5",
-        "Xbox"
+        "Switch"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/548430/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocwuv.jpg"
       },
       "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "videos": [
+        {
+          "id": "196375",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=Z2uC4Nz0Zfk"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4868300",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
+      "similarGames": [
+        {
+          "id": "276832",
+          "title": "Schrödinger's Call"
+        },
+        {
+          "id": "159720",
+          "title": "Milk Outside a Bag of Milk Outside a Bag of Milk"
+        },
+        {
+          "id": "134165",
+          "title": "Until Then"
+        },
+        {
+          "id": "120556",
+          "title": "Spirit Hunter: NG"
+        },
+        {
+          "id": "65504",
+          "title": "Steins;Gate: Linear Bounded Phenogram"
+        },
+        {
+          "id": "11776",
+          "title": "Anonymous;Code"
+        },
+        {
+          "id": "146054",
+          "title": "I Was a Teenage Exocolonist"
+        },
+        {
+          "id": "210566",
+          "title": "Bahnsen Knights"
+        },
+        {
+          "id": "201044",
+          "title": "The Quintessential Quintuplets: Five Memories Spent With You"
+        },
+        {
+          "id": "58194",
+          "title": "Island"
+        }
+      ],
+      "franchises": [
+        "Higurashi When They Cry"
+      ],
+      "collections": [
+        "Higurashi no Naku Koro ni"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "418198"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "418136",
+      "slug": "everything-must-fit",
+      "title": "Everything Must Fit!",
+      "summary": "In this puzzle game, transform, combine, and break items to arrange them to fit the grid. No matter what, everything MUST fit!",
+      "description": "In this puzzle game, transform, combine, and break items to arrange them to fit the grid. No matter what, everything MUST fit!",
+      "releaseYear": 2027,
+      "genres": [
+        "Puzzle",
+        "Indie"
+      ],
+      "themes": [],
+      "developers": [
+        {
+          "id": "41776",
+          "name": "Janbeh Games"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocxfo.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6lla.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc159cl.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc159cs.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc159cy.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc159dd.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc159de.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "196343",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=jiRpz87hzX8"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4658150",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://janbehgames.com/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://bsky.app/profile/janbehchanbeh.bsky.social",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/janbehchanbeh",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.instagram.com/janbehchanbeh/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.youtube.com/@janbehchanbeh",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "154873",
+          "title": "Understand"
+        },
+        {
+          "id": "148098",
+          "title": "Tiger Trio's Tasty Travels"
+        },
+        {
+          "id": "117351",
+          "title": "The Long Return"
+        },
+        {
+          "id": "65838",
+          "title": "Odysseus Kosmos and his Robot Quest"
+        },
+        {
+          "id": "41893",
+          "title": "Shephy"
+        },
+        {
+          "id": "211729",
+          "title": "The Shape of Things"
+        },
+        {
+          "id": "127440",
+          "title": "Taiji"
+        },
+        {
+          "id": "126639",
+          "title": "The Wild Case"
+        },
+        {
+          "id": "117084",
+          "title": "Angelo and Deemon: One Hell of a Quest"
+        },
+        {
+          "id": "34507",
+          "title": "Tinboy"
+        }
+      ],
       "franchises": [],
       "collections": [],
       "source": [
         {
-          "provider": "demo",
-          "id": "deep-rock"
+          "provider": "igdb",
+          "id": "418136"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "it-takes-two",
-      "slug": "it-takes-two",
-      "title": "It Takes Two",
-      "summary": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
-      "description": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
-      "releaseYear": 2021,
+      "id": "417339",
+      "slug": "professor-layton-and-the-curious-village-remake",
+      "title": "Professor Layton and the Curious Village Remake",
+      "releaseYear": 2027,
+      "genres": [],
+      "themes": [
+        "Mystery"
+      ],
+      "developers": [
+        {
+          "id": "837",
+          "name": "LEVEL-5"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "PS5",
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocvlg.jpg"
+      },
+      "screenshots": [],
+      "videos": [
+        {
+          "id": "195864",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=Fi2qQG_xZb8"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://www.layton.jp/fushigi-remake/en/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "229919",
+          "title": "Fate/Samurai Remnant"
+        },
+        {
+          "id": "25636",
+          "title": "Nights of Azure 2: Bride of the New Moon"
+        },
+        {
+          "id": "244028",
+          "title": "Gym Manager"
+        },
+        {
+          "id": "236665",
+          "title": "Professor Layton and the New World of Steam"
+        },
+        {
+          "id": "215436",
+          "title": "Darts"
+        },
+        {
+          "id": "143072",
+          "title": "Chickens on the Road"
+        },
+        {
+          "id": "121947",
+          "title": "The Suicide of Rachel Foster"
+        },
+        {
+          "id": "83606",
+          "title": "Noir Chronicles: City of Crime"
+        },
+        {
+          "id": "34218",
+          "title": "KonoSuba: God's Blessing on this Wonderful World! Judgment on this Greedy Game!"
+        },
+        {
+          "id": "26223",
+          "title": "Quern: Undying Thoughts"
+        }
+      ],
+      "franchises": [
+        "Professor Layton"
+      ],
+      "collections": [
+        "Professor Layton"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "417339"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "417189",
+      "slug": "hoshin-engi-re-surrection",
+      "title": "Hoshin Engi Re:surrection",
+      "summary": "Wield mythic treasures, ride spirit beasts, and hack and slash through ever-shifting dungeons in an all-new roguelite steeped in Chinese myth, based on Ryu Fujisaki's Weekly Shonen Jump manga. A new hero, a new story, thirty years on.",
+      "description": "Wield mythic treasures, ride spirit beasts, and hack and slash through ever-shifting dungeons in an all-new roguelite steeped in Chinese myth, based on Ryu Fujisaki's Weekly Shonen Jump manga. A new hero, a new story, thirty years on.",
+      "releaseYear": 2027,
       "genres": [
+        "Role-playing (RPG)"
+      ],
+      "themes": [
+        "Action"
+      ],
+      "developers": [],
+      "publishers": [
+        {
+          "id": "40673",
+          "name": "Shueisha Games"
+        }
+      ],
+      "platforms": [
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocv9b.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6kh6.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154b7.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154b9.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154b6.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154b8.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154ba.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bc.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bh.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bb.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bd.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154be.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bf.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bg.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "195700",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=tJfaFGB_FHI"
+        },
+        {
+          "id": "195766",
+          "name": "Trailer",
+          "url": "https://www.youtube.com/watch?v=5-G9qOT7gH8"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4474280",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "42759",
+          "title": "Monster Hunter Portable 3rd"
+        },
+        {
+          "id": "257929",
+          "title": "Pine Harbor"
+        },
+        {
+          "id": "225764",
+          "title": "Dungeon Squad"
+        },
+        {
+          "id": "212039",
+          "title": "Class Zero Seven"
+        },
+        {
+          "id": "140896",
+          "title": "Sword Master Story"
+        },
+        {
+          "id": "71489",
+          "title": "Far East of Eden II: Manji-maru"
+        },
+        {
+          "id": "55076",
+          "title": "Closers"
+        },
+        {
+          "id": "46059",
+          "title": "Shining Wisdom"
+        },
+        {
+          "id": "46058",
+          "title": "Dark Savior"
+        },
+        {
+          "id": "26692",
+          "title": "Guardians of Ember"
+        }
+      ],
+      "franchises": [],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "417189"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "417188",
+      "slug": "next-the-portopia-serial-murder-case",
+      "title": "Next: The Portopia Serial Murder Case",
+      "summary": "The legendary \"The Portopia Serial Murder Case\" is reborn! Under the executive direction of Yuji Horii comes an all-new entry featuring five brand-new investigation files. Set in 1980s Kobe, conduct your investigation alongside a new cast of characters and uncover the secrets hidden behind the case.",
+      "description": "The legendary \"The Portopia Serial Murder Case\" is reborn! Under the executive direction of Yuji Horii comes an all-new entry featuring five brand-new investigation files. Set in 1980s Kobe, conduct your investigation alongside a new cast of characters and uncover the secrets hidden behind the case.",
+      "releaseYear": 2027,
+      "genres": [
+        "Adventure",
+        "Visual Novel"
+      ],
+      "themes": [],
+      "developers": [
+        {
+          "id": "23895",
+          "name": "G-MODE"
+        },
+        {
+          "id": "34282",
+          "name": "Room6"
+        }
+      ],
+      "publishers": [],
+      "platforms": [
+        "Switch"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocvbb.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6khq.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154d8.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154d9.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154d6.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154d7.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154da.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154db.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "195751",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=IF2PBtDtBmk"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/5137520",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/okhotskMITF",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "86174",
+          "title": "Tsuki ni Yorisou Otome no Sahou"
+        },
+        {
+          "id": "281741",
+          "title": "Lilja and Natsuka: Painting Lies"
+        },
+        {
+          "id": "280158",
+          "title": "Ego's Spark"
+        },
+        {
+          "id": "279022",
+          "title": "Bigfoot's Journey"
+        },
+        {
+          "id": "272511",
+          "title": "Umineko no Naku Koro ni: Arigato for 556"
+        },
+        {
+          "id": "262638",
+          "title": "Hoshi no nai Sora no Shita de"
+        },
+        {
+          "id": "261212",
+          "title": "Shinjuku Soumei"
+        },
+        {
+          "id": "257587",
+          "title": "Aeryth"
+        },
+        {
+          "id": "247400",
+          "title": "My Merry May"
+        },
+        {
+          "id": "221766",
+          "title": "Yugekitai: Saikyoushin Fukkatsu no Maki"
+        }
+      ],
+      "franchises": [],
+      "collections": [
+        "Yuji Horii Mysteries"
+      ],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "417188"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "417180",
+      "slug": "the-apothecary-diaries-the-false-imperial-brother",
+      "title": "The Apothecary Diaries: The False Imperial Brother",
+      "summary": "Investigate mysteries, craft medicine, and uncover the truth in this brand-new story from The Apothecary Diaries. Explore the rear palace and capital to gather evidence and question witnesses, then assemble what you've learned into theories and deductions to solve thrilling mysteries in this sprawling adventure game.",
+      "description": "Investigate mysteries, craft medicine, and uncover the truth in this brand-new story from The Apothecary Diaries. Explore the rear palace and capital to gather evidence and question witnesses, then assemble what you've learned into theories and deductions to solve thrilling mysteries in this sprawling adventure game.",
+      "releaseYear": 2027,
+      "genres": [
+        "Puzzle",
         "Adventure"
       ],
       "themes": [],
-      "developers": [],
-      "publishers": [],
+      "developers": [
+        {
+          "id": "3046",
+          "name": "Gust"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "18532",
+          "name": "Koei Tecmo"
+        }
+      ],
       "platforms": [
-        "PC",
         "PS5",
-        "Xbox",
         "Switch"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1426210/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocv97.jpg"
       },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6kfh.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w7.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w3.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w1.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w4.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w5.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w6.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w2.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc155w8.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "195709",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=amdOkW4uKxA"
+        },
+        {
+          "id": "195708",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=-IVXf9ZBTE0"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.playstation.com/en-us/concept/10020445/",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4905780",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://x.com/kusuriya_io",
+          "category": "website"
+        },
+        {
+          "label": "Official website",
+          "url": "https://www.koeitecmoamerica.com/theapothecarydiaries/us/",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
+      "similarGames": [
+        {
+          "id": "11545",
+          "title": "Yesterday Origins"
+        },
+        {
+          "id": "27509",
+          "title": "Heaven's Vault"
+        },
+        {
+          "id": "255090",
+          "title": "To a T"
+        },
+        {
+          "id": "153808",
+          "title": "AI: The Somnium Files - Nirvana Initiative"
+        },
+        {
+          "id": "128307",
+          "title": "Detective Pikachu Returns"
+        },
+        {
+          "id": "104436",
+          "title": "Incredible Mandy"
+        },
+        {
+          "id": "119357",
+          "title": "Immortals Fenyx Rising"
+        },
+        {
+          "id": "4679",
+          "title": "Arctic Tale"
+        },
+        {
+          "id": "206806",
+          "title": "Lorelei and the Laser Eyes"
+        },
+        {
+          "id": "229919",
+          "title": "Fate/Samurai Remnant"
+        }
+      ],
       "franchises": [],
       "collections": [],
       "source": [
         {
-          "provider": "demo",
-          "id": "it-takes-two"
+          "provider": "igdb",
+          "id": "417180"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 9.1
+      "updatedAt": "2026-10-05"
     },
     {
-      "id": "overcooked-2",
-      "slug": "overcooked-2",
-      "title": "Overcooked! 2",
-      "summary": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
-      "description": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
-      "releaseYear": 2018,
+      "id": "417177",
+      "slug": "metal-slug-ultimate-collection",
+      "title": "Metal Slug Ultimate Collection",
+      "summary": "Metal Slug Ultimate Collection is a compilation of the entire Metal Slug series, including mainline entries, handheld titles, and the rare Location Test Version. It features quality-of-life improvements like Quick Save and Rewind, plus new modes such as Combat School and online leaderboards for added replayability.\n\nIncluded Titles:\n\nMetal Slug 1996)\nMetal Slug 2 (1998)\nMetal Slug X (1999)\nMetal Slug 3 (2000)\nMetal Slug 4 (2002)\nMetal Slug 5 (2003)\nMetal Slug Advance (2004)\nMetal Slug 6 (2006)\nMetal Slug 7 (2008)\nThe legendary Metal Slug Location Test Version (Never officially released)",
+      "description": "Metal Slug Ultimate Collection is a compilation of the entire Metal Slug series, including mainline entries, handheld titles, and the rare Location Test Version. It features quality-of-life improvements like Quick Save and Rewind, plus new modes such as Combat School and online leaderboards for added replayability.\n\nIncluded Titles:\n\nMetal Slug 1996)\nMetal Slug 2 (1998)\nMetal Slug X (1999)\nMetal Slug 3 (2000)\nMetal Slug 4 (2002)\nMetal Slug 5 (2003)\nMetal Slug Advance (2004)\nMetal Slug 6 (2006)\nMetal Slug 7 (2008)\nThe legendary Metal Slug Location Test Version (Never officially released)",
+      "releaseYear": 2027,
       "genres": [
-        "Party"
+        "Shooter",
+        "Platform",
+        "Arcade"
       ],
-      "themes": [],
-      "developers": [],
-      "publishers": [],
+      "themes": [
+        "Action",
+        "Comedy",
+        "Warfare"
+      ],
+      "developers": [
+        {
+          "id": "16923",
+          "name": "SNK Corporation"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "781",
+          "name": "M2"
+        }
+      ],
       "platforms": [
-        "PC",
-        "PS5",
         "Xbox",
+        "PS5",
         "Switch"
       ],
       "cover": {
-        "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/728880/library_600x900_2x.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocvbk.jpg"
       },
-      "screenshots": [],
-      "videos": [],
-      "websites": [],
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6kh2.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154ax.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154ay.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154au.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154av.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154aw.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "195703",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=tF62iHdOBbc"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/3975260/METAL_SLUG_ULTIMATE_COLLECTION/",
+          "category": "website"
+        }
+      ],
       "dlc": [],
       "expansions": [],
       "editions": [],
       "relatedGames": [],
-      "similarGames": [],
+      "similarGames": [
+        {
+          "id": "25901",
+          "title": "My Friend Pedro"
+        },
+        {
+          "id": "140701",
+          "title": "Taxi Chaos"
+        },
+        {
+          "id": "132917",
+          "title": "One Gun Guy"
+        },
+        {
+          "id": "55042",
+          "title": "Blazing Chrome"
+        },
+        {
+          "id": "185241",
+          "title": "Have a Nice Death"
+        },
+        {
+          "id": "146722",
+          "title": "Blast Brigade vs. the Evil Legion of Dr. Cread"
+        },
+        {
+          "id": "71628",
+          "title": "The Messenger"
+        },
+        {
+          "id": "86255",
+          "title": "Creepy Road"
+        },
+        {
+          "id": "250187",
+          "title": "Umbraclaw"
+        },
+        {
+          "id": "141326",
+          "title": "Habroxia 2"
+        }
+      ],
+      "franchises": [
+        "Metal Slug"
+      ],
+      "collections": [],
+      "source": [
+        {
+          "provider": "igdb",
+          "id": "417177"
+        }
+      ],
+      "updatedAt": "2026-10-05"
+    },
+    {
+      "id": "417173",
+      "slug": "ondeh-ondeh-kayas-tasty-tale",
+      "title": "Ondeh Ondeh Kaya's Tasty Tale",
+      "summary": "Join Kaya on her quest to become a Worldbuilder in this heartwarming puzzle action-adventure. Explore the whimsical world of Selera, inspired by the rich cultures of Southeast Asia, where rhythm powers exploration, puzzles, and combat in a heartfelt tale of family, courage, and self-discovery.",
+      "description": "Join Kaya on her quest to become a Worldbuilder in this heartwarming puzzle action-adventure. Explore the whimsical world of Selera, inspired by the rich cultures of Southeast Asia, where rhythm powers exploration, puzzles, and combat in a heartfelt tale of family, courage, and self-discovery.",
+      "releaseYear": 2027,
+      "genres": [
+        "Puzzle",
+        "Adventure"
+      ],
+      "themes": [
+        "Action",
+        "Fantasy"
+      ],
+      "developers": [
+        {
+          "id": "17928",
+          "name": "Metronomik"
+        }
+      ],
+      "publishers": [
+        {
+          "id": "248",
+          "name": "Bandai Namco Entertainment"
+        }
+      ],
+      "platforms": [
+        "Xbox",
+        "PS5"
+      ],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/cocvax.jpg"
+      },
+      "background": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_thumb/ar6khc.jpg"
+      },
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bn.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bo.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bp.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bq.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154br.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bs.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_thumb/sc154bt.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "195699",
+          "name": "Announcement Trailer",
+          "url": "https://www.youtube.com/watch?v=_nDhS_YouCk"
+        }
+      ],
+      "websites": [
+        {
+          "label": "Official website",
+          "url": "https://store.steampowered.com/app/4013150/Ondeh_Ondeh_Kayas_Tasty_Tale/",
+          "category": "website"
+        }
+      ],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [
+        {
+          "id": "141490",
+          "title": "Drova: Forsaken Kin"
+        },
+        {
+          "id": "118873",
+          "title": "Baldo: The Guardian Owls"
+        },
+        {
+          "id": "206806",
+          "title": "Lorelei and the Laser Eyes"
+        },
+        {
+          "id": "119357",
+          "title": "Immortals Fenyx Rising"
+        },
+        {
+          "id": "196761",
+          "title": "Kingdom Hearts IV"
+        },
+        {
+          "id": "191761",
+          "title": "Minishoot' Adventures"
+        },
+        {
+          "id": "217181",
+          "title": "Undead Horde 2: Necropolis"
+        },
+        {
+          "id": "145264",
+          "title": "Anuchard"
+        },
+        {
+          "id": "132762",
+          "title": "Ashina: The Red Witch"
+        },
+        {
+          "id": "252358",
+          "title": "Bye Sweet Carole"
+        }
+      ],
       "franchises": [],
       "collections": [],
       "source": [
         {
-          "provider": "demo",
-          "id": "overcooked-2"
+          "provider": "igdb",
+          "id": "417173"
         }
       ],
-      "updatedAt": "2026-01-01",
-      "rating": 8.5
+      "updatedAt": "2026-10-05"
     }
   ]
 }

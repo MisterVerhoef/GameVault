@@ -73,6 +73,14 @@ npm run catalogue:import -- --input ./path/to/provider-export.json --provider ig
 
 The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, ratings, release dates, companies, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
 
+To sync directly from IGDB during a trusted build or CI job, configure `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` as environment variables and run:
+
+```bash
+npm run catalogue:sync:igdb
+```
+
+The sync requests a Twitch application token, fetches a bounded IGDB export, runs the existing IGDB adapter and quality validation, and rebuilds the static search index. It validates a temporary catalogue before publishing and refuses to replace the checked-in data with fewer than five games by default. `IGDB_LIMIT` defaults to 100 and can be set from 1 to 500; `IGDB_MIN_GAMES` and `IGDB_QUERY` can override the safety threshold and query. Never expose these credentials to the browser or commit them to the repository. The catalogue workflow supports manual and weekly syncs through the `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` GitHub Actions secrets.
+
 For catalogue operations, run `npm run catalogue:search-index` to generate the static search index or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs.
 
 The personal library is stored locally in the browser. Use the home page Export and Import controls to back up or move statuses and progress as a versioned JSON file.
