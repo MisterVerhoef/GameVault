@@ -4,7 +4,7 @@ import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, PLATFORM_COLORS, Game, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
+import { Platform, Game, allGames, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
 import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
@@ -35,9 +35,6 @@ export default function Home() {
     return recentlyPlayed[0];
   };
 
-  // Apply platform theme color to document
-  const themeColor = selectedPlatform ? PLATFORM_COLORS[selectedPlatform] : PLATFORM_COLORS.PC;
-
   return (
     <div className="flex min-h-screen flex-col">
       <a
@@ -53,27 +50,42 @@ export default function Home() {
         <LibraryToolbar />
         <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
 
-        <GameRow
-          title="Featured Games"
-          games={filterGames(recentlyPlayed)}
-          size="lg"
-        />
+        {searchQuery.trim() ? (
+          <>
+            <GameRow
+              title={`Search results for "${searchQuery.trim()}"`}
+              games={filterGames(allGames)}
+              size="lg"
+            />
+            {filterGames(allGames).length === 0 && (
+              <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
+                No games in the imported catalogue match that search.
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <GameRow
+              title="Featured Games"
+              games={filterGames(recentlyPlayed)}
+              size="lg"
+            />
 
-        <GameRow title="Action" games={filterGames(actionGames)} />
+            <GameRow title="Action" games={filterGames(actionGames)} />
 
-        <GameRow title="RPG" games={filterGames(rpgGames)} />
+            <GameRow title="RPG" games={filterGames(rpgGames)} />
 
-        <GameRow title="Indie Favorites" games={filterGames(indieGames)} />
+            <GameRow title="Indie Favorites" games={filterGames(indieGames)} />
 
-        <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
-        
-        {/* Platform-specific sections */}
-        {selectedPlatform && (
-          <GameRow 
-            title={`${selectedPlatform} Top Games`} 
-            games={filterGames(getGamesByPlatform(selectedPlatform))}
-            size="lg"
-          />
+            <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
+
+            {selectedPlatform && (
+              <GameRow
+                title={`${selectedPlatform} Top Games`}
+                games={filterGames(getGamesByPlatform(selectedPlatform))}
+              />
+            )}
+          </>
         )}
       </main>
 

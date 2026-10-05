@@ -1,10 +1,18 @@
 const platformNames = new Map([
   ["PC", "PC"],
+  ["PC (Microsoft Windows)", "PC"],
+  ["Mac", "PC"],
+  ["Linux", "PC"],
   ["PlayStation 5", "PS5"],
+  ["PlayStation 4", "PS5"],
+  ["PlayStation 3", "PS5"],
+  ["PlayStation 2", "PS5"],
   ["Xbox Series X|S", "Xbox"],
   ["Xbox Series X/S", "Xbox"],
-  ["Nintendo Switch", "Switch"],
+  ["Xbox Series", "Xbox"],
   ["Xbox One", "Xbox"],
+  ["Xbox 360", "Xbox"],
+  ["Nintendo Switch", "Switch"],
 ]);
 
 function imageUrl(image) {
