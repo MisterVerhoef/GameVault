@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
@@ -10,6 +10,15 @@ import LibraryToolbar from "@/components/LibraryToolbar";
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const query = new URLSearchParams(window.location.search).get("search");
+    if (query) {
+      // Hydrate search links after the server-rendered homepage is mounted.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSearchQuery(query);
+    }
+  }, []);
 
   // Filter games based on selected platform and search query.
   const filterGames = (games: Game[]) => {
@@ -48,7 +57,9 @@ export default function Home() {
 
       <main id="main-content" className="flex-1">
         <LibraryToolbar />
-        <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
+        {!searchQuery.trim() && (
+          <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
+        )}
 
         {searchQuery.trim() ? (
           <>

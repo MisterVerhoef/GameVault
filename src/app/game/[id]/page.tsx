@@ -80,18 +80,30 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <div className="mt-2 flex items-center gap-3 text-sm text-muted">
                 <span>{game.releaseYear}</span>
                 <span aria-hidden="true">•</span>
-                <span className="text-yellow-400" aria-label={`Rating ${game.rating} out of 10`}>
+                <span className="text-yellow-400" aria-label={`Rating ${game.rating?.toFixed(2)} out of 10`}>
                   <span aria-hidden="true">★ </span>
-                  {game.rating}
+                  {game.rating?.toFixed(2)}
                 </span>
                 <span aria-hidden="true">•</span>
-                <span className="font-medium">{game.genres.join(", ")}</span>
+                <span className="flex flex-wrap gap-1 font-medium">
+                  {game.genres.map((genre, index) => (
+                    <span key={genre}>
+                      <Link
+                        href={`/?search=${encodeURIComponent(genre)}`}
+                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        {genre}
+                      </Link>
+                      {index < game.genres.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </span>
               </div>
             </div>
 
             {/* Platforms */}
             <div className="flex flex-wrap gap-2">
-              {game.platforms.map((p: Platform) => (
+              {Array.from(new Set(game.platforms)).map((p: Platform) => (
                 <span
                   key={p}
                   className="rounded bg-white/10 px-3 py-1 text-sm font-medium"
@@ -137,7 +149,19 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
                 Genre
               </h3>
-              <p className="text-sm text-foreground/80">{game.genres.join(", ")}</p>
+              <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
+                {game.genres.map((genre, index) => (
+                  <span key={genre}>
+                    <Link
+                      href={`/?search=${encodeURIComponent(genre)}`}
+                      className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                    >
+                      {genre}
+                    </Link>
+                    {index < game.genres.length - 1 ? ", " : ""}
+                  </span>
+                ))}
+              </p>
             </div>
             <div className="rounded-lg bg-card p-4">
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
@@ -149,7 +173,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
                 Rating
               </h3>
-              <p className="text-sm text-foreground/80">{game.rating}/10</p>
+              <p className="text-sm text-foreground/80">{game.rating?.toFixed(2)}/10</p>
             </div>
           </div>
         </section>
@@ -161,19 +185,55 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               {game.developers.length > 0 && (
                 <div className="rounded-lg bg-card p-4">
                   <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Developers</h3>
-                  <p className="text-sm text-foreground/80">{game.developers.map((company) => company.name).join(", ")}</p>
+                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
+                    {game.developers.map((company, index) => (
+                      <span key={company.id}>
+                        <Link
+                          href={`/?search=${encodeURIComponent(company.name)}`}
+                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          {company.name}
+                        </Link>
+                        {index < game.developers.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
+                  </p>
                 </div>
               )}
               {game.publishers.length > 0 && (
                 <div className="rounded-lg bg-card p-4">
                   <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Publishers</h3>
-                  <p className="text-sm text-foreground/80">{game.publishers.map((company) => company.name).join(", ")}</p>
+                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
+                    {game.publishers.map((company, index) => (
+                      <span key={company.id}>
+                        <Link
+                          href={`/?search=${encodeURIComponent(company.name)}`}
+                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          {company.name}
+                        </Link>
+                        {index < game.publishers.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
+                  </p>
                 </div>
               )}
               {game.themes.length > 0 && (
                 <div className="rounded-lg bg-card p-4">
                   <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Themes</h3>
-                  <p className="text-sm text-foreground/80">{game.themes.join(", ")}</p>
+                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
+                    {game.themes.map((theme, index) => (
+                      <span key={theme}>
+                        <Link
+                          href={`/?search=${encodeURIComponent(theme)}`}
+                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          {theme}
+                        </Link>
+                        {index < game.themes.length - 1 ? ", " : ""}
+                      </span>
+                    ))}
+                  </p>
                 </div>
               )}
             </div>
