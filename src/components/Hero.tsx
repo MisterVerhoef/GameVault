@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Game, recentlyPlayed, Platform, PLATFORM_COLORS } from "@/data/games";
 import { useSyncExternalStore } from "react";
 
@@ -43,18 +44,23 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
 
       <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-16">
         {/* Cover art — centered on mobile, side on desktop */}
-        <div className="mx-auto h-52 w-36 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-72 sm:w-48 lg:mx-0 lg:h-80 lg:w-56" style={{ borderColor: `${themeColor}33` }}>
-          {isHydrated && featured.cover?.url && (
-            <Image
-              src={featured.cover.url}
-              alt={featured.title}
-              fill
-              className="object-cover"
-              unoptimized
-              priority
-            />
-          )}
-        </div>
+      <Link
+        href={`/game/${featured.id}`}
+        aria-label={`Open ${featured.title} details`}
+        className="group mx-auto block h-52 w-36 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-72 sm:w-48 lg:mx-0 lg:h-80 lg:w-56"
+        style={{ borderColor: `${themeColor}33` }}
+      >
+        {isHydrated && featured.cover?.url && (
+          <Image
+            src={featured.cover.url}
+            alt={featured.title}
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
+            unoptimized
+            priority
+          />
+        )}
+      </Link>
 
         {/* Info */}
         <div className="flex flex-1 flex-col gap-3 text-center lg:text-left">
@@ -67,9 +73,9 @@ export default function Hero({ featuredGame, selectedPlatform }: HeroProps) {
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
             <span aria-hidden="true">2</span>
-            <span className="text-yellow-400" aria-label={`Rating ${featured.rating} out of 10`}>
+            <span className="text-yellow-400" aria-label={`Rating ${featured.rating?.toFixed(2)} out of 10`}>
               <span aria-hidden="true">★ </span>
-              {featured.rating}
+              {featured.rating?.toFixed(2)}
             </span>
             <span aria-hidden="true">2</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">

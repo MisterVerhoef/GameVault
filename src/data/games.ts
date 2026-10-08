@@ -560,6 +560,25 @@ const getGames = (ids: string[]) => ids.flatMap((id) => {
   const game = gamesById.get(id);
   return game ? [game] : [];
 });
+const getCategoryGames = (
+  ids: string[],
+  predicate: (game: Game) => boolean,
+  limit = 12,
+) => {
+  const selected = getGames(ids);
+  const matching = allGames.filter((game) => predicate(game) && !selected.includes(game));
+  return [...selected, ...matching, ...allGames.filter((game) => !selected.includes(game) && !matching.includes(game))]
+    .slice(0, limit);
+};
+const hasMetadata = (game: Game, value: string) => {
+  const metadata = [
+    ...game.genres,
+    ...game.themes,
+    game.summary ?? "",
+    game.description ?? "",
+  ].join(" ").toLowerCase();
+  return metadata.includes(value);
+};
 
 export const pcGames = getGamesByPlatform("PC");
 export const ps5Games = getGamesByPlatform("PS5");
@@ -568,10 +587,22 @@ export const switchGames = getGamesByPlatform("Switch");
 const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
 export const recentlyPlayed = getGames(recentGameIds);
 if (recentlyPlayed.length === 0) recentlyPlayed.push(...allGames.slice(0, 5));
-export const actionGames = getGames(["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"]);
-export const rpgGames = getGames(["bg3", "ff16", "starfield", "black-myth", "elden-ring"]);
-export const indieGames = getGames(indieGamesSource.map((game) => game.id));
-export const multiplayerGames = getGames(multiplayerGamesSource.map((game) => game.id));
+export const actionGames = getCategoryGames(
+  ["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"],
+  (game) => hasMetadata(game, "action"),
+);
+export const rpgGames = getCategoryGames(
+  ["bg3", "ff16", "starfield", "black-myth", "elden-ring"],
+  (game) => hasMetadata(game, "rpg") || hasMetadata(game, "role-playing"),
+);
+export const indieGames = getCategoryGames(
+  indieGamesSource.map((game) => game.id),
+  (game) => hasMetadata(game, "indie"),
+);
+export const multiplayerGames = getCategoryGames(
+  multiplayerGamesSource.map((game) => game.id),
+  (game) => ["multiplayer", "co-op", "cooperative", "online"].some((value) => hasMetadata(game, value)),
+);
 
 // ============================================
 // HELPER FUNCTIONS
