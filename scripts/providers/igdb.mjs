@@ -62,6 +62,7 @@ export function normalizeIgdbRecord(record) {
     developers: companies(record.involved_companies, true),
     publishers: companies(record.involved_companies, false),
     platforms,
+    platformVariants: [...new Set((record.platforms ?? []).map((platform) => platform.name).filter(Boolean))],
     cover: imageUrl(record.cover, "t_cover_big"),
     background: imageUrl(record.artworks?.[0], "t_1080p"),
     screenshots: (record.screenshots ?? []).map((image) => ({

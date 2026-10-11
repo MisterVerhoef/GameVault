@@ -9,6 +9,7 @@ import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [selectedPlatformVariant, setSelectedPlatformVariant] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
@@ -26,6 +27,10 @@ export default function Home() {
 
     if (selectedPlatform) {
       filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
+    }
+
+    if (selectedPlatformVariant) {
+      filtered = filtered.filter((game) => game.platformVariants?.includes(selectedPlatformVariant));
     }
 
     if (searchQuery.trim()) {
@@ -53,12 +58,23 @@ export default function Home() {
         Skip to content
       </a>
 
-      <Navbar onPlatformSelect={setSelectedPlatform} onSearch={setSearchQuery} />
+      <Navbar
+        onPlatformSelect={(platform) => {
+          setSelectedPlatform(platform);
+          setSelectedPlatformVariant(null);
+        }}
+        onPlatformVariantSelect={setSelectedPlatformVariant}
+        onSearch={setSearchQuery}
+      />
 
       <main id="main-content" className="flex-1">
         <LibraryToolbar />
         {!searchQuery.trim() && (
-          <Hero featuredGame={getFeaturedGame()} selectedPlatform={selectedPlatform} />
+          <Hero
+            featuredGame={getFeaturedGame()}
+            featuredGames={filterGames(recentlyPlayed)}
+            selectedPlatform={selectedPlatform}
+          />
         )}
 
         {searchQuery.trim() ? (
