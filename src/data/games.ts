@@ -37,6 +37,7 @@ export interface ExternalLink {
 export interface ContentRef {
   id: string;
   title: string;
+  cover?: ImageAsset;
 }
 
 export interface RelatedGame extends ContentRef {

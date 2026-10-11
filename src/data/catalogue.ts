@@ -84,7 +84,7 @@ export interface ExternalGameRecord {
   expansions?: { id: string; title: string }[];
   editions?: { id: string; title: string }[];
   relatedGames?: { id: string; title: string; relation: "sequel" | "prequel" | "spinoff" | "collection" | "remake" }[];
-  similarGames?: { id: string; title: string }[];
+  similarGames?: { id: string; title: string; cover?: string | { url: string; width?: number; height?: number } }[];
   franchises?: string[];
   collections?: string[];
   source?: { provider: string; id: string };
@@ -98,6 +98,27 @@ function normalizeMediaUrl(value?: string): string | undefined {
   const trimmed = value.trim();
   if (!trimmed) return undefined;
   return trimmed.replace(/^\/\//, "https://");
+}
+
+function upgradeIgdbImageUrl(url: string, size: "t_cover_big" | "t_screenshot_huge" | "t_1080p") {
+  if (!url.includes("images.igdb.com/igdb/image/upload/")) return url;
+  return url.replace(/\/t_[^/]+\//, `/${size}/`);
+}
+
+function normalizeGameMedia(game: Game): Game {
+  return {
+    ...game,
+    cover: game.cover
+      ? { ...game.cover, url: upgradeIgdbImageUrl(game.cover.url, "t_cover_big") }
+      : undefined,
+    background: game.background
+      ? { ...game.background, url: upgradeIgdbImageUrl(game.background.url, "t_1080p") }
+      : undefined,
+    screenshots: game.screenshots.map((screenshot) => ({
+      ...screenshot,
+      url: upgradeIgdbImageUrl(screenshot.url, "t_screenshot_huge"),
+    })),
+  };
 }
 
 function asImage(value: ExternalGameRecord["cover"] | ExternalGameRecord["background"], fallback?: string) {
@@ -159,7 +180,11 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     expansions: record.expansions ?? [],
     editions: record.editions ?? [],
     relatedGames: record.relatedGames ?? [],
-    similarGames: record.similarGames ?? [],
+    similarGames: (record.similarGames ?? []).map((game) => ({
+      id: game.id,
+      title: game.title,
+      cover: asImage(game.cover),
+    })),
     franchises: record.franchises ?? [],
     collections: record.collections ?? [],
     source: [{ provider: record.source?.provider ?? provider, id: sourceId }],
@@ -250,5 +275,5 @@ export function validateCatalogue(value: unknown): value is CatalogueIndex {
 }
 
 export function normalizeCatalogue(value: unknown, fallback: Game[]): Game[] {
-  return validateCatalogue(value) ? value.games : fallback;
+  return validateCatalogue(value) ? value.games.map(normalizeGameMedia) : fallback.map(normalizeGameMedia);
 }

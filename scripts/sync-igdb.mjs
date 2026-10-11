@@ -36,7 +36,7 @@ const defaultQuery = [
   "videos.id,videos.name,videos.video_id,websites.url,websites.category,",
   "involved_companies.developer,involved_companies.publisher,involved_companies.company.id,involved_companies.company.name,",
   "dlcs.id,dlcs.name,expansions.id,expansions.name,",
-  "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,",
+  "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,similar_games.cover.url,",
   "franchises.name,collections.name;",
   `limit ${limit};`,
   "where platforms != null;",

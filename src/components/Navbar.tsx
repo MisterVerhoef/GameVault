@@ -9,17 +9,47 @@ interface NavbarProps {
   onSearch?: (query: string) => void;
 }
 
+const platformFamilies = [
+  {
+    label: "PC",
+    platform: "PC" as Platform,
+    variants: ["Windows", "Mac", "Linux"],
+  },
+  {
+    label: "PlayStation",
+    platform: "PS5" as Platform,
+    variants: ["PS5", "PS4", "PS3", "PS2"],
+  },
+  {
+    label: "Xbox",
+    platform: "Xbox" as Platform,
+    variants: ["Xbox Series", "Xbox One", "Xbox 360", "Original Xbox"],
+  },
+  {
+    label: "Nintendo",
+    platform: "Switch" as Platform,
+    variants: ["Switch", "Switch 2", "Wii U", "Wii", "GameCube", "N64", "SNES", "NES", "3DS", "DS", "Game Boy"],
+  },
+] as const;
+
 export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
+  const selectedFamily = platformFamilies.find((family) => family.platform === selectedPlatform);
 
   const handlePlatformSelect = (platform: Platform | null) => {
     setSelectedPlatform(platform);
+    setSelectedVariant(null);
     onPlatformSelect?.(platform);
     setMenuOpen(false);
+  };
+
+  const handleVariantSelect = (variant: string) => {
+    setSelectedVariant((current) => (current === variant ? null : variant));
   };
 
   const handleSearch = (query: string) => {
@@ -55,16 +85,16 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
 
         {/* Platform filter buttons (desktop) */}
         <div className="hidden items-center gap-2 md:flex">
-          {(["PC", "PS5", "Xbox", "Switch"] as Platform[]).map((platform) => (
+          {platformFamilies.map((family) => (
             <button
-              key={platform}
-              onClick={() => handlePlatformSelect(selectedPlatform === platform ? null : platform)}
-              aria-label={`Filter by ${platform}`}
-              aria-pressed={selectedPlatform === platform}
-              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === platform ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-              style={selectedPlatform === platform ? { backgroundColor: PLATFORM_COLORS[platform] } : {}}
+              key={family.platform}
+              onClick={() => handlePlatformSelect(selectedPlatform === family.platform ? null : family.platform)}
+              aria-label={`Filter by ${family.label}`}
+              aria-pressed={selectedPlatform === family.platform}
+              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === family.platform ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              style={selectedPlatform === family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
-              {platform}
+              {family.label}
             </button>
           ))}
         </div>
@@ -203,6 +233,34 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
         </div>
       </div>
 
+      {selectedFamily && (
+        <div className="hidden border-t border-white/5 md:block">
+          <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
+            <span className="flex-shrink-0 text-xs font-medium uppercase tracking-wider text-muted">
+              {selectedFamily.label} platforms
+            </span>
+            <span className="h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
+            <div className="flex items-center gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
+              {selectedFamily.variants.map((variant) => (
+                <button
+                  key={variant}
+                  type="button"
+                  onClick={() => handleVariantSelect(variant)}
+                  aria-pressed={selectedVariant === variant}
+                  className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    selectedVariant === variant
+                      ? "bg-white/10 text-foreground"
+                      : "text-muted hover:bg-white/5 hover:text-foreground"
+                  }`}
+                >
+                  {variant}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mobile search bar (expanded state) */}
       {searchOpen && (
         <div id="mobile-search" className="border-t border-white/5 px-4 py-2 sm:hidden">
@@ -237,15 +295,36 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
             {/* Platform filters in mobile menu */}
             <div className="mt-2 border-t border-white/5 pt-2">
               <p className="px-3 py-1 text-xs font-medium text-muted">Filter by Platform</p>
-              {(["PC", "PS5", "Xbox", "Switch"] as Platform[]).map((platform) => (
-                <button
-                  key={platform}
-                  onClick={() => handlePlatformSelect(selectedPlatform === platform ? null : platform)}
-                  className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedPlatform === platform ? `text-white` : "text-muted hover:text-foreground"}`}
-                  style={selectedPlatform === platform ? { color: PLATFORM_COLORS[platform] } : {}}
-                >
-                  {platform}
-                </button>
+              {platformFamilies.map((family) => (
+                <div key={family.platform}>
+                  <button
+                    onClick={() => handlePlatformSelect(selectedPlatform === family.platform ? null : family.platform)}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedPlatform === family.platform ? "text-white" : "text-muted hover:text-foreground"}`}
+                    style={selectedPlatform === family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
+                    aria-pressed={selectedPlatform === family.platform}
+                  >
+                    {family.label}
+                  </button>
+                  {selectedPlatform === family.platform && (
+                    <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
+                      {family.variants.map((variant) => (
+                        <button
+                          key={variant}
+                          type="button"
+                          onClick={() => handleVariantSelect(variant)}
+                          aria-pressed={selectedVariant === variant}
+                          className={`rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                            selectedVariant === variant
+                              ? "bg-white/10 text-foreground"
+                              : "text-muted hover:bg-white/5 hover:text-foreground"
+                          }`}
+                        >
+                          {variant}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           </div>
