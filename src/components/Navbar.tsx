@@ -6,50 +6,64 @@ import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
   onPlatformSelect?: (platform: Platform | null) => void;
+  onPlatformVariantSelect?: (variant: string | null) => void;
   onSearch?: (query: string) => void;
 }
 
 const platformFamilies = [
   {
+    key: "pc",
     label: "PC",
     platform: "PC" as Platform,
     variants: ["Windows", "Mac", "Linux"],
   },
   {
+    key: "playstation",
     label: "PlayStation",
     platform: "PS5" as Platform,
     variants: ["PS5", "PS4", "PS3", "PS2"],
   },
   {
+    key: "xbox",
     label: "Xbox",
     platform: "Xbox" as Platform,
     variants: ["Xbox Series", "Xbox One", "Xbox 360", "Original Xbox"],
   },
   {
+    key: "nintendo",
     label: "Nintendo",
     platform: "Switch" as Platform,
     variants: ["Switch", "Switch 2", "Wii U", "Wii", "GameCube", "N64", "SNES", "NES", "3DS", "DS", "Game Boy"],
   },
+  {
+    key: "other",
+    label: "Other",
+    platform: null,
+    variants: ["Sega", "Atari", "3DO", "Ouya", "Neo Geo", "Commodore", "Stadia"],
+  },
 ] as const;
 
-export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
+export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
-  const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const selectedFamily = platformFamilies.find((family) => family.platform === selectedPlatform);
+  const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
 
-  const handlePlatformSelect = (platform: Platform | null) => {
-    setSelectedPlatform(platform);
+  const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
+    setSelectedFamilyKey(selectedFamilyKey === familyKey ? null : familyKey);
     setSelectedVariant(null);
-    onPlatformSelect?.(platform);
+    onPlatformVariantSelect?.(null);
+    onPlatformSelect?.(selectedFamilyKey === familyKey ? null : platform);
     setMenuOpen(false);
   };
 
   const handleVariantSelect = (variant: string) => {
-    setSelectedVariant((current) => (current === variant ? null : variant));
+    const nextVariant = selectedVariant === variant ? null : variant;
+    setSelectedVariant(nextVariant);
+    onPlatformVariantSelect?.(nextVariant);
   };
 
   const handleSearch = (query: string) => {
@@ -87,12 +101,12 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
         <div className="hidden items-center gap-2 md:flex">
           {platformFamilies.map((family) => (
             <button
-              key={family.platform}
-              onClick={() => handlePlatformSelect(selectedPlatform === family.platform ? null : family.platform)}
+              key={family.key}
+              onClick={() => handlePlatformSelect(family.platform, family.key)}
               aria-label={`Filter by ${family.label}`}
-              aria-pressed={selectedPlatform === family.platform}
-              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedPlatform === family.platform ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-              style={selectedPlatform === family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
+              aria-pressed={selectedFamilyKey === family.key}
+              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
               {family.label}
             </button>
@@ -296,16 +310,16 @@ export default function Navbar({ onPlatformSelect, onSearch }: NavbarProps) {
             <div className="mt-2 border-t border-white/5 pt-2">
               <p className="px-3 py-1 text-xs font-medium text-muted">Filter by Platform</p>
               {platformFamilies.map((family) => (
-                <div key={family.platform}>
+                <div key={family.key}>
                   <button
-                    onClick={() => handlePlatformSelect(selectedPlatform === family.platform ? null : family.platform)}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedPlatform === family.platform ? "text-white" : "text-muted hover:text-foreground"}`}
-                    style={selectedPlatform === family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
-                    aria-pressed={selectedPlatform === family.platform}
+                    onClick={() => handlePlatformSelect(family.platform, family.key)}
+                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
+                    style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
+                    aria-pressed={selectedFamilyKey === family.key}
                   >
                     {family.label}
                   </button>
-                  {selectedPlatform === family.platform && (
+                  {selectedFamilyKey === family.key && (
                     <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
                       {family.variants.map((variant) => (
                         <button

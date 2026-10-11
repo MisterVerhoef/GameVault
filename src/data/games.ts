@@ -66,6 +66,7 @@ export interface Game {
   developers: CompanyRef[];
   publishers: CompanyRef[];
   platforms: Platform[];
+  platformVariants?: string[];
   cover?: ImageAsset;
   background?: ImageAsset;
   rating?: number;

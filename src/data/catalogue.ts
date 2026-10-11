@@ -70,6 +70,7 @@ export interface ExternalGameRecord {
   developers?: { id: string; name: string }[];
   publishers?: { id: string; name: string }[];
   platforms?: Platform[];
+  platformVariants?: string[];
   platform?: Platform;
   cover?: string | { url: string; width?: number; height?: number };
   coverUrl?: string;
@@ -161,6 +162,7 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     developers: record.developers ?? [],
     publishers: record.publishers ?? [],
     platforms,
+    platformVariants: record.platformVariants ?? [],
     cover: asImage(record.cover, record.coverUrl),
     background: asImage(record.background, record.backgroundUrl),
     rating: record.rating,
