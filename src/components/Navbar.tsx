@@ -6,6 +6,7 @@ import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
   onPlatformSelect?: (platform: Platform | null) => void;
+  onPlatformFamilySelect?: (family: string | null) => void;
   onPlatformVariantSelect?: (variant: string | null) => void;
   onSearch?: (query: string) => void;
 }
@@ -55,7 +56,7 @@ const platformFamilies: readonly PlatformFamily[] = [
   },
 ];
 
-export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
+export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -71,10 +72,12 @@ export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSe
     selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
 
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
-    setSelectedFamilyKey(selectedFamilyKey === familyKey ? null : familyKey);
+    const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
+    setSelectedFamilyKey(nextFamily?.key ?? null);
     setSelectedVariant(null);
+    onPlatformFamilySelect?.(nextFamily?.label ?? null);
     onPlatformVariantSelect?.(null);
-    onPlatformSelect?.(selectedFamilyKey === familyKey ? null : platform);
+    onPlatformSelect?.(nextFamily?.platform ?? null);
     setMenuOpen(false);
   };
 

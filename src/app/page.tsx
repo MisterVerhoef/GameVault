@@ -9,6 +9,7 @@ import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
+  const [selectedPlatformFamily, setSelectedPlatformFamily] = useState<string | null>(null);
   const [selectedPlatformVariant, setSelectedPlatformVariant] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const hasPlatformVariantData = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
@@ -60,6 +61,7 @@ export default function Home() {
       </a>
 
       <Navbar
+        onPlatformFamilySelect={setSelectedPlatformFamily}
         onPlatformSelect={(platform) => {
           setSelectedPlatform(platform);
           setSelectedPlatformVariant(null);
@@ -107,9 +109,9 @@ export default function Home() {
 
             <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
 
-            {(selectedPlatform || selectedPlatformVariant) && (
+            {(selectedPlatform || selectedPlatformFamily || selectedPlatformVariant) && (
               <GameRow
-                title={`${selectedPlatformVariant ?? selectedPlatform} Top Games`}
+                title={`${selectedPlatformVariant ?? selectedPlatform ?? selectedPlatformFamily} Top Games`}
                 games={filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
               />
             )}
