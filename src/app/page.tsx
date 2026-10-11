@@ -11,6 +11,7 @@ export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [selectedPlatformVariant, setSelectedPlatformVariant] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const hasPlatformVariantData = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search).get("search");
@@ -29,7 +30,7 @@ export default function Home() {
       filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
     }
 
-    if (selectedPlatformVariant) {
+    if (selectedPlatformVariant && hasPlatformVariantData) {
       filtered = filtered.filter((game) => game.platformVariants?.includes(selectedPlatformVariant));
     }
 
@@ -106,10 +107,10 @@ export default function Home() {
 
             <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
 
-            {selectedPlatform && (
+            {(selectedPlatform || selectedPlatformVariant) && (
               <GameRow
-                title={`${selectedPlatform} Top Games`}
-                games={filterGames(getGamesByPlatform(selectedPlatform))}
+                title={`${selectedPlatformVariant ?? selectedPlatform} Top Games`}
+                games={filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
               />
             )}
           </>
