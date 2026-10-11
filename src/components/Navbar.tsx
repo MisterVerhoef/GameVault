@@ -10,7 +10,15 @@ interface NavbarProps {
   onSearch?: (query: string) => void;
 }
 
-const platformFamilies = [
+interface PlatformFamily {
+  key: string;
+  label: string;
+  platform: Platform | null;
+  variants: readonly string[];
+  variantChildren?: Record<string, readonly string[]>;
+}
+
+const platformFamilies: readonly PlatformFamily[] = [
   {
     key: "pc",
     label: "PC",
@@ -40,8 +48,12 @@ const platformFamilies = [
     label: "Other",
     platform: null,
     variants: ["Sega", "Atari", "3DO", "Ouya", "Neo Geo", "Commodore", "Stadia"],
+    variantChildren: {
+      Sega: ["Master System", "Genesis", "Mega Drive", "Sega CD", "32X", "Saturn", "Dreamcast", "Game Gear", "SG-1000"],
+      Atari: ["Atari 2600", "Atari 5200", "Atari 7800", "Atari 8-bit", "Atari ST", "Atari XEGS", "Atari Lynx", "Atari Jaguar", "Atari VCS"],
+    },
   },
-] as const;
+];
 
 export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
@@ -51,6 +63,12 @@ export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSe
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
+  const selectedVariantParent =
+    selectedFamily && selectedVariant
+      ? Object.entries(selectedFamily.variantChildren ?? {}).find(([, children]) => children.includes(selectedVariant))?.[0] ?? null
+      : null;
+  const selectedVariantRoot =
+    selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
 
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
     setSelectedFamilyKey(selectedFamilyKey === familyKey ? null : familyKey);
@@ -254,22 +272,43 @@ export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSe
               {selectedFamily.label} platforms
             </span>
             <span className="h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
-            <div className="flex items-center gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
-              {selectedFamily.variants.map((variant) => (
-                <button
-                  key={variant}
-                  type="button"
-                  onClick={() => handleVariantSelect(variant)}
-                  aria-pressed={selectedVariant === variant}
-                  className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    selectedVariant === variant
-                      ? "bg-white/10 text-foreground"
-                      : "text-muted hover:bg-white/5 hover:text-foreground"
-                  }`}
-                >
-                  {variant}
-                </button>
-              ))}
+            <div className="flex min-w-0 flex-col gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
+              <div className="flex items-center gap-1">
+                {selectedFamily.variants.map((variant) => (
+                  <button
+                    key={variant}
+                    type="button"
+                    onClick={() => handleVariantSelect(variant)}
+                    aria-pressed={selectedVariant === variant || selectedVariantRoot === variant}
+                    className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                      selectedVariant === variant
+                        ? "bg-white/10 text-foreground"
+                        : "text-muted hover:bg-white/5 hover:text-foreground"
+                    }`}
+                  >
+                    {variant}
+                  </button>
+                ))}
+              </div>
+              {selectedVariantRoot && selectedFamily.variantChildren?.[selectedVariantRoot] && (
+                <div className="flex items-center gap-1 pl-2">
+                  {selectedFamily.variantChildren[selectedVariantRoot].map((variant) => (
+                    <button
+                      key={variant}
+                      type="button"
+                      onClick={() => handleVariantSelect(variant)}
+                      aria-pressed={selectedVariant === variant}
+                      className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        selectedVariant === variant
+                          ? "bg-white/10 text-foreground"
+                          : "text-muted hover:bg-white/5 hover:text-foreground"
+                      }`}
+                    >
+                      {variant}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -336,6 +375,27 @@ export default function Navbar({ onPlatformSelect, onPlatformVariantSelect, onSe
                           {variant}
                         </button>
                       ))}
+                      {selectedVariantRoot && family.variantChildren?.[selectedVariantRoot] && (
+                        <div className="basis-full border-t border-white/5 pt-1">
+                          <div className="flex flex-wrap gap-1 pl-2">
+                            {family.variantChildren[selectedVariantRoot].map((variant) => (
+                              <button
+                                key={variant}
+                                type="button"
+                                onClick={() => handleVariantSelect(variant)}
+                                aria-pressed={selectedVariant === variant}
+                                className={`rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                                  selectedVariant === variant
+                                    ? "bg-white/10 text-foreground"
+                                    : "text-muted hover:bg-white/5 hover:text-foreground"
+                                }`}
+                              >
+                                {variant}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>

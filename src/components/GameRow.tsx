@@ -20,6 +20,10 @@ export default function GameRow({
   const scrollRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
 
+  if (games.length === 0) {
+    return null;
+  }
+
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const amount = direction === "left" ? -600 : 600;
