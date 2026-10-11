@@ -15,14 +15,22 @@ const platformNames = new Map([
   ["Nintendo Switch", "Switch"],
 ]);
 
-function imageUrl(image) {
-  return image?.url?.replace(/^\/\//, "https://");
+function imageUrl(image, size = "t_thumb") {
+  const url = image?.url?.replace(/^\/\//, "https://");
+  return url?.replace(/\/t_[^/]+\//, `/${size}/`);
 }
 
 function contentRefs(records = []) {
   return records
     .filter((record) => record?.id && record?.name)
-    .map((record) => ({ id: String(record.id), title: record.name }));
+    .map((record) => {
+      const cover = imageUrl(record.cover, "t_cover_big");
+      return {
+        id: String(record.id),
+        title: record.name,
+        ...(cover ? { cover: { url: cover } } : {}),
+      };
+    });
 }
 
 function companies(involvedCompanies = [], developer) {
@@ -54,10 +62,10 @@ export function normalizeIgdbRecord(record) {
     developers: companies(record.involved_companies, true),
     publishers: companies(record.involved_companies, false),
     platforms,
-    cover: imageUrl(record.cover),
-    background: imageUrl(record.artworks?.[0]),
+    cover: imageUrl(record.cover, "t_cover_big"),
+    background: imageUrl(record.artworks?.[0], "t_1080p"),
     screenshots: (record.screenshots ?? []).map((image) => ({
-      url: imageUrl(image),
+      url: imageUrl(image, "t_screenshot_huge"),
       width: image.width,
       height: image.height,
     })).filter((image) => image.url),
