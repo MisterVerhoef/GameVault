@@ -1,11 +1,16 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 import { normalizeExternalGame } from "../src/data/catalogue.ts";
+import { gameMatchesPlatformVariant, resolveIgdbPlatform } from "../src/data/platforms.ts";
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
 const fixture = JSON.parse(
   await readFile(new URL("./fixtures/igdb-export.json", import.meta.url), "utf8"),
@@ -16,7 +21,8 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
 
   assert.equal(game.id, "1942");
   assert.equal(game.title, "Baldur's Gate 3");
-  assert.deepEqual(game.platforms, ["PC", "PS5"]);
+  assert.deepEqual([...game.platforms].sort(), ["Other", "PC", "PS5"]);
+  assert.deepEqual([...game.platformVariants].sort(), ["PS5", "Stadia", "Windows"]);
   assert.equal(game.releaseYear, 2023);
   assert.equal(game.cover, "https://images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg");
   assert.equal(game.ratingCount, 2500);
@@ -25,7 +31,34 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.screenshots[0].width, 1920);
   assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
   assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
-  assert.deepEqual(game.warnings, ["Unsupported IGDB platform omitted: Google Stadia"]);
+  assert.deepEqual(game.warnings, []);
+});
+
+test("maps navbar platform chips to IGDB platform variant labels", () => {
+  assert.equal(resolveIgdbPlatform("PC (Microsoft Windows)").variant, "Windows");
+  assert.equal(resolveIgdbPlatform("Nintendo Switch").family, "Switch");
+  assert.equal(resolveIgdbPlatform("Sega Dreamcast").family, "Other");
+
+  assert.equal(
+    gameMatchesPlatformVariant({ platformVariants: ["PC (Microsoft Windows)", "Windows"] }, "Windows"),
+    true,
+  );
+  assert.equal(
+    gameMatchesPlatformVariant({ platformVariants: ["Nintendo Switch"] }, "Switch"),
+    true,
+  );
+});
+
+test("demo catalogue generation does not overwrite the published IGDB index", () => {
+  const publishedPath = path.join(root, "public", "catalog", "games-index.json");
+  const before = readFileSync(publishedPath, "utf8");
+  const result = spawnSync(process.execPath, ["scripts/generate-catalogue.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(publishedPath, "utf8"), before);
 });
 
 test("normalizes protocol-relative media URLs before they are rendered", () => {
@@ -69,7 +102,7 @@ test("imports an IGDB fixture through the CLI and records provenance", async () 
   assert.equal(imported.provenance.sourceVersion, "fixture-2026");
   assert.equal(imported.provenance.sourceChecksum.length, 64);
   const report = JSON.parse(await readFile(reportPath, "utf8"));
-  assert.deepEqual(report.warnings, ["Unsupported IGDB platform omitted: Google Stadia"]);
+  assert.deepEqual(report.warnings, []);
   await rm(directory, { recursive: true, force: true });
 });
 

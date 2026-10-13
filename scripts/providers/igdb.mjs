@@ -1,19 +1,6 @@
-const platformNames = new Map([
-  ["PC", "PC"],
-  ["PC (Microsoft Windows)", "PC"],
-  ["Mac", "PC"],
-  ["Linux", "PC"],
-  ["PlayStation 5", "PS5"],
-  ["PlayStation 4", "PS5"],
-  ["PlayStation 3", "PS5"],
-  ["PlayStation 2", "PS5"],
-  ["Xbox Series X|S", "Xbox"],
-  ["Xbox Series X/S", "Xbox"],
-  ["Xbox Series", "Xbox"],
-  ["Xbox One", "Xbox"],
-  ["Xbox 360", "Xbox"],
-  ["Nintendo Switch", "Switch"],
-]);
+import { loadTsModule } from "../load-ts-module.mjs";
+
+const { resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 
 function imageUrl(image, size = "t_thumb") {
   const url = image?.url?.replace(/^\/\//, "https://");
@@ -40,12 +27,15 @@ function companies(involvedCompanies = [], developer) {
 }
 
 export function normalizeIgdbRecord(record) {
-  const unsupportedPlatforms = (record.platforms ?? [])
+  const resolvedPlatforms = (record.platforms ?? [])
     .map((platform) => platform.name)
-    .filter((name) => name && !platformNames.has(name));
-  const platforms = (record.platforms ?? [])
-    .map((platform) => platformNames.get(platform.name))
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((name) => resolveIgdbPlatform(name));
+  const unsupportedPlatforms = resolvedPlatforms
+    .filter((entry) => entry.unmapped)
+    .map((entry) => entry.name);
+  const platforms = [...new Set(resolvedPlatforms.map((entry) => entry.family))];
+  const platformVariants = [...new Set(resolvedPlatforms.map((entry) => entry.variant))];
   const year = record.first_release_date
     ? new Date(record.first_release_date * 1000).getUTCFullYear()
     : undefined;
@@ -62,7 +52,7 @@ export function normalizeIgdbRecord(record) {
     developers: companies(record.involved_companies, true),
     publishers: companies(record.involved_companies, false),
     platforms,
-    platformVariants: [...new Set((record.platforms ?? []).map((platform) => platform.name).filter(Boolean))],
+    platformVariants,
     cover: imageUrl(record.cover, "t_cover_big"),
     background: imageUrl(record.artworks?.[0], "t_1080p"),
     screenshots: (record.screenshots ?? []).map((image) => ({

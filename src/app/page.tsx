@@ -1,18 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
 import { Platform, Game, allGames, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
+import { gameMatchesPlatformVariant } from "@/data/platforms";
 import LibraryToolbar from "@/components/LibraryToolbar";
+import { useLibrary } from "@/context/LibraryContext";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [selectedPlatformFamily, setSelectedPlatformFamily] = useState<string | null>(null);
   const [selectedPlatformVariant, setSelectedPlatformVariant] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { entries } = useLibrary();
   const hasPlatformVariantData = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
+  const continueGames = useMemo(() => {
+    const playing = Object.entries(entries)
+      .filter(([, entry]) => entry.status === "playing")
+      .map(([gameId]) => allGames.find((game) => game.id === gameId))
+      .filter((game): game is Game => Boolean(game));
+    return playing.length > 0 ? playing : recentlyPlayed;
+  }, [entries]);
 
   useEffect(() => {
     const query = new URLSearchParams(window.location.search).get("search");
@@ -32,7 +42,7 @@ export default function Home() {
     }
 
     if (selectedPlatformVariant && hasPlatformVariantData) {
-      filtered = filtered.filter((game) => game.platformVariants?.includes(selectedPlatformVariant));
+      filtered = filtered.filter((game) => gameMatchesPlatformVariant(game, selectedPlatformVariant));
     }
 
     if (searchQuery.trim()) {
@@ -46,9 +56,9 @@ export default function Home() {
   // Get featured game based on selected platform
   const getFeaturedGame = () => {
     if (selectedPlatform) {
-      return getGamesByPlatform(selectedPlatform)[0] || recentlyPlayed[0];
+      return getGamesByPlatform(selectedPlatform)[0] || continueGames[0];
     }
-    return recentlyPlayed[0];
+    return continueGames[0];
   };
 
   return (
@@ -75,7 +85,7 @@ export default function Home() {
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
-            featuredGames={filterGames(recentlyPlayed)}
+            featuredGames={filterGames(continueGames)}
             selectedPlatform={selectedPlatform}
           />
         )}
@@ -97,7 +107,7 @@ export default function Home() {
           <>
             <GameRow
               title="Featured Games"
-              games={filterGames(recentlyPlayed)}
+              games={filterGames(continueGames)}
               size="lg"
             />
 

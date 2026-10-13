@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Platform, PLATFORM_COLORS } from "@/data/games";
+import { PLATFORM_COLORS } from "@/data/games";
+import { PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
 import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
@@ -11,50 +12,7 @@ interface NavbarProps {
   onSearch?: (query: string) => void;
 }
 
-interface PlatformFamily {
-  key: string;
-  label: string;
-  platform: Platform | null;
-  variants: readonly string[];
-  variantChildren?: Record<string, readonly string[]>;
-}
-
-const platformFamilies: readonly PlatformFamily[] = [
-  {
-    key: "pc",
-    label: "PC",
-    platform: "PC" as Platform,
-    variants: ["Windows", "Mac", "Linux"],
-  },
-  {
-    key: "playstation",
-    label: "PlayStation",
-    platform: "PS5" as Platform,
-    variants: ["PS5", "PS4", "PS3", "PS2"],
-  },
-  {
-    key: "xbox",
-    label: "Xbox",
-    platform: "Xbox" as Platform,
-    variants: ["Xbox Series", "Xbox One", "Xbox 360", "Original Xbox"],
-  },
-  {
-    key: "nintendo",
-    label: "Nintendo",
-    platform: "Switch" as Platform,
-    variants: ["Switch", "Switch 2", "Wii U", "Wii", "GameCube", "N64", "SNES", "NES", "3DS", "DS", "Game Boy"],
-  },
-  {
-    key: "other",
-    label: "Other",
-    platform: null,
-    variants: ["Sega", "Atari", "3DO", "Ouya", "Neo Geo", "Commodore", "Stadia"],
-    variantChildren: {
-      Sega: ["Master System", "Genesis", "Mega Drive", "Sega CD", "32X", "Saturn", "Dreamcast", "Game Gear", "SG-1000"],
-      Atari: ["Atari 2600", "Atari 5200", "Atari 7800", "Atari 8-bit", "Atari ST", "Atari XEGS", "Atari Lynx", "Atari Jaguar", "Atari VCS"],
-    },
-  },
-];
+const platformFamilies = PLATFORM_FAMILIES;
 
 export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
   const [search, setSearch] = useState("");
