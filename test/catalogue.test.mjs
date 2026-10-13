@@ -6,9 +6,11 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
 import { test } from "node:test";
+import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
-import { normalizeExternalGame } from "../src/data/catalogue.ts";
-import { gameMatchesPlatformVariant, resolveIgdbPlatform } from "../src/data/platforms.ts";
+
+const { normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
+const { gameMatchesPlatformVariant, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -47,6 +49,34 @@ test("maps navbar platform chips to IGDB platform variant labels", () => {
     gameMatchesPlatformVariant({ platformVariants: ["Nintendo Switch"] }, "Switch"),
     true,
   );
+});
+
+test("imports sega-only IGDB platforms into the Other family", () => {
+  const [game] = normalizeIgdbExport([
+    {
+      id: 42,
+      name: "Sonic Adventure",
+      slug: "sonic-adventure",
+      platforms: [{ name: "Dreamcast" }],
+    },
+  ]);
+
+  assert.equal(game.id, "42");
+  assert.deepEqual(game.platforms, ["Other"]);
+  assert.deepEqual(game.platformVariants, ["Dreamcast"]);
+  assert.deepEqual(game.warnings, []);
+});
+
+test("search index rebuild is idempotent against the committed catalogue", () => {
+  const searchIndexPath = path.join(root, "public", "catalog", "search-index.json");
+  const before = readFileSync(searchIndexPath, "utf8");
+  const result = spawnSync(process.execPath, ["scripts/build-search-index.mjs"], {
+    cwd: root,
+    encoding: "utf8",
+  });
+
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(readFileSync(searchIndexPath, "utf8"), before);
 });
 
 test("demo catalogue generation does not overwrite the published IGDB index", () => {
