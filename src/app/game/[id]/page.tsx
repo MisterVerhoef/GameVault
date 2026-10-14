@@ -281,7 +281,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   href={video.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative flex min-h-36 items-end overflow-hidden rounded-lg bg-card p-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="group relative aspect-video overflow-hidden rounded-xl bg-card shadow-lg shadow-black/40 ring-1 ring-white/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-black/50 hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   {getYouTubeThumbnail(video.url) && (
                     <Image
@@ -292,15 +292,18 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                       unoptimized
                     />
                   )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
-                  <div className="relative flex w-full items-center justify-between gap-4">
-                    <span className="text-sm font-medium text-white">
-                      {video.name || `${game.title} trailer`}
-                    </span>
-                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-red-600 text-white shadow-lg" aria-hidden="true">
-                      ▶
-                    </span>
-                  </div>
+                  <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
+                  <span
+                    className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-red-600 text-white shadow-xl shadow-black/50 ring-4 ring-black/25 transition duration-300 group-hover:scale-105"
+                    aria-hidden="true"
+                  >
+                    <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true">
+                      <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l11.04-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z" />
+                    </svg>
+                  </span>
+                  <span className="absolute inset-x-0 bottom-0 p-3 text-sm font-semibold text-white drop-shadow-md">
+                    {video.name || `${game.title} trailer`}
+                  </span>
                 </a>
               ))}
             </div>
