@@ -24,22 +24,27 @@ const LibraryContext = createContext<LibraryContextValue | null>(null);
 
 export function LibraryProvider({ children }: { children: React.ReactNode }) {
   const [entries, setEntries] = useState<LibraryState>({});
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (!saved) return;
-    try {
-      // Library state is browser-owned and must load after hydration.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setEntries(JSON.parse(saved) as LibraryState);
-    } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        // Library state is browser-owned and must load after hydration.
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setEntries(JSON.parse(saved) as LibraryState);
+      } catch {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setReady(true);
   }, []);
 
   useEffect(() => {
+    if (!ready) return;
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }, [entries]);
+  }, [entries, ready]);
 
   const value = useMemo<LibraryContextValue>(() => ({
     entries,
