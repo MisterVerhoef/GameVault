@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Platform, PLATFORM_COLORS } from "@/data/games";
 import ThemeToggle from "./ThemeToggle";
 
@@ -92,18 +93,36 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onSearch?.(query);
   };
 
+  const goHome = () => {
+    setSearch("");
+    setMenuOpen(false);
+    setSearchOpen(false);
+    setLibraryMenuOpen(false);
+    setSelectedFamilyKey(null);
+    setSelectedVariant(null);
+    onSearch?.("");
+    onPlatformFamilySelect?.(null);
+    onPlatformVariantSelect?.(null);
+    onPlatformSelect?.(null);
+    window.scrollTo({ top: 0 });
+  };
+
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-        {/* Logo */}
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
+        <Link
+          href="/"
+          aria-label="GameVault home"
+          onClick={goHome}
+          className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        >
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
             GV
-          </div>
+          </span>
           <span className="hidden text-xl font-bold tracking-tight sm:block">
             GameVault
           </span>
-        </div>
+        </Link>
 
         {/* Nav links (desktop) */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
