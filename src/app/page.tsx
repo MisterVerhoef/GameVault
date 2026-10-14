@@ -121,10 +121,7 @@ export default function Home() {
 
       {/* Responsive footer: smaller on mobile, sticks to bottom on tall screens */}
       <footer className="mt-12 border-t border-white/5 px-4 py-6 text-center text-sm text-muted sm:mt-16 sm:py-8">
-        <p className="px-2 leading-relaxed">
-          GameVault — Jellyfin / Emby style game library
-        </p>
-        <p className="mt-1 px-2 text-xs opacity-60 sm:text-sm">
+        <p className="px-2 text-xs opacity-60 sm:text-sm">
           Built with Next.js + Tailwind CSS
         </p>
       </footer>
