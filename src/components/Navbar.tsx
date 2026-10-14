@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Platform, PLATFORM_COLORS } from "@/data/games";
+import LibraryToolbar from "./LibraryToolbar";
 import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
@@ -212,25 +213,35 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </div>
 
           {/* Library menu */}
-          <button
-            onClick={() => setLibraryMenuOpen((v) => !v)}
-            aria-label="Open library menu"
-            aria-expanded={libraryMenuOpen}
-            aria-controls="library-menu"
-            className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-              className="h-4 w-4"
+          <div className="relative">
+            <button
+              onClick={() => setLibraryMenuOpen((v) => !v)}
+              aria-label="Open library menu"
+              aria-expanded={libraryMenuOpen}
+              aria-controls="library-menu"
+              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 10.25 11h-3.5A2.25 2.25 0 0 1 4.5 8.75v-3.5ZM11.5 15.25A2.25 2.25 0 0 1 13.75 13h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 17.25 21h-3.5a2.25 2.25 0 0 1-2.25-2.25v-3.5ZM4.5 15.25A2.25 2.25 0 0 1 6.75 13h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 8.25 21h-1.5A2.25 2.25 0 0 1 4.5 18.75v-3.5ZM14.5 5.25A2.25 2.25 0 0 1 16.75 3h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 18.25 11h-1.5a2.25 2.25 0 0 1-2.25-2.25v-3.5Z" />
-            </svg>
-          </button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                aria-hidden="true"
+                className="h-4 w-4"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 10.25 11h-3.5A2.25 2.25 0 0 1 4.5 8.75v-3.5ZM11.5 15.25A2.25 2.25 0 0 1 13.75 13h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 17.25 21h-3.5a2.25 2.25 0 0 1-2.25-2.25v-3.5ZM4.5 15.25A2.25 2.25 0 0 1 6.75 13h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 8.25 21h-1.5A2.25 2.25 0 0 1 4.5 18.75v-3.5ZM14.5 5.25A2.25 2.25 0 0 1 16.75 3h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 18.25 11h-1.5a2.25 2.25 0 0 1-2.25-2.25v-3.5Z" />
+              </svg>
+            </button>
+            {libraryMenuOpen && (
+              <div
+                id="library-menu"
+                className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/10 bg-card shadow-xl shadow-black/20"
+              >
+                <LibraryToolbar />
+              </div>
+            )}
+          </div>
 
           {/* Hamburger (mobile) */}
           <button
@@ -266,24 +277,6 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               </svg>
             )}
           </button>
-
-          {libraryMenuOpen && (
-            <div
-              id="library-menu"
-              className="absolute right-0 top-12 z-50 w-44 rounded-xl border border-white/10 bg-card p-1.5 shadow-xl shadow-black/20"
-            >
-              {["Library", "Collections", "Wishlist"].map((item) => (
-                <a
-                  key={item}
-                  href="#"
-                  onClick={() => setLibraryMenuOpen(false)}
-                  className="block rounded-lg px-3 py-2 text-sm font-medium text-muted transition hover:bg-white/5 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                >
-                  {item}
-                </a>
-              ))}
-            </div>
-          )}
         </div>
       </div>
 

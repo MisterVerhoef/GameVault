@@ -5,7 +5,6 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
 import { Platform, Game, allGames, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
-import LibraryToolbar from "@/components/LibraryToolbar";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
@@ -71,7 +70,6 @@ export default function Home() {
       />
 
       <main id="main-content" className="flex-1">
-        <LibraryToolbar />
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
