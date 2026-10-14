@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, Platform, PLATFORM_COLORS } from "@/data/games";
+import { allGames, formatRating, Platform, PLATFORM_COLORS } from "@/data/games";
 import Image from "next/image";
 import LibraryControls from "@/components/LibraryControls";
 
@@ -85,9 +85,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <div className="mt-2 flex items-center gap-3 text-sm text-muted">
                 <span>{game.releaseYear}</span>
                 <span aria-hidden="true">•</span>
-                <span className="text-yellow-400" aria-label={`Rating ${game.rating?.toFixed(2)} out of 10`}>
+                <span className="text-yellow-400" aria-label={`Rating ${formatRating(game.rating)} out of 10`}>
                   <span aria-hidden="true">★ </span>
-                  {game.rating?.toFixed(2)}
+                  {formatRating(game.rating)}
                 </span>
                 <span aria-hidden="true">•</span>
                 <span className="flex flex-wrap gap-1 font-medium">
@@ -171,7 +171,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             </div>
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Rating</dt>
-              <dd className="mt-0.5 text-sm text-foreground/90">{game.rating?.toFixed(2)}/10</dd>
+              <dd className="mt-0.5 text-sm text-foreground/90">{formatRating(game.rating)}/10</dd>
             </div>
             {game.developers.length > 0 && (
               <div>

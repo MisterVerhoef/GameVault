@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Game, recentlyPlayed, Platform, PLATFORM_COLORS } from "@/data/games";
+import { Game, recentlyPlayed, Platform, PLATFORM_COLORS, formatRating } from "@/data/games";
 import { useState, useSyncExternalStore } from "react";
 
 interface HeroProps {
@@ -83,9 +83,9 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
             <span aria-hidden="true">2</span>
-            <span className="text-yellow-400" aria-label={`Rating ${featured.rating?.toFixed(2)} out of 10`}>
+            <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
               <span aria-hidden="true">★ </span>
-              {featured.rating?.toFixed(2)}
+              {formatRating(featured.rating)}
             </span>
             <span aria-hidden="true">2</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
