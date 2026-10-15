@@ -42,6 +42,14 @@ export default function Home() {
   };
 
   const variantGames = selectedPlatformVariant ? getGamesByPlatformLabel(selectedPlatformVariant) : [];
+  const platformLabel = selectedPlatformVariant ?? selectedPlatform ?? selectedPlatformFamily;
+  const topGames = [...(selectedPlatformVariant
+    ? variantGames
+    : selectedPlatform
+      ? filterGames(getGamesByPlatform(selectedPlatform))
+      : selectedPlatformFamily
+        ? filterGames(allGames)
+        : [])].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
 
   // Get featured game based on selected platform
   const getFeaturedGame = () => {
@@ -72,14 +80,14 @@ export default function Home() {
       />
 
       <main id="main-content" className="flex-1">
-        {selectedPlatformVariant && (
-          variantGames.length > 0 ? (
+        {platformLabel && !searchQuery.trim() && (
+          topGames.length > 0 ? (
             <div className="pt-6">
-              <GameRow title={selectedPlatformVariant} games={variantGames} />
+              <GameRow title={`${platformLabel} Top Games`} games={topGames} />
             </div>
           ) : (
             <p className="mx-auto mb-10 max-w-[1920px] px-4 pt-6 text-sm text-muted sm:px-6 lg:px-8">
-              No games in the catalogue match {selectedPlatformVariant}.
+              No games in the catalogue match {platformLabel}.
             </p>
           )
         )}
@@ -119,13 +127,6 @@ export default function Home() {
             <GameRow title="Indie Favorites" games={filterGames(indieGames)} />
 
             <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
-
-            {(selectedPlatform || selectedPlatformFamily) && !selectedPlatformVariant && (
-              <GameRow
-                title={`${selectedPlatform ?? selectedPlatformFamily} Top Games`}
-                games={filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
-              />
-            )}
           </>
         )}
       </main>
