@@ -1,8 +1,9 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, Platform, PLATFORM_COLORS } from "@/data/games";
+import { allGames, formatRating, Platform, PLATFORM_COLORS } from "@/data/games";
 import Image from "next/image";
 import LibraryControls from "@/components/LibraryControls";
+import Navbar from "@/components/Navbar";
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,34 +32,36 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const themeColor = PLATFORM_COLORS[primaryPlatform];
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
       {/* Background with theme color */}
       <div className="absolute inset-0" style={{ backgroundColor: `${themeColor}1a` }} />
-      
-      {/* Header with back button */}
-      <header className="relative sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label="Back to home"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-5 w-5"
+
+      <div className="relative">
+        <Navbar />
+        <div className="border-b border-white/5 bg-background/80">
+          <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label="Back to home"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
-          </Link>
-          <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-            {game.title}
-          </h1>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-5 w-5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+            </Link>
+            <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
+              {game.title}
+            </h1>
+          </div>
         </div>
-      </header>
+      </div>
 
       <main className="relative mx-auto max-w-[1920px] px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero section with cover art */}
@@ -85,9 +88,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <div className="mt-2 flex items-center gap-3 text-sm text-muted">
                 <span>{game.releaseYear}</span>
                 <span aria-hidden="true">•</span>
-                <span className="text-yellow-400" aria-label={`Rating ${game.rating?.toFixed(2)} out of 10`}>
+                <span className="text-yellow-400" aria-label={`Rating ${formatRating(game.rating)} out of 10`}>
                   <span aria-hidden="true">★ </span>
-                  {game.rating?.toFixed(2)}
+                  {formatRating(game.rating)}
                 </span>
                 <span aria-hidden="true">•</span>
                 <span className="flex flex-wrap gap-1 font-medium">
@@ -144,17 +147,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </div>
         </section>
 
-        {/* Additional sections placeholder */}
-        <section className="mb-12">
-          <h2 className="text-lg font-bold tracking-tight text-foreground mb-4">
+        <section className="mb-8">
+          <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
             About {game.title}
           </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <div className="rounded-lg bg-card p-4">
-              <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
-                Genre
-              </h3>
-              <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
+          <dl className="flex flex-wrap gap-x-6 gap-y-3">
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Genre</dt>
+              <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
                 {game.genres.map((genre, index) => (
                   <span key={genre}>
                     <Link
@@ -166,84 +166,72 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     {index < game.genres.length - 1 ? ", " : ""}
                   </span>
                 ))}
-              </p>
+              </dd>
             </div>
-            <div className="rounded-lg bg-card p-4">
-              <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
-                Release Year
-              </h3>
-              <p className="text-sm text-foreground/80">{game.releaseYear}</p>
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Release year</dt>
+              <dd className="mt-0.5 text-sm text-foreground/90">{game.releaseYear}</dd>
             </div>
-            <div className="rounded-lg bg-card p-4">
-              <h3 className="text-sm font-medium uppercase tracking-wider text-muted mb-2">
-                Rating
-              </h3>
-              <p className="text-sm text-foreground/80">{game.rating?.toFixed(2)}/10</p>
+            <div>
+              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Rating</dt>
+              <dd className="mt-0.5 text-sm text-foreground/90">{formatRating(game.rating)}/10</dd>
             </div>
-          </div>
+            {game.developers.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Developers</dt>
+                <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+                  {game.developers.map((company, index) => (
+                    <span key={company.id}>
+                      <Link
+                        href={`/?search=${encodeURIComponent(company.name)}`}
+                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        {company.name}
+                      </Link>
+                      {index < game.developers.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
+            {game.publishers.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Publishers</dt>
+                <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+                  {game.publishers.map((company, index) => (
+                    <span key={company.id}>
+                      <Link
+                        href={`/?search=${encodeURIComponent(company.name)}`}
+                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        {company.name}
+                      </Link>
+                      {index < game.publishers.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
+            {game.themes.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Themes</dt>
+                <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+                  {game.themes.map((theme, index) => (
+                    <span key={theme}>
+                      <Link
+                        href={`/?search=${encodeURIComponent(theme)}`}
+                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        {theme}
+                      </Link>
+                      {index < game.themes.length - 1 ? ", " : ""}
+                    </span>
+                  ))}
+                </dd>
+              </div>
+            )}
+          </dl>
         </section>
-
-        {(game.developers.length > 0 || game.publishers.length > 0 || game.themes.length > 0) && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Credits and themes</h2>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {game.developers.length > 0 && (
-                <div className="rounded-lg bg-card p-4">
-                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Developers</h3>
-                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
-                    {game.developers.map((company, index) => (
-                      <span key={company.id}>
-                        <Link
-                          href={`/?search=${encodeURIComponent(company.name)}`}
-                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                        >
-                          {company.name}
-                        </Link>
-                        {index < game.developers.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              )}
-              {game.publishers.length > 0 && (
-                <div className="rounded-lg bg-card p-4">
-                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Publishers</h3>
-                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
-                    {game.publishers.map((company, index) => (
-                      <span key={company.id}>
-                        <Link
-                          href={`/?search=${encodeURIComponent(company.name)}`}
-                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                        >
-                          {company.name}
-                        </Link>
-                        {index < game.publishers.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              )}
-              {game.themes.length > 0 && (
-                <div className="rounded-lg bg-card p-4">
-                  <h3 className="mb-2 text-sm font-medium uppercase tracking-wider text-muted">Themes</h3>
-                  <p className="flex flex-wrap gap-x-1 text-sm text-foreground/80">
-                    {game.themes.map((theme, index) => (
-                      <span key={theme}>
-                        <Link
-                          href={`/?search=${encodeURIComponent(theme)}`}
-                          className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-                        >
-                          {theme}
-                        </Link>
-                        {index < game.themes.length - 1 ? ", " : ""}
-                      </span>
-                    ))}
-                  </p>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
 
         {game.screenshots.length > 0 && (
           <section className="mb-12">
@@ -281,26 +269,30 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   href={video.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="group relative flex min-h-36 items-end overflow-hidden rounded-lg bg-card p-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-lg shadow-black/40 ring-1 ring-white/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-black/50 hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  {getYouTubeThumbnail(video.url) && (
-                    <Image
-                      src={getYouTubeThumbnail(video.url) ?? ""}
-                      alt=""
-                      fill
-                      className="object-cover transition duration-300 group-hover:scale-105"
-                      unoptimized
-                    />
-                  )}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent" />
-                  <div className="relative flex w-full items-center justify-between gap-4">
-                    <span className="text-sm font-medium text-white">
-                      {video.name || `${game.title} trailer`}
+                  <span className="relative aspect-video overflow-hidden">
+                    {getYouTubeThumbnail(video.url) && (
+                      <Image
+                        src={getYouTubeThumbnail(video.url) ?? ""}
+                        alt=""
+                        fill
+                        className="object-cover transition duration-300 group-hover:scale-105"
+                        unoptimized
+                      />
+                    )}
+                    <span
+                      className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-red-600 text-white shadow-xl shadow-black/50 ring-4 ring-black/25 transition duration-300 group-hover:scale-105"
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true">
+                        <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l11.04-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z" />
+                      </svg>
                     </span>
-                    <span className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-red-600 text-white shadow-lg" aria-hidden="true">
-                      ▶
-                    </span>
-                  </div>
+                  </span>
+                  <span className="border-t border-white/10 px-3 py-2.5 text-sm font-semibold text-foreground">
+                    {video.name || `${game.title} trailer`}
+                  </span>
                 </a>
               ))}
             </div>

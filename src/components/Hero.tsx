@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Game, recentlyPlayed, Platform, PLATFORM_COLORS } from "@/data/games";
+import { Game, recentlyPlayed, Platform, PLATFORM_COLORS, formatRating } from "@/data/games";
 import { useState, useSyncExternalStore } from "react";
 
 interface HeroProps {
@@ -52,13 +52,12 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
         </div>
       </div>
 
-      <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-8 sm:px-6 sm:py-10 lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-16">
+      <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-[30px] lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-12">
         {/* Cover art — centered on mobile, side on desktop */}
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group mx-auto block h-52 w-36 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-72 sm:w-48 lg:mx-0 lg:h-80 lg:w-56"
-        style={{ borderColor: `${themeColor}33` }}
+        className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:h-[564px] lg:w-[calc(75%+3rem)]"
       >
         {isHydrated && coverUrl && (
           <Image
@@ -73,7 +72,7 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
       </Link>
 
         {/* Info */}
-        <div className="flex flex-1 flex-col gap-3 text-center lg:text-left">
+        <div className="relative z-10 flex flex-1 flex-col gap-3 text-center lg:text-left">
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
             Featured Game
           </p>
@@ -83,9 +82,9 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
             <span aria-hidden="true">2</span>
-            <span className="text-yellow-400" aria-label={`Rating ${featured.rating?.toFixed(2)} out of 10`}>
+            <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
               <span aria-hidden="true">★ </span>
-              {featured.rating?.toFixed(2)}
+              {formatRating(featured.rating)}
             </span>
             <span aria-hidden="true">2</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
