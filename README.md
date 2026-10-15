@@ -66,9 +66,9 @@ Copy `.env.example` to `.env.local` only if you sync the catalogue on your machi
 | `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
 | `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
 
-Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule). That job commits `public/catalog/games-index.json` and `public/catalog/search-index.json`. After it pushes to the production branch, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel.
+Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule). That job commits `public/catalog/games-index.json`, `public/catalog/search-index.json`, and `public/catalog/store-offers.json`. After it pushes to the production branch, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
 
-`public/catalog/games-index.json` is about 12 MB and `search-index.json` about 1.2 MB. Both are under Vercel's source upload limits. The UI imports the games index at build time; the search index is a catalogue artefact checked by CI and is not required at runtime.
+`public/catalog/games-index.json` is about 34 MB, `search-index.json` about 3.6 MB, and `store-offers.json` about 0.8 MB. All three are under Vercel's source upload limits. The home page imports the games index at build time and does not import store offers. The search index is a catalogue artefact checked by CI and is not required at runtime.
 
 ## Project Structure
 
@@ -117,6 +117,10 @@ npm run catalogue:sync:igdb
 ```
 
 The sync requests a Twitch application token, fetches several bounded popular IGDB pages, performs targeted franchise searches, merges all results by provider ID, runs the existing IGDB adapter and quality validation, and rebuilds the static search index. It validates a temporary catalogue before publishing and refuses to replace the checked-in data with fewer than five games by default. `IGDB_LIMIT` defaults to 500 and `IGDB_PAGES` defaults to 10; each can be reduced or increased within its safety bounds (`IGDB_PAGES` cannot exceed 10). `IGDB_SEARCH_TERMS` is a comma-separated list of targeted searches and defaults to `halo,the witcher`, ensuring common franchise queries are not limited by global popularity ranking. `IGDB_MIN_GAMES` and `IGDB_QUERY` can override the safety threshold and popular-page query. Never expose these credentials to the browser or commit them to the repository. The catalogue workflow supports manual and weekly syncs through the `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` GitHub Actions secrets.
+
+After a successful IGDB publish, the sync also refreshes optional store offers (`npm run catalogue:enrich:stores`). That step matches Xbox, PlayStation, and Nintendo products for games already on those platforms, using IGDB external ids and store URLs when the catalogue has them and a conservative title match otherwise. It records a Netherlands EUR price and store link, and copies a cover, description, screenshots, or trailer only when IGDB left that field empty. Results live in `public/catalog/store-offers.json`, separate from the games index, so the home-page bundle does not grow with prices. A store endpoint that fails or changes is skipped; the IGDB catalogue still publishes and previously cached offers for that store are kept. `STORE_ENRICHMENT=0` skips the step. `STORE_MAX_SEARCHES` caps title searches per run (default 800) so unmatched games are retried on later syncs. No PSN, Xbox, or Nintendo account token is used.
+
+Account achievements are not part of this sync. Adding them later would require a signed-in player: Xbox Live or PlayStation Network user OAuth for that account's trophies, and a separate Nintendo account flow. There is no public achievement API that works from the catalogue job alone.
 
 For catalogue operations, run `npm run catalogue:search-index` to generate the static search index or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs.
 

@@ -41,14 +41,18 @@ jobs:
           IGDB_SOURCE_VERSION: scheduled-${{ github.run_id }}
           IGDB_PAGES: "10"
       - run: |
-          if git diff --quiet -- public/catalog/games-index.json public/catalog/search-index.json; then
+          if git diff --quiet -- public/catalog/games-index.json public/catalog/search-index.json public/catalog/store-offers.json; then
             echo "Catalogue is already up to date."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/catalog/games-index.json public/catalog/search-index.json
-          git commit -m "chore: sync catalogue from IGDB"
+          git add public/catalog/games-index.json public/catalog/search-index.json public/catalog/store-offers.json
+          if git diff --cached --quiet -- public/catalog/games-index.json; then
+            git commit -m "chore: refresh store offers"
+          else
+            git commit -m "chore: sync catalogue from IGDB"
+          fi
           git push origin HEAD:main
 
   validate:
@@ -64,5 +68,5 @@ jobs:
       - run: npm run catalogue:search-index
       - run: git diff --exit-code -- public/catalog/search-index.json
       - run: npx tsc --noEmit
-      - run: npx eslint src/data/catalogue.ts src/data/platforms.ts src/app/game/[id]/page.tsx scripts test
+      - run: npx eslint src/data/catalogue.ts src/data/platforms.ts src/data/store-match.ts src/data/store-offers.ts src/app/game/[id]/page.tsx scripts test
       - run: npm run build

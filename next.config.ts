@@ -25,6 +25,18 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "placehold.co",
       },
+      {
+        protocol: "https",
+        hostname: "store-images.s-microsoft.com",
+      },
+      {
+        protocol: "https",
+        hostname: "image.api.playstation.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.nintendo.com",
+      },
     ],
   },
 };

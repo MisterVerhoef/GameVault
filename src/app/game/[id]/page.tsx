@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
+import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
+import { storeName } from "@/data/store-match";
 import Image from "next/image";
 import LibraryControls from "@/components/LibraryControls";
 import Navbar from "@/components/Navbar";
@@ -69,6 +71,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
     notFound();
   }
 
+  const { game: display, offers, captions } = presentCatalogueGame(game);
+
   // Get primary platform for theming
   const primaryPlatform: Platform = game.platforms[0];
   const themeColor = PLATFORM_COLORS[primaryPlatform];
@@ -110,9 +114,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
         <section className="relative mb-12 flex flex-col gap-6 lg:flex-row lg:gap-12">
           {/* Cover art */}
           <div className="relative mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64" style={{ borderColor: `${themeColor}33` }}>
-            {game.cover?.url ? (
+            {display.cover?.url ? (
               <Image
-                src={game.cover.url}
+                src={display.cover.url}
                 alt={game.title}
                 fill
                 className="object-cover"
@@ -171,27 +175,43 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             </div>
 
             {/* Description */}
-            {game.description && (
+            {display.description && (
               <div className="mt-4">
                 <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
                   Description
                 </h3>
                 <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-                  {game.description}
+                  {display.description}
                 </p>
               </div>
             )}
 
-            {/* Details button (placeholder for future functionality) */}
-            <div className="mt-4 flex flex-wrap gap-3">
-              <button 
-                className="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                style={{ borderColor: `${themeColor}33`, color: themeColor }}
-              >
-                View on Store
-              </button>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              {offers.map((offer) => (
+                <a
+                  key={offer.store}
+                  href={offer.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 rounded-full border bg-white/5 px-4 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  style={{ borderColor: `${themeColor}66`, color: themeColor }}
+                  aria-label={`${game.title} on the ${storeName(offer.store)}${offer.price != null ? `, ${formatEuro(offer.price)}` : ""}`}
+                >
+                  <span>{storeName(offer.store)}</span>
+                  {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
+                    <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
+                  )}
+                  {offer.price != null && <span className="font-semibold text-foreground">{formatEuro(offer.price)}</span>}
+                </a>
+              ))}
               <LibraryControls gameId={game.id} />
             </div>
+            {offers.length > 0 && (
+              <p className="text-xs text-muted">Prices in EUR for the Netherlands.</p>
+            )}
+            {captions.length > 0 && (
+              <p className="text-xs text-muted">{captions.join(" ")}</p>
+            )}
           </div>
         </section>
 
@@ -281,11 +301,11 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </dl>
         </section>
 
-        {game.screenshots.length > 0 && (
+        {display.screenshots.length > 0 && (
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Screenshots</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {game.screenshots.map((screenshot) => (
+              {display.screenshots.map((screenshot) => (
                 <a
                   key={screenshot.url}
                   href={screenshot.url}
@@ -307,11 +327,11 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         )}
 
-        {game.videos.length > 0 && (
+        {display.videos.length > 0 && (
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Trailers</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {game.videos.map((video) => (
+              {display.videos.map((video) => (
                 <a
                   key={video.id}
                   href={video.url}
@@ -319,7 +339,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   rel="noreferrer"
                   className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-lg shadow-black/40 ring-1 ring-white/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-black/50 hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
-                  <span className="relative aspect-video overflow-hidden">
+                  <span className="relative aspect-video overflow-hidden bg-black/40">
                     {getYouTubeThumbnail(video.url) && (
                       <Image
                         src={getYouTubeThumbnail(video.url) ?? ""}

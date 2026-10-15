@@ -34,6 +34,7 @@ const defaultQuery = [
   "genres.name,themes.name,platforms.name,cover.url,artworks.url,",
   "screenshots.url,screenshots.width,screenshots.height,",
   "videos.id,videos.name,videos.video_id,websites.url,websites.category,",
+  "external_games.uid,external_games.external_game_source,external_games.category,external_games.url,",
   "involved_companies.developer,involved_companies.publisher,involved_companies.company.id,involved_companies.company.name,",
   "dlcs.id,dlcs.name,expansions.id,expansions.name,",
   "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,similar_games.cover.url,",
@@ -131,6 +132,17 @@ try {
   });
   if (indexBuilder.status !== 0) {
     throw new Error(`Search index generation exited with status ${indexBuilder.status ?? "unknown"}.`);
+  }
+  if (process.env.STORE_ENRICHMENT !== "0") {
+    const enrichment = spawnSync(process.execPath, ["scripts/enrich-stores.mjs"], {
+      cwd: root,
+      encoding: "utf8",
+      stdio: "inherit",
+      env: process.env,
+    });
+    if (enrichment.status !== 0) {
+      console.warn(`Store enrichment exited with status ${enrichment.status ?? "unknown"}. The IGDB catalogue was still published.`);
+    }
   }
 } finally {
   fs.rmSync(temporaryInput, { force: true });

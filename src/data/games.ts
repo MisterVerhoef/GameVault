@@ -48,6 +48,14 @@ export interface SourceRef {
   id: string;
 }
 
+export type StoreId = "xbox" | "playstation" | "nintendo";
+
+/** Store product id captured from IGDB external_games or a store URL. */
+export interface ExternalStoreId {
+  store: StoreId;
+  id: string;
+}
+
 export interface Game {
   id: string;
   slug: string;
@@ -77,6 +85,7 @@ export interface Game {
   collections: string[];
   achievements?: AchievementSummary;
   source: SourceRef[];
+  externalIds?: ExternalStoreId[];
   updatedAt: string;
 }
 
