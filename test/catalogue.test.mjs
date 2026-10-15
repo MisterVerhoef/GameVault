@@ -9,7 +9,7 @@ import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 
-const { normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
+const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
 const { gameMatchesPlatformVariant, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -89,6 +89,28 @@ test("demo catalogue generation does not overwrite the published IGDB index", ()
 
   assert.equal(result.status, 0, result.stderr);
   assert.equal(readFileSync(publishedPath, "utf8"), before);
+});
+
+test("resolves similar-game ids to catalogue entries without guessing by title", () => {
+  const catalogue = [
+    { id: "7346", title: "Breath of the Wild", source: [{ id: "7346" }] },
+    { id: "222486", title: "Silent Hill 3", source: [{ id: "igdb-remaster" }] },
+    { id: "other", title: "Silent Hill 3", source: [{ id: "unused" }] },
+  ];
+
+  assert.equal(findCatalogueEntry(catalogue, "7346")?.id, "7346");
+  assert.equal(findCatalogueEntry(catalogue, "igdb-remaster")?.id, "222486");
+  assert.equal(findCatalogueEntry(catalogue, "482"), undefined);
+  assert.equal(
+    findCatalogueEntry(
+      [
+        { id: "canonical", title: "Shared", source: [{ id: "canonical" }] },
+        { id: "other", title: "Shared", source: [{ id: "canonical" }] },
+      ],
+      "canonical",
+    )?.id,
+    "canonical",
+  );
 });
 
 test("normalizes protocol-relative media URLs before they are rendered", () => {

@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, formatRating, Platform, PLATFORM_COLORS } from "@/data/games";
+import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
 import Image from "next/image";
 import LibraryControls from "@/components/LibraryControls";
 import Navbar from "@/components/Navbar";
@@ -12,6 +12,48 @@ interface GameDetailPageProps {
 function getYouTubeThumbnail(url: string) {
   const match = url.match(/[?&]v=([^&]+)/);
   return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : undefined;
+}
+
+function SimilarGameCard({ item }: { item: ContentRef }) {
+  const catalogueGame: Game | undefined = findGameByProviderId(item.id);
+  const coverUrl = catalogueGame?.cover?.url ?? item.cover?.url;
+  const className = catalogueGame
+    ? "group relative flex h-64 min-w-40 cursor-pointer flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:min-w-44"
+    : "relative flex h-64 min-w-40 cursor-default flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 opacity-75 sm:min-w-44";
+  const content = (
+    <>
+      {coverUrl && (
+        <Image
+          src={coverUrl}
+          alt=""
+          fill
+          className={`object-cover${catalogueGame ? " transition duration-300 group-hover:scale-105" : ""}`}
+          unoptimized
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
+      <div className="relative">
+        <span className="text-xs font-medium uppercase tracking-wider text-white/70">
+          {catalogueGame ? "Similar" : "Not in catalogue"}
+        </span>
+        <span className="mt-1 line-clamp-2 text-sm font-medium text-white">{item.title}</span>
+      </div>
+    </>
+  );
+
+  if (!catalogueGame) {
+    return (
+      <div className={className} aria-label={`${item.title} is not in the catalogue`}>
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <Link href={`/game/${catalogueGame.id}`} className={className} aria-label={`Open ${catalogueGame.title}`}>
+      {content}
+    </Link>
+  );
 }
 
 export function generateStaticParams() {
@@ -309,35 +351,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Similar games</h2>
             <div className="flex gap-4 overflow-x-auto pb-3">
-              {game.similarGames.map((item) => {
-                const relatedGame = allGames.find((candidate) => candidate.id === item.id);
-                const coverUrl = relatedGame?.cover?.url ?? item.cover?.url;
-                const hasDetailPage = Boolean(relatedGame);
-                const className = "group relative flex h-64 min-w-40 flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:min-w-44";
-                const content = (
-                  <>
-                    {coverUrl && (
-                      <Image
-                        src={coverUrl}
-                        alt=""
-                        fill
-                        className="object-cover transition duration-300 group-hover:scale-105"
-                        unoptimized
-                      />
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
-                    <div className="relative">
-                      <span className="text-xs font-medium uppercase tracking-wider text-white/70">Similar</span>
-                      <span className="mt-1 line-clamp-2 text-sm font-medium text-white">{item.title}</span>
-                    </div>
-                  </>
-                );
-                return hasDetailPage ? (
-                  <Link key={item.id} href={`/game/${item.id}`} className={className}>{content}</Link>
-                ) : (
-                  <div key={item.id} className={className}>{content}</div>
-                );
-              })}
+              {game.similarGames.map((item) => (
+                <SimilarGameCard key={item.id} item={item} />
+              ))}
             </div>
           </section>
         )}
