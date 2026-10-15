@@ -1,15 +1,9 @@
 import generatedCatalogue from "../../public/catalog/games-index.json";
 import { normalizeCatalogue } from "./catalogue";
 
-export type Platform = "PC" | "PS5" | "Xbox" | "Switch";
-
-// Platform theme colors (Xbox green, PS5 blue, Switch red, PC purple)
-export const PLATFORM_COLORS: Record<Platform, string> = {
-  PC: "#8B5CF6",      // Purple
-  PS5: "#0070FF",     // Blue
-  Xbox: "#107C10",    // Green
-  Switch: "#E60012",  // Red
-};
+export type { Platform } from "./platforms";
+export { PLATFORM_COLORS } from "./platforms";
+import type { Platform } from "./platforms";
 
 export interface CompanyRef {
   id: string;
@@ -558,10 +552,47 @@ export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGa
 export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
 
 const gamesById = new Map(allGames.map((game) => [game.id, game]));
-const getGames = (ids: string[]) => ids.flatMap((id) => {
-  const game = gamesById.get(id);
-  return game ? [game] : [];
-});
+
+const SEED_TITLE_HINTS: Record<string, string> = {
+  bg3: "baldur's gate iii",
+  "god-of-war": "god of war",
+  "forza-horizon-5": "forza horizon 5",
+  "zelda-totk": "tears of the kingdom",
+  cyberpunk: "cyberpunk 2077",
+  "elden-ring": "elden ring",
+  "spider-man-2": "marvel's spider-man 2",
+  "halo-infinite": "halo infinite",
+  ff16: "final fantasy xvi",
+  starfield: "starfield",
+  "black-myth": "black myth",
+};
+
+function resolveGameSeed(seed: string): Game | undefined {
+  const direct = gamesById.get(seed);
+  if (direct) return direct;
+
+  const slugNeedle = seed.toLowerCase();
+  const bySlug = allGames.find((game) => game.slug.toLowerCase() === slugNeedle || game.slug.toLowerCase().includes(slugNeedle.replace(/-/g, "")));
+  if (bySlug) return bySlug;
+
+  const titleHint = SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
+  return allGames.find((game) => game.title.toLowerCase().includes(titleHint));
+}
+
+function resolveGameSeeds(seeds: string[]) {
+  const resolved: Game[] = [];
+  const seen = new Set<string>();
+  for (const seed of seeds) {
+    const game = resolveGameSeed(seed);
+    if (game && !seen.has(game.id)) {
+      seen.add(game.id);
+      resolved.push(game);
+    }
+  }
+  return resolved;
+}
+
+const getGames = (ids: string[]) => resolveGameSeeds(ids);
 const getCategoryGames = (
   ids: string[],
   predicate: (game: Game) => boolean,
@@ -588,7 +619,13 @@ export const xboxGames = getGamesByPlatform("Xbox");
 export const switchGames = getGamesByPlatform("Switch");
 const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
 export const recentlyPlayed = getGames(recentGameIds);
-if (recentlyPlayed.length === 0) recentlyPlayed.push(...allGames.slice(0, 5));
+if (recentlyPlayed.length === 0) {
+  recentlyPlayed.push(
+    ...[...allGames]
+      .sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0) || (right.releaseYear ?? 0) - (left.releaseYear ?? 0))
+      .slice(0, 5),
+  );
+}
 export const actionGames = getCategoryGames(
   ["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"],
   (game) => hasMetadata(game, "action"),

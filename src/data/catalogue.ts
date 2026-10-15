@@ -1,4 +1,5 @@
-import type { Game, Platform } from "./games";
+import type { Game } from "./games";
+import type { Platform } from "./platforms";
 
 export interface CatalogueIndex {
   schemaVersion: 1;
@@ -16,7 +17,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
 
-const platforms: Platform[] = ["PC", "PS5", "Xbox", "Switch"];
+const platforms: Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
 
 function isPlatform(value: unknown): value is Platform {
   return typeof value === "string" && platforms.includes(value as Platform);
