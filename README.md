@@ -59,11 +59,14 @@ public/
 
 ## Customization
 
-- Replace or extend the canonical data in `src/data/games.ts`, then regenerate the checked-in index:
+- The checked-in catalogue at `public/catalog/games-index.json` is the published artefact (usually synced from IGDB). Weekly GitHub Actions sync is the only automated writer of that file.
+- Demo/bootstrap titles live in `fallbackGames` inside `src/data/games.ts`. Regenerate a local demo index without touching the published catalogue:
 
 ```bash
 npm run catalogue:generate
 ```
+
+By default this writes `test/fixtures/demo-games-index.json`. Pass `--output public/catalog/games-index.json` only when you intentionally replace the published index with demo data.
 
 - Import a provider export without adding a backend. The input can be a JSON array or an object with a `games` array:
 

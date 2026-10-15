@@ -1,17 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, Game, allGames, getGamesByPlatform, getGamesByPlatformLabel, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
+import { Platform, Game, allGames, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
+import { gameMatchesPlatformVariant } from "@/data/platforms";
+import { useLibrary } from "@/context/LibraryContext";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
   const [selectedPlatformFamily, setSelectedPlatformFamily] = useState<string | null>(null);
   const [selectedPlatformVariant, setSelectedPlatformVariant] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const { entries } = useLibrary();
   const hasPlatformVariantData = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
+  const continueGames = useMemo(() => {
+    const playing = Object.entries(entries)
+      .filter(([, entry]) => entry.status === "playing")
+      .map(([gameId]) => allGames.find((game) => game.id === gameId))
+      .filter((game): game is Game => Boolean(game));
+    return playing.length > 0 ? playing : recentlyPlayed;
+  }, [entries]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -24,7 +34,7 @@ export default function Home() {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchQuery(query);
     }
-    if (platform === "PC" || platform === "PS5" || platform === "Xbox" || platform === "Switch") {
+    if (platform === "PC" || platform === "PS5" || platform === "Xbox" || platform === "Switch" || platform === "Other") {
       setSelectedPlatform(platform);
     }
     if (family) setSelectedPlatformFamily(family);
@@ -36,8 +46,7 @@ export default function Home() {
     let filtered = [...games];
 
     if (selectedPlatformVariant && hasPlatformVariantData) {
-      const variantIds = new Set(getGamesByPlatformLabel(selectedPlatformVariant).map((game) => game.id));
-      filtered = filtered.filter((game) => variantIds.has(game.id));
+      filtered = filtered.filter((game) => gameMatchesPlatformVariant(game, selectedPlatformVariant));
     } else if (selectedPlatform) {
       filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
     }
@@ -50,7 +59,9 @@ export default function Home() {
     return filtered;
   };
 
-  const variantGames = selectedPlatformVariant ? getGamesByPlatformLabel(selectedPlatformVariant) : [];
+  const variantGames = selectedPlatformVariant
+    ? allGames.filter((game) => gameMatchesPlatformVariant(game, selectedPlatformVariant))
+    : [];
   const platformLabel = selectedPlatformVariant ?? selectedPlatform ?? selectedPlatformFamily;
   const topGames = [...(selectedPlatformVariant
     ? variantGames
@@ -64,9 +75,9 @@ export default function Home() {
   const getFeaturedGame = () => {
     if (selectedPlatformVariant && variantGames.length > 0) return variantGames[0];
     if (selectedPlatform) {
-      return getGamesByPlatform(selectedPlatform)[0] || recentlyPlayed[0];
+      return getGamesByPlatform(selectedPlatform)[0] || continueGames[0];
     }
-    return recentlyPlayed[0];
+    return continueGames[0];
   };
 
   return (
@@ -92,7 +103,7 @@ export default function Home() {
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
-            featuredGames={selectedPlatformVariant ? variantGames.slice(0, 8) : filterGames(recentlyPlayed)}
+            featuredGames={selectedPlatformVariant ? variantGames.slice(0, 8) : filterGames(continueGames)}
             selectedPlatform={selectedPlatform}
           />
         )}
@@ -123,7 +134,7 @@ export default function Home() {
           <>
             <GameRow
               title="Featured Games"
-              games={filterGames(recentlyPlayed)}
+              games={filterGames(continueGames)}
               size="lg"
             />
 

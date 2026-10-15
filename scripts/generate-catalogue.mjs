@@ -6,6 +6,17 @@ import crypto from "node:crypto";
 import ts from "typescript";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+
+function parseArgs(argv) {
+  const outputIndex = argv.indexOf("--output");
+  return {
+    outputPath: outputIndex >= 0
+      ? path.resolve(root, argv[outputIndex + 1])
+      : path.join(root, "test", "fixtures", "demo-games-index.json"),
+  };
+}
+
+const { outputPath } = parseArgs(process.argv.slice(2));
 const sourcePath = path.join(root, "src", "data", "games.ts");
 const source = fs.readFileSync(sourcePath, "utf8");
 const compiled = ts.transpileModule(source, {
@@ -29,7 +40,6 @@ if (!Array.isArray(games) || games.length === 0) {
   throw new Error("The canonical catalogue did not produce any games.");
 }
 
-const outputPath = path.join(root, "public", "catalog", "games-index.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 const sourceChecksum = crypto.createHash("sha256").update(source).digest("hex");
 let generatedAt = "canonical-source";
