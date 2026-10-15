@@ -560,6 +560,22 @@ export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGa
 export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
 
 const gamesById = new Map(allGames.map((game) => [game.id, game]));
+const gamesBySourceId = new Map<string, Game>();
+for (const game of allGames) {
+  for (const source of game.source) {
+    if (!gamesById.has(source.id) && !gamesBySourceId.has(source.id)) {
+      gamesBySourceId.set(source.id, game);
+    }
+  }
+}
+
+/**
+ * IGDB similar-game ids are provider ids. A catalogue id wins over a source id,
+ * matching `findCatalogueEntry`.
+ */
+export function findGameByProviderId(providerId: string): Game | undefined {
+  return gamesById.get(providerId) ?? gamesBySourceId.get(providerId);
+}
 
 const SEED_TITLE_HINTS: Record<string, string> = {
   bg3: "baldur's gate iii",

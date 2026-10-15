@@ -280,3 +280,18 @@ export function validateCatalogue(value: unknown): value is CatalogueIndex {
 export function normalizeCatalogue(value: unknown, fallback: Game[]): Game[] {
   return validateCatalogue(value) ? value.games.map(normalizeGameMedia) : fallback.map(normalizeGameMedia);
 }
+
+type CatalogueIdentity = {
+  id: string;
+  source: readonly { id: string }[];
+};
+
+/**
+ * Match an IGDB similar-game id to a catalogue entry.
+ * Catalogue `id` wins over another entry that only lists that value as a source id.
+ * Same-title remasters stay unmatched: IGDB gives them different ids.
+ */
+export function findCatalogueEntry<T extends CatalogueIdentity>(games: readonly T[], refId: string): T | undefined {
+  return games.find((game) => game.id === refId)
+    ?? games.find((game) => game.source.some((source) => source.id === refId));
+}
