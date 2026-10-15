@@ -89,23 +89,21 @@ export default function Home() {
       />
 
       <main id="main-content" className="flex-1">
-        {platformLabel && !searchQuery.trim() && (
-          topGames.length > 0 ? (
-            <div className="pt-6">
-              <GameRow title={`${platformLabel} Top Games`} games={topGames} />
-            </div>
-          ) : (
-            <p className="mx-auto mb-10 max-w-[1920px] px-4 pt-6 text-sm text-muted sm:px-6 lg:px-8">
-              No games in the catalogue match {platformLabel}.
-            </p>
-          )
-        )}
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
             featuredGames={selectedPlatformVariant ? variantGames.slice(0, 8) : filterGames(recentlyPlayed)}
             selectedPlatform={selectedPlatform}
           />
+        )}
+        {platformLabel && !searchQuery.trim() && (
+          topGames.length > 0 ? (
+            <GameRow title={`${platformLabel} Top Games`} games={topGames} />
+          ) : (
+            <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
+              No games in the catalogue match {platformLabel}.
+            </p>
+          )
         )}
 
         {searchQuery.trim() ? (
