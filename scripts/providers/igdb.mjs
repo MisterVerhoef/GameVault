@@ -20,6 +20,27 @@ function contentRefs(records = []) {
     });
 }
 
+const IGDB_STORE_SOURCES = {
+  11: "xbox",
+  31: "xbox",
+  36: "playstation",
+};
+
+function storeIdsFromIgdb(externalGames = []) {
+  const ids = [];
+  const seen = new Set();
+  for (const entry of externalGames) {
+    const source = IGDB_STORE_SOURCES[entry?.external_game_source ?? entry?.category];
+    const uid = typeof entry?.uid === "string" ? entry.uid.trim() : "";
+    if (!source || !uid) continue;
+    const key = `${source}:${uid}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    ids.push({ store: source, id: uid });
+  }
+  return ids;
+}
+
 function companies(involvedCompanies = [], developer) {
   return involvedCompanies
     .filter((entry) => entry?.company?.id && entry.company.name && Boolean(entry.developer) === developer)
@@ -39,6 +60,7 @@ export function normalizeIgdbRecord(record) {
   const year = record.first_release_date
     ? new Date(record.first_release_date * 1000).getUTCFullYear()
     : undefined;
+  const externalIds = storeIdsFromIgdb(record.external_games);
 
   return {
     id: String(record.id ?? ""),
@@ -88,6 +110,7 @@ export function normalizeIgdbRecord(record) {
     rating: record.rating,
     ratingCount: record.rating_count,
     sourceId: String(record.id ?? ""),
+    ...(externalIds.length > 0 ? { externalIds } : {}),
     warnings: unsupportedPlatforms.map((platform) => `Unsupported IGDB platform omitted: ${platform}`),
   };
 }

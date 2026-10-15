@@ -10,9 +10,10 @@
     "catalogue:generate": "node scripts/generate-catalogue.mjs",
     "catalogue:import": "node scripts/import-catalogue.mjs",
     "catalogue:sync:igdb": "node scripts/sync-igdb.mjs",
+    "catalogue:enrich:stores": "node scripts/enrich-stores.mjs",
     "catalogue:search-index": "node scripts/build-search-index.mjs",
     "catalogue:diff": "node scripts/catalogue-diff.mjs",
-    "test:catalogue": "node --test test/catalogue.test.mjs"
+    "test:catalogue": "node --test test/catalogue.test.mjs test/store-enrichment.test.mjs"
   },
   "dependencies": {
     "next": "16.3.6",
