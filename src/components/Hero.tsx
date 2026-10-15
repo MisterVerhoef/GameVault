@@ -57,8 +57,7 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group relative mx-auto block h-[156px] w-[108px] flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[216px] sm:w-36 lg:mx-0 lg:h-60 lg:w-[168px]"
-        style={{ borderColor: `${themeColor}33` }}
+        className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:h-[564px] lg:w-[calc(75%+3rem)]"
       >
         {isHydrated && coverUrl && (
           <Image
