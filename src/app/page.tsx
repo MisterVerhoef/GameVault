@@ -72,6 +72,17 @@ export default function Home() {
       />
 
       <main id="main-content" className="flex-1">
+        {selectedPlatformVariant && (
+          variantGames.length > 0 ? (
+            <div className="pt-6">
+              <GameRow title={selectedPlatformVariant} games={variantGames} />
+            </div>
+          ) : (
+            <p className="mx-auto mb-10 max-w-[1920px] px-4 pt-6 text-sm text-muted sm:px-6 lg:px-8">
+              No games in the catalogue match {selectedPlatformVariant}.
+            </p>
+          )
+        )}
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
@@ -109,16 +120,11 @@ export default function Home() {
 
             <GameRow title="Multiplayer" games={filterGames(multiplayerGames)} />
 
-            {(selectedPlatform || selectedPlatformFamily || selectedPlatformVariant) && (
+            {(selectedPlatform || selectedPlatformFamily) && !selectedPlatformVariant && (
               <GameRow
-                title={`${selectedPlatformVariant ?? selectedPlatform ?? selectedPlatformFamily} Top Games`}
-                games={selectedPlatformVariant ? variantGames : filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
+                title={`${selectedPlatform ?? selectedPlatformFamily} Top Games`}
+                games={filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
               />
-            )}
-            {selectedPlatformVariant && variantGames.length === 0 && (
-              <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
-                No games in the catalogue match {selectedPlatformVariant}.
-              </p>
             )}
           </>
         )}

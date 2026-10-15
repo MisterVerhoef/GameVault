@@ -57,7 +57,7 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group mx-auto block h-[156px] w-[108px] flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[216px] sm:w-36 lg:mx-0 lg:h-60 lg:w-[168px]"
+        className="group relative mx-auto block h-[156px] w-[108px] flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 transition hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[216px] sm:w-36 lg:mx-0 lg:h-60 lg:w-[168px]"
         style={{ borderColor: `${themeColor}33` }}
       >
         {isHydrated && coverUrl && (
@@ -73,7 +73,7 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
       </Link>
 
         {/* Info */}
-        <div className="flex flex-1 flex-col gap-3 text-center lg:text-left">
+        <div className="relative z-10 flex flex-1 flex-col gap-3 text-center lg:text-left">
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
             Featured Game
           </p>
