@@ -9,7 +9,7 @@ const clientId = process.env.IGDB_CLIENT_ID;
 const clientSecret = process.env.IGDB_CLIENT_SECRET;
 const sourceVersion = process.env.IGDB_SOURCE_VERSION ?? new Date().toISOString().slice(0, 10);
 const limit = Number.parseInt(process.env.IGDB_LIMIT ?? "500", 10);
-const pages = Number.parseInt(process.env.IGDB_PAGES ?? "5", 10);
+const pages = Number.parseInt(process.env.IGDB_PAGES ?? "10", 10);
 const minimumGames = Number.parseInt(process.env.IGDB_MIN_GAMES ?? "5", 10);
 const searchTerms = (process.env.IGDB_SEARCH_TERMS ?? "halo,the witcher")
   .split(",")
