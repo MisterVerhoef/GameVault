@@ -3,8 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { PLATFORM_COLORS } from "@/data/games";
-import { PLATFORM_FAMILIES, type Platform, type PlatformFamily } from "@/data/platforms";
+import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform, type PlatformFamily } from "@/data/platforms";
 import LibraryToolbar from "./LibraryToolbar";
 import ThemeToggle from "./ThemeToggle";
 

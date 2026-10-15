@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useSyncExternalStore, type ReactNode } from "react";
 
 type Theme = "dark" | "light" | "system";
 
@@ -9,88 +9,90 @@ interface ThemeContextType {
   setTheme: (theme: Theme) => void;
 }
 
+const STORAGE_KEY = "gamevault-theme";
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const listeners = new Set<() => void>();
 
-// Default theme for SSR
-const DEFAULT_THEME: Theme = "system";
+function isTheme(value: string | null): value is Theme {
+  return value === "dark" || value === "light" || value === "system";
+}
+
+function readStoredTheme(): Theme | null {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    return isTheme(saved) ? saved : null;
+  } catch (error) {
+    console.warn("Failed to read theme preference:", error);
+    return null;
+  }
+}
+
+function systemPreference(): "dark" | "light" {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function readTheme(): Theme {
+  return readStoredTheme() ?? systemPreference();
+}
+
+function subscribe(onStoreChange: () => void) {
+  listeners.add(onStoreChange);
+  const onStorage = (event: StorageEvent) => {
+    if (event.key === STORAGE_KEY) onStoreChange();
+  };
+  window.addEventListener("storage", onStorage);
+  return () => {
+    listeners.delete(onStoreChange);
+    window.removeEventListener("storage", onStorage);
+  };
+}
+
+function emitThemeChange() {
+  for (const listener of listeners) listener();
+}
+
+function getServerSnapshot(): Theme {
+  return "system";
+}
+
+function applyThemeClass(theme: Theme) {
+  const root = document.documentElement;
+  root.classList.remove("light", "dark");
+  root.classList.add(theme === "system" ? systemPreference() : theme);
+}
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>(DEFAULT_THEME);
+  const theme = useSyncExternalStore(subscribe, readTheme, getServerSnapshot);
 
-  useEffect(() => {
-    // Try to read saved theme preference from localStorage
+  const setTheme = useCallback((next: Theme) => {
     try {
-      const savedTheme = localStorage.getItem("gamevault-theme") as Theme | null;
-      
-      // Validate the saved theme
-      if (savedTheme && (savedTheme === "dark" || savedTheme === "light" || savedTheme === "system")) {
-        setTheme(savedTheme);
-      } else {
-        // If no valid saved theme, check system preference
-        const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-        setTheme(prefersDark ? "dark" : "light");
-      }
-    } catch (e) {
-      // Handle storage errors (e.g., SecurityError in private browsing)
-      console.warn("Failed to read theme preference:", e);
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      setTheme(prefersDark ? "dark" : "light");
+      localStorage.setItem(STORAGE_KEY, next);
+    } catch (error) {
+      console.warn("Failed to save theme preference:", error);
     }
+    emitThemeChange();
   }, []);
 
-  // Handle theme changes and persistence
   useEffect(() => {
-    // Save theme preference to localStorage
-    try {
-      localStorage.setItem("gamevault-theme", theme);
-    } catch (e) {
-      console.warn("Failed to save theme preference:", e);
+    if (!readStoredTheme()) {
+      try {
+        localStorage.setItem(STORAGE_KEY, systemPreference());
+        emitThemeChange();
+      } catch (error) {
+        console.warn("Failed to save theme preference:", error);
+      }
     }
-    
-    // Apply theme to document root
-    const root = document.documentElement;
-    
-    // Remove all theme classes
-    root.classList.remove("light", "dark");
-    
-    // Add the current theme class
-    if (theme === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-      root.classList.add(prefersDark ? "dark" : "light");
-    } else {
-      root.classList.add(theme);
-    }
-  }, [theme]);
 
-  // Subscribe to system theme changes when theme is "system"
-  useEffect(() => {
+    applyThemeClass(theme);
     if (theme !== "system") return;
-    
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-    
-    const handler = (e: MediaQueryListEvent) => {
-      const root = document.documentElement;
-      root.classList.remove("light", "dark");
-      root.classList.add(e.matches ? "dark" : "light");
-    };
-    
-    // Initial application
-    handler({ matches: mediaQuery.matches } as MediaQueryListEvent);
-    
-    // Subscribe to changes
-    mediaQuery.addEventListener("change", handler);
-    
-    // Cleanup
-    return () => mediaQuery.removeEventListener("change", handler);
+    const onChange = () => applyThemeClass("system");
+    mediaQuery.addEventListener("change", onChange);
+    return () => mediaQuery.removeEventListener("change", onChange);
   }, [theme]);
 
-  const value = { theme, setTheme };
-
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={{ theme, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme() {

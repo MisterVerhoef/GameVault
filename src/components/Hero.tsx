@@ -81,12 +81,12 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
-            <span aria-hidden="true">2</span>
+            <span aria-hidden="true">•</span>
             <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
               <span aria-hidden="true">★ </span>
               {formatRating(featured.rating)}
             </span>
-            <span aria-hidden="true">2</span>
+            <span aria-hidden="true">•</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
               {Array.from(new Set(featured.platforms)).map((p: Platform) => (
                 <span

@@ -28,13 +28,47 @@
 
 ## Quick Start
 
+From the repository root:
+
 ```bash
-cd gamevault
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000).
+
+## Deploy to Vercel
+
+The app is a single Next.js project at the repository root. Vercel detects Next.js from `package.json`, so the default install, build, and output settings are enough. A `vercel.json` file is not part of this project.
+
+The catalogue in `public/catalog/` is checked in. Builds and page requests use that file. IGDB is contacted only by `npm run catalogue:sync:igdb` and the GitHub Actions workflow. Serving a page does not write to the filesystem. Personal library data stays in the browser (`localStorage`), with Export / Import on the home page.
+
+1. Push this repository to GitHub (or GitLab / Bitbucket).
+2. In Vercel, choose **Add New… → Project** and import the repository.
+3. Set **Root Directory** to the repository root — the directory that contains `package.json`.
+4. Framework preset: **Next.js**. Keep the default commands:
+   - Install command: `npm install`
+   - Build command: `npm run build` (`next build` only). Catalogue sync stays in GitHub Actions.
+   - Output directory: leave blank. Next.js sets this.
+5. Leave the Vercel environment variable list empty. **Deploy**.
+6. Node.js 20.9 or newer is required (`next` 16). A new Vercel project uses the current default (Node.js 24), which satisfies that.
+
+### Environment variables
+
+Copy `.env.example` to `.env.local` only if you sync the catalogue on your machine. None of these are read by the Next.js server or the browser.
+
+| Variable | Required for the site | Where it belongs |
+| --- | --- | --- |
+| `IGDB_CLIENT_ID` | No | Local sync, or a GitHub Actions secret for `.github/workflows/catalogue.yml` |
+| `IGDB_CLIENT_SECRET` | No | Same as `IGDB_CLIENT_ID`. Never commit it and never set `NEXT_PUBLIC_` on it. |
+| `IGDB_SOURCE_VERSION` | No | Optional provenance label for a sync |
+| `IGDB_LIMIT`, `IGDB_PAGES`, `IGDB_MIN_GAMES` | No | Optional sync bounds. Defaults are 500, 5, and 5. |
+| `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
+| `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
+
+Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule). That job commits `public/catalog/games-index.json` and `public/catalog/search-index.json`. After it pushes to the production branch, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel.
+
+`public/catalog/games-index.json` is about 12 MB and `search-index.json` about 1.2 MB. Both are under Vercel's source upload limits. The UI imports the games index at build time; the search index is a catalogue artefact checked by CI and is not required at runtime.
 
 ## Project Structure
 
@@ -94,7 +128,7 @@ The personal library is stored locally in the browser. Use the home page Export 
 
 ## Tech
 
-- Next.js 15+ (App Router)
+- Next.js 16 (App Router)
 - React 19
 - Tailwind CSS v4
 - TypeScript

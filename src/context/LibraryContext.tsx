@@ -37,7 +37,6 @@ export function LibraryProvider({ children }: { children: React.ReactNode }) {
         window.localStorage.removeItem(STORAGE_KEY);
       }
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReady(true);
   }, []);
 

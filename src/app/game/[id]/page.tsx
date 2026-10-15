@@ -68,14 +68,20 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
         <section className="relative mb-12 flex flex-col gap-6 lg:flex-row lg:gap-12">
           {/* Cover art */}
           <div className="relative mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64" style={{ borderColor: `${themeColor}33` }}>
-            <Image
-              src={game.cover?.url ?? ""}
-              alt={game.title}
-              fill
-              className="object-cover"
-              unoptimized
-              priority
-            />
+            {game.cover?.url ? (
+              <Image
+                src={game.cover.url}
+                alt={game.title}
+                fill
+                className="object-cover"
+                unoptimized
+                priority
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center bg-card px-3 text-center text-xs text-muted">
+                {game.title}
+              </div>
+            )}
           </div>
 
           {/* Game info */}
