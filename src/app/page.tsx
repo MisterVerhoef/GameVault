@@ -14,12 +14,21 @@ export default function Home() {
   const hasPlatformVariantData = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
 
   useEffect(() => {
-    const query = new URLSearchParams(window.location.search).get("search");
+    const params = new URLSearchParams(window.location.search);
+    const query = params.get("search");
+    const platform = params.get("platform");
+    const family = params.get("family");
+    const variant = params.get("variant");
     if (query) {
-      // Hydrate search links after the server-rendered homepage is mounted.
+      // Hydrate links opened from a game page after the homepage is mounted.
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearchQuery(query);
     }
+    if (platform === "PC" || platform === "PS5" || platform === "Xbox" || platform === "Switch") {
+      setSelectedPlatform(platform);
+    }
+    if (family) setSelectedPlatformFamily(family);
+    if (variant) setSelectedPlatformVariant(variant);
   }, []);
 
   // Filter games based on selected platform and search query.

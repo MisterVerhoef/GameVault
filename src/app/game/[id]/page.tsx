@@ -3,6 +3,7 @@ import Link from "next/link";
 import { allGames, formatRating, Platform, PLATFORM_COLORS } from "@/data/games";
 import Image from "next/image";
 import LibraryControls from "@/components/LibraryControls";
+import Navbar from "@/components/Navbar";
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
@@ -31,34 +32,36 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const themeColor = PLATFORM_COLORS[primaryPlatform];
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen">
       {/* Background with theme color */}
       <div className="absolute inset-0" style={{ backgroundColor: `${themeColor}1a` }} />
-      
-      {/* Header with back button */}
-      <header className="relative sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link
-            href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            aria-label="Back to home"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-5 w-5"
+
+      <div className="relative">
+        <Navbar />
+        <div className="border-b border-white/5 bg-background/80">
+          <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+            <Link
+              href="/"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label="Back to home"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-            </svg>
-          </Link>
-          <h1 className="text-lg font-bold tracking-tight text-foreground sm:text-xl">
-            {game.title}
-          </h1>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="h-5 w-5"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              </svg>
+            </Link>
+            <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
+              {game.title}
+            </h1>
+          </div>
         </div>
-      </header>
+      </div>
 
       <main className="relative mx-auto max-w-[1920px] px-4 py-8 sm:px-6 lg:px-8">
         {/* Hero section with cover art */}

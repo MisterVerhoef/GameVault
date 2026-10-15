@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Platform, PLATFORM_COLORS } from "@/data/games";
 import LibraryToolbar from "./LibraryToolbar";
 import ThemeToggle from "./ThemeToggle";
@@ -58,7 +59,20 @@ const platformFamilies: readonly PlatformFamily[] = [
   },
 ];
 
+function homeHref(next: { family: PlatformFamily | null; variant: string | null; search: string }) {
+  const params = new URLSearchParams();
+  if (next.search) params.set("search", next.search);
+  if (next.family) {
+    params.set("family", next.family.label);
+    if (next.family.platform) params.set("platform", next.family.platform);
+  }
+  if (next.variant) params.set("variant", next.variant);
+  const query = params.toString();
+  return query ? `/?${query}` : "/";
+}
+
 export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -73,6 +87,21 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const selectedVariantRoot =
     selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const familyLabel = params.get("family");
+    const family = platformFamilies.find((item) => item.label === familyLabel);
+    const variant = params.get("variant");
+    const searchParam = params.get("search");
+    if (family) {
+      // Restore the chip that brought the user back from a game page.
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedFamilyKey(family.key);
+    }
+    if (variant) setSelectedVariant(variant);
+    if (searchParam) setSearch(searchParam);
+  }, []);
+
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
     const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
     setSelectedFamilyKey(nextFamily?.key ?? null);
@@ -81,17 +110,30 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onPlatformVariantSelect?.(null);
     onPlatformSelect?.(nextFamily?.platform ?? null);
     setMenuOpen(false);
+    if (!onPlatformSelect && !onPlatformFamilySelect) {
+      router.push(homeHref({ family: nextFamily, variant: null, search: "" }));
+    }
   };
 
   const handleVariantSelect = (variant: string) => {
     const nextVariant = selectedVariant === variant ? null : variant;
     setSelectedVariant(nextVariant);
     onPlatformVariantSelect?.(nextVariant);
+    if (!onPlatformVariantSelect && !onPlatformSelect) {
+      router.push(homeHref({ family: selectedFamily ?? null, variant: nextVariant, search: "" }));
+    }
   };
 
   const handleSearch = (query: string) => {
     setSearch(query);
     onSearch?.(query);
+  };
+
+  const submitSearch = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (onSearch) return;
+    const query = search.trim();
+    router.push(query ? `/?search=${encodeURIComponent(query)}` : "/");
   };
 
   const goHome = () => {
@@ -183,7 +225,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </button>
 
           {/* Search input (desktop) */}
-          <div className={`relative ${searchOpen ? "block" : "hidden"} sm:block`}>
+          <form
+            onSubmit={submitSearch}
+            className={`relative ${searchOpen ? "block" : "hidden"} sm:block`}
+          >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -210,7 +255,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onChange={(e) => handleSearch(e.target.value)}
               className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
-          </div>
+          </form>
 
           {/* Library menu */}
           <div className="relative">
@@ -331,7 +376,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
       {/* Mobile search bar (expanded state) */}
       {searchOpen && (
-        <div id="mobile-search" className="border-t border-white/5 px-4 py-2 sm:hidden">
+        <form id="mobile-search" onSubmit={submitSearch} className="border-t border-white/5 px-4 py-2 sm:hidden">
           <label htmlFor="navbar-search-mobile" className="sr-only">
             Search games
           </label>
@@ -343,7 +388,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             onChange={(e) => handleSearch(e.target.value)}
             className="h-9 w-full rounded-full border border-white/10 bg-card px-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
           />
-        </div>
+        </form>
       )}
 
       {/* Mobile nav menu */}
