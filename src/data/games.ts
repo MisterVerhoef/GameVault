@@ -623,6 +623,62 @@ export function getGamesByPlatform(platform: Platform): Game[] {
   return allGames.filter(game => game.platforms.includes(platform));
 }
 
+/** Navbar labels mapped to the platform names stored on each game. */
+const platformLabelNames: Record<string, readonly string[]> = {
+  Windows: ["PC (Microsoft Windows)"],
+  Mac: ["Mac"],
+  Linux: ["Linux"],
+  PS5: ["PlayStation 5"],
+  PS4: ["PlayStation 4"],
+  PS3: ["PlayStation 3"],
+  PS2: ["PlayStation 2"],
+  "Xbox Series": ["Xbox Series X|S"],
+  "Xbox One": ["Xbox One"],
+  "Xbox 360": ["Xbox 360"],
+  "Original Xbox": ["Xbox"],
+  Switch: ["Nintendo Switch"],
+  "Switch 2": ["Nintendo Switch 2"],
+  "Wii U": ["Wii U"],
+  Wii: ["Wii"],
+  GameCube: ["Nintendo GameCube"],
+  N64: ["Nintendo 64"],
+  SNES: ["Super Nintendo Entertainment System", "Super Famicom"],
+  NES: ["Nintendo Entertainment System"],
+  "3DS": ["Nintendo 3DS", "New Nintendo 3DS"],
+  DS: ["Nintendo DS", "Nintendo DSi"],
+  "Game Boy": ["Game Boy", "Game Boy Advance"],
+  Sega: ["Dreamcast", "Sega CD", "Sega Mega Drive/Genesis", "Sega Saturn"],
+  "Master System": ["Sega Master System"],
+  Genesis: ["Sega Mega Drive/Genesis"],
+  "Mega Drive": ["Sega Mega Drive/Genesis"],
+  "Sega CD": ["Sega CD"],
+  "32X": ["Sega 32X"],
+  Saturn: ["Sega Saturn"],
+  Dreamcast: ["Dreamcast"],
+  "Game Gear": ["Sega Game Gear"],
+  "SG-1000": ["SG-1000"],
+  Atari: ["Atari ST/STE"],
+  "Atari 2600": ["Atari 2600"],
+  "Atari 5200": ["Atari 5200"],
+  "Atari 7800": ["Atari 7800"],
+  "Atari 8-bit": ["Atari 8-bit"],
+  "Atari ST": ["Atari ST/STE"],
+  "Atari XEGS": ["Atari XEGS"],
+  "Atari Lynx": ["Atari Lynx"],
+  "Atari Jaguar": ["Atari Jaguar"],
+  "Atari VCS": ["Atari VCS"],
+  "3DO": ["3DO Interactive Multiplayer"],
+  Ouya: ["Ouya"],
+  "Neo Geo": ["Neo Geo AES", "Neo Geo CD", "Neo Geo MVS"],
+  Commodore: ["Commodore C64/128/MAX", "Commodore 16"],
+  Stadia: ["Google Stadia"],
+};
+
+export function getGamesByPlatformLabel(label: string): Game[] {
+  const names = platformLabelNames[label] ?? [label];
+  return allGames.filter((game) => names.some((name) => game.platformVariants?.includes(name)));
+}
+
 // Get featured game (first from recently played)
 export function getFeaturedGame(): Game {
   return recentlyPlayed[0] ?? allGames[0];

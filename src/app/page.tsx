@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import { Platform, Game, allGames, getGamesByPlatform, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
+import { Platform, Game, allGames, getGamesByPlatform, getGamesByPlatformLabel, recentlyPlayed, actionGames, rpgGames, indieGames, multiplayerGames, searchGames } from "@/data/games";
 
 export default function Home() {
   const [selectedPlatform, setSelectedPlatform] = useState<Platform | null>(null);
@@ -26,12 +26,11 @@ export default function Home() {
   const filterGames = (games: Game[]) => {
     let filtered = [...games];
 
-    if (selectedPlatform) {
-      filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
-    }
-
     if (selectedPlatformVariant && hasPlatformVariantData) {
-      filtered = filtered.filter((game) => game.platformVariants?.includes(selectedPlatformVariant));
+      const variantIds = new Set(getGamesByPlatformLabel(selectedPlatformVariant).map((game) => game.id));
+      filtered = filtered.filter((game) => variantIds.has(game.id));
+    } else if (selectedPlatform) {
+      filtered = filtered.filter((game) => game.platforms.includes(selectedPlatform));
     }
 
     if (searchQuery.trim()) {
@@ -42,8 +41,11 @@ export default function Home() {
     return filtered;
   };
 
+  const variantGames = selectedPlatformVariant ? getGamesByPlatformLabel(selectedPlatformVariant) : [];
+
   // Get featured game based on selected platform
   const getFeaturedGame = () => {
+    if (selectedPlatformVariant && variantGames.length > 0) return variantGames[0];
     if (selectedPlatform) {
       return getGamesByPlatform(selectedPlatform)[0] || recentlyPlayed[0];
     }
@@ -73,7 +75,7 @@ export default function Home() {
         {!searchQuery.trim() && (
           <Hero
             featuredGame={getFeaturedGame()}
-            featuredGames={filterGames(recentlyPlayed)}
+            featuredGames={selectedPlatformVariant ? variantGames.slice(0, 8) : filterGames(recentlyPlayed)}
             selectedPlatform={selectedPlatform}
           />
         )}
@@ -110,8 +112,13 @@ export default function Home() {
             {(selectedPlatform || selectedPlatformFamily || selectedPlatformVariant) && (
               <GameRow
                 title={`${selectedPlatformVariant ?? selectedPlatform ?? selectedPlatformFamily} Top Games`}
-                games={filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
+                games={selectedPlatformVariant ? variantGames : filterGames(selectedPlatform ? getGamesByPlatform(selectedPlatform) : allGames)}
               />
+            )}
+            {selectedPlatformVariant && variantGames.length === 0 && (
+              <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
+                No games in the catalogue match {selectedPlatformVariant}.
+              </p>
             )}
           </>
         )}
