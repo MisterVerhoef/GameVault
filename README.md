@@ -62,7 +62,7 @@ Copy `.env.example` to `.env.local` only if you sync the catalogue on your machi
 | `IGDB_CLIENT_ID` | No | Local sync, or a GitHub Actions secret for `.github/workflows/catalogue.yml` |
 | `IGDB_CLIENT_SECRET` | No | Same as `IGDB_CLIENT_ID`. Never commit it and never set `NEXT_PUBLIC_` on it. |
 | `IGDB_SOURCE_VERSION` | No | Optional provenance label for a sync |
-| `IGDB_LIMIT`, `IGDB_PAGES`, `IGDB_MIN_GAMES` | No | Optional sync bounds. Defaults are 500, 5, and 5. |
+| `IGDB_LIMIT`, `IGDB_PAGES`, `IGDB_MIN_GAMES` | No | Optional sync bounds. Defaults are 500, 10, and 5. |
 | `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
 | `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
 
@@ -116,7 +116,7 @@ To sync directly from IGDB during a trusted build or CI job, configure `IGDB_CLI
 npm run catalogue:sync:igdb
 ```
 
-The sync requests a Twitch application token, fetches several bounded popular IGDB pages, performs targeted franchise searches, merges all results by provider ID, runs the existing IGDB adapter and quality validation, and rebuilds the static search index. It validates a temporary catalogue before publishing and refuses to replace the checked-in data with fewer than five games by default. `IGDB_LIMIT` defaults to 500 and `IGDB_PAGES` defaults to 5; each can be reduced or increased within its safety bounds. `IGDB_SEARCH_TERMS` is a comma-separated list of targeted searches and defaults to `halo,the witcher`, ensuring common franchise queries are not limited by global popularity ranking. `IGDB_MIN_GAMES` and `IGDB_QUERY` can override the safety threshold and popular-page query. Never expose these credentials to the browser or commit them to the repository. The catalogue workflow supports manual and weekly syncs through the `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` GitHub Actions secrets.
+The sync requests a Twitch application token, fetches several bounded popular IGDB pages, performs targeted franchise searches, merges all results by provider ID, runs the existing IGDB adapter and quality validation, and rebuilds the static search index. It validates a temporary catalogue before publishing and refuses to replace the checked-in data with fewer than five games by default. `IGDB_LIMIT` defaults to 500 and `IGDB_PAGES` defaults to 10; each can be reduced or increased within its safety bounds (`IGDB_PAGES` cannot exceed 10). `IGDB_SEARCH_TERMS` is a comma-separated list of targeted searches and defaults to `halo,the witcher`, ensuring common franchise queries are not limited by global popularity ranking. `IGDB_MIN_GAMES` and `IGDB_QUERY` can override the safety threshold and popular-page query. Never expose these credentials to the browser or commit them to the repository. The catalogue workflow supports manual and weekly syncs through the `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` GitHub Actions secrets.
 
 For catalogue operations, run `npm run catalogue:search-index` to generate the static search index or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs.
 

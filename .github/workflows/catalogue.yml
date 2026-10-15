@@ -39,6 +39,7 @@ jobs:
           IGDB_CLIENT_ID: ${{ secrets.IGDB_CLIENT_ID }}
           IGDB_CLIENT_SECRET: ${{ secrets.IGDB_CLIENT_SECRET }}
           IGDB_SOURCE_VERSION: scheduled-${{ github.run_id }}
+          IGDB_PAGES: "10"
       - run: |
           if git diff --quiet -- public/catalog/games-index.json public/catalog/search-index.json; then
             echo "Catalogue is already up to date."
