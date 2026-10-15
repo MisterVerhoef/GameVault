@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Game } from "@/data/games";
+import type { Game } from "@/data/games";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
 
