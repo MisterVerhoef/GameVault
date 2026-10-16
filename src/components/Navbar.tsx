@@ -76,6 +76,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const nextVariant = selectedVariant === variant ? null : variant;
     setSelectedVariant(nextVariant);
     onPlatformVariantSelect?.(nextVariant);
+    const opensNestedMenu = Boolean(nextVariant && selectedFamily?.variantChildren?.[nextVariant]?.length);
+    // Sega and Atari only reveal their nested list. Every finished pick dismisses
+    // the phone menu; the desktop breakdown is not tied to that menu.
+    if (!opensNestedMenu) setMenuOpen(false);
     if (!onPlatformVariantSelect && !onPlatformSelect) {
       router.push(homeHref({ family: selectedFamily ?? null, variant: nextVariant, search: "" }));
     }
