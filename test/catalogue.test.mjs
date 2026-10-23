@@ -10,7 +10,8 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
-const { gameMatchesPlatformVariant, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
+const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
+const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -49,6 +50,42 @@ test("maps navbar platform chips to IGDB platform variant labels", () => {
     gameMatchesPlatformVariant({ platformVariants: ["Nintendo Switch"] }, "Switch"),
     true,
   );
+});
+
+test("treats a single platform as exclusive and keeps other releases out", () => {
+  const ps2 = { platforms: ["PS5"], platformVariants: ["PS2"] };
+  const ps2AndPs3 = { platforms: ["PS5"], platformVariants: ["PS2", "PS3"] };
+  const xboxGenerations = { platforms: ["Xbox"], platformVariants: ["Xbox One", "Xbox Series"] };
+  const dreamcast = { platforms: ["Other"], platformVariants: ["Dreamcast"] };
+  const segaPair = { platforms: ["Other"], platformVariants: ["Dreamcast", "Genesis"] };
+  const windows = { platforms: ["PC"], platformVariants: ["Windows"] };
+  const gameBoyAdvance = { platforms: ["Switch"], platformVariants: ["Game Boy Advance"] };
+
+  assert.equal(gameIsPlatformExclusive(ps2, { platform: "PS5", variant: "PS2" }), true);
+  assert.equal(gameIsPlatformExclusive(ps2AndPs3, { platform: "PS5", variant: "PS2" }), false);
+  assert.equal(gameIsPlatformExclusive(ps2, { platform: "PS5", variant: null }), true);
+  assert.equal(gameIsPlatformExclusive(ps2AndPs3, { platform: "PS5", variant: null }), true);
+  assert.equal(gameIsPlatformExclusive(xboxGenerations, { platform: "Xbox", variant: "Xbox One" }), false);
+  assert.equal(gameIsPlatformExclusive(xboxGenerations, { platform: "Xbox", variant: null }), true);
+  assert.equal(gameIsPlatformExclusive(dreamcast, { platform: "Other", variant: "Dreamcast" }), true);
+  assert.equal(gameIsPlatformExclusive(dreamcast, { platform: "Other", variant: "Sega" }), true);
+  assert.equal(gameIsPlatformExclusive(segaPair, { platform: "Other", variant: "Dreamcast" }), false);
+  assert.equal(gameIsPlatformExclusive(segaPair, { platform: "Other", variant: "Sega" }), true);
+  assert.equal(gameIsPlatformExclusive(windows, { platform: "PC", variant: null }), false);
+  assert.equal(gameIsPlatformExclusive(windows, { platform: "PC", variant: "Windows" }), false);
+  assert.equal(gameIsPlatformExclusive(gameBoyAdvance, { platform: "Switch", variant: "Game Boy" }), true);
+  assert.equal(isPcPlatformBrowse("PC", null), true);
+  assert.equal(isPcPlatformBrowse("PS5", "PS2"), false);
+  assert.equal(browseQuery({ family: "PlayStation", platform: "PS5", variant: "PS2", genre: "action" }), "/?family=PlayStation&platform=PS5&variant=PS2&genre=action");
+});
+
+test("genre browse uses catalogue tags and keeps plot text out of action", () => {
+  assert.equal(gameMatchesGenre({ title: "A", genres: ["Shooter"], themes: ["Action"] }, "action"), true);
+  assert.equal(gameMatchesGenre({ title: "B", genres: ["Puzzle"], themes: [], summary: "fast action" }, "action"), false);
+  assert.equal(gameMatchesGenre({ title: "C", genres: ["Role-playing (RPG)"], themes: [] }, "rpg"), true);
+  assert.equal(gameMatchesGenre({ title: "D", genres: ["Indie"], themes: [] }, "Indie Favorites"), true);
+  assert.equal(gameMatchesGenre({ title: "E", genres: ["Adventure"], themes: [], summary: "online co-op" }, "multiplayer"), true);
+  assert.equal(gameMatchesGenre({ title: "F", genres: ["Quiz/Trivia"], themes: [] }, "Quiz/Trivia"), true);
 });
 
 test("imports sega-only IGDB platforms into the Other family", () => {

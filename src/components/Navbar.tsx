@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform, type PlatformFamily } from "@/data/platforms";
+import { usePathname, useRouter } from "next/navigation";
+import { browseQuery } from "@/data/browse";
+import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
 import LibraryToolbar from "./LibraryToolbar";
 import ThemeToggle from "./ThemeToggle";
 
@@ -12,24 +13,15 @@ interface NavbarProps {
   onPlatformFamilySelect?: (family: string | null) => void;
   onPlatformVariantSelect?: (variant: string | null) => void;
   onSearch?: (query: string) => void;
+  /** Current `search` query. The field keeps its own value while it is focused. */
+  searchQuery?: string;
 }
 
 const platformFamilies = PLATFORM_FAMILIES;
 
-function homeHref(next: { family: PlatformFamily | null; variant: string | null; search: string }) {
-  const params = new URLSearchParams();
-  if (next.search) params.set("search", next.search);
-  if (next.family) {
-    params.set("family", next.family.label);
-    if (next.family.platform) params.set("platform", next.family.platform);
-  }
-  if (next.variant) params.set("variant", next.variant);
-  const query = params.toString();
-  return query ? `/?${query}` : "/";
-}
-
-export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch }: NavbarProps) {
+export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, searchQuery }: NavbarProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -44,20 +36,32 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const selectedVariantRoot =
     selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
 
+  /* The address bar is the source of truth after Back, and after a genre link clears search. */
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const familyLabel = params.get("family");
-    const family = platformFamilies.find((item) => item.label === familyLabel);
-    const variant = params.get("variant");
-    const searchParam = params.get("search");
-    if (family) {
-      // Restore the chip that brought the user back from a game page.
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setSelectedFamilyKey(family.key);
-    }
-    if (variant) setSelectedVariant(variant);
-    if (searchParam) setSearch(searchParam);
+    const applyLocation = () => {
+      const params = new URLSearchParams(window.location.search);
+      const familyLabel = params.get("family");
+      const family = platformFamilies.find((item) => item.label === familyLabel);
+      setSelectedFamilyKey(family?.key ?? null);
+      setSelectedVariant(params.get("variant"));
+      const active = document.activeElement;
+      const editingSearch = active instanceof HTMLInputElement && active.id.startsWith("navbar-search");
+      if (!editingSearch) setSearch(params.get("search") ?? "");
+    };
+    applyLocation();
+    window.addEventListener("popstate", applyLocation);
+    return () => window.removeEventListener("popstate", applyLocation);
   }, []);
+
+  useEffect(() => {
+    if (searchQuery !== "") return;
+    const active = document.activeElement;
+    const editingSearch = active instanceof HTMLInputElement && active.id.startsWith("navbar-search");
+    if (editingSearch) return;
+    setSearch("");
+  }, [searchQuery]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
     const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
@@ -67,9 +71,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onPlatformVariantSelect?.(null);
     onPlatformSelect?.(nextFamily?.platform ?? null);
     setMenuOpen(false);
-    if (!onPlatformSelect && !onPlatformFamilySelect) {
-      router.push(homeHref({ family: nextFamily, variant: null, search: "" }));
-    }
+    router.push(browseQuery({
+      search: pathname === "/" ? search.trim() : "",
+      family: nextFamily?.label ?? null,
+      platform: nextFamily?.platform ?? null,
+    }));
   };
 
   const handleVariantSelect = (variant: string) => {
@@ -80,9 +86,12 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     // Sega and Atari only reveal their nested list. Every finished pick dismisses
     // the phone menu; the desktop breakdown is not tied to that menu.
     if (!opensNestedMenu) setMenuOpen(false);
-    if (!onPlatformVariantSelect && !onPlatformSelect) {
-      router.push(homeHref({ family: selectedFamily ?? null, variant: nextVariant, search: "" }));
-    }
+    router.push(browseQuery({
+      search: pathname === "/" ? search.trim() : "",
+      family: selectedFamily?.label ?? null,
+      platform: selectedFamily?.platform ?? null,
+      variant: nextVariant,
+    }));
   };
 
   const handleSearch = (query: string) => {
@@ -90,11 +99,23 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onSearch?.(query);
   };
 
+  const rememberSearch = (value: string) => {
+    if (pathname !== "/") return;
+    const current = new URLSearchParams(window.location.search);
+    if (current.get("genre") || current.get("exclusives")) return;
+    const next = value.trim();
+    if ((current.get("search") ?? "") === next) return;
+    if (next) current.set("search", next);
+    else current.delete("search");
+    const query = current.toString();
+    window.history.replaceState(null, "", query ? `/?${query}` : "/");
+  };
+
   const submitSearch = (event: React.FormEvent) => {
     event.preventDefault();
-    if (onSearch) return;
+    if (pathname === "/") return;
     const query = search.trim();
-    router.push(query ? `/?search=${encodeURIComponent(query)}` : "/");
+    router.push(browseQuery({ search: query }));
   };
 
   const goHome = () => {
@@ -188,7 +209,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           {/* Search input (desktop) */}
           <form
             onSubmit={submitSearch}
-            className={`relative ${searchOpen ? "block" : "hidden"} sm:block`}
+            className="relative hidden sm:block"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -214,6 +235,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               placeholder="Search games..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
+              onBlur={(e) => rememberSearch(e.target.value)}
               className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </form>
@@ -347,6 +369,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             placeholder="Search games..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
+            onBlur={(e) => rememberSearch(e.target.value)}
             className="h-9 w-full rounded-full border border-white/10 bg-card px-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
           />
         </form>

@@ -173,3 +173,62 @@ export function gameMatchesPlatformVariant(
   const expected = new Set(variantMatchLabels(variant));
   return (game.platformVariants ?? []).some((value) => expected.has(normalizePlatformLabel(value)));
 }
+
+/** Navbar label for a stored IGDB platform, collapsing aliases such as Mega Drive and Genesis. */
+export function canonicalPlatformVariant(name: string): string {
+  const resolved = resolveIgdbPlatform(name);
+  return resolved.unmapped ? name.trim() : resolved.variant;
+}
+
+export function familyForVariantLabel(variant: string): PlatformFamily | undefined {
+  return PLATFORM_FAMILIES.find((family) => {
+    if (family.variants.includes(variant)) return true;
+    return Object.entries(family.variantChildren ?? {}).some(
+      ([parent, children]) => parent === variant || children.includes(variant),
+    );
+  });
+}
+
+export function isPcPlatformBrowse(platform: Platform | null, variant: string | null): boolean {
+  if (platform === "PC") return true;
+  if (!variant) return false;
+  return familyForVariantLabel(variant)?.platform === "PC";
+}
+
+export interface ExclusiveSelection {
+  platform: Platform | null;
+  variant: string | null;
+}
+
+/**
+ * A game is exclusive when every release sits on the selected platform.
+ * A specific chip such as PS2 requires that one variant. A parent chip such as
+ * Sega allows any mix of its own machines. A family chip such as Xbox allows
+ * any mix of that family's variants. PC is never an exclusives browse.
+ */
+export function gameIsPlatformExclusive(
+  game: { platforms?: Platform[]; platformVariants?: string[] },
+  selection: ExclusiveSelection,
+): boolean {
+  if (isPcPlatformBrowse(selection.platform, selection.variant)) return false;
+  const variants = [
+    ...new Set((game.platformVariants ?? []).map(canonicalPlatformVariant).filter(Boolean)),
+  ];
+
+  if (selection.variant) {
+    const children = parentVariantChildren.get(selection.variant);
+    if (children?.length) {
+      const allowed = new Set(children.map(canonicalPlatformVariant));
+      allowed.add(canonicalPlatformVariant(selection.variant));
+      return variants.length > 0 && variants.every((variant) => allowed.has(variant));
+    }
+    return variants.length === 1 && variants[0] === canonicalPlatformVariant(selection.variant);
+  }
+
+  if (!selection.platform) return false;
+  if (variants.length === 0) {
+    const families = game.platforms ?? [];
+    return families.length === 1 && families[0] === selection.platform;
+  }
+  return variants.every((variant) => resolveIgdbPlatform(variant).family === selection.platform);
+}
