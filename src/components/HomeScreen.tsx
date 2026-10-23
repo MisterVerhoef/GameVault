@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
@@ -32,16 +32,14 @@ function onThisPlatform(game: Game, platform: Platform | null, variant: string |
 }
 
 export default function HomeScreen() {
-  const router = useRouter();
   const params = useSearchParams();
+  const query = params.toString();
   const urlSearch = params.get("search") ?? "";
   const [draftSearch, setDraftSearch] = useState(urlSearch);
-  const [trackedUrlSearch, setTrackedUrlSearch] = useState(urlSearch);
-  if (urlSearch !== trackedUrlSearch) {
-    setTrackedUrlSearch(urlSearch);
-    if (urlSearch === "" || !(draftSearch.startsWith(urlSearch) || urlSearch.startsWith(draftSearch))) {
-      setDraftSearch(urlSearch);
-    }
+  const [trackedQuery, setTrackedQuery] = useState(query);
+  if (query !== trackedQuery) {
+    setTrackedQuery(query);
+    setDraftSearch(urlSearch);
   }
   const searchQuery = draftSearch;
   const family = params.get("family");
@@ -50,22 +48,6 @@ export default function HomeScreen() {
   const genreKey = params.get("genre");
   const exclusivesRequested = params.get("exclusives") === "1";
   const { entries } = useLibrary();
-
-  useEffect(() => {
-    const next = draftSearch.trim();
-    if (next === urlSearch) return;
-    const handle = window.setTimeout(() => {
-      const current = new URLSearchParams(window.location.search);
-      if (current.get("genre") || current.get("exclusives")) return;
-      router.replace(browseQuery({
-        search: next,
-        family: current.get("family"),
-        platform: current.get("platform"),
-        variant: current.get("variant"),
-      }), { scroll: false });
-    }, 300);
-    return () => window.clearTimeout(handle);
-  }, [draftSearch, router, urlSearch]);
 
   const playing = Object.entries(entries)
     .filter(([, entry]) => entry.status === "playing")
@@ -157,6 +139,7 @@ export default function HomeScreen() {
             resetKey={wall.key}
             backHref={libraryHref}
             backLabel={place ? `Back to ${place}` : "All games"}
+            emptyLabel={searching ? `"${trimmedSearch}"` : undefined}
           />
         ) : (
           <>

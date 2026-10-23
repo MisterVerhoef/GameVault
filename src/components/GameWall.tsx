@@ -13,14 +13,16 @@ interface GameWallProps {
   resetKey: string;
   backHref: string;
   backLabel: string;
+  emptyLabel?: string;
 }
 
-export default function GameWall({ title, games, resetKey, backHref, backLabel }: GameWallProps) {
+export default function GameWall({ title, games, resetKey, backHref, backLabel, emptyLabel }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(PAGE_SIZE);
 
   useEffect(() => {
+    if (resetKey.startsWith("search:")) return;
     headingRef.current?.focus();
   }, [resetKey]);
 
@@ -67,7 +69,7 @@ export default function GameWall({ title, games, resetKey, backHref, backLabel }
 
       {games.length === 0 ? (
         <p className="mx-auto max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
-          No games in the catalogue match {title}.
+          No games in the catalogue match {emptyLabel ?? title}.
         </p>
       ) : (
         <>

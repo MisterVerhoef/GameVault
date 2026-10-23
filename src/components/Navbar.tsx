@@ -55,11 +55,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   }, []);
 
   useEffect(() => {
-    if (searchQuery == null) return;
+    if (searchQuery !== "") return;
     const active = document.activeElement;
     const editingSearch = active instanceof HTMLInputElement && active.id.startsWith("navbar-search");
     if (editingSearch) return;
-    setSearch(searchQuery);
+    setSearch("");
   }, [searchQuery]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
@@ -95,10 +95,20 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   };
 
   const handleSearch = (query: string) => {
-    const previous = search.trim();
     setSearch(query);
     onSearch?.(query);
-    if (pathname === "/" && !previous && query.trim()) window.scrollTo({ top: 0 });
+  };
+
+  const rememberSearch = (value: string) => {
+    if (pathname !== "/") return;
+    const current = new URLSearchParams(window.location.search);
+    if (current.get("genre") || current.get("exclusives")) return;
+    const next = value.trim();
+    if ((current.get("search") ?? "") === next) return;
+    if (next) current.set("search", next);
+    else current.delete("search");
+    const query = current.toString();
+    window.history.replaceState(null, "", query ? `/?${query}` : "/");
   };
 
   const submitSearch = (event: React.FormEvent) => {
@@ -199,7 +209,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           {/* Search input (desktop) */}
           <form
             onSubmit={submitSearch}
-            className={`relative ${searchOpen ? "block" : "hidden"} sm:block`}
+            className="relative hidden sm:block"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -225,6 +235,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               placeholder="Search games..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
+              onBlur={(e) => rememberSearch(e.target.value)}
               className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
           </form>
@@ -358,6 +369,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             placeholder="Search games..."
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
+            onBlur={(e) => rememberSearch(e.target.value)}
             className="h-9 w-full rounded-full border border-white/10 bg-card px-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
           />
         </form>
