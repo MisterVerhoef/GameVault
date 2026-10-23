@@ -149,7 +149,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   {game.genres.map((genre, index) => (
                     <span key={genre}>
                       <Link
-                        href={`/?search=${encodeURIComponent(genre)}`}
+                        href={`/?genre=${encodeURIComponent(genre)}`}
                         className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         {genre}
@@ -226,7 +226,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 {game.genres.map((genre, index) => (
                   <span key={genre}>
                     <Link
-                      href={`/?search=${encodeURIComponent(genre)}`}
+                      href={`/?genre=${encodeURIComponent(genre)}`}
                       className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                     >
                       {genre}

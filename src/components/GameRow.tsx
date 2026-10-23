@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useRef } from "react";
+import Link from "next/link";
 import type { Game } from "@/data/games";
 import GameCard from "./GameCard";
 
@@ -9,6 +10,7 @@ interface GameRowProps {
   games: Game[];
   showProgress?: boolean;
   size?: "sm" | "md" | "lg";
+  titleHref?: string;
 }
 
 export default function GameRow({
@@ -16,6 +18,7 @@ export default function GameRow({
   games,
   showProgress = false,
   size = "md",
+  titleHref,
 }: GameRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
@@ -42,7 +45,16 @@ export default function GameRow({
       {/* Title */}
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <h2 id={headingId} className="text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
-          {title}
+          {titleHref ? (
+            <Link
+              href={titleHref}
+              className="inline-block rounded-sm py-2 transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              {title}
+            </Link>
+          ) : (
+            title
+          )}
         </h2>
         {/* Scroll buttons: only on desktop */}
         <div className="hidden gap-2 lg:flex">
