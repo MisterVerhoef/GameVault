@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { browseQuery } from "@/data/browse";
@@ -98,17 +98,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const previous = search.trim();
     setSearch(query);
     onSearch?.(query);
-    if (pathname !== "/") return;
-    const next = query.trim();
-    if (!previous && next) window.scrollTo({ top: 0 });
-    startTransition(() => {
-      router.replace(browseQuery({
-        search: next,
-        family: selectedFamily?.label ?? null,
-        platform: selectedFamily?.platform ?? null,
-        variant: selectedVariant,
-      }), { scroll: false });
-    });
+    if (pathname === "/" && !previous && query.trim()) window.scrollTo({ top: 0 });
   };
 
   const submitSearch = (event: React.FormEvent) => {
