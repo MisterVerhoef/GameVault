@@ -4,6 +4,7 @@ import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS
 import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
 import Image from "next/image";
+import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
 import Navbar from "@/components/Navbar";
 
@@ -174,17 +175,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               ))}
             </div>
 
-            {/* Description */}
-            {display.description && (
-              <div className="mt-4">
-                <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
-                  Description
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-foreground/80">
-                  {display.description}
-                </p>
-              </div>
-            )}
+            {display.description ? <GameDescription text={display.description} /> : null}
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {offers.map((offer) => (

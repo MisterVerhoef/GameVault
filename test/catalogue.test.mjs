@@ -12,6 +12,7 @@ import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
+const { collapsedLineCount } = loadTsModule("src/components/description-clamp.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -77,6 +78,15 @@ test("treats a single platform as exclusive and keeps other releases out", () =>
   assert.equal(isPcPlatformBrowse("PC", null), true);
   assert.equal(isPcPlatformBrowse("PS5", "PS2"), false);
   assert.equal(browseQuery({ family: "PlayStation", platform: "PS5", variant: "PS2", genre: "action" }), "/?family=PlayStation&platform=PS5&variant=PS2&genre=action");
+});
+
+test("description collapse is about 25 percent on desktop and 50 percent on mobile", () => {
+  assert.equal(collapsedLineCount(8, true), 6);
+  assert.equal(collapsedLineCount(8, false), 4);
+  assert.equal(collapsedLineCount(1, true), 1);
+  assert.equal(collapsedLineCount(1, false), 1);
+  assert.equal(collapsedLineCount(3, false), 2);
+  assert.equal(collapsedLineCount(2, true), 2);
 });
 
 test("genre browse uses catalogue tags and keeps plot text out of action", () => {
