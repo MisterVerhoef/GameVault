@@ -47,7 +47,7 @@ export default function GameDescription({ text }: { text: string }) {
   const collapsed = canToggle && !expanded;
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 lg:pr-40">
       <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
         Description
       </h3>
