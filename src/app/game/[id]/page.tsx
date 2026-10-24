@@ -242,7 +242,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   {game.developers.map((company, index) => (
                     <span key={company.id}>
                       <Link
-                        href={`/?search=${encodeURIComponent(company.name)}`}
+                        href={`/studio/${encodeURIComponent(company.id)}`}
                         className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         {company.name}
@@ -260,7 +260,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   {game.publishers.map((company, index) => (
                     <span key={company.id}>
                       <Link
-                        href={`/?search=${encodeURIComponent(company.name)}`}
+                        href={`/studio/${encodeURIComponent(company.id)}`}
                         className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         {company.name}
