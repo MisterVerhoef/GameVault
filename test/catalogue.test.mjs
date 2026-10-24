@@ -12,8 +12,9 @@ import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
-const { collapsedLineCount } = loadTsModule("src/components/description-clamp.ts");
+const { collapsedLineCount, visibleLineCount } = loadTsModule("src/components/description-clamp.ts");
 const { collectDownloadableIds, partitionDownloadableContent } = loadTsModule("src/data/downloadable.ts");
+const { collectStudios, describeStudio, studioInitials, studioMetadata } = loadTsModule("src/data/studio-profile.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -88,6 +89,58 @@ test("description collapse is about 25 percent on desktop and 50 percent on mobi
   assert.equal(collapsedLineCount(1, false), 1);
   assert.equal(collapsedLineCount(3, false), 2);
   assert.equal(collapsedLineCount(2, true), 2);
+  assert.equal(visibleLineCount(10, true, false), 10);
+  assert.equal(visibleLineCount(10, false, false), 5);
+});
+
+test("studio pages group developed and published catalogue games", () => {
+  const studios = collectStudios([
+    {
+      id: "1",
+      title: "Alpha",
+      rating: 90,
+      releaseYear: 2001,
+      developers: [{ id: "9", name: "Studio Nine" }],
+      publishers: [{ id: "9", name: "Studio Nine" }],
+      background: { url: "https://images.igdb.com/example.jpg" },
+    },
+    {
+      id: "2",
+      title: "Beta",
+      rating: 70,
+      releaseYear: 2010,
+      publishers: [{ id: "9", name: "Studio Nine" }],
+    },
+  ]);
+  assert.equal(studios.length, 1);
+  assert.equal(studios[0].id, "9");
+  assert.deepEqual(studios[0].gameIds, ["1", "2"]);
+  assert.deepEqual(studios[0].notableTitles, ["Alpha"]);
+  assert.equal(studios[0].backgroundUrl, "https://images.igdb.com/example.jpg");
+  assert.equal(studioInitials("Studio Nine"), "SN");
+  assert.equal(studioInitials("Nintendo"), "NI");
+  assert.equal(studioMetadata({
+    developedCount: 1,
+    publishedCount: 2,
+    gameCount: 2,
+    yearStart: 2001,
+    yearEnd: 2010,
+  }), "Developer · Publisher · 2 games · 2001–2010");
+  assert.match(describeStudio({
+    name: "Studio Nine",
+    developedCount: 1,
+    publishedCount: 2,
+    yearStart: 2001,
+    yearEnd: 2010,
+    notableTitles: ["Alpha"],
+  }), /Studio Nine is a developer and publisher/);
+
+  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const nintendo = collectStudios(catalogue.games).find((studio) => studio.id === "70");
+  assert.ok(nintendo);
+  assert.equal(nintendo.name, "Nintendo");
+  assert.ok(nintendo.gameIds.length > 100);
+  assert.match(nintendo.summary, /Nintendo is a developer and publisher/);
 });
 
 test("search treats catalogue entries listed as DLC or expansions as DLC", () => {
