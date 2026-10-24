@@ -12,6 +12,7 @@ import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
+const { collectDownloadableIds, partitionDownloadableContent } = loadTsModule("src/data/downloadable.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -77,6 +78,33 @@ test("treats a single platform as exclusive and keeps other releases out", () =>
   assert.equal(isPcPlatformBrowse("PC", null), true);
   assert.equal(isPcPlatformBrowse("PS5", "PS2"), false);
   assert.equal(browseQuery({ family: "PlayStation", platform: "PS5", variant: "PS2", genre: "action" }), "/?family=PlayStation&platform=PS5&variant=PS2&genre=action");
+});
+
+test("search treats catalogue entries listed as DLC or expansions as DLC", () => {
+  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const ids = collectDownloadableIds(catalogue.games);
+  const byTitle = (title) => catalogue.games.find((game) => game.title === title);
+  const citadel = byTitle("Mass Effect 3: Citadel");
+  const phantom = byTitle("Cyberpunk 2077: Phantom Liberty");
+  const cyberpunk = byTitle("Cyberpunk 2077");
+  const bloodborne = byTitle("Bloodborne");
+
+  assert.ok(citadel);
+  assert.ok(phantom);
+  assert.ok(cyberpunk);
+  assert.ok(bloodborne);
+  assert.equal(ids.has(citadel.id), true);
+  assert.equal(ids.has(phantom.id), true);
+  assert.equal(ids.has(cyberpunk.id), false);
+  assert.equal(ids.has(bloodborne.id), false);
+
+  const split = partitionDownloadableContent([cyberpunk, citadel, bloodborne, phantom], ids);
+  assert.deepEqual(split.games.map((game) => game.id), [cyberpunk.id, bloodborne.id]);
+  assert.deepEqual(split.dlc.map((game) => game.id), [citadel.id, phantom.id]);
+
+  const gamesOnly = partitionDownloadableContent([cyberpunk, bloodborne], ids);
+  assert.equal(gamesOnly.dlc.length, 0);
+  assert.deepEqual(gamesOnly.games.map((game) => game.id), [cyberpunk.id, bloodborne.id]);
 });
 
 test("genre browse uses catalogue tags and keeps plot text out of action", () => {
