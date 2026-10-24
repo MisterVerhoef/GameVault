@@ -18,9 +18,11 @@ interface GameWallProps {
   title: string;
   games: Game[];
   resetKey: string;
-  backHref: string;
-  backLabel: string;
+  backHref?: string;
+  backLabel?: string;
   emptyLabel?: string;
+  titleLevel?: "h1" | "h2";
+  focusTitle?: boolean;
   /** Present only when a search mix of base games and DLC should render as separate grids. */
   sections?: GameWallSection[];
 }
@@ -96,38 +98,51 @@ function CoverGrid({ games, loadMoreLabel }: { games: Game[]; loadMoreLabel: str
   );
 }
 
-export default function GameWall({ title, games, resetKey, backHref, backLabel, emptyLabel, sections }: GameWallProps) {
+export default function GameWall({
+  title,
+  games,
+  resetKey,
+  backHref,
+  backLabel,
+  emptyLabel,
+  sections,
+  titleLevel = "h1",
+  focusTitle = true,
+}: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const split = sections && sections.length > 0 ? sections : null;
   const total = split ? split.reduce((count, section) => count + section.games.length, 0) : games.length;
+  const HeadingTag = titleLevel === "h2" ? "h2" : "h1";
 
   useEffect(() => {
-    if (resetKey.startsWith("search:")) return;
+    if (!focusTitle || resetKey.startsWith("search:")) return;
     headingRef.current?.focus();
-  }, [resetKey]);
+  }, [resetKey, focusTitle]);
 
   return (
     <section aria-labelledby="game-wall-heading" className="mb-10">
       <div className="mb-4 flex flex-col gap-2 px-4 sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8">
         <div>
-          <h1
+          <HeadingTag
             id="game-wall-heading"
             ref={headingRef}
             tabIndex={-1}
             className="text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
           >
             {title}
-          </h1>
+          </HeadingTag>
           <p className="mt-1 text-sm text-muted">
             {countLabel(total, split ? "results" : "games")}
           </p>
         </div>
-        <Link
-          href={backHref}
-          className="inline-flex min-h-11 items-center self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-        >
-          {backLabel}
-        </Link>
+        {backHref && backLabel ? (
+          <Link
+            href={backHref}
+            className="inline-flex min-h-11 items-center self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            {backLabel}
+          </Link>
+        ) : null}
       </div>
 
       {total === 0 ? (

@@ -68,5 +68,5 @@ jobs:
       - run: npm run catalogue:search-index
       - run: git diff --exit-code -- public/catalog/search-index.json
       - run: npx tsc --noEmit
-      - run: npx eslint src/data/browse.ts src/data/catalogue.ts src/data/downloadable.ts src/data/platforms.ts src/data/store-match.ts src/data/store-offers.ts src/app/game/[id]/page.tsx src/app/page.tsx src/components/HomeScreen.tsx src/components/GameWall.tsx src/components/GameRow.tsx src/components/description-clamp.ts src/components/GameDescription.tsx src/components/Navbar.tsx scripts test
+      - run: npx eslint src/data/browse.ts src/data/catalogue.ts src/data/downloadable.ts src/data/platforms.ts src/data/store-match.ts src/data/store-offers.ts src/app/game/[id]/page.tsx src/app/page.tsx src/components/HomeScreen.tsx src/components/GameWall.tsx src/components/GameRow.tsx src/components/description-clamp.ts src/components/GameDescription.tsx src/components/Navbar.tsx src/data/studio-profile.ts src/data/studios.ts src/app/studio/[id]/page.tsx scripts test
       - run: npm run build

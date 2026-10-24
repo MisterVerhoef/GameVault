@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useLayoutEffect, useRef, useState } from "react";
-import { collapsedLineCount } from "@/components/description-clamp";
+import { visibleLineCount } from "@/components/description-clamp";
 
 /** Desktop is the side-by-side layout (`lg`). The description sits under the cover below that. */
 const DESKTOP_QUERY = "(min-width: 1024px)";
@@ -13,7 +13,20 @@ function lineHeightOf(style: CSSStyleDeclaration) {
   return (Number.isFinite(fontSize) ? fontSize : 14) * 1.625;
 }
 
-export default function GameDescription({ text }: { text: string }) {
+export default function GameDescription({
+  text,
+  heading = "Description",
+  showHeading = true,
+  inset = "edge",
+  collapseDesktop = true,
+}: {
+  text: string;
+  heading?: string;
+  showHeading?: boolean;
+  /** `edge` matches the game page. `quarter` shortens the text column by about 25%. */
+  inset?: "edge" | "quarter";
+  collapseDesktop?: boolean;
+}) {
   const textId = useId();
   const measureRef = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
@@ -28,7 +41,7 @@ export default function GameDescription({ text }: { text: string }) {
     const measure = () => {
       const lineHeight = lineHeightOf(getComputedStyle(node));
       const lines = Math.max(1, Math.round(node.scrollHeight / lineHeight));
-      const shown = collapsedLineCount(lines, desktop.matches);
+      const shown = visibleLineCount(lines, desktop.matches, collapseDesktop);
       setTotalLines(lines);
       setShownLines(shown);
     };
@@ -41,16 +54,18 @@ export default function GameDescription({ text }: { text: string }) {
       observer.disconnect();
       desktop.removeEventListener("change", measure);
     };
-  }, [text]);
+  }, [text, collapseDesktop]);
 
   const canToggle = totalLines != null && shownLines != null && shownLines < totalLines;
   const collapsed = canToggle && !expanded;
 
   return (
-    <div className="mt-4 lg:pr-40">
-      <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
-        Description
-      </h3>
+    <div className={`mt-4 ${inset === "quarter" ? "lg:pr-[25%]" : "lg:pr-40"}`}>
+      {showHeading ? (
+        <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
+          {heading}
+        </h3>
+      ) : null}
       <div className="relative mt-2">
         <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-0 overflow-hidden">
           <p ref={measureRef} className="text-sm leading-relaxed">
