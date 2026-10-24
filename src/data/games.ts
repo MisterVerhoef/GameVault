@@ -1,5 +1,6 @@
 import generatedCatalogue from "../../public/catalog/games-index.json";
 import { normalizeCatalogue } from "./catalogue";
+import { collectDownloadableIds, partitionDownloadableContent } from "./downloadable";
 
 export type { Platform } from "./platforms";
 export { PLATFORM_COLORS } from "./platforms";
@@ -567,6 +568,13 @@ export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGa
 }, []);
 
 export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
+
+const downloadableIds = collectDownloadableIds(allGames);
+
+/** Split search hits into base games and catalogue entries listed as DLC or expansions. */
+export function partitionSearchResults(results: readonly Game[]) {
+  return partitionDownloadableContent(results, downloadableIds);
+}
 
 const gamesById = new Map(allGames.map((game) => [game.id, game]));
 const gamesBySourceId = new Map<string, Game>();

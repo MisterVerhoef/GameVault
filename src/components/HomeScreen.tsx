@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import GameWall from "@/components/GameWall";
+import GameWall, { type GameWallSection } from "@/components/GameWall";
 import {
   Platform,
   Game,
@@ -13,6 +13,7 @@ import {
   getGamesByPlatform,
   recentlyPlayed,
   searchGames,
+  partitionSearchResults,
 } from "@/data/games";
 import { gameMatchesPlatformVariant, isPcPlatformBrowse, gameIsPlatformExclusive } from "@/data/platforms";
 import { GENRE_DEFINITIONS, browseQuery, byRatingThenTitle, gameMatchesGenre, genreLabel } from "@/data/browse";
@@ -97,23 +98,37 @@ export default function HomeScreen() {
 
   const catalogueLabel = place;
   const searching = trimmedSearch.length > 0;
+  const searchSections: GameWallSection[] | undefined = (() => {
+    if (!searching) return undefined;
+    const split = partitionSearchResults(searchResults);
+    if (split.dlc.length === 0) return undefined;
+    const sections: GameWallSection[] = [];
+    if (split.games.length > 0) {
+      sections.push({ id: "games", title: "Games", kind: "games", games: split.games });
+    }
+    sections.push({ id: "dlc", title: "DLC", kind: "dlc", games: split.dlc });
+    return sections;
+  })();
   const wall = searching
     ? {
         key: `search:${searchQuery}:${place ?? ""}`,
         title: `Search results for "${searchQuery.trim()}"`,
         games: searchResults,
+        sections: searchSections,
       }
     : genreKey
       ? {
           key: `genre:${genreKey}:${place ?? ""}`,
           title: place ? `${genreLabel(genreKey)} on ${place}` : genreLabel(genreKey),
           games: genreGames,
+          sections: undefined,
         }
       : exclusivesRequested && !pcBrowse
         ? {
             key: `exclusives:${place ?? ""}`,
             title: place ? `${place} Exclusives` : "Exclusives",
             games: exclusiveList,
+            sections: undefined,
           }
         : null;
 
@@ -140,6 +155,7 @@ export default function HomeScreen() {
             backHref={libraryHref}
             backLabel={place ? `Back to ${place}` : "All games"}
             emptyLabel={searching ? `"${trimmedSearch}"` : undefined}
+            sections={wall.sections}
           />
         ) : (
           <>
