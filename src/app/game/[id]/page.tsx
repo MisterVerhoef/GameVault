@@ -371,10 +371,17 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         )}
 
-        {game.dlc.length > 0 && (
+        {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
           <section className="mb-12">
-            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">DLC</h2>
-            <LabeledContentGrid items={game.dlc.map((item) => ["DLC", item.title] as const)} />
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
+            <LabeledContentGrid
+              items={[
+                ...game.dlc.map((item) => ["DLC", item.title] as const),
+                ...game.expansions.map((item) => ["Expansion", item.title] as const),
+                ...game.editions.map((item) => ["Edition", item.title] as const),
+                ...game.relatedGames.map((item) => [item.relation, item.title] as const),
+              ]}
+            />
           </section>
         )}
 
@@ -386,19 +393,6 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 <SimilarGameCard key={item.id} item={item} />
               ))}
             </div>
-          </section>
-        )}
-
-        {(game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
-            <LabeledContentGrid
-              items={[
-                ...game.expansions.map((item) => ["Expansion", item.title] as const),
-                ...game.editions.map((item) => ["Edition", item.title] as const),
-                ...game.relatedGames.map((item) => [item.relation, item.title] as const),
-              ]}
-            />
           </section>
         )}
       </main>
