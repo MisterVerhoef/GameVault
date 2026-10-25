@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Game } from "@/data/games";
+import { PlatformIcon } from "./platform-icons";
 
 const PAGE_SIZE = 48;
 
@@ -23,6 +24,8 @@ interface GameWallProps {
   emptyLabel?: string;
   titleLevel?: "h1" | "h2";
   focusTitle?: boolean;
+  /** Console or family label drawn beside the wall title and back link. */
+  platformLabel?: string | null;
   /** Present only when a search mix of base games and DLC should render as separate grids. */
   sections?: GameWallSection[];
 }
@@ -108,6 +111,7 @@ export default function GameWall({
   sections,
   titleLevel = "h1",
   focusTitle = true,
+  platformLabel,
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const split = sections && sections.length > 0 ? sections : null;
@@ -127,8 +131,9 @@ export default function GameWall({
             id="game-wall-heading"
             ref={headingRef}
             tabIndex={-1}
-            className="text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
+            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
           >
+            {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
             {title}
           </HeadingTag>
           <p className="mt-1 text-sm text-muted">
@@ -138,8 +143,9 @@ export default function GameWall({
         {backHref && backLabel ? (
           <Link
             href={backHref}
-            className="inline-flex min-h-11 items-center self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
+            {platformLabel ? <PlatformIcon name={platformLabel} className="h-4 w-4 shrink-0" /> : null}
             {backLabel}
           </Link>
         ) : null}
