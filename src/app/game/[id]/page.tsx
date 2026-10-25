@@ -17,6 +17,19 @@ function getYouTubeThumbnail(url: string) {
   return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : undefined;
 }
 
+function LabeledContentGrid({ items }: { items: readonly (readonly [string, string])[] }) {
+  return (
+    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {items.map(([label, title]) => (
+        <div key={`${label}-${title}`} className="rounded-lg bg-card p-4">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted">{label}</span>
+          <p className="mt-1 text-sm text-foreground/80">{title}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SimilarGameCard({ item }: { item: ContentRef }) {
   const catalogueGame: Game | undefined = findGameByProviderId(item.id);
   const coverUrl = catalogueGame?.cover?.url ?? item.cover?.url;
@@ -358,29 +371,26 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         )}
 
+        {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
+          <section className="mb-12">
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
+            <LabeledContentGrid
+              items={[
+                ...game.dlc.map((item) => ["DLC", item.title] as const),
+                ...game.expansions.map((item) => ["Expansion", item.title] as const),
+                ...game.editions.map((item) => ["Edition", item.title] as const),
+                ...game.relatedGames.map((item) => [item.relation, item.title] as const),
+              ]}
+            />
+          </section>
+        )}
+
         {game.similarGames.length > 0 && (
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Similar games</h2>
             <div className="flex gap-4 overflow-x-auto pb-3">
               {game.similarGames.map((item) => (
                 <SimilarGameCard key={item.id} item={item} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {[...game.dlc.map((item) => ["DLC", item.title] as const),
-                ...game.expansions.map((item) => ["Expansion", item.title] as const),
-                ...game.editions.map((item) => ["Edition", item.title] as const),
-                ...game.relatedGames.map((item) => [item.relation, item.title] as const)].map(([label, title]) => (
-                <div key={`${label}-${title}`} className="rounded-lg bg-card p-4">
-                  <span className="text-xs font-medium uppercase tracking-wider text-muted">{label}</span>
-                  <p className="mt-1 text-sm text-foreground/80">{title}</p>
-                </div>
               ))}
             </div>
           </section>
