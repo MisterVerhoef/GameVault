@@ -150,6 +150,7 @@ export default function HomeScreen() {
           <GameWall
             key={wall.key}
             title={wall.title}
+            platformLabel={place}
             games={wall.games}
             resetKey={wall.key}
             backHref={libraryHref}
@@ -166,7 +167,7 @@ export default function HomeScreen() {
             />
             {catalogueLabel && (
               topGames.length > 0 ? (
-                <GameRow title={`${catalogueLabel} Top Games`} games={topGames} />
+                <GameRow title={`${catalogueLabel} Top Games`} platformLabel={catalogueLabel} games={topGames} />
               ) : (
                 <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
                   No games in the catalogue match {catalogueLabel}.
@@ -176,6 +177,7 @@ export default function HomeScreen() {
             {!pcBrowse && exclusiveList.length > 0 && place && (
               <GameRow
                 title={`${place} Exclusives`}
+                platformLabel={place}
                 games={exclusiveList.slice(0, 12)}
                 titleHref={browseQuery({ family, platform, variant, exclusives: true })}
               />

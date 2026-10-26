@@ -4,6 +4,7 @@ import { useId, useRef } from "react";
 import Link from "next/link";
 import type { Game } from "@/data/games";
 import GameCard from "./GameCard";
+import { PlatformIcon } from "./platform-icons";
 
 interface GameRowProps {
   title: string;
@@ -11,6 +12,8 @@ interface GameRowProps {
   showProgress?: boolean;
   size?: "sm" | "md" | "lg";
   titleHref?: string;
+  /** Console or family label drawn beside the row title. */
+  platformLabel?: string | null;
 }
 
 export default function GameRow({
@@ -19,6 +22,7 @@ export default function GameRow({
   showProgress = false,
   size = "md",
   titleHref,
+  platformLabel,
 }: GameRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const headingId = useId();
@@ -44,7 +48,8 @@ export default function GameRow({
     <section aria-labelledby={headingId} className="relative mb-8">
       {/* Title */}
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <h2 id={headingId} className="text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
+        <h2 id={headingId} className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
+          {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
           {titleHref ? (
             <Link
               href={titleHref}

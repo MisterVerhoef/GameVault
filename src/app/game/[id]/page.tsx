@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
+import { listedSystemNames } from "@/data/platforms";
+import { PlatformName } from "@/components/platform-icons";
 import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
 import Image from "next/image";
@@ -177,13 +179,12 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
             {/* Platforms */}
             <div className="flex flex-wrap gap-2">
-              {Array.from(new Set(game.platforms)).map((p: Platform) => (
+              {listedSystemNames(game).map((name) => (
                 <span
-                  key={p}
-                  className="rounded bg-white/10 px-3 py-1 text-sm font-medium"
-                  style={{ borderColor: PLATFORM_COLORS[p] }}
+                  key={name}
+                  className="rounded bg-white/10 px-2.5 py-1 text-sm font-medium"
                 >
-                  {p}
+                  <PlatformName name={name} iconClassName="h-5 w-5" className="gap-1.5" />
                 </span>
               ))}
             </div>

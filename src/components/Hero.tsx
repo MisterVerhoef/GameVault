@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Game, recentlyPlayed, Platform, PLATFORM_COLORS, formatRating } from "@/data/games";
+import { listedSystemNames } from "@/data/platforms";
+import { PlatformName } from "./platform-icons";
 import { useState, useSyncExternalStore } from "react";
 
 interface HeroProps {
@@ -88,12 +90,12 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
             </span>
             <span aria-hidden="true">•</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
-              {Array.from(new Set(featured.platforms)).map((p: Platform) => (
+              {listedSystemNames(featured).slice(0, 4).map((name) => (
                 <span
-                  key={p}
+                  key={name}
                   className="rounded bg-white/10 px-2 py-0.5 text-xs"
                 >
-                  {p}
+                  <PlatformName name={name} iconClassName="h-4 w-4" className="gap-1" />
                 </span>
               ))}
             </div>

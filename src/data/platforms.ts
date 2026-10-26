@@ -180,6 +180,25 @@ export function canonicalPlatformVariant(name: string): string {
   return resolved.unmapped ? name.trim() : resolved.variant;
 }
 
+/** Names to show for a game: specific systems when the catalogue has them, otherwise the family labels. */
+export function listedSystemNames(game: {
+  platforms?: readonly string[];
+  platformVariants?: readonly string[];
+}): string[] {
+  const variants = game.platformVariants ?? [];
+  if (variants.length === 0) return [...(game.platforms ?? [])];
+  const seen = new Set<string>();
+  const labels: string[] = [];
+  for (const name of variants) {
+    const label = canonicalPlatformVariant(name);
+    const key = normalizePlatformLabel(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    labels.push(label);
+  }
+  return labels;
+}
+
 export function familyForVariantLabel(variant: string): PlatformFamily | undefined {
   return PLATFORM_FAMILIES.find((family) => {
     if (family.variants.includes(variant)) return true;

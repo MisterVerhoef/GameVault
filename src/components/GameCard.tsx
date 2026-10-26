@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import type { Game } from "@/data/games";
+import { familyForVariantLabel, listedSystemNames, PLATFORM_COLORS, resolveIgdbPlatform, type Platform } from "@/data/platforms";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
+import { PlatformIcon, platformIconKind } from "./platform-icons";
 
 interface GameCardProps {
   game: Game;
@@ -11,13 +13,14 @@ interface GameCardProps {
   size?: "sm" | "md" | "lg";
 }
 
-const platformColors: Record<string, string> = {
-  PC: "bg-blue-600",
-  PS5: "bg-indigo-600",
-  Xbox: "bg-green-600",
-  Switch: "bg-red-600",
-  "Steam Deck": "bg-cyan-600",
-};
+function badgeBackground(name: string) {
+  if (name in PLATFORM_COLORS) return PLATFORM_COLORS[name as Platform];
+  const resolved = resolveIgdbPlatform(name);
+  if (!resolved.unmapped) return PLATFORM_COLORS[resolved.family];
+  const family = familyForVariantLabel(name);
+  if (family?.platform) return PLATFORM_COLORS[family.platform];
+  return "#3f3f46";
+}
 
 export default function GameCard({
   game,
@@ -78,12 +81,14 @@ export default function GameCard({
 
           {/* Platforms */}
           <div className="mt-1 flex flex-wrap gap-1">
-            {Array.from(new Set(game.platforms)).slice(0, 3).map((p) => (
+            {listedSystemNames(game).slice(0, 3).map((name) => (
               <span
-                key={p}
-                className={`rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px] ${platformColors[p] || "bg-zinc-600"}`}
+                key={name}
+                className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px]"
+                style={{ backgroundColor: badgeBackground(name) }}
               >
-                {p}
+                <PlatformIcon name={name} className={platformIconKind(name) === "logo" ? "h-4 w-4" : "h-3 w-3"} />
+                {name}
               </span>
             ))}
           </div>

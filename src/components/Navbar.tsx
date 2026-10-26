@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { browseQuery } from "@/data/browse";
 import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
 import LibraryToolbar from "./LibraryToolbar";
+import { PlatformName } from "./platform-icons";
 import ThemeToggle from "./ThemeToggle";
 
 interface NavbarProps {
@@ -173,7 +174,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
               style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
-              {family.label}
+              <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
             </button>
           ))}
         </div>
@@ -311,8 +312,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       {selectedFamily && (
         <div className="hidden border-t border-white/5 md:block">
           <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
-            <span className="flex-shrink-0 text-xs font-medium uppercase tracking-wider text-muted">
-              {selectedFamily.label} platforms
+            <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
+              <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
+              <span>platforms</span>
             </span>
             <span className="h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
             <div className="flex min-w-0 flex-col gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
@@ -323,13 +325,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     type="button"
                     onClick={() => handleVariantSelect(variant)}
                     aria-pressed={selectedVariant === variant || selectedVariantRoot === variant}
-                    className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                       selectedVariant === variant
                         ? "bg-white/10 text-foreground"
                         : "text-muted hover:bg-white/5 hover:text-foreground"
                     }`}
                   >
-                    {variant}
+                    <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                   </button>
                 ))}
               </div>
@@ -341,13 +343,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                       type="button"
                       onClick={() => handleVariantSelect(variant)}
                       aria-pressed={selectedVariant === variant}
-                      className={`flex-shrink-0 rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                         selectedVariant === variant
                           ? "bg-white/10 text-foreground"
                           : "text-muted hover:bg-white/5 hover:text-foreground"
                       }`}
                     >
-                      {variant}
+                      <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                     </button>
                   ))}
                 </div>
@@ -396,11 +398,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                 <div key={family.key}>
                   <button
                     onClick={() => handlePlatformSelect(family.platform, family.key)}
-                    className={`rounded-lg px-3 py-2 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
+                    className={`inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
                     style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
                     aria-pressed={selectedFamilyKey === family.key}
                   >
-                    {family.label}
+                    <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
                   </button>
                   {selectedFamilyKey === family.key && (
                     <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
@@ -410,13 +412,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           type="button"
                           onClick={() => handleVariantSelect(variant)}
                           aria-pressed={selectedVariant === variant}
-                          className={`rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                          className={`inline-flex items-center rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                             selectedVariant === variant
                               ? "bg-white/10 text-foreground"
                               : "text-muted hover:bg-white/5 hover:text-foreground"
                           }`}
                         >
-                          {variant}
+                          <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                         </button>
                       ))}
                       {selectedVariantRoot && family.variantChildren?.[selectedVariantRoot] && (
@@ -428,13 +430,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                                 type="button"
                                 onClick={() => handleVariantSelect(variant)}
                                 aria-pressed={selectedVariant === variant}
-                                className={`rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                                className={`inline-flex items-center rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                                   selectedVariant === variant
                                     ? "bg-white/10 text-foreground"
                                     : "text-muted hover:bg-white/5 hover:text-foreground"
                                 }`}
                               >
-                                {variant}
+                                <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                               </button>
                             ))}
                           </div>
