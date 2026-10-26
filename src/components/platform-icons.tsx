@@ -40,14 +40,6 @@ const monitor: MarkPath[] = [
   },
 ];
 
-const windows: MarkPath[] = [{ d: "M3 3h8v8H3zm10 0h8v8h-8zM3 13h8v8H3zm10 0h8v8h-8z" }];
-
-const apple: MarkPath[] = [
-  {
-    d: "M15.7 7.6c-.7.9-1.8 1.5-2.9 1.4-.2-1.1.4-2.3 1.1-3.1.7-.8 1.9-1.4 2.9-1.5.1 1.2-.3 2.3-1.1 3.2zM16.6 9.7c-1.6-.1-2.9.9-3.7.9-.8 0-1.9-.9-3.2-.8-1.6.1-3.1 1-4 2.4-1.7 2.9-.4 7.2 1.2 9.6.8 1.2 1.7 2.5 3 2.4 1.2-.1 1.6-.8 3-.8s1.8.8 3.1.7c1.3 0 2.1-1.2 2.9-2.4.9-1.3 1.3-2.6 1.3-2.7-.1 0-2.5-1-2.5-3.8 0-2.4 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.9z",
-  },
-];
-
 const tux: MarkPath[] = [
   {
     evenodd: true,
@@ -55,98 +47,12 @@ const tux: MarkPath[] = [
   },
 ];
 
-const psp: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M2.2 8.2h19.6a1.6 1.6 0 0 1 1.6 1.6v4.4a1.6 1.6 0 0 1-1.6 1.6H2.2A1.6 1.6 0 0 1 .6 14.2V9.8a1.6 1.6 0 0 1 1.6-1.6zM4.2 10h8.2v4H4.2v-4zm11.2 1.1 1.5 1.5-1.5 1.5h1.1l1.5-1.5-1.5-1.5h-1.1zm3.2.4h1.2v2.2h-1.2v-2.2z",
-  },
-];
-
-const vita: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M3 7.4h18a2.2 2.2 0 0 1 2.2 2.2v5.2a2.2 2.2 0 0 1-2.2 2.2H3a2.2 2.2 0 0 1-2.2-2.2V9.6A2.2 2.2 0 0 1 3 7.4zm3.2 2h7.2v5.2H6.2V9.4zM15.6 11.05a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0zm2.8 0a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0z",
-  },
-];
-
-const switch2: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M4 6.2h16a2 2 0 0 1 2 2v7.6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8.2a2 2 0 0 1 2-2zm2.2 2.2v7.2h1.5V8.4H6.2zm10.1 0v7.2H18V8.4h-1.7zM9.4 8.6h5.2v6.8H9.4V8.6z",
-  },
-];
-
-const ds: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M6.2 2.2h11.6A1.6 1.6 0 0 1 19.4 3.8v6.2H4.6V3.8A1.6 1.6 0 0 1 6.2 2.2zM5 11.4h14v1.2H5v-1.2zm.4 2.2h13.2A1.6 1.6 0 0 1 20.2 15v4.2a1.6 1.6 0 0 1-1.6 1.6H5.4a1.6 1.6 0 0 1-1.6-1.6V15a1.6 1.6 0 0 1 1.6-1.4zM7.2 4.2h9.6v4.2H7.2V4.2zm.4 10.6h9.2v3.4H7.6v-3.4z",
-  },
-];
-
-const gameBoy: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M6.2 2h11.6A2 2 0 0 1 19.8 4v16a2 2 0 0 1-2 2H6.2a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zM7.6 4.4h8.8v6.2H7.6V4.4zM6.6 13.2h2.1v1.6h1.6v2.1H8.7v1.6H6.6v-1.6H5v-2.1h1.6v-1.6zm7.6.4a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0zm2.5 2.3a1.15 1.15 0 1 0 2.3 0 1.15 1.15 0 0 0-2.3 0z",
-  },
-];
-
-const sega: MarkPath[] = [
-  {
-    stroke: true,
-    sw: 2.2,
-    d: "M16.4 7.2c-.6-1.6-2.2-2.6-4.4-2.6-2.8 0-4.6 1.5-4.6 3.6 0 4.8 9 2.2 9 6.8 0 2.1-2 3.6-4.8 3.6-2.4 0-4.2-1.1-4.8-2.8",
-  },
-];
-
-const genesis: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M3 9.4h18a1.2 1.2 0 0 1 1.2 1.2v6.4a1.2 1.2 0 0 1-1.2 1.2H3a1.2 1.2 0 0 1-1.2-1.2v-6.4A1.2 1.2 0 0 1 3 9.4zM8.4 5.2h7.2V9.4H8.4V5.2zM5 12.6h6.2v1.4H5v-1.4z",
-  },
-];
-
-const masterSystem: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M3.2 7.6h17.6A1.4 1.4 0 0 1 22.2 9v8a1.4 1.4 0 0 1-1.4 1.4H3.2A1.4 1.4 0 0 1 1.8 17V9a1.4 1.4 0 0 1 1.4-1.4zM5 10.4h9.2v2.2H5v-2.2zm11.2 4.2h2.2v1.6h-2.2v-1.6z",
-  },
-];
-
-const segaCd: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M12 3.2a6.2 6.2 0 1 0 0 12.4 6.2 6.2 0 0 0 0-12.4zm0 2.2a4 4 0 1 1 0 8 4 4 0 0 1 0-8zm0 2.6a1.4 1.4 0 1 0 0 2.8 1.4 1.4 0 0 0 0-2.8zM4 16.2h16v3.2H4v-3.2z",
-  },
-];
-
 const thirtyTwoX: MarkPath[] = [
   { d: "M7.2 4.2h9.6l2.2 4.2H5l2.2-4.2zM5.4 9.2h13.2v8.2a1.4 1.4 0 0 1-1.4 1.4H6.8a1.4 1.4 0 0 1-1.4-1.4V9.2z" },
 ];
 
-const saturn: MarkPath[] = [
-  { d: "M12 6.2a5.6 5.6 0 1 0 0 11.2 5.6 5.6 0 0 0 0-11.2z" },
-  { stroke: true, sw: 1.7, d: "M3.2 12.4c2.4-3.6 15.2-3.6 17.6 0-2.4 3.4-15.2 3.4-17.6 0z" },
-];
-
-const dreamcast: MarkPath[] = [
-  { stroke: true, sw: 2, d: "M16.8 7.2A6.6 6.6 0 1 0 17.4 14" },
-  { stroke: true, sw: 2, d: "M16.6 7.4A4 4 0 1 0 15.2 14.6" },
-  { stroke: true, sw: 2, d: "M14.6 9.2a2 2 0 1 0-.2 3.6" },
-];
-
-const gameGear: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M6.4 2.2h11.2A1.8 1.8 0 0 1 19.4 4v16a1.8 1.8 0 0 1-1.8 1.8H6.4A1.8 1.8 0 0 1 4.6 20V4a1.8 1.8 0 0 1 1.8-1.8zM7.4 4.6h9.2v7.2H7.4V4.6zM7.2 14.2h1.8v1.5H9v1.8H7.2v-1.8H5.6v-1.5h1.6zm6.4.2a1 1 0 1 0 2 0 1 1 0 0 0-2 0zm2.2 1.8a1 1 0 1 0 2 0 1 1 0 0 0-2 0z",
-  },
-];
-
 const sg1000: MarkPath[] = [
   { d: "M4 11.2h12.4v6.4A1.2 1.2 0 0 1 15.2 18.8H5.2A1.2 1.2 0 0 1 4 17.6v-6.4zM16.6 8.2h1.6v8.2h-1.6zM16.2 6.4h2.4v2.2h-2.4z" },
-];
-
-const fuji: MarkPath[] = [
-  { d: "M1.8 19.6h4.8L8.4 7.4H5.2L1.8 19.6zM9.7 19.6h4.6V3.6H9.7v16zM15.6 7.4 17.4 19.6h4.8L18.8 7.4h-3.2z" },
 ];
 
 const atari2600: MarkPath[] = [
@@ -159,8 +65,6 @@ const atari5200: MarkPath[] = [
     d: "M3 8.4h18v9.2H3V8.4zM6.2 10.6h1.3v1.3H6.2zm2.4 0h1.3v1.3H8.6zm2.4 0h1.3v1.3h-1.3zm2.4 0h1.3v1.3h-1.3zM6.2 13h1.3v1.3H6.2zm2.4 0h1.3v1.3H8.6zm2.4 0h1.3v1.3h-1.3zm2.4 0h1.3v1.3h-1.3z",
   },
 ];
-
-const atari7800: MarkPath[] = [{ d: "M2.8 15.6 5.2 9.4h13.6l2.4 6.2H2.8z" }];
 
 const atari8bit: MarkPath[] = [
   {
@@ -185,22 +89,8 @@ const lynx: MarkPath[] = [
   },
 ];
 
-const jaguar: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M8.2 4.2 12 8.4 15.8 4.2 17.2 7.4 15.4 9.2a6.2 6.2 0 1 1-6.8 0L6.8 7.4 8.2 4.2zM9.4 12.1a1.1 1.1 0 1 0 2.2 0 1.1 1.1 0 0 0-2.2 0zm4.2 0a1.1 1.1 0 1 0 2.2 0 1.1 1.1 0 0 0-2.2 0z",
-  },
-];
-
 const atariVcs: MarkPath[] = [
   { evenodd: true, d: "M4 6.4h16v12.2H4V6.4zM4 6.4h3.4v12.2H4V6.4z" },
-];
-
-const threeDo: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M12 2.4a9.6 9.6 0 1 0 0 19.2 9.6 9.6 0 0 0 0-19.2zM8.6 8a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 0 0-2.4 0zm4.4 0a1.2 1.2 0 1 0 2.4 0 1.2 1.2 0 0 0-2.4 0zM7.4 13.6c1.5 1.8 7.7 1.8 9.2 0 .4-.5-.3-1.3-1.1-1-1.4.8-6.6.8-8 0-.7-.2-1.4.6-1.1 1z",
-  },
 ];
 
 const ouya: MarkPath[] = [
@@ -209,34 +99,8 @@ const ouya: MarkPath[] = [
   { d: "M9.3 13.2h1.5v1.5H9.3zm3.9 0h1.5v1.5h-1.5z" },
 ];
 
-const commodore: MarkPath[] = [
-  { stroke: true, sw: 2.3, d: "M16.2 6.4a6.2 6.2 0 1 0 0 11.2" },
-  { stroke: true, sw: 2.3, d: "M13.4 10.2H19M13.4 13.8H19" },
-];
-
 const stadia: MarkPath[] = [
   { d: "M6.4 5.2c-.9 0-1.4 1-.8 1.7l5.6 8.4c.5.8 1.7.8 2.2 0l5.6-8.4c.6-.7.1-1.7-.8-1.7H6.4z" },
-];
-
-const ios: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M8 2.2h8A2.2 2.2 0 0 1 18.2 4.4v15.2a2.2 2.2 0 0 1-2.2 2.2H8a2.2 2.2 0 0 1-2.2-2.2V4.4A2.2 2.2 0 0 1 8 2.2zm1.4 2.2h5.2v12.4H9.4V4.4zM11 18.4h2v1.2h-2v-1.2z",
-  },
-];
-
-const android: MarkPath[] = [
-  {
-    evenodd: true,
-    d: "M8.2 8.8a3.8 3.8 0 0 1 7.6 0v1.4H8.2V8.8zM7 11h10v6.4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V11zm1.6 1.5a.9.9 0 1 0 1.8 0 .9.9 0 0 0-1.8 0zm6.8 0a.9.9 0 1 0 1.8 0 .9.9 0 0 0-1.8 0z",
-  },
-  { d: "M4.4 12.2h2v4.6h-2zm13.2 0h2v4.6h-2zM8.6 19.2h2.2V22H8.6zm4.6 0h2.2V22h-2.2z" },
-  { stroke: true, sw: 1.4, d: "M9.2 7.2 7.6 4.6M14.8 7.2l1.6-2.6" },
-];
-
-const dos: MarkPath[] = [
-  { stroke: true, sw: 2.1, d: "M4.6 7.2 11 12 4.6 16.8" },
-  { stroke: true, sw: 2.1, d: "M12.6 16.8H20" },
 ];
 
 const arcade: MarkPath[] = [
@@ -251,41 +115,18 @@ const web: MarkPath[] = [
 
 const GLYPHS: Record<string, MarkPath[]> = {
   pc: monitor,
-  windows,
-  mac: apple,
   linux: tux,
-  psp,
-  vita,
-  "switch 2": switch2,
-  ds,
-  "game boy": gameBoy,
-  sega,
-  genesis,
-  "mega drive": genesis,
-  "master system": masterSystem,
-  "sega cd": segaCd,
   "32x": thirtyTwoX,
-  saturn,
-  dreamcast,
-  "game gear": gameGear,
   "sg-1000": sg1000,
-  atari: fuji,
   "atari 2600": atari2600,
   "atari 5200": atari5200,
-  "atari 7800": atari7800,
   "atari 8-bit": atari8bit,
   "atari st": atariSt,
   "atari xegs": atariXegs,
   "atari lynx": lynx,
-  "atari jaguar": jaguar,
   "atari vcs": atariVcs,
-  "3do": threeDo,
   ouya,
-  commodore,
   stadia,
-  ios,
-  android,
-  dos,
   arcade,
   "web browser": web,
 };
@@ -293,6 +134,10 @@ const GLYPHS: Record<string, MarkPath[]> = {
 /** Catalogue strings that are not a filter label but should share that console's mark. */
 const ALIASES: Record<string, string> = {
   "super famicom": "snes",
+  "super nes cd-rom system": "snes",
+  satellaview: "snes",
+  "family computer disk system": "nes",
+  "64dd": "n64",
   "neo geo mvs": "neo geo",
   "neo geo aes": "neo geo",
   "neo geo cd": "neo geo",
@@ -305,6 +150,20 @@ const ALIASES: Record<string, string> = {
   "amiga cd32": "commodore",
   "sega mega drive/genesis": "genesis",
   "sega genesis": "genesis",
+  "playstation vr": "playstation",
+  "playstation vr2": "playstation",
+  "windows phone": "windows",
+  "windows mobile": "windows",
+  "meta quest 2": "quest",
+  "meta quest 3": "quest",
+  "oculus quest": "quest",
+  "oculus rift": "quest",
+  "oculus vr": "quest",
+  "gear vr": "quest",
+  "amstrad pcw": "amstrad cpc",
+  msx2: "msx",
+  "turbografx-16/pc engine cd": "turbografx-16/pc engine",
+  "wonderswan color": "wonderswan",
 };
 
 function candidateKeys(label: string): string[] {
