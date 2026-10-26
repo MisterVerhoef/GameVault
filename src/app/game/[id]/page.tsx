@@ -3,6 +3,7 @@ import Link from "next/link";
 import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
+import { StudioLogo } from "@/components/studio-logos";
 import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
 import Image from "next/image";
@@ -252,13 +253,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             {game.developers.length > 0 && (
               <div>
                 <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Developers</dt>
-                <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+                <dd className="mt-0.5 flex flex-wrap items-center gap-x-1 text-sm text-foreground/90">
                   {game.developers.map((company, index) => (
-                    <span key={company.id}>
+                    <span key={company.id} className="inline-flex items-center">
                       <Link
                         href={`/studio/${encodeURIComponent(company.id)}`}
-                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        className="inline-flex items-center gap-1 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
+                        <StudioLogo name={company.name} className="h-4" />
                         {company.name}
                       </Link>
                       {index < game.developers.length - 1 ? ", " : ""}
@@ -270,13 +272,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             {game.publishers.length > 0 && (
               <div>
                 <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Publishers</dt>
-                <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+                <dd className="mt-0.5 flex flex-wrap items-center gap-x-1 text-sm text-foreground/90">
                   {game.publishers.map((company, index) => (
-                    <span key={company.id}>
+                    <span key={company.id} className="inline-flex items-center">
                       <Link
                         href={`/studio/${encodeURIComponent(company.id)}`}
-                        className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        className="inline-flex items-center gap-1 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
+                        <StudioLogo name={company.name} className="h-4" />
                         {company.name}
                       </Link>
                       {index < game.publishers.length - 1 ? ", " : ""}
