@@ -6,6 +6,7 @@ import GameDescription from "@/components/GameDescription";
 import GameWall from "@/components/GameWall";
 import { allStudios, getStudio } from "@/data/studios";
 import { studioInitials, studioMetadata } from "@/data/studio-profile";
+import { StudioLogo, studioMark } from "@/components/studio-logos";
 
 interface StudioPageProps {
   params: Promise<{ id: string }>;
@@ -22,6 +23,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
   const studio = getStudio(id);
   if (!studio) notFound();
 
+  const mark = studioMark(studio.name);
   const metadata = studioMetadata({
     developedCount: studio.developedIds.length,
     publishedCount: studio.publishedIds.length,
@@ -52,8 +54,9 @@ export default async function StudioPage({ params }: StudioPageProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
               </svg>
             </Link>
-            <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
-              {studio.name}
+            <h1 className="flex min-w-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl">
+              <StudioLogo name={studio.name} className="h-6" />
+              <span className="truncate">{studio.name}</span>
             </h1>
           </div>
         </div>
@@ -78,12 +81,22 @@ export default async function StudioPage({ params }: StudioPageProps) {
 
       <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
         <div className="flex items-end gap-4">
-          <div
-            className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
-            aria-hidden="true"
-          >
-            {studioInitials(studio.name)}
-          </div>
+          {mark ? (
+            <div
+              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-white p-2.5 shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:p-3.5"
+              aria-hidden="true"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={mark.src} alt="" className="h-full w-full object-contain" />
+            </div>
+          ) : (
+            <div
+              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
+              aria-hidden="true"
+            >
+              {studioInitials(studio.name)}
+            </div>
+          )}
           <div className="min-w-0 pb-1">
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
               {studio.name}
