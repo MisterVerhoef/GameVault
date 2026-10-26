@@ -161,6 +161,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               {item}
             </a>
           ))}
+          <Link
+            href="/vault"
+            aria-current={pathname === "/vault" ? "page" : undefined}
+            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
+            }`}
+          >
+            My vault
+          </Link>
         </nav>
 
         {/* Platform filter buttons (desktop) */}
@@ -267,7 +276,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                 id="library-menu"
                 className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/10 bg-card shadow-xl shadow-black/20"
               >
-                <LibraryToolbar />
+                <LibraryToolbar onNavigate={() => setLibraryMenuOpen(false)} />
               </div>
             )}
           </div>
@@ -391,6 +400,16 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                 {item}
               </a>
             ))}
+            <Link
+              href="/vault"
+              onClick={() => setMenuOpen(false)}
+              aria-current={pathname === "/vault" ? "page" : undefined}
+              className={`rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
+              }`}
+            >
+              My vault
+            </Link>
             {/* Platform filters in mobile menu */}
             <div className="mt-2 border-t border-white/5 pt-2">
               <p className="px-3 py-1 text-xs font-medium text-muted">Filter by Platform</p>

@@ -5,11 +5,16 @@ import type { Game } from "@/data/games";
 import { familyForVariantLabel, listedSystemNames, PLATFORM_COLORS, resolveIgdbPlatform, type Platform } from "@/data/platforms";
 import { useRouter } from "next/navigation";
 import { useSyncExternalStore } from "react";
+import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
 
 interface GameCardProps {
   game: Game;
   showProgress?: boolean;
+  /** Personal 1–5 score, drawn on the cover when set. */
+  personalRating?: number;
+  /** Library progress, 0–100. A bar is drawn when this is above zero. */
+  progress?: number;
   size?: "sm" | "md" | "lg";
 }
 
@@ -24,6 +29,8 @@ function badgeBackground(name: string) {
 
 export default function GameCard({
   game,
+  personalRating,
+  progress,
   size = "md",
 }: GameCardProps) {
   const router = useRouter();
@@ -37,6 +44,11 @@ export default function GameCard({
     router.push(`/game/${game.id}`);
   };
 
+  const details = [
+    personalRating ? `your rating ${personalRating} out of 5` : "",
+    typeof progress === "number" && progress > 0 ? `${progress}% progress` : "",
+  ].filter(Boolean);
+
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
   const sizes = {
     sm: "w-28 h-40 lg:w-36 lg:h-52",
@@ -47,7 +59,7 @@ export default function GameCard({
   return (
     <button
       type="button"
-      aria-label={`Open ${game.title}`}
+      aria-label={details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`}
       onClick={handleClick}
       className={`group relative flex-shrink-0 cursor-pointer text-left focus:outline-none ${sizes[size]}`}
     >
@@ -73,8 +85,20 @@ export default function GameCard({
         {/* Gradient overlay at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
+        {personalRating ? (
+          <span className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm" aria-hidden="true">
+            <StarRating value={personalRating} readOnly />
+          </span>
+        ) : null}
+
+        {typeof progress === "number" && progress > 0 && (
+          <span className="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/50" aria-hidden="true">
+            <span className="block h-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
+          </span>
+        )}
+
         {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 p-2 lg:p-3">
+        <div className="absolute bottom-0 left-0 right-0 z-10 p-2 lg:p-3">
           <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-white drop-shadow-md sm:text-sm lg:text-sm">
             {game.title}
           </h3>

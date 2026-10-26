@@ -41,7 +41,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The app is a single Next.js project at the repository root. Vercel detects Next.js from `package.json`, so the default install, build, and output settings are enough. A `vercel.json` file is not part of this project.
 
-The catalogue in `public/catalog/` is checked in. Builds and page requests use that file. IGDB is contacted only by `npm run catalogue:sync:igdb` and the GitHub Actions workflow. Serving a page does not write to the filesystem. Personal library data stays in the browser (`localStorage`), with Export / Import on the home page.
+The catalogue in `public/catalog/` is checked in. Builds and page requests use that file. IGDB is contacted only by `npm run catalogue:sync:igdb` and the GitHub Actions workflow. Serving a page does not write to the filesystem. Personal library data stays in the browser (`localStorage`). My vault filters it by status. Export / Import in the library menu moves statuses, progress, ratings, and notes.
 
 1. Push this repository to GitHub (or GitLab / Bitbucket).
 2. In Vercel, choose **Add New… → Project** and import the repository.
@@ -124,7 +124,7 @@ Account achievements are not part of this sync. Adding them later would require 
 
 For catalogue operations, run `npm run catalogue:search-index` to generate the static search index or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs.
 
-The personal library is stored locally in the browser. Use the home page Export and Import controls to back up or move statuses and progress as a versioned JSON file.
+The personal library is stored locally in the browser. Open My vault to browse it by status. Use Export and Import in the library menu to back up or move statuses, progress, personal ratings, and notes as a versioned JSON file.
 
 - Cover art is loaded from normalized catalogue media URLs, using the Steam CDN for titles with Steam releases; search works across titles, genres, studios, themes, and collections.
 - Add more rows or filter by platform

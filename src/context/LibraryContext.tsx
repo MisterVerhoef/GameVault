@@ -1,20 +1,30 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import {
+  normalizeLibraryState,
+  updateLibraryEntry,
+  type LibraryState,
+  type LibraryStatus,
+} from "./library-entry";
 
-export type LibraryStatus = "backlog" | "playing" | "completed" | "paused" | "wishlist";
+export type { LibraryEntry, LibraryState, LibraryStatus } from "./library-entry";
+export {
+  isLibraryStatus,
+  LIBRARY_NOTE_LIMIT,
+  LIBRARY_STATUSES,
+  LIBRARY_STATUS_LABELS,
+  PERSONAL_RATING_MAX,
+} from "./library-entry";
 
-export interface LibraryEntry {
-  status: LibraryStatus;
-  progress: number;
-  updatedAt: string;
-}
-
-type LibraryState = Record<string, LibraryEntry>;
 interface LibraryContextValue {
   entries: LibraryState;
+  /** False until the browser library has been read. */
+  ready: boolean;
   setStatus: (gameId: string, status: LibraryStatus | null) => void;
   setProgress: (gameId: string, progress: number) => void;
+  setRating: (gameId: string, rating: number | null) => void;
+  setNotes: (gameId: string, notes: string) => void;
   exportLibrary: () => void;
   importLibrary: (file: File) => Promise<void>;
 }
@@ -32,7 +42,7 @@ export function LibraryProvider({ children }: { children: React.ReactNode }) {
       try {
         // Library state is browser-owned and must load after hydration.
         // eslint-disable-next-line react-hooks/set-state-in-effect
-        setEntries(JSON.parse(saved) as LibraryState);
+        setEntries(normalizeLibraryState(JSON.parse(saved)));
       } catch {
         window.localStorage.removeItem(STORAGE_KEY);
       }
@@ -47,16 +57,32 @@ export function LibraryProvider({ children }: { children: React.ReactNode }) {
 
   const value = useMemo<LibraryContextValue>(() => ({
     entries,
+    ready,
     setStatus: (gameId, status) => setEntries((current) => {
       const next = { ...current };
-      if (status) next[gameId] = { ...(next[gameId] ?? { progress: 0 }), status, updatedAt: new Date().toISOString() };
-      else delete next[gameId];
+      if (status) {
+        const entry = updateLibraryEntry(next[gameId], { status });
+        if (entry) next[gameId] = entry;
+      } else {
+        delete next[gameId];
+      }
       return next;
     }),
-    setProgress: (gameId, progress) => setEntries((current) => ({
-      ...current,
-      [gameId]: { ...(current[gameId] ?? { status: "backlog" }), progress: Math.max(0, Math.min(100, progress)), updatedAt: new Date().toISOString() },
-    })),
+    setProgress: (gameId, progress) => setEntries((current) => {
+      const entry = updateLibraryEntry(current[gameId], { progress });
+      if (!entry) return current;
+      return { ...current, [gameId]: entry };
+    }),
+    setRating: (gameId, rating) => setEntries((current) => {
+      const entry = updateLibraryEntry(current[gameId], { rating });
+      if (!entry) return current;
+      return { ...current, [gameId]: entry };
+    }),
+    setNotes: (gameId, notes) => setEntries((current) => {
+      const entry = updateLibraryEntry(current[gameId], { notes });
+      if (!entry) return current;
+      return { ...current, [gameId]: entry };
+    }),
     exportLibrary: () => {
       const blob = new Blob([JSON.stringify({ schemaVersion: 1, entries }, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
@@ -67,13 +93,13 @@ export function LibraryProvider({ children }: { children: React.ReactNode }) {
       URL.revokeObjectURL(url);
     },
     importLibrary: async (file) => {
-      const imported = JSON.parse(await file.text()) as { schemaVersion?: number; entries?: LibraryState };
-      if (imported.schemaVersion !== 1 || !imported.entries || typeof imported.entries !== "object") {
+      const imported = JSON.parse(await file.text()) as { schemaVersion?: number; entries?: unknown };
+      if (imported.schemaVersion !== 1 || !imported.entries || typeof imported.entries !== "object" || Array.isArray(imported.entries)) {
         throw new Error("Unsupported library export.");
       }
-      setEntries(imported.entries);
+      setEntries(normalizeLibraryState(imported.entries));
     },
-  }), [entries]);
+  }), [entries, ready]);
 
   return <LibraryContext.Provider value={value}>{children}</LibraryContext.Provider>;
 }

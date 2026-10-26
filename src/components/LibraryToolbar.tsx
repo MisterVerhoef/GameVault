@@ -1,26 +1,37 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { useLibrary, type LibraryStatus } from "@/context/LibraryContext";
+import Link from "next/link";
+import { LIBRARY_STATUSES, LIBRARY_STATUS_LABELS, useLibrary } from "@/context/LibraryContext";
 
-const statuses: LibraryStatus[] = ["playing", "backlog", "completed", "paused", "wishlist"];
-
-export default function LibraryToolbar() {
+export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void }) {
   const { entries, setStatus, exportLibrary, importLibrary } = useLibrary();
   const inputRef = useRef<HTMLInputElement>(null);
   const [message, setMessage] = useState("");
-  const counts = statuses.map((status) => [status, Object.values(entries).filter((entry) => entry.status === status).length] as const);
+  const counts = LIBRARY_STATUSES.map((status) => [status, Object.values(entries).filter((entry) => entry.status === status).length] as const);
   const saved = Object.entries(entries);
 
   return (
     <div className="p-4">
       <h2 className="text-sm font-semibold text-foreground">My library</h2>
       <p className="mt-1 text-xs text-muted">Stored locally in this browser. Export to move it between devices.</p>
+      <Link
+        href="/vault"
+        onClick={onNavigate}
+        className="mt-3 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Open my vault
+      </Link>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {counts.map(([status, count]) => (
-          <span key={status} className="rounded-full bg-white/10 px-2.5 py-1 text-xs capitalize text-muted">
-            {status}: {count}
-          </span>
+          <Link
+            key={status}
+            href={`/vault?status=${status}`}
+            onClick={onNavigate}
+            className="rounded-full bg-white/10 px-2.5 py-1 text-xs text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            {LIBRARY_STATUS_LABELS[status]}: {count}
+          </Link>
         ))}
       </div>
       <div className="mt-3 flex flex-wrap gap-2">
