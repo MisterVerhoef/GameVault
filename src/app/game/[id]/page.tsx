@@ -6,6 +6,7 @@ import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
 import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
+import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
@@ -18,6 +19,37 @@ interface GameDetailPageProps {
 function getYouTubeThumbnail(url: string) {
   const match = url.match(/[?&]v=([^&]+)/);
   return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : undefined;
+}
+
+function NamedCatalogueLinks({
+  names,
+  hrefFor,
+}: {
+  names: readonly string[];
+  hrefFor: (name: string) => string | undefined;
+}) {
+  return (
+    <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
+      {names.map((name, index) => {
+        const href = hrefFor(name);
+        return (
+          <span key={name}>
+            {href ? (
+              <Link
+                href={href}
+                className="rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                {name}
+              </Link>
+            ) : (
+              name
+            )}
+            {index < names.length - 1 ? ", " : ""}
+          </span>
+        );
+      })}
+    </dd>
+  );
 }
 
 function LabeledContentGrid({ items }: { items: readonly (readonly [string, string])[] }) {
@@ -288,6 +320,18 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     </span>
                   ))}
                 </dd>
+              </div>
+            )}
+            {game.franchises.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Franchises</dt>
+                <NamedCatalogueLinks names={game.franchises} hrefFor={franchiseHref} />
+              </div>
+            )}
+            {game.collections.length > 0 && (
+              <div>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Collections</dt>
+                <NamedCatalogueLinks names={game.collections} hrefFor={collectionHref} />
               </div>
             )}
             {game.themes.length > 0 && (
