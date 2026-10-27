@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useId, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import Navbar from "@/components/Navbar";
+import { useRovingCards } from "@/components/use-roving-cards";
 import {
   LIBRARY_STATUSES,
   LIBRARY_STATUS_LABELS,
@@ -41,15 +42,26 @@ function VaultShelf({
   const known = items.filter((item) => item.game);
   const missing = items.filter((item) => !item.game);
   const label = LIBRARY_STATUS_LABELS[status];
+  const hintId = useId();
+  const { ref, onKeyDown, onFocus } = useRovingCards<HTMLUListElement>();
 
   return (
-    <section aria-labelledby={`vault-${status}`} className="mb-10">
+    <section aria-labelledby={`vault-${status}`} aria-describedby={hintId} className="mb-10">
       <h2 id={`vault-${status}`} className="mb-3 text-lg font-bold tracking-tight text-foreground sm:text-xl">
         {label}
         <span className="ml-2 text-sm font-medium text-muted">{items.length}</span>
       </h2>
+      <p id={hintId} className="sr-only">
+        Arrow keys move between games in {label}.
+      </p>
       {known.length > 0 && (
-        <ul className="flex flex-wrap gap-x-3 gap-y-5 sm:gap-x-4">
+        <ul
+          ref={ref}
+          aria-labelledby={`vault-${status}`}
+          onKeyDown={onKeyDown}
+          onFocus={onFocus}
+          className="flex list-none flex-wrap gap-x-4 gap-y-5"
+        >
           {known.map((item) => (
             <li key={item.gameId} className="w-32 flex-shrink-0 lg:w-44">
               <GameCard
@@ -80,7 +92,7 @@ function VaultShelf({
                 <button
                   type="button"
                   onClick={() => onRemove(item.gameId)}
-                  className="rounded-full bg-accent/15 px-3 py-1 text-xs text-accent hover:bg-accent/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  className="inline-flex min-h-11 items-center rounded-full bg-accent/15 px-3 py-1 text-xs text-accent hover:bg-accent/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
                 >
                   Remove {item.gameId} ({label.toLowerCase()})
                 </button>
@@ -122,7 +134,7 @@ export default function VaultScreen() {
   const visible = selected.filter((group) => group.items.length > 0);
 
   const chipClass = (selected: boolean) =>
-    `rounded-full px-3 py-1.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+    `inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
       selected ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
     }`;
 
@@ -139,7 +151,7 @@ export default function VaultScreen() {
         <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
             aria-label="Back to home"
           >
             <svg
@@ -160,7 +172,7 @@ export default function VaultScreen() {
         </div>
       </div>
 
-      <main id="vault-content" className="mx-auto w-full max-w-[1920px] flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main id="vault-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
         <p className="max-w-2xl text-sm text-muted">
           Your personal library, stored in this browser. Filter by status, then open a game to change progress, rating, or notes.
         </p>

@@ -9,6 +9,7 @@ import { storeName } from "@/data/store-match";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
+import CardScroller from "@/components/CardScroller";
 import Navbar from "@/components/Navbar";
 
 interface GameDetailPageProps {
@@ -37,7 +38,7 @@ function SimilarGameCard({ item }: { item: ContentRef }) {
   const catalogueGame: Game | undefined = findGameByProviderId(item.id);
   const coverUrl = catalogueGame?.cover?.url ?? item.cover?.url;
   const className = catalogueGame
-    ? "group relative flex h-64 min-w-40 cursor-pointer flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:min-w-44"
+    ? "group relative flex h-64 min-h-11 min-w-40 cursor-pointer touch-manipulation scroll-mt-24 flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent sm:min-w-44"
     : "relative flex h-64 min-w-40 cursor-default flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 opacity-75 sm:min-w-44";
   const content = (
     <>
@@ -71,7 +72,7 @@ function SimilarGameCard({ item }: { item: ContentRef }) {
   }
 
   return (
-    <Link href={`/game/${catalogueGame.id}`} className={className} aria-label={`Open ${catalogueGame.title}`}>
+    <Link href={`/game/${catalogueGame.id}`} className={className} aria-label={`Open ${catalogueGame.title}`} data-roving-card="" data-card-id={catalogueGame.id}>
       {content}
     </Link>
   );
@@ -98,6 +99,12 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
   return (
     <div className="relative min-h-screen">
+      <a
+        href="#game-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
       {/* Background with theme color */}
       <div className="absolute inset-0" style={{ backgroundColor: `${themeColor}1a` }} />
 
@@ -107,7 +114,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
             <Link
               href="/"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
               aria-label="Back to home"
             >
               <svg
@@ -128,7 +135,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
         </div>
       </div>
 
-      <main className="relative mx-auto max-w-[1920px] px-4 py-8 sm:px-6 lg:px-8">
+      <main id="game-content" tabIndex={-1} className="relative mx-auto max-w-[1920px] scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
         {/* Hero section with cover art */}
         <section className="relative mb-12 flex flex-col gap-6 lg:flex-row lg:gap-12">
           {/* Cover art */}
@@ -396,13 +403,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
         )}
 
         {game.similarGames.length > 0 && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Similar games</h2>
-            <div className="flex gap-4 overflow-x-auto pb-3">
+          <section className="mb-12" aria-labelledby="similar-games">
+            <h2 id="similar-games" className="mb-4 text-lg font-bold tracking-tight text-foreground">Similar games</h2>
+            <p className="sr-only">Arrow keys move between games in the catalogue.</p>
+            <CardScroller className="flex gap-4 overflow-x-auto pb-3">
               {game.similarGames.map((item) => (
                 <SimilarGameCard key={item.id} item={item} />
               ))}
-            </div>
+            </CardScroller>
           </section>
         )}
       </main>

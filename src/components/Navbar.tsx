@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { browseQuery } from "@/data/browse";
@@ -26,6 +26,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const searchToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const menuToggleRef = useRef<HTMLButtonElement>(null);
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
@@ -63,6 +66,31 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     setSearch("");
   }, [searchQuery]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  useEffect(() => {
+    if (searchOpen) mobileSearchRef.current?.focus();
+  }, [searchOpen]);
+
+  useEffect(() => {
+    const desktop = window.matchMedia("(min-width: 640px)");
+    const onChange = () => {
+      if (!desktop.matches || !searchOpen) return;
+      setSearchOpen(false);
+      document.getElementById("navbar-search")?.focus();
+    };
+    desktop.addEventListener("change", onChange);
+    return () => desktop.removeEventListener("change", onChange);
+  }, [searchOpen]);
+
+  const closeSearch = () => {
+    setSearchOpen(false);
+    searchToggleRef.current?.focus();
+  };
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+    menuToggleRef.current?.focus();
+  };
 
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
     const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
@@ -135,12 +163,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+      <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
       <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           aria-label="GameVault home"
           onClick={goHome}
-          className="flex items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="flex min-h-11 min-w-11 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 md:min-w-0"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
             GV
@@ -189,15 +218,24 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
         </div>
 
         {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="relative flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <ThemeToggle />
-          {/* Search icon (mobile toggle) */}
+          {/* Search icon (mobile toggle). The field is the next DOM node so
+              screen readers and Tab reach it before the library and menu. */}
           <button
-            onClick={() => setSearchOpen((v) => !v)}
-            aria-label="Toggle search"
+            ref={searchToggleRef}
+            type="button"
+            onClick={() => setSearchOpen((open) => !open)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && searchOpen) {
+                event.preventDefault();
+                closeSearch();
+              }
+            }}
+            aria-label="Search games"
             aria-expanded={searchOpen}
             aria-controls="mobile-search"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -216,8 +254,38 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             </svg>
           </button>
 
+          <form
+            id="mobile-search"
+            role="search"
+            hidden={!searchOpen}
+            onSubmit={submitSearch}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                closeSearch();
+              }
+            }}
+            className="absolute inset-x-0 top-16 z-30 border-t border-white/5 bg-background/80 px-4 py-2 backdrop-blur-xl sm:hidden"
+          >
+            <label htmlFor="navbar-search-mobile" className="sr-only">
+              Search games
+            </label>
+            <input
+              ref={mobileSearchRef}
+              id="navbar-search-mobile"
+              type="search"
+              enterKeyHint="search"
+              placeholder="Search games..."
+              value={search}
+              onChange={(e) => handleSearch(e.target.value)}
+              onBlur={(e) => rememberSearch(e.target.value)}
+              className="h-11 w-full rounded-full border border-white/10 bg-card px-4 text-base text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+            />
+          </form>
+
           {/* Search input (desktop) */}
           <form
+            role="search"
             onSubmit={submitSearch}
             className="relative hidden sm:block"
           >
@@ -253,11 +321,12 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           {/* Library menu */}
           <div className="relative">
             <button
+              type="button"
               onClick={() => setLibraryMenuOpen((v) => !v)}
               aria-label="Open library menu"
               aria-expanded={libraryMenuOpen}
               aria-controls="library-menu"
-              className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -283,11 +352,19 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
           {/* Hamburger (mobile) */}
           <button
+            ref={menuToggleRef}
+            type="button"
             onClick={() => setMenuOpen((v) => !v)}
-            aria-label="Toggle menu"
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && menuOpen) {
+                event.preventDefault();
+                closeMenu();
+              }
+            }}
+            aria-label="Menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
           >
             {menuOpen ? (
               <svg
@@ -316,6 +393,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             )}
           </button>
         </div>
+      </div>
       </div>
 
       {selectedFamily && (
@@ -368,34 +446,25 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
         </div>
       )}
 
-      {/* Mobile search bar (expanded state) */}
-      {searchOpen && (
-        <form id="mobile-search" onSubmit={submitSearch} className="border-t border-white/5 px-4 py-2 sm:hidden">
-          <label htmlFor="navbar-search-mobile" className="sr-only">
-            Search games
-          </label>
-          <input
-            id="navbar-search-mobile"
-            type="search"
-            placeholder="Search games..."
-            value={search}
-            onChange={(e) => handleSearch(e.target.value)}
-            onBlur={(e) => rememberSearch(e.target.value)}
-            className="h-9 w-full rounded-full border border-white/10 bg-card px-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none"
-          />
-        </form>
-      )}
-
-      {/* Mobile nav menu */}
       {menuOpen && (
-        <nav id="mobile-nav" className="border-t border-white/5 px-4 py-3 md:hidden" aria-label="Mobile">
+        <nav
+          id="mobile-nav"
+          className="border-t border-white/5 px-4 py-3 md:hidden"
+          aria-label="Mobile"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              closeMenu();
+            }
+          }}
+        >
           <div className="flex flex-col gap-1">
             {["Discover"].map((item) => (
               <a
                 key={item}
                 href="#"
                 onClick={() => setMenuOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-card hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                className="flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-card hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 {item}
               </a>
@@ -404,7 +473,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               href="/vault"
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/vault" ? "page" : undefined}
-              className={`rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                 pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
               }`}
             >
@@ -416,8 +485,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               {platformFamilies.map((family) => (
                 <div key={family.key}>
                   <button
+                    type="button"
                     onClick={() => handlePlatformSelect(family.platform, family.key)}
-                    className={`inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
+                    className={`flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
                     style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
                     aria-pressed={selectedFamilyKey === family.key}
                   >
@@ -431,7 +501,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           type="button"
                           onClick={() => handleVariantSelect(variant)}
                           aria-pressed={selectedVariant === variant}
-                          className={`inline-flex items-center rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                          className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                             selectedVariant === variant
                               ? "bg-white/10 text-foreground"
                               : "text-muted hover:bg-white/5 hover:text-foreground"
@@ -449,7 +519,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                                 type="button"
                                 onClick={() => handleVariantSelect(variant)}
                                 aria-pressed={selectedVariant === variant}
-                                className={`inline-flex items-center rounded px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                                className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                                   selectedVariant === variant
                                     ? "bg-white/10 text-foreground"
                                     : "text-muted hover:bg-white/5 hover:text-foreground"
