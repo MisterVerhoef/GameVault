@@ -16,6 +16,14 @@ const { collapsedLineCount, visibleLineCount } = loadTsModule("src/components/de
 const { collectDownloadableIds, partitionDownloadableContent } = loadTsModule("src/data/downloadable.ts");
 const { matchesSearchTerms } = loadTsModule("src/data/search-terms.ts");
 const { collectStudios, describeStudio, studioInitials, studioMetadata } = loadTsModule("src/data/studio-profile.ts");
+const {
+  collectSeries,
+  describeSeries,
+  seriesInitials,
+  seriesMetadata,
+  seriesPath,
+  seriesSlug,
+} = loadTsModule("src/data/series-profile.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -35,6 +43,8 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.ratingCount, 2500);
   assert.deepEqual(game.developers, [{ id: "1", name: "Larian Studios" }]);
   assert.equal(game.themes[0], "Fantasy");
+  assert.deepEqual(game.franchises, ["Baldur's Gate"]);
+  assert.deepEqual(game.collections, []);
   assert.equal(game.screenshots[0].width, 1920);
   assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
   assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
@@ -142,6 +152,84 @@ test("studio pages group developed and published catalogue games", () => {
   assert.equal(nintendo.name, "Nintendo");
   assert.ok(nintendo.gameIds.length > 100);
   assert.match(nintendo.summary, /Nintendo is a developer and publisher/);
+});
+
+test("franchise and collection pages group catalogue series", () => {
+  const games = [
+    {
+      id: "1",
+      title: "Alpha",
+      rating: 90,
+      releaseYear: 2001,
+      franchises: ["Halo"],
+      collections: ["Halo"],
+      background: { url: "https://images.igdb.com/example.jpg" },
+    },
+    {
+      id: "2",
+      title: "Beta",
+      rating: 70,
+      releaseYear: 2010,
+      franchises: ["Halo"],
+      collections: ["Halo Wars"],
+    },
+  ];
+  const franchises = collectSeries(games, "franchise");
+  assert.equal(franchises.length, 1);
+  assert.equal(franchises[0].id, "halo");
+  assert.equal(franchises[0].kind, "franchise");
+  assert.deepEqual(franchises[0].gameIds, ["1", "2"]);
+  assert.deepEqual(franchises[0].notableTitles, ["Alpha", "Beta"]);
+  assert.equal(franchises[0].backgroundUrl, "https://images.igdb.com/example.jpg");
+  assert.equal(seriesSlug("Pokémon"), "pokemon");
+  assert.equal(seriesSlug("Mario Bros."), "mario-bros");
+  assert.equal(seriesSlug("The Legend of Zelda: Breath of the Wild"), "the-legend-of-zelda-breath-of-the-wild");
+  assert.equal(seriesInitials("The Legend of Zelda"), "TL");
+  assert.equal(seriesInitials("Halo"), "HA");
+  assert.equal(seriesPath("franchise", "halo"), "/franchise/halo");
+  assert.equal(seriesPath("collection", "halo-wars"), "/collection/halo-wars");
+  assert.equal(seriesMetadata({
+    kind: "franchise",
+    gameCount: 2,
+    yearStart: 2001,
+    yearEnd: 2010,
+  }), "Franchise · 2 games · 2001–2010");
+  assert.match(describeSeries({
+    name: "Halo",
+    kind: "franchise",
+    gameCount: 2,
+    yearStart: 2001,
+    yearEnd: 2010,
+    notableTitles: ["Alpha", "Beta"],
+  }), /Halo is a franchise in the GameVault catalogue, with 2 games/);
+
+  const collections = collectSeries(games, "collection");
+  assert.deepEqual(collections.map((series) => series.name), ["Halo", "Halo Wars"]);
+  assert.deepEqual(collections.find((series) => series.name === "Halo")?.gameIds, ["1"]);
+
+  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogueFranchises = collectSeries(catalogue.games, "franchise");
+  const catalogueCollections = collectSeries(catalogue.games, "collection");
+  const halo = catalogueFranchises.find((series) => series.name === "Halo");
+  const haloCollection = catalogueCollections.find((series) => series.name === "Halo");
+  const zelda = catalogueFranchises.find((series) => series.name === "The Legend of Zelda");
+  const breath = catalogueCollections.find((series) => series.name === "The Legend of Zelda: Breath of the Wild");
+  assert.ok(halo);
+  assert.ok(haloCollection);
+  assert.ok(zelda);
+  assert.ok(breath);
+  assert.equal(halo.id, "halo");
+  assert.equal(zelda.id, "the-legend-of-zelda");
+  assert.equal(breath.id, "the-legend-of-zelda-breath-of-the-wild");
+  assert.ok(halo.gameIds.length > haloCollection.gameIds.length);
+  assert.ok(breath.gameIds.includes("7346"));
+  assert.match(halo.summary, /Halo is a franchise/);
+  assert.match(breath.summary, /The Legend of Zelda: Breath of the Wild is a collection/);
+  for (const group of [catalogueFranchises, catalogueCollections]) {
+    const ids = group.map((series) => series.id);
+    assert.equal(new Set(ids).size, ids.length);
+    assert.ok(group.every((series) => series.id === seriesSlug(series.name) || series.id.startsWith(`${seriesSlug(series.name)}-`)));
+  }
 });
 
 test("search treats catalogue entries listed as DLC or expansions as DLC", () => {
