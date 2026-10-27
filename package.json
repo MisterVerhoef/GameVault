@@ -13,7 +13,7 @@
     "catalogue:enrich:stores": "node scripts/enrich-stores.mjs",
     "catalogue:search-index": "node scripts/build-search-index.mjs",
     "catalogue:diff": "node scripts/catalogue-diff.mjs",
-    "test:catalogue": "node --test test/catalogue.test.mjs test/store-enrichment.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs"
+    "test:catalogue": "node --test test/catalogue.test.mjs test/store-enrichment.test.mjs test/store-offer-index.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs"
   },
   "dependencies": {
     "next": "16.3.6",
