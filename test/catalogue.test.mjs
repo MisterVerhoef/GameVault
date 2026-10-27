@@ -14,6 +14,7 @@ const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse,
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
 const { collapsedLineCount, visibleLineCount } = loadTsModule("src/components/description-clamp.ts");
 const { collectDownloadableIds, partitionDownloadableContent } = loadTsModule("src/data/downloadable.ts");
+const { matchesSearchTerms } = loadTsModule("src/data/search-terms.ts");
 const { collectStudios, describeStudio, studioInitials, studioMetadata } = loadTsModule("src/data/studio-profile.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -195,16 +196,46 @@ test("imports sega-only IGDB platforms into the Other family", () => {
   assert.deepEqual(game.warnings, []);
 });
 
+test("search terms keep phrase matches and hyphenated words", () => {
+  assert.equal(matchesSearchTerms("halo infinite chief", "halo"), true);
+  assert.equal(matchesSearchTerms("god of war", "god of war"), true);
+  assert.equal(matchesSearchTerms("role playing rpg", "role-playing"), true);
+  assert.equal(matchesSearchTerms("castle action", "god of war"), false);
+});
+
+test("browse index stays a light card catalogue", () => {
+  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const browse = JSON.parse(readFileSync(path.join(root, "public/catalog/browse-index.json"), "utf8"));
+  assert.equal(browse.schemaVersion, 1);
+  assert.equal(browse.games.length, catalogue.games.length);
+  assert.deepEqual(browse.games.map((game) => game.id), catalogue.games.map((game) => game.id));
+  const heavy = ["description", "summary", "screenshots", "similarGames", "videos", "websites", "dlc"];
+  for (const field of heavy) assert.equal(browse.games.some((game) => field in game), false, field);
+  const bytes = readFileSync(path.join(root, "public", "catalog", "browse-index.json")).length;
+  assert.ok(bytes < 2_500_000, `browse index is ${bytes} bytes`);
+
+  const byId = new Map(browse.games.map((game) => [game.id, game]));
+  const downloadable = collectDownloadableIds(catalogue.games);
+  for (const game of catalogue.games) {
+    const card = byId.get(game.id);
+    assert.equal(Boolean(card.downloadable), downloadable.has(game.id));
+    assert.equal(Boolean(card.multiplayer), gameMatchesGenre(game, "multiplayer"));
+  }
+});
+
 test("search index rebuild is idempotent against the committed catalogue", () => {
   const searchIndexPath = path.join(root, "public", "catalog", "search-index.json");
-  const before = readFileSync(searchIndexPath, "utf8");
+  const browseIndexPath = path.join(root, "public", "catalog", "browse-index.json");
+  const searchBefore = readFileSync(searchIndexPath, "utf8");
+  const browseBefore = readFileSync(browseIndexPath, "utf8");
   const result = spawnSync(process.execPath, ["scripts/build-search-index.mjs"], {
     cwd: root,
     encoding: "utf8",
   });
 
   assert.equal(result.status, 0, result.stderr);
-  assert.equal(readFileSync(searchIndexPath, "utf8"), before);
+  assert.equal(readFileSync(searchIndexPath, "utf8"), searchBefore);
+  assert.equal(readFileSync(browseIndexPath, "utf8"), browseBefore);
 });
 
 test("demo catalogue generation does not overwrite the published IGDB index", () => {

@@ -3,21 +3,23 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import type { Game } from "@/data/games";
+import type { CatalogueCard } from "@/data/catalogue-card";
 import { PlatformIcon } from "./platform-icons";
 
 const PAGE_SIZE = 48;
+/** Title block plus the grid's vertical gap, added under each cover. */
+const CELL_EXTRA = 48;
 
 export interface GameWallSection {
   id: string;
   title: string;
-  games: Game[];
+  games: CatalogueCard[];
   kind: "games" | "dlc";
 }
 
 interface GameWallProps {
   title: string;
-  games: Game[];
+  games: CatalogueCard[];
   resetKey: string;
   backHref?: string;
   backLabel?: string;
@@ -36,29 +38,92 @@ function countLabel(count: number, kind: "games" | "dlc" | "results") {
   return count === 1 ? "1 game" : `${count} games`;
 }
 
-function CoverGrid({ games, loadMoreLabel }: { games: Game[]; loadMoreLabel: string }) {
-  const sentinelRef = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(PAGE_SIZE);
-  const shown = games.slice(0, visible);
+function columnCount() {
+  if (window.matchMedia("(min-width: 1536px)").matches) return 12;
+  if (window.matchMedia("(min-width: 1280px)").matches) return 10;
+  if (window.matchMedia("(min-width: 1024px)").matches) return 8;
+  if (window.matchMedia("(min-width: 768px)").matches) return 6;
+  if (window.matchMedia("(min-width: 640px)").matches) return 4;
+  return 3;
+}
+
+interface GridWindow {
+  columns: number;
+  start: number;
+  end: number;
+  padTop: number;
+  padBottom: number;
+}
+
+function CoverGrid({ games }: { games: CatalogueCard[] }) {
+  const hostRef = useRef<HTMLDivElement>(null);
+  const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
+  const fallback = games.slice(0, Math.min(games.length, PAGE_SIZE));
 
   useEffect(() => {
-    const node = sentinelRef.current;
-    if (!node || visible >= games.length) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries.some((entry) => entry.isIntersecting)) {
-          setVisible((current) => Math.min(games.length, current + PAGE_SIZE));
-        }
-      },
-      { rootMargin: "800px 0px" },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
-  }, [games.length, visible]);
+    const host = hostRef.current;
+    if (!host) return;
+    let frame = 0;
+    const measure = () => {
+      const columns = columnCount();
+      const style = window.getComputedStyle(host);
+      const horizontalPad = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
+      const gap = window.matchMedia("(min-width: 640px)").matches ? 12 : 8;
+      const contentWidth = Math.max(0, host.clientWidth - horizontalPad);
+      const cellWidth = columns > 0 ? (contentWidth - gap * (columns - 1)) / columns : contentWidth;
+      const rowStride = cellWidth * (4 / 3) + CELL_EXTRA;
+      const rowCount = Math.ceil(games.length / columns);
+      const top = host.getBoundingClientRect().top;
+      const startRow = Math.max(0, Math.floor(-top / rowStride) - 2);
+      const endRow = Math.min(rowCount, Math.ceil((-top + window.innerHeight) / rowStride) + 2);
+      const next: GridWindow = {
+        columns,
+        start: startRow * columns,
+        end: Math.min(games.length, endRow * columns),
+        padTop: startRow * rowStride,
+        padBottom: Math.max(0, (rowCount - endRow) * rowStride),
+      };
+      setGridWindow((current) => (
+        current
+        && current.columns === next.columns
+        && current.start === next.start
+        && current.end === next.end
+        && Math.abs(current.padTop - next.padTop) < 1
+        && Math.abs(current.padBottom - next.padBottom) < 1
+          ? current
+          : next
+      ));
+    };
+    const schedule = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        measure();
+      });
+    };
+    measure();
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    const resize = new ResizeObserver(schedule);
+    resize.observe(host);
+    return () => {
+      if (frame) cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+      resize.disconnect();
+    };
+  }, [games.length]);
+
+  const shown = gridWindow ? games.slice(gridWindow.start, gridWindow.end) : fallback;
+  const columnsClass = gridWindow ? undefined : "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12";
 
   return (
-    <>
-      <ul className="grid grid-cols-3 gap-x-2 gap-y-3 px-4 sm:grid-cols-4 sm:gap-x-3 sm:px-6 md:grid-cols-6 lg:grid-cols-8 lg:px-8 xl:grid-cols-10 2xl:grid-cols-12">
+    <div ref={hostRef} className="px-4 sm:px-6 lg:px-8" style={{ overflowAnchor: "none" }}>
+      {gridWindow && gridWindow.padTop > 0 ? <div style={{ height: gridWindow.padTop }} /> : null}
+      <ul
+        className={`grid gap-x-2 gap-y-3 sm:gap-x-3 ${columnsClass ?? ""}`}
+        style={gridWindow ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
+      >
         {shown.map((game) => (
           <li key={game.id} className="min-w-0">
             <Link
@@ -86,18 +151,8 @@ function CoverGrid({ games, loadMoreLabel }: { games: Game[]; loadMoreLabel: str
           </li>
         ))}
       </ul>
-      {visible < games.length && (
-        <div ref={sentinelRef} className="mt-6 flex justify-center px-4">
-          <button
-            type="button"
-            onClick={() => setVisible((current) => Math.min(games.length, current + PAGE_SIZE))}
-            className="min-h-11 rounded-full bg-card px-5 text-sm font-medium text-foreground transition hover:bg-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            {loadMoreLabel}
-          </button>
-        </div>
-      )}
-    </>
+      {gridWindow && gridWindow.padBottom > 0 ? <div style={{ height: gridWindow.padBottom }} /> : null}
+    </div>
   );
 }
 
@@ -165,15 +220,12 @@ export default function GameWall({
                 </h2>
                 <p className="mt-1 text-sm text-muted">{countLabel(section.games.length, section.kind)}</p>
               </div>
-              <CoverGrid
-                games={section.games}
-                loadMoreLabel={section.kind === "dlc" ? "Load more DLC" : "Load more games"}
-              />
+              <CoverGrid games={section.games} />
             </section>
           ))}
         </div>
       ) : (
-        <CoverGrid games={games} loadMoreLabel="Load more games" />
+        <CoverGrid games={games} />
       )}
     </section>
   );

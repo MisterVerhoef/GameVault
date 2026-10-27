@@ -1,138 +1,45 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
-import GameWall, { type GameWallSection } from "@/components/GameWall";
-import {
-  Platform,
-  Game,
-  allGames,
-  getGamesByPlatform,
-  recentlyPlayed,
-  searchGames,
-  partitionSearchResults,
-} from "@/data/games";
-import { gameMatchesPlatformVariant, isPcPlatformBrowse, gameIsPlatformExclusive } from "@/data/platforms";
-import { GENRE_DEFINITIONS, browseQuery, byRatingThenTitle, gameMatchesGenre, genreLabel } from "@/data/browse";
+import GameWall from "@/components/GameWall";
 import { useLibrary } from "@/context/LibraryContext";
+import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
+import { buildLibraryView, readHomeQuery, sameHomeQuery, type LibraryView } from "@/data/library-view";
 
-const catalogueHasVariants = allGames.some((game) => (game.platformVariants?.length ?? 0) > 0);
-const platforms: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
-
-function readPlatform(value: string | null): Platform | null {
-  return platforms.find((platform) => platform === value) ?? null;
-}
-
-function onThisPlatform(game: Game, platform: Platform | null, variant: string | null) {
-  if (variant && catalogueHasVariants) return gameMatchesPlatformVariant(game, variant);
-  if (platform) return game.platforms.includes(platform);
-  return true;
-}
-
-export default function HomeScreen() {
+export default function HomeScreen({ initialView }: { initialView: LibraryView }) {
   const params = useSearchParams();
-  const query = params.toString();
+  const queryString = params.toString();
   const urlSearch = params.get("search") ?? "";
   const [draftSearch, setDraftSearch] = useState(urlSearch);
-  const [trackedQuery, setTrackedQuery] = useState(query);
-  if (query !== trackedQuery) {
-    setTrackedQuery(query);
+  const [trackedQuery, setTrackedQuery] = useState(queryString);
+  if (queryString !== trackedQuery) {
+    setTrackedQuery(queryString);
     setDraftSearch(urlSearch);
   }
-  const searchQuery = draftSearch;
-  const family = params.get("family");
-  const variant = params.get("variant");
-  const platform = readPlatform(params.get("platform"));
-  const genreKey = params.get("genre");
-  const exclusivesRequested = params.get("exclusives") === "1";
-  const { entries } = useLibrary();
+  const { catalogue, failed } = useBrowseCatalogue(true);
+  const { entries, ready } = useLibrary();
+  const playingIds = useMemo(
+    () => Object.entries(entries).filter(([, entry]) => entry.status === "playing").map(([gameId]) => gameId),
+    [entries],
+  );
 
-  const playing = Object.entries(entries)
-    .filter(([, entry]) => entry.status === "playing")
-    .map(([gameId]) => allGames.find((game) => game.id === gameId))
-    .filter((game): game is Game => Boolean(game));
-  const continueGames = playing.length > 0 ? playing : recentlyPlayed;
+  const liveQuery = readHomeQuery({
+    search: draftSearch,
+    family: params.get("family"),
+    platform: params.get("platform"),
+    variant: params.get("variant"),
+    genre: params.get("genre"),
+    exclusives: params.get("exclusives"),
+  });
+  const view = catalogue && (!sameHomeQuery(liveQuery, initialView.query) || (ready && playingIds.length > 0))
+    ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
+    : initialView;
 
-  const place = variant || family || platform;
-  const pcBrowse = isPcPlatformBrowse(platform, variant);
-  const libraryHref = browseQuery({ family, platform, variant });
-  const trimmedSearch = searchQuery.trim();
-
-  const exclusiveList = trimmedSearch || genreKey || pcBrowse || (!platform && !variant)
-    ? []
-    : allGames
-        .filter((game) => gameIsPlatformExclusive(game, { platform, variant }))
-        .sort(byRatingThenTitle);
-
-  const genreGames = trimmedSearch || !genreKey
-    ? []
-    : allGames
-        .filter((game) => gameMatchesGenre(game, genreKey) && onThisPlatform(game, platform, variant))
-        .sort(byRatingThenTitle);
-
-  const genreRows = trimmedSearch || genreKey
-    ? []
-    : GENRE_DEFINITIONS.map((definition) => {
-        const matches = allGames
-          .filter((game) => gameMatchesGenre(game, definition.key) && onThisPlatform(game, platform, variant))
-          .sort(byRatingThenTitle);
-        return { definition, preview: matches.slice(0, 12) };
-      });
-
-  const platformGames = variant
-    ? allGames.filter((game) => gameMatchesPlatformVariant(game, variant))
-    : platform
-      ? getGamesByPlatform(platform)
-      : [];
-
-  const topGames = [...platformGames].sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0));
-
-  const searchResults = (() => {
-    if (!trimmedSearch) return [];
-    const matches = new Set(searchGames(trimmedSearch).map((game) => game.id));
-    return allGames.filter((game) => matches.has(game.id) && onThisPlatform(game, platform, variant));
-  })();
-
-  const catalogueLabel = place;
-  const searching = trimmedSearch.length > 0;
-  const searchSections: GameWallSection[] | undefined = (() => {
-    if (!searching) return undefined;
-    const split = partitionSearchResults(searchResults);
-    if (split.dlc.length === 0) return undefined;
-    const sections: GameWallSection[] = [];
-    if (split.games.length > 0) {
-      sections.push({ id: "games", title: "Games", kind: "games", games: split.games });
-    }
-    sections.push({ id: "dlc", title: "DLC", kind: "dlc", games: split.dlc });
-    return sections;
-  })();
-  const wall = searching
-    ? {
-        key: `search:${searchQuery}:${place ?? ""}`,
-        title: `Search results for "${searchQuery.trim()}"`,
-        games: searchResults,
-        sections: searchSections,
-      }
-    : genreKey
-      ? {
-          key: `genre:${genreKey}:${place ?? ""}`,
-          title: place ? `${genreLabel(genreKey)} on ${place}` : genreLabel(genreKey),
-          games: genreGames,
-          sections: undefined,
-        }
-      : exclusivesRequested && !pcBrowse
-        ? {
-            key: `exclusives:${place ?? ""}`,
-            title: place ? `${place} Exclusives` : "Exclusives",
-            games: exclusiveList,
-            sections: undefined,
-          }
-        : null;
-
-  const featuredGame = platformGames[0] || continueGames[0];
+  const featured = view.heroGames[0] ?? view.featuredGame;
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -146,53 +53,56 @@ export default function HomeScreen() {
       <Navbar searchQuery={urlSearch} onSearch={setDraftSearch} />
 
       <main id="main-content" className="flex-1">
-        {wall ? (
+        {failed && !catalogue && !sameHomeQuery(liveQuery, initialView.query) ? (
+          <p className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8">
+            The catalogue could not be loaded. This page is showing the last results.
+          </p>
+        ) : null}
+        {view.wall ? (
           <GameWall
-            key={wall.key}
-            title={wall.title}
-            platformLabel={place}
-            games={wall.games}
-            resetKey={wall.key}
-            backHref={libraryHref}
-            backLabel={place ? `Back to ${place}` : "All games"}
-            emptyLabel={searching ? `"${trimmedSearch}"` : undefined}
-            sections={wall.sections}
+            key={view.wall.key}
+            title={view.wall.title}
+            platformLabel={view.place}
+            games={view.wall.games}
+            resetKey={view.wall.key}
+            backHref={view.wall.backHref}
+            backLabel={view.wall.backLabel}
+            emptyLabel={view.wall.emptyLabel}
+            sections={view.wall.sections}
           />
         ) : (
           <>
-            <Hero
-              featuredGame={featuredGame}
-              featuredGames={variant ? platformGames.slice(0, 8) : continueGames.filter((game) => onThisPlatform(game, platform, variant))}
-              selectedPlatform={platform}
-            />
-            {catalogueLabel && (
-              topGames.length > 0 ? (
-                <GameRow title={`${catalogueLabel} Top Games`} platformLabel={catalogueLabel} games={topGames} />
+            {featured ? (
+              <Hero
+                featuredGame={featured}
+                featuredGames={view.heroGames}
+                selectedPlatform={view.query.platform}
+              />
+            ) : null}
+            {view.place && (
+              view.topGames.length > 0 ? (
+                <GameRow title={`${view.place} Top Games`} platformLabel={view.place} games={view.topGames} />
               ) : (
                 <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
-                  No games in the catalogue match {catalogueLabel}.
+                  No games in the catalogue match {view.place}.
                 </p>
               )
             )}
-            {!pcBrowse && exclusiveList.length > 0 && place && (
+            {view.exclusivePreview.length > 0 && view.place ? (
               <GameRow
-                title={`${place} Exclusives`}
-                platformLabel={place}
-                games={exclusiveList.slice(0, 12)}
-                titleHref={browseQuery({ family, platform, variant, exclusives: true })}
+                title={`${view.place} Exclusives`}
+                platformLabel={view.place}
+                games={view.exclusivePreview}
+                titleHref={view.exclusiveHref}
               />
-            )}
-            <GameRow
-              title="Featured Games"
-              games={continueGames.filter((game) => onThisPlatform(game, platform, variant))}
-              size="lg"
-            />
-            {genreRows.map((row) => (
+            ) : null}
+            <GameRow title="Featured Games" games={view.continueGames} size="lg" />
+            {view.genreRows.map((row) => (
               <GameRow
-                key={row.definition.key}
-                title={row.definition.label}
-                games={row.preview}
-                titleHref={browseQuery({ family, platform, variant, genre: row.definition.key })}
+                key={row.key}
+                title={row.label}
+                games={row.games}
+                titleHref={row.href}
               />
             ))}
           </>

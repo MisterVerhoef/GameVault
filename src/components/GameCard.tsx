@@ -1,15 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import type { Game } from "@/data/games";
+import type { CatalogueCard } from "@/data/catalogue-card";
 import { familyForVariantLabel, listedSystemNames, PLATFORM_COLORS, resolveIgdbPlatform, type Platform } from "@/data/platforms";
 import { useRouter } from "next/navigation";
-import { useSyncExternalStore } from "react";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
 
 interface GameCardProps {
-  game: Game;
+  game: CatalogueCard;
   showProgress?: boolean;
   /** Personal 1–5 score, drawn on the cover when set. */
   personalRating?: number;
@@ -34,11 +33,6 @@ export default function GameCard({
   size = "md",
 }: GameCardProps) {
   const router = useRouter();
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
 
   const handleClick = () => {
     router.push(`/game/${game.id}`);
@@ -68,7 +62,7 @@ export default function GameCard({
         {/* Placeholder gradient if image fails */}
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
 
-        {isHydrated && game.cover?.url && (
+        {game.cover?.url && (
           <Image
             src={game.cover.url}
             alt={`${game.title} cover art`}
@@ -76,6 +70,7 @@ export default function GameCard({
             className="object-cover transition-opacity duration-500 group-hover:opacity-90"
             sizes="(max-width: 1024px) 128px, 224px"
             unoptimized
+            loading="lazy"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";
             }}

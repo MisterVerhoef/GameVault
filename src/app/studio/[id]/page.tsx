@@ -4,6 +4,7 @@ import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import GameDescription from "@/components/GameDescription";
 import GameWall from "@/components/GameWall";
+import type { CatalogueCard } from "@/data/catalogue-card";
 import { allStudios, getStudio } from "@/data/studios";
 import { studioInitials, studioMetadata } from "@/data/studio-profile";
 import { StudioLogo, studioMark } from "@/components/studio-logos";
@@ -117,7 +118,15 @@ export default async function StudioPage({ params }: StudioPageProps) {
       <div className="mt-10">
         <GameWall
           title="Games"
-          games={studio.games}
+          games={studio.games.map((game): CatalogueCard => ({
+            id: game.id,
+            title: game.title,
+            cover: game.cover ? { url: game.cover.url } : undefined,
+            platforms: game.platforms,
+            platformVariants: game.platformVariants,
+            releaseYear: game.releaseYear,
+            rating: game.rating,
+          }))}
           resetKey={`studio:${studio.id}`}
           titleLevel="h2"
           focusTitle={false}
