@@ -52,7 +52,7 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
 
       <Navbar searchQuery={urlSearch} onSearch={setDraftSearch} />
 
-      <main id="main-content" className="flex-1">
+      <main id="main-content" tabIndex={-1} className="flex-1 scroll-mt-20 focus:outline-none">
         {failed && !catalogue && !sameHomeQuery(liveQuery, initialView.query) ? (
           <p className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8">
             The catalogue could not be loaded. This page is showing the last results.

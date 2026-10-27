@@ -53,12 +53,14 @@ export default function GameCard({
   return (
     <button
       type="button"
+      data-roving-card=""
+      data-card-id={game.id}
       aria-label={details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`}
       onClick={handleClick}
-      className={`group relative flex-shrink-0 cursor-pointer text-left focus:outline-none ${sizes[size]}`}
+      className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 text-left focus:outline-none focus-visible:z-10 ${sizes[size]}`}
     >
       {/* Cover */}
-      <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20 group-focus-visible:ring-2 group-focus-visible:ring-accent">
+      <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20 group-focus-visible:ring-2 group-focus-visible:ring-accent group-active:ring-2 group-active:ring-accent">
         {/* Placeholder gradient if image fails */}
         <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
 

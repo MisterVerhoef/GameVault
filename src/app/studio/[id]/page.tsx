@@ -35,13 +35,19 @@ export default async function StudioPage({ params }: StudioPageProps) {
 
   return (
     <div className="relative min-h-screen">
+      <a
+        href="#studio-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
       <div className="relative">
         <Navbar />
         <div className="border-b border-white/5 bg-background/80">
           <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
             <Link
               href="/"
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
               aria-label="Back to home"
             >
               <svg
@@ -80,6 +86,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-black/25" />
       </section>
 
+      <main id="studio-content" tabIndex={-1} className="scroll-mt-20 focus:outline-none">
       <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
         <div className="flex items-end gap-4">
           {mark ? (
@@ -132,6 +139,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
           focusTitle={false}
         />
       </div>
+      </main>
     </div>
   );
 }

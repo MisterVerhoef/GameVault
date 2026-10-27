@@ -79,7 +79,7 @@ export default function ThemeToggle() {
     <button
       onClick={toggleTheme}
       aria-label={getLabel()}
-      className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
     >
       {getIcon()}
     </button>

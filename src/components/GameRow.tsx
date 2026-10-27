@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import Link from "next/link";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import GameCard from "./GameCard";
 import { PlatformIcon } from "./platform-icons";
+import { useRovingCards } from "./use-roving-cards";
 
 /** Past this length a horizontal row only mounts the cards in view. */
 const VIRTUALIZE_AFTER = 24;
@@ -67,8 +68,9 @@ export default function GameRow({
   titleHref,
   platformLabel,
 }: GameRowProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const { ref: scrollRef, onKeyDown, onFocus } = useRovingCards<HTMLDivElement>();
   const headingId = useId();
+  const hintId = useId();
   const virtualize = games.length > VIRTUALIZE_AFTER;
   const [rowWindow, setRowWindow] = useState<RowWindow | null>(null);
 
@@ -112,7 +114,7 @@ export default function GameRow({
       large.removeEventListener("change", schedule);
       small.removeEventListener("change", schedule);
     };
-  }, [games.length, size, virtualize]);
+  }, [games.length, scrollRef, size, virtualize]);
 
   if (games.length === 0) {
     return null;
@@ -134,15 +136,14 @@ export default function GameRow({
   };
 
   return (
-    <section aria-labelledby={headingId} className="relative mb-8">
-      {/* Title */}
+    <section aria-labelledby={headingId} aria-describedby={hintId} className="relative mb-8">
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <h2 id={headingId} className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
           {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
           {titleHref ? (
             <Link
               href={titleHref}
-              className="inline-block rounded-sm py-2 transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              className="inline-flex min-h-11 items-center rounded-sm py-2 transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
             >
               {title}
             </Link>
@@ -150,9 +151,12 @@ export default function GameRow({
             title
           )}
         </h2>
-        {/* Scroll buttons: only on desktop */}
+        <p id={hintId} className="sr-only">
+          Arrow keys move between games. Home and End jump to the first and last.
+        </p>
         <div className="hidden gap-2 lg:flex">
           <button
+            type="button"
             onClick={() => scroll("left")}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={`Scroll ${title} left`}
@@ -174,6 +178,7 @@ export default function GameRow({
             </svg>
           </button>
           <button
+            type="button"
             onClick={() => scroll("right")}
             className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             aria-label={`Scroll ${title} right`}
@@ -199,9 +204,11 @@ export default function GameRow({
 
       <div
         ref={scrollRef}
+        onKeyDown={onKeyDown}
+        onFocus={onFocus}
         className={virtualize && rowWindow
           ? "scrollbar-hide overflow-x-auto pb-4"
-          : "row-scroll scrollbar-hide flex gap-3 overflow-x-auto px-4 pb-4 sm:gap-4 sm:px-6 lg:px-8"}
+          : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 sm:px-6 lg:px-8"}
         style={virtualize && rowWindow ? { overflowAnchor: "none" } : undefined}
       >
         {rowWindow ? (
