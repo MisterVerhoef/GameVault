@@ -9,8 +9,11 @@ export const metadata: Metadata = {
 
 export default function VaultPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-background" />}>
-      <VaultScreen />
-    </Suspense>
+    <>
+      <link rel="preload" href="/catalog/browse-index.json" as="fetch" crossOrigin="anonymous" />
+      <Suspense fallback={<div className="min-h-screen bg-background" />}>
+        <VaultScreen />
+      </Suspense>
+    </>
   );
 }

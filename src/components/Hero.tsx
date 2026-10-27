@@ -2,14 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Game, recentlyPlayed, Platform, PLATFORM_COLORS, formatRating } from "@/data/games";
-import { listedSystemNames } from "@/data/platforms";
+import type { CatalogueCard } from "@/data/catalogue-card";
+import { formatRating } from "@/data/format-rating";
+import { listedSystemNames, PLATFORM_COLORS, type Platform } from "@/data/platforms";
 import { PlatformName } from "./platform-icons";
-import { useState, useSyncExternalStore } from "react";
+import { useState } from "react";
 
 interface HeroProps {
-  featuredGame?: Game;
-  featuredGames?: Game[];
+  featuredGame?: CatalogueCard | null;
+  featuredGames?: CatalogueCard[];
   selectedPlatform?: Platform | null;
 }
 
@@ -19,19 +20,19 @@ function getHighQualityCoverUrl(url: string) {
     : url;
 }
 
-export default function Hero({ featuredGame, featuredGames = recentlyPlayed, selectedPlatform }: HeroProps) {
-  const availableGames = featuredGames.length > 0 ? featuredGames : [featuredGame || recentlyPlayed[0]];
+export default function Hero({ featuredGame, featuredGames = [], selectedPlatform }: HeroProps) {
+  const availableGames = featuredGames.length > 0 ? featuredGames : featuredGame ? [featuredGame] : [];
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const featured = availableGames[Math.min(selectedIndex, availableGames.length - 1)];
-  const coverUrl = featured.cover?.url ? getHighQualityCoverUrl(featured.cover.url) : undefined;
-  const isHydrated = useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false,
-  );
+  const featured = availableGames[Math.min(selectedIndex, Math.max(availableGames.length - 1, 0))];
+  const coverUrl = featured?.cover?.url ? getHighQualityCoverUrl(featured.cover.url) : undefined;
+  if (!featured) return null;
   
   // Get primary platform for theming (use selected platform or first platform of the game)
-  const primaryPlatform: Platform = selectedPlatform || featured.platforms[0];
+  const gamePlatform = featured.platforms?.[0];
+  const primaryPlatform: Platform = selectedPlatform
+    || (gamePlatform === "PC" || gamePlatform === "PS5" || gamePlatform === "Xbox" || gamePlatform === "Switch" || gamePlatform === "Other"
+      ? gamePlatform
+      : "PC");
   const themeColor = PLATFORM_COLORS[primaryPlatform];
 
   return (
@@ -41,14 +42,14 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/40" />
         <div className="relative h-full w-full overflow-hidden">
-          {isHydrated && coverUrl && (
+          {coverUrl && (
             <Image
               src={coverUrl}
               alt=""
               fill
               className="object-cover opacity-30 blur-2xl scale-110"
               unoptimized
-              priority
+              loading="lazy"
             />
           )}
         </div>
@@ -61,7 +62,7 @@ export default function Hero({ featuredGame, featuredGames = recentlyPlayed, sel
         aria-label={`Open ${featured.title} details`}
         className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:h-[564px] lg:w-[calc(75%+3rem)]"
       >
-        {isHydrated && coverUrl && (
+        {coverUrl && (
           <Image
             src={coverUrl}
             alt={featured.title}

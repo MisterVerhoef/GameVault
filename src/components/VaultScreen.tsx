@@ -13,12 +13,14 @@ import {
   type LibraryEntry,
   type LibraryStatus,
 } from "@/context/LibraryContext";
-import { findGameByProviderId, type Game } from "@/data/games";
+import type { CatalogueCard } from "@/data/catalogue-card";
+import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
+import { findBrowseGame, toCard } from "@/data/library-view";
 
 interface VaultItem {
   gameId: string;
   entry: LibraryEntry;
-  game?: Game;
+  game?: CatalogueCard;
 }
 
 function compareVaultItems(left: VaultItem, right: VaultItem) {
@@ -51,7 +53,7 @@ function VaultShelf({
           {known.map((item) => (
             <li key={item.gameId} className="w-32 flex-shrink-0 lg:w-44">
               <GameCard
-                game={item.game as Game}
+                game={item.game as CatalogueCard}
                 personalRating={item.entry.rating}
                 progress={item.entry.progress}
               />
@@ -94,6 +96,7 @@ function VaultShelf({
 export default function VaultScreen() {
   const params = useSearchParams();
   const { entries, ready, setStatus } = useLibrary();
+  const { catalogue, failed } = useBrowseCatalogue(false);
   const requested = params.get("status");
   const activeStatus = isLibraryStatus(requested) ? requested : null;
 
@@ -105,11 +108,14 @@ export default function VaultScreen() {
         .map(([gameId, entry]) => ({
           gameId,
           entry,
-          game: findGameByProviderId(gameId),
+          game: catalogue ? (() => {
+            const match = findBrowseGame(catalogue, gameId);
+            return match ? toCard(match) : undefined;
+          })() : undefined,
         }))
         .sort(compareVaultItems),
     }));
-  }, [entries]);
+  }, [catalogue, entries]);
 
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
   const selected = activeStatus ? groups.filter((group) => group.status === activeStatus) : groups;
@@ -177,8 +183,10 @@ export default function VaultScreen() {
         </nav>
 
         <div className="mt-8">
-          {!ready ? (
+          {!ready || (!catalogue && !failed) ? (
             <p className="text-sm text-muted">Loading your vault…</p>
+          ) : failed ? (
+            <p className="text-sm text-muted">The game catalogue could not be loaded.</p>
           ) : total === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-card px-5 py-8">
               <p className="text-sm text-foreground">Nothing in your vault yet.</p>

@@ -47,7 +47,9 @@ function SimilarGameCard({ item }: { item: ContentRef }) {
           alt=""
           fill
           className={`object-cover${catalogueGame ? " transition duration-300 group-hover:scale-105" : ""}`}
+          sizes="176px"
           unoptimized
+          loading="lazy"
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
@@ -327,7 +329,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     alt={`${game.title} screenshot`}
                     fill
                     className="object-cover transition duration-300 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     unoptimized
+                    loading="lazy"
                   />
                 </a>
               ))}
@@ -354,7 +358,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         alt=""
                         fill
                         className="object-cover transition duration-300 group-hover:scale-105"
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                         unoptimized
+                        loading="lazy"
                       />
                     )}
                     <span
