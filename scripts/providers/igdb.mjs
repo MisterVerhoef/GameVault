@@ -1,6 +1,7 @@
 import { loadTsModule } from "../load-ts-module.mjs";
 
 const { resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
+const { mapIgdbWebsites } = loadTsModule("src/data/websites.ts");
 
 function imageUrl(image, size = "t_thumb") {
   const url = image?.url?.replace(/^\/\//, "https://");
@@ -378,11 +379,7 @@ export function normalizeIgdbRecord(record) {
       name: video.name,
       url: `https://www.youtube.com/watch?v=${video.video_id}`,
     })),
-    websites: (record.websites ?? []).filter((site) => site.url).map((site) => ({
-      label: site.name ?? "Official website",
-      url: site.url,
-      category: site.category === 1 ? "store" : "website",
-    })),
+    websites: mapIgdbWebsites(record.websites),
     dlc: contentRefs(record.dlcs),
     expansions: contentRefs(record.expansions),
     editions: contentRefs(record.editions),

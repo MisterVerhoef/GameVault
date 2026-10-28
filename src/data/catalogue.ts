@@ -1,5 +1,6 @@
 import type { AgeRating, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
 import type { Platform } from "./platforms";
+import { sanitizeWebsites, type ExternalLinkCategory } from "./websites";
 
 export interface CatalogueIndex {
   schemaVersion: 1;
@@ -90,7 +91,7 @@ export interface ExternalGameRecord {
   timeToBeat?: TimeToBeat;
   screenshots?: { url: string; width?: number; height?: number }[];
   videos?: { id: string; name?: string; url: string }[];
-  websites?: { label: string; url: string; category?: "store" | "website" | "community" }[];
+  websites?: { label: string; url: string; category?: ExternalLinkCategory }[];
   dlc?: { id: string; title: string }[];
   expansions?: { id: string; title: string }[];
   editions?: { id: string; title: string }[];
@@ -130,6 +131,7 @@ function normalizeGameMedia(game: Game): Game {
       ...screenshot,
       url: upgradeIgdbImageUrl(screenshot.url, "t_screenshot_huge"),
     })),
+    websites: sanitizeWebsites(game.websites),
   };
 }
 
@@ -302,7 +304,7 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
       name: video.name,
       url: normalizeMediaUrl(video.url) ?? video.url,
     })),
-    websites: record.websites ?? [],
+    websites: sanitizeWebsites(record.websites),
     dlc: record.dlc ?? [],
     expansions: record.expansions ?? [],
     editions: record.editions ?? [],
