@@ -8,7 +8,7 @@
     "genres": [{ "name": "Role-playing (RPG)" }],
     "themes": [{ "name": "Fantasy" }],
     "involved_companies": [
-      { "developer": true, "company": { "id": 1, "name": "Larian Studios" } },
+      { "developer": true, "company": { "id": 1, "name": "Larian Studios", "logo": { "image_id": "cllarian", "width": 400, "height": 100, "alpha_channel": true, "url": "//images.igdb.com/igdb/image/upload/t_thumb/cllarian.jpg" } } },
       { "publisher": true, "company": { "id": 2, "name": "Larian Studios" } }
     ],
     "platforms": [{ "name": "PC" }, { "name": "PlayStation 5" }, { "name": "Google Stadia" }],

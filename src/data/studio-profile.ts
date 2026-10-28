@@ -1,6 +1,9 @@
+import { catalogueCompanyLogo, type CatalogueCompanyLogo } from "./studio-logo";
+
 export interface StudioCompany {
   id: string;
   name: string;
+  logo?: { url?: string; width?: number; height?: number } | null;
 }
 
 export interface StudioSourceGame {
@@ -23,6 +26,8 @@ export interface StudioRecord {
   yearEnd?: number;
   notableTitles: string[];
   backgroundUrl?: string;
+  /** Company logo from catalogue sync, when any credited game stored one. */
+  logo?: CatalogueCompanyLogo;
   summary: string;
 }
 
@@ -36,7 +41,7 @@ function countLabel(count: number, verb: "developed" | "published") {
   return `${count} ${verb} ${count === 1 ? "game" : "games"}`;
 }
 
-/** Catalogue-derived bio. IGDB only stores company id and name on each game. */
+/** Catalogue-derived bio. IGDB company descriptions are not stored. Logos are optional image URLs on each company. */
 export function describeStudio(input: {
   name: string;
   developedCount: number;
@@ -105,6 +110,7 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
     name: string;
     developed: Set<string>;
     published: Set<string>;
+    logo?: CatalogueCompanyLogo;
   }>();
 
   function bucket(company: StudioCompany) {
@@ -112,11 +118,19 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
     const name = company.name.trim();
     if (!id || !name) return undefined;
     const existing = buckets.get(id);
+    const logo = existing?.logo ?? catalogueCompanyLogo(company.logo);
     if (existing) {
       if (name.length > existing.name.length) existing.name = name;
+      if (logo && !existing.logo) existing.logo = logo;
       return existing;
     }
-    const created = { id, name, developed: new Set<string>(), published: new Set<string>() };
+    const created = {
+      id,
+      name,
+      developed: new Set<string>(),
+      published: new Set<string>(),
+      ...(logo ? { logo } : {}),
+    };
     buckets.set(id, created);
     return created;
   }
@@ -154,6 +168,7 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
       yearEnd,
       notableTitles,
       backgroundUrl,
+      ...(bucketRecord.logo ? { logo: bucketRecord.logo } : {}),
       summary: describeStudio({
         name: bucketRecord.name,
         developedCount: bucketRecord.developed.size,

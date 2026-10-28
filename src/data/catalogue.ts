@@ -1,5 +1,6 @@
-import type { AgeRating, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
+import type { AgeRating, CompanyRef, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
 import type { Platform } from "./platforms";
+import { catalogueCompanyLogo } from "./studio-logo";
 import { sanitizeWebsites, type ExternalLinkCategory } from "./websites";
 
 export interface CatalogueIndex {
@@ -69,8 +70,8 @@ export interface ExternalGameRecord {
   genres?: string[];
   genre?: string;
   themes?: string[];
-  developers?: { id: string; name: string }[];
-  publishers?: { id: string; name: string }[];
+  developers?: { id: string; name: string; logo?: unknown }[];
+  publishers?: { id: string; name: string; logo?: unknown }[];
   platforms?: Platform[];
   platformVariants?: string[];
   platform?: Platform;
@@ -118,9 +119,47 @@ function upgradeIgdbImageUrl(url: string, size: "t_cover_big" | "t_screenshot_hu
   return url.replace(/\/t_[^/]+\//, `/${size}/`);
 }
 
+function sameCompanyLogo(company: CompanyRef, logo: CompanyRef["logo"]) {
+  if (!logo) return company.logo == null;
+  return company.logo?.url === logo.url
+    && company.logo.width === logo.width
+    && company.logo.height === logo.height;
+}
+
+/** Drop unusable logo URLs and rewrite IGDB files to `t_logo_med`. Keeps the input list when nothing changes. */
+function normalizeCompanyList(companies: { id: string; name: string; logo?: unknown }[]): CompanyRef[] {
+  let changed = false;
+  const next = companies.map((company) => {
+    const current = company as CompanyRef;
+    const logo = catalogueCompanyLogo(company.logo);
+    if (sameCompanyLogo(current, logo)) return current;
+    changed = true;
+    return logo ? { id: company.id, name: company.name, logo } : { id: company.id, name: company.name };
+  });
+  return changed ? next : companies as CompanyRef[];
+}
+
+function mergeCompanies(previous: CompanyRef[], incoming: CompanyRef[]): CompanyRef[] {
+  const merged = new Map<string, CompanyRef>();
+  for (const company of previous) merged.set(company.id, company);
+  for (const company of incoming) {
+    const existing = merged.get(company.id);
+    if (!existing) {
+      merged.set(company.id, company);
+      continue;
+    }
+    const name = company.name.length >= existing.name.length ? company.name : existing.name;
+    const logo = company.logo ?? existing.logo;
+    merged.set(company.id, logo ? { id: company.id, name, logo } : { id: company.id, name });
+  }
+  return [...merged.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
 function normalizeGameMedia(game: Game): Game {
   return {
     ...game,
+    developers: normalizeCompanyList(game.developers),
+    publishers: normalizeCompanyList(game.publishers),
     cover: game.cover
       ? { ...game.cover, url: upgradeIgdbImageUrl(game.cover.url, "t_cover_big") }
       : undefined,
@@ -277,8 +316,8 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     releaseYear: record.releaseYear ?? record.year,
     genres: record.genres ?? (record.genre ? [record.genre] : []),
     themes: record.themes ?? [],
-    developers: record.developers ?? [],
-    publishers: record.publishers ?? [],
+    developers: normalizeCompanyList(record.developers ?? []),
+    publishers: normalizeCompanyList(record.publishers ?? []),
     platforms,
     platformVariants: record.platformVariants ?? [],
     cover: asImage(record.cover, record.coverUrl),
@@ -378,8 +417,8 @@ export function mergeGames(existing: Game[], incoming: Game[]): Game[] {
       genres: Array.from(new Set([...previous.genres, ...game.genres])).sort(),
       themes: Array.from(new Set([...previous.themes, ...game.themes])).sort(),
       platforms: Array.from(new Set([...previous.platforms, ...game.platforms])).sort(),
-      developers: Array.from(new Map([...previous.developers, ...game.developers].map((company) => [company.id, company])).values()).sort((a, b) => a.name.localeCompare(b.name)),
-      publishers: Array.from(new Map([...previous.publishers, ...game.publishers].map((company) => [company.id, company])).values()).sort((a, b) => a.name.localeCompare(b.name)),
+      developers: mergeCompanies(previous.developers, game.developers),
+      publishers: mergeCompanies(previous.publishers, game.publishers),
       source: Array.from(new Map([...previous.source, ...game.source].map((source) => [`${source.provider}:${source.id}`, source])).values()).sort((a, b) => `${a.provider}:${a.id}`.localeCompare(`${b.provider}:${b.id}`)),
     });
   }
