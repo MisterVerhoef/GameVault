@@ -41,7 +41,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 The app is a single Next.js project at the repository root. Vercel detects Next.js from `package.json`, so the default install, build, and output settings are enough. A `vercel.json` file is not part of this project.
 
-The catalogue in `public/catalog/` is checked in. Builds and page requests use that file. IGDB is contacted only by `npm run catalogue:sync:igdb` and the GitHub Actions workflow. Serving a page does not write to the filesystem. Personal library data stays in the browser (`localStorage`). My vault filters it by status. Export / Import in the library menu moves statuses, progress, ratings, and notes.
+The catalogue in `public/catalog/` is checked in. Builds and page requests use that file. IGDB is contacted only by `npm run catalogue:sync:igdb` and the GitHub Actions workflow. Serving a page does not write to the filesystem. Personal library data stays in the browser (`localStorage`). My vault filters it by status. Stats summarizes completion, genres, platforms, and recent updates from that same data. Export / Import in the library menu moves statuses, progress, ratings, and notes.
 
 1. Push this repository to GitHub (or GitLab / Bitbucket).
 2. In Vercel, choose **Add New… → Project** and import the repository.
@@ -124,7 +124,7 @@ Account achievements are not part of this sync. Adding them later would require 
 
 For catalogue operations, run `npm run catalogue:search-index` to generate the static search index and the browse index, or `npm run catalogue:diff -- before.json after.json` to review added, removed, and changed game IDs. The browse index keeps the fields list and home pages need (cover, platforms, genres, rating). The search index answers catalogue search without loading descriptions, screenshots, or similar games into the browser.
 
-The personal library is stored locally in the browser. Open My vault to browse it by status. Wishlist rows show a Netherlands EUR price and a store link when `store-offers.json` has a match for that catalogue id, and a Deal mark when the cached price is below the list price. Games with no match stay listed without a price. Use Export and Import in the library menu to back up or move statuses, progress, personal ratings, and notes as a versioned JSON file.
+The personal library is stored locally in the browser. Open My vault to browse it by status. Open Stats for the completion rate, genre mix, platform mix, and recently updated games. Those figures are calculated in the browser. Wishlist rows show a Netherlands EUR price and a store link when `store-offers.json` has a match for that catalogue id, and a Deal mark when the cached price is below the list price. Games with no match stay listed without a price. Use Export and Import in the library menu to back up or move statuses, progress, personal ratings, and notes as a versioned JSON file.
 
 - Cover art is loaded from normalized catalogue media URLs, using the Steam CDN for titles with Steam releases; search works across titles, genres, studios, themes, and collections.
 - Add more rows or filter by platform

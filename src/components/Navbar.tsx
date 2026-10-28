@@ -199,6 +199,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           >
             My vault
           </Link>
+          <Link
+            href="/stats"
+            aria-current={pathname === "/stats" ? "page" : undefined}
+            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              pathname === "/stats" ? "text-foreground" : "text-muted hover:text-foreground"
+            }`}
+          >
+            Stats
+          </Link>
         </nav>
 
         {/* Platform filter buttons (desktop) */}
@@ -478,6 +487,16 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               }`}
             >
               My vault
+            </Link>
+            <Link
+              href="/stats"
+              onClick={() => setMenuOpen(false)}
+              aria-current={pathname === "/stats" ? "page" : undefined}
+              className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/stats" ? "text-foreground" : "text-muted hover:text-foreground"
+              }`}
+            >
+              Stats
             </Link>
             {/* Platform filters in mobile menu */}
             <div className="mt-2 border-t border-white/5 pt-2">

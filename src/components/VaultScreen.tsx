@@ -192,9 +192,15 @@ export default function VaultScreen() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
             </svg>
           </Link>
-          <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
+          <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
             My vault
           </h1>
+          <Link
+            href="/stats"
+            className="ml-auto inline-flex min-h-11 items-center rounded px-1 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+          >
+            Stats
+          </Link>
         </div>
       </div>
 

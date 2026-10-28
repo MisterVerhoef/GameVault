@@ -1,0 +1,456 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState, type ReactNode } from "react";
+import Navbar from "@/components/Navbar";
+import { PlatformName } from "@/components/platform-icons";
+import {
+  LIBRARY_STATUSES,
+  LIBRARY_STATUS_LABELS,
+  useLibrary,
+  type LibraryStatus,
+} from "@/context/LibraryContext";
+import { browseQuery } from "@/data/browse";
+import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
+import { findBrowseGame, type BrowseCatalogue } from "@/data/library-view";
+import { PLATFORM_COLORS, PLATFORM_FAMILIES } from "@/data/platforms";
+import {
+  OWNED_STATUSES,
+  buildVaultStats,
+  formatCompletion,
+  formatShare,
+  formatVaultUpdated,
+  vaultCatalogueFacts,
+  type MixSlice,
+  type RecentVaultUpdate,
+  type VaultStats,
+} from "@/data/vault-stats";
+
+const GENRE_PREVIEW = 8;
+
+function factsFor(catalogue: BrowseCatalogue, gameId: string) {
+  return vaultCatalogueFacts(findBrowseGame(catalogue, gameId));
+}
+
+function joinedLabels(statuses: readonly LibraryStatus[]) {
+  const labels = statuses.map((status) => LIBRARY_STATUS_LABELS[status].toLowerCase());
+  if (labels.length <= 1) return labels[0] ?? "";
+  return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}`;
+}
+
+function platformFamily(label: string) {
+  return PLATFORM_FAMILIES.find((family) => family.label === label);
+}
+
+function platformBarColor(label: string) {
+  const platform = platformFamily(label)?.platform;
+  return platform ? PLATFORM_COLORS[platform] : undefined;
+}
+
+function platformBrowseHref(label: string) {
+  const family = platformFamily(label);
+  if (!family?.platform) return null;
+  return browseQuery({ family: family.label, platform: family.platform });
+}
+
+function unmatchedNote(missing: number, mix: string) {
+  if (missing <= 0) return null;
+  if (missing === 1) return `1 game is not in the catalogue, so it is left out of ${mix}.`;
+  return `${missing} games are not in the catalogue, so they are left out of ${mix}.`;
+}
+
+function StatsFrame({ children }: { children: ReactNode }) {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#stats-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
+      <Navbar />
+      <div className="border-b border-white/5 bg-background/80">
+        <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <Link
+            href="/"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
+            aria-label="Back to home"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke="currentColor"
+              className="h-5 w-5"
+              aria-hidden="true"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+            </svg>
+          </Link>
+          <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
+            Stats
+          </h1>
+          <Link
+            href="/vault"
+            className="ml-auto inline-flex min-h-11 items-center rounded px-1 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+          >
+            My vault
+          </Link>
+        </div>
+      </div>
+      <main id="stats-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
+        <div className="max-w-5xl">
+          {children}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function CompletionRing({ rate }: { rate: number | null }) {
+  const percent = rate == null ? 0 : Math.max(0, Math.min(100, Math.round(rate * 100)));
+  return (
+    <svg viewBox="0 0 36 36" className="h-24 w-24 shrink-0 text-accent" aria-hidden="true">
+      <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="3" />
+      {percent > 0 ? (
+        <circle
+          cx="18"
+          cy="18"
+          r="15.5"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="3"
+          strokeLinecap="round"
+          strokeDasharray={`${percent} ${100 - percent}`}
+          pathLength={100}
+          transform="rotate(-90 18 18)"
+        />
+      ) : null}
+    </svg>
+  );
+}
+
+function CompletionCard({ stats }: { stats: VaultStats }) {
+  const ownedNames = joinedLabels(OWNED_STATUSES);
+  return (
+    <section aria-labelledby="stats-completion" className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6">
+      <h2 id="stats-completion" className="text-lg font-bold tracking-tight text-foreground">
+        Completion
+      </h2>
+      <p className="mt-1 max-w-2xl text-sm text-muted">
+        Completed games divided by games you own ({ownedNames}). Wishlist stays out of this rate. The progress slider does not change it.
+      </p>
+      <div className="mt-5 flex items-center gap-5">
+        <CompletionRing rate={stats.completionRate} />
+        <div>
+          <p className="text-4xl font-bold tabular-nums tracking-tight text-foreground">
+            {formatCompletion(stats.completionRate)}
+          </p>
+          <p className="mt-1 text-sm text-foreground">
+            {stats.owned === 0
+              ? "No owned games yet."
+              : `${stats.completed} of ${stats.owned} owned ${stats.owned === 1 ? "game" : "games"} completed.`}
+          </p>
+        </div>
+      </div>
+      {stats.wishlist > 0 ? (
+        <p className="mt-3 text-sm text-muted">
+          {stats.wishlist === 1
+            ? "1 wishlist game is not included."
+            : `${stats.wishlist} wishlist games are not included.`}
+        </p>
+      ) : null}
+      <ul className="mt-5 flex flex-wrap gap-2" aria-label="Library status counts">
+        {LIBRARY_STATUSES.map((status) => (
+          <li key={status}>
+            <Link
+              href={`/vault?status=${status}`}
+              className="inline-flex min-h-11 items-center rounded-full bg-foreground/5 px-3 py-1.5 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+            >
+              {LIBRARY_STATUS_LABELS[status]}
+              <span className="ml-1.5 tabular-nums">{stats.statusCounts[status]}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function MixRow({
+  slice,
+  matched,
+  href,
+  color,
+  icon,
+}: {
+  slice: MixSlice;
+  matched: number;
+  href: string | null;
+  color?: string;
+  icon?: boolean;
+}) {
+  const width = slice.count > 0 ? Math.max(slice.share * 100, 2) : 0;
+  const share = formatShare(slice.share, slice.count);
+  const summary = `${slice.label}, ${slice.count} of ${matched} games, ${share}`;
+  const inner = (
+    <>
+      <span className="flex items-baseline justify-between gap-3 text-sm">
+        <span className="min-w-0 flex-1 font-medium text-foreground">
+          {icon ? <PlatformName name={slice.label} iconClassName="h-4 w-4" className="gap-1.5" /> : slice.label}
+        </span>
+        <span className="shrink-0 tabular-nums text-muted">
+          {slice.count}
+          <span aria-hidden="true"> · </span>
+          {share}
+        </span>
+      </span>
+      <span aria-hidden="true" className="mt-1.5 block h-2 overflow-hidden rounded-full bg-foreground/10">
+        <span
+          className={color ? "block h-full rounded-full" : "block h-full rounded-full bg-accent"}
+          style={{ width: `${width}%`, backgroundColor: color }}
+        />
+      </span>
+    </>
+  );
+
+  if (!href) return <div className="py-1">{inner}</div>;
+  return (
+    <Link
+      href={href}
+      aria-label={summary}
+      className="block min-h-11 rounded-lg py-1 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      {inner}
+    </Link>
+  );
+}
+
+function MixCard({
+  id,
+  title,
+  description,
+  children,
+}: {
+  id: string;
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <section aria-labelledby={id} className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6">
+      <h2 id={id} className="text-lg font-bold tracking-tight text-foreground">{title}</h2>
+      <p className="mt-1 text-sm text-muted">{description}</p>
+      <div className="mt-4">{children}</div>
+    </section>
+  );
+}
+
+function GenreMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFailed: boolean }) {
+  const [expanded, setExpanded] = useState(false);
+  const hidden = Math.max(0, stats.genres.length - GENRE_PREVIEW);
+  const slices = expanded || hidden === 0 ? stats.genres : stats.genres.slice(0, GENRE_PREVIEW);
+  const note = unmatchedNote(stats.missingFromCatalogue, "the genre mix");
+
+  return (
+    <MixCard
+      id="stats-genres"
+      title="Genres"
+      description="Each game counts once per genre. Shares are of the vault games that list a genre."
+    >
+      {catalogueFailed ? (
+        <p className="text-sm text-muted">The game catalogue could not be loaded, so genres are unavailable.</p>
+      ) : stats.genres.length === 0 ? (
+        <p className="text-sm text-muted">None of these games list a genre.</p>
+      ) : (
+        <ul className="space-y-2" aria-label="Genre mix">
+          {slices.map((slice) => (
+            <li key={slice.key}>
+              <MixRow
+                slice={slice}
+                matched={stats.genreMatched}
+                href={browseQuery({ genre: slice.label })}
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {hidden > 0 ? (
+        <button
+          type="button"
+          aria-expanded={expanded}
+          onClick={() => setExpanded((open) => !open)}
+          className="mt-4 inline-flex min-h-11 items-center rounded-full bg-foreground/5 px-3 text-sm font-medium text-foreground transition hover:bg-foreground/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+        >
+          {expanded ? "Show fewer genres" : `Show all ${stats.genres.length} genres`}
+        </button>
+      ) : null}
+      {!catalogueFailed && note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
+      {!catalogueFailed && stats.genreMatched > 0 ? (
+        <p className="mt-2 text-xs text-muted">
+          {stats.genreMatched === 1 ? "1 game has a genre." : `${stats.genreMatched} games have a genre.`}
+        </p>
+      ) : null}
+    </MixCard>
+  );
+}
+
+function PlatformMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFailed: boolean }) {
+  const note = unmatchedNote(stats.missingFromCatalogue, "the platform mix");
+  return (
+    <MixCard
+      id="stats-platforms"
+      title="Platforms"
+      description="A game on more than one platform counts in each. Shares are of the vault games that list a platform."
+    >
+      {catalogueFailed ? (
+        <p className="text-sm text-muted">The game catalogue could not be loaded, so platforms are unavailable.</p>
+      ) : stats.platforms.length === 0 ? (
+        <p className="text-sm text-muted">None of these games list a platform.</p>
+      ) : (
+        <ul className="space-y-2" aria-label="Platform mix">
+          {stats.platforms.map((slice) => (
+            <li key={slice.key}>
+              <MixRow
+                slice={slice}
+                matched={stats.platformMatched}
+                href={platformBrowseHref(slice.label)}
+                color={platformBarColor(slice.label)}
+                icon
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      {!catalogueFailed && note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
+      {!catalogueFailed && stats.platformMatched > 0 ? (
+        <p className="mt-2 text-xs text-muted">
+          {stats.platformMatched === 1 ? "1 game has a platform." : `${stats.platformMatched} games have a platform.`}
+        </p>
+      ) : null}
+    </MixCard>
+  );
+}
+
+function RecentRow({ item, catalogueFailed }: { item: RecentVaultUpdate; catalogueFailed: boolean }) {
+  const when = formatVaultUpdated(item.updatedAt);
+  const dated = !Number.isNaN(Date.parse(item.updatedAt));
+  const status = LIBRARY_STATUS_LABELS[item.status];
+  const body = (
+    <span className="min-w-0">
+      <span className="block truncate font-medium text-foreground">{item.title}</span>
+      <span className="mt-0.5 block text-xs text-muted">
+        {status}
+        {" · "}
+        {dated ? <time dateTime={item.updatedAt}>{when}</time> : when}
+      </span>
+      {!item.inCatalogue && !catalogueFailed ? (
+        <span className="mt-0.5 block text-xs text-muted">Not in the catalogue</span>
+      ) : null}
+    </span>
+  );
+
+  if (!item.href) {
+    return <div className="flex min-h-11 items-center py-3">{body}</div>;
+  }
+
+  return (
+    <Link
+      href={item.href}
+      className="flex min-h-11 items-center rounded-lg py-3 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+    >
+      {body}
+    </Link>
+  );
+}
+
+function RecentUpdates({ stats, catalogueFailed }: { stats: VaultStats; catalogueFailed: boolean }) {
+  const hidden = stats.recentTotal - stats.recent.length;
+  return (
+    <section aria-labelledby="stats-recent" className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6">
+      <h2 id="stats-recent" className="text-lg font-bold tracking-tight text-foreground">
+        Recently updated
+      </h2>
+      <p className="mt-1 text-sm text-muted">Vault entries you changed most recently.</p>
+      {catalogueFailed ? (
+        <p className="mt-3 text-sm text-muted">The catalogue could not be loaded, so these rows use the saved id.</p>
+      ) : null}
+      {stats.recent.length === 0 ? (
+        <p className="mt-4 text-sm text-muted">No updates yet.</p>
+      ) : (
+        <ol className="mt-2 list-none divide-y divide-foreground/10">
+          {stats.recent.map((item) => (
+            <li key={item.gameId}>
+              <RecentRow item={item} catalogueFailed={catalogueFailed} />
+            </li>
+          ))}
+        </ol>
+      )}
+      {hidden > 0 ? (
+        <p className="mt-4 text-sm text-muted">
+          Showing {stats.recent.length} of {stats.recentTotal}.{" "}
+          <Link
+            href="/vault"
+            className="rounded font-medium text-foreground underline decoration-foreground/20 underline-offset-2 hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            Open my vault
+          </Link>
+        </p>
+      ) : null}
+    </section>
+  );
+}
+
+function EmptyVault() {
+  return (
+    <div className="mt-6 rounded-2xl border border-white/10 bg-card px-5 py-8">
+      <p className="text-sm text-foreground">Nothing in your vault yet.</p>
+      <p className="mt-1 text-sm text-muted">Open a game and choose a library status. Stats will show up here.</p>
+      <Link
+        href="/"
+        className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Browse games
+      </Link>
+    </div>
+  );
+}
+
+export default function StatsScreen() {
+  const { entries, ready } = useLibrary();
+  const { catalogue, failed } = useBrowseCatalogue(false);
+  const entryCount = Object.keys(entries).length;
+  const stats = useMemo(() => {
+    if (!ready) return null;
+    if (entryCount > 0 && !catalogue && !failed) return null;
+    return buildVaultStats(entries, (gameId) => (catalogue ? factsFor(catalogue, gameId) : null));
+  }, [ready, entryCount, catalogue, failed, entries]);
+
+  let body: ReactNode;
+  if (!ready || (entryCount > 0 && !stats)) {
+    body = <p className="mt-6 text-sm text-muted">Loading your stats…</p>;
+  } else if (!stats || stats.total === 0) {
+    body = <EmptyVault />;
+  } else {
+    body = (
+      <div className="mt-6 space-y-4">
+        <CompletionCard stats={stats} />
+        <div className="grid gap-4 lg:grid-cols-2">
+          <GenreMix stats={stats} catalogueFailed={failed} />
+          <PlatformMix stats={stats} catalogueFailed={failed} />
+        </div>
+        <RecentUpdates stats={stats} catalogueFailed={failed} />
+      </div>
+    );
+  }
+
+  return (
+    <StatsFrame>
+      <p className="max-w-2xl text-sm text-muted">
+        From the vault saved in this browser: completion, genres, platforms, and what you updated last.
+      </p>
+      {body}
+    </StatsFrame>
+  );
+}
