@@ -39,6 +39,7 @@ const defaultQuery = [
   "videos.id,videos.name,videos.video_id,websites.url,websites.category,websites.type.type,",
   "external_games.uid,external_games.external_game_source,external_games.category,external_games.url,",
   "involved_companies.developer,involved_companies.publisher,involved_companies.company.id,involved_companies.company.name,",
+  "involved_companies.company.logo.image_id,involved_companies.company.logo.url,involved_companies.company.logo.width,involved_companies.company.logo.height,involved_companies.company.logo.alpha_channel,involved_companies.company.logo.animated,",
   "dlcs.id,dlcs.name,expansions.id,expansions.name,",
   "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,similar_games.cover.url,",
   "franchises.name,collections.name;",

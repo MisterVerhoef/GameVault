@@ -42,6 +42,26 @@ function storeIdsFromIgdb(externalGames = []) {
   return ids;
 }
 
+function companyLogo(logo) {
+  if (!logo || typeof logo !== "object") return undefined;
+  const imageId = typeof logo.image_id === "string" ? logo.image_id.trim() : "";
+  const width = positiveInt(logo.width);
+  const height = positiveInt(logo.height);
+  let url;
+  if (/^[A-Za-z0-9_-]{2,80}$/.test(imageId)) {
+    const extension = logo.animated === true ? "gif" : logo.alpha_channel === true ? "png" : "jpg";
+    url = `https://images.igdb.com/igdb/image/upload/t_logo_med/${imageId}.${extension}`;
+  } else {
+    url = imageUrl(logo, "t_logo_med");
+  }
+  if (!url || !url.startsWith("https://images.igdb.com/igdb/image/upload/")) return undefined;
+  return {
+    url,
+    ...(width ? { width } : {}),
+    ...(height ? { height } : {}),
+  };
+}
+
 function companies(involvedCompanies = [], role) {
   const seen = new Set();
   const result = [];
@@ -50,7 +70,8 @@ function companies(involvedCompanies = [], role) {
     const id = String(entry.company.id);
     if (seen.has(id)) continue;
     seen.add(id);
-    result.push({ id, name: entry.company.name });
+    const logo = companyLogo(entry.company.logo);
+    result.push({ id, name: entry.company.name, ...(logo ? { logo } : {}) });
   }
   return result;
 }

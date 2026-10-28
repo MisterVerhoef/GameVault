@@ -6,8 +6,8 @@ import GameDescription from "@/components/GameDescription";
 import GameWall from "@/components/GameWall";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { allStudios, getStudio } from "@/data/studios";
-import { studioInitials, studioMetadata } from "@/data/studio-profile";
-import { StudioLogo, studioMark } from "@/components/studio-logos";
+import { studioMetadata } from "@/data/studio-profile";
+import { StudioLogo } from "@/components/studio-logos";
 
 interface StudioPageProps {
   params: Promise<{ id: string }>;
@@ -24,7 +24,6 @@ export default async function StudioPage({ params }: StudioPageProps) {
   const studio = getStudio(id);
   if (!studio) notFound();
 
-  const mark = studioMark(studio.name);
   const metadata = studioMetadata({
     developedCount: studio.developedIds.length,
     publishedCount: studio.publishedIds.length,
@@ -62,7 +61,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
               </svg>
             </Link>
             <h1 className="flex min-w-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl">
-              <StudioLogo name={studio.name} className="h-6" />
+              <StudioLogo name={studio.name} logo={studio.logo} className="h-6" />
               <span className="truncate">{studio.name}</span>
             </h1>
           </div>
@@ -89,22 +88,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
       <main id="studio-content" tabIndex={-1} className="scroll-mt-20 focus:outline-none">
       <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
         <div className="flex items-end gap-4">
-          {mark ? (
-            <div
-              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-white p-2.5 shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:p-3.5"
-              aria-hidden="true"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={mark.src} alt="" className="h-full w-full object-contain" />
-            </div>
-          ) : (
-            <div
-              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
-              aria-hidden="true"
-            >
-              {studioInitials(studio.name)}
-            </div>
-          )}
+          <StudioLogo name={studio.name} logo={studio.logo} variant="badge" />
           <div className="min-w-0 pb-1">
             <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
               {studio.name}

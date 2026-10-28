@@ -1,6 +1,7 @@
 import generatedCatalogue from "../../public/catalog/games-index.json";
 import { normalizeCatalogue } from "./catalogue";
 import { collectDownloadableIds, partitionDownloadableContent } from "./downloadable";
+import type { CatalogueCompanyLogo } from "./studio-logo";
 import type { ExternalLinkCategory } from "./websites";
 
 export type { Platform } from "./platforms";
@@ -10,6 +11,8 @@ import type { Platform } from "./platforms";
 export interface CompanyRef {
   id: string;
   name: string;
+  /** IGDB company logo written by catalogue sync. Absent until a sync stores one. */
+  logo?: CatalogueCompanyLogo;
 }
 
 export interface AgeRating {

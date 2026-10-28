@@ -415,7 +415,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         href={`/studio/${encodeURIComponent(company.id)}`}
                         className="inline-flex items-center gap-1 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <StudioLogo name={company.name} className="h-4" />
+                        <StudioLogo name={company.name} logo={company.logo} className="h-4" />
                         {company.name}
                       </Link>
                       {index < game.developers.length - 1 ? ", " : ""}
@@ -434,7 +434,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         href={`/studio/${encodeURIComponent(company.id)}`}
                         className="inline-flex items-center gap-1 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <StudioLogo name={company.name} className="h-4" />
+                        <StudioLogo name={company.name} logo={company.logo} className="h-4" />
                         {company.name}
                       </Link>
                       {index < game.publishers.length - 1 ? ", " : ""}

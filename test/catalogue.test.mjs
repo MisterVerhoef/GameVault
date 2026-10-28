@@ -9,7 +9,7 @@ import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 
-const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
+const { findCatalogueEntry, mergeGames, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
 const { guideLinks } = loadTsModule("src/data/websites.ts");
 const { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } = loadTsModule("src/data/game-facts.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
@@ -18,6 +18,7 @@ const { collapsedLineCount, visibleLineCount } = loadTsModule("src/components/de
 const { collectDownloadableIds, partitionDownloadableContent } = loadTsModule("src/data/downloadable.ts");
 const { matchesSearchTerms } = loadTsModule("src/data/search-terms.ts");
 const { collectStudios, describeStudio, studioInitials, studioMetadata } = loadTsModule("src/data/studio-profile.ts");
+const { catalogueCompanyLogo, resolveStudioLogo } = loadTsModule("src/data/studio-logo.ts");
 const {
   collectSeries,
   describeSeries,
@@ -68,7 +69,15 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
     completely: 432000,
     count: 150,
   });
-  assert.deepEqual(game.developers, [{ id: "1", name: "Larian Studios" }]);
+  assert.deepEqual(game.developers, [{
+    id: "1",
+    name: "Larian Studios",
+    logo: {
+      url: "https://images.igdb.com/igdb/image/upload/t_logo_med/cllarian.png",
+      width: 400,
+      height: 100,
+    },
+  }]);
   assert.deepEqual(game.publishers, [{ id: "2", name: "Larian Studios" }]);
   assert.equal(game.themes[0], "Fantasy");
   assert.deepEqual(game.franchises, ["Baldur's Gate"]);
@@ -95,8 +104,17 @@ test("keeps detail fields compact and skips companies that are not publishers", 
       slug: "compact",
       platforms: [{ name: "PC" }],
       involved_companies: [
-        { developer: true, publisher: true, company: { id: 4, name: "Both" } },
-        { developer: false, company: { id: 5, name: "Supporting only" } },
+        {
+          developer: true,
+          publisher: true,
+          company: {
+            id: 4,
+            name: "Both",
+            logo: { url: "//images.igdb.com/igdb/image/upload/t_thumb/clboth.jpg", width: 200, height: 50 },
+          },
+        },
+        { developer: true, company: { id: 6, name: "Animated", logo: { image_id: "clani", animated: true, width: 0, height: -1 } } },
+        { developer: false, company: { id: 5, name: "Supporting only", logo: 8 } },
       ],
       keywords,
       game_time_to_beats: [{ hastily: 0, normally: 90, completely: 0, count: 0 }],
@@ -111,8 +129,27 @@ test("keeps detail fields compact and skips companies that are not publishers", 
   assert.equal(game.keywords.length, 12);
   assert.equal(game.keywords[0], "Keyword 00");
   assert.equal(game.keywords.includes("x".repeat(41)), false);
-  assert.deepEqual(game.developers, [{ id: "4", name: "Both" }]);
-  assert.deepEqual(game.publishers, [{ id: "4", name: "Both" }]);
+  assert.deepEqual(game.developers, [
+    {
+      id: "4",
+      name: "Both",
+      logo: {
+        url: "https://images.igdb.com/igdb/image/upload/t_logo_med/clboth.jpg",
+        width: 200,
+        height: 50,
+      },
+    },
+    { id: "6", name: "Animated", logo: { url: "https://images.igdb.com/igdb/image/upload/t_logo_med/clani.gif" } },
+  ]);
+  assert.deepEqual(game.publishers, [{
+    id: "4",
+    name: "Both",
+    logo: {
+      url: "https://images.igdb.com/igdb/image/upload/t_logo_med/clboth.jpg",
+      width: 200,
+      height: 50,
+    },
+  }]);
   assert.deepEqual(game.timeToBeat, { normally: 90 });
   assert.deepEqual(game.releases, [{ platform: "Linux", label: "TBD" }]);
   assert.equal(game.ageRatings, undefined);
@@ -368,6 +405,97 @@ test("studio pages group developed and published catalogue games", () => {
   assert.equal(nintendo.name, "Nintendo");
   assert.ok(nintendo.gameIds.length > 100);
   assert.match(nintendo.summary, /Nintendo is a developer and publisher/);
+});
+
+test("studio logos prefer a synced IGDB image and keep the local mark as fallback", () => {
+  const logo = {
+    url: "https://images.igdb.com/igdb/image/upload/t_logo_med/clnintendo.png",
+    width: 400,
+    height: 100,
+  };
+  const studios = collectStudios([
+    {
+      id: "1",
+      title: "First",
+      developers: [{ id: "70", name: "Nintendo" }],
+    },
+    {
+      id: "2",
+      title: "Second",
+      publishers: [{ id: "70", name: "Nintendo", logo }],
+    },
+    {
+      id: "3",
+      title: "Third",
+      developers: [{ id: "8", name: "Obscure Studio", logo: { url: "https://evil.example/logo.png" } }],
+    },
+  ]);
+  const nintendo = studios.find((studio) => studio.id === "70");
+  const obscure = studios.find((studio) => studio.id === "8");
+  assert.deepEqual(nintendo.logo, logo);
+  assert.equal(obscure.logo, undefined);
+
+  const synced = resolveStudioLogo({ name: "Nintendo", logo });
+  assert.equal(synced.source, "catalogue");
+  assert.equal(synced.src, logo.url);
+  assert.equal(synced.aspect, 4);
+
+  const fallback = resolveStudioLogo({ name: "Nintendo" });
+  assert.equal(fallback.source, "fallback");
+  assert.equal(fallback.src, "/platforms/nintendo.svg");
+
+  const rejected = resolveStudioLogo({
+    name: "Nintendo",
+    logo: { url: "https://evil.example/logo.png", width: 10, height: 10 },
+  });
+  assert.equal(rejected.source, "fallback");
+  assert.equal(resolveStudioLogo({ name: "Obscure Studio" }), null);
+  assert.equal(resolveStudioLogo({
+    name: "Square",
+    logo: { url: "//images.igdb.com/igdb/image/upload/t_thumb/clsq.jpg", width: 1, height: 10000 },
+  }).aspect, 284 / 160);
+  assert.deepEqual(
+    catalogueCompanyLogo({ url: "//images.igdb.com/igdb/image/upload/t_thumb/clsq.jpg", width: 0 }),
+    { url: "https://images.igdb.com/igdb/image/upload/t_logo_med/clsq.jpg" },
+  );
+
+  const imported = normalizeExternalGame({
+    id: "logo-game",
+    title: "Logo Game",
+    platforms: ["PC"],
+    developers: [
+      { id: "70", name: "Nintendo", logo: { url: "//images.igdb.com/igdb/image/upload/t_thumb/clnintendo.png", width: 400, height: 100 } },
+      { id: "8", name: "Obscure Studio", logo: { url: "javascript:alert(1)" } },
+    ],
+    publishers: [{ id: "9", name: "Plain" }],
+  }, "igdb", "2026-01-01");
+  assert.deepEqual(imported.developers, [
+    { id: "70", name: "Nintendo", logo },
+    { id: "8", name: "Obscure Studio" },
+  ]);
+  assert.deepEqual(imported.publishers, [{ id: "9", name: "Plain" }]);
+
+  const shell = { genres: [], themes: [], platforms: [], source: [] };
+  const merged = mergeGames(
+    [{
+      ...shell,
+      id: "1",
+      developers: [{ id: "70", name: "Nintendo", logo }],
+      publishers: [{ id: "70", name: "Nintendo" }],
+    }],
+    [{
+      ...shell,
+      id: "1",
+      developers: [{ id: "70", name: "Nintendo Co., Ltd." }],
+      publishers: [{ id: "70", name: "Nintendo", logo: { url: "https://images.igdb.com/igdb/image/upload/t_logo_med/newer.png" } }],
+    }],
+  );
+  assert.deepEqual(merged[0].developers, [{ id: "70", name: "Nintendo Co., Ltd.", logo }]);
+  assert.deepEqual(merged[0].publishers, [{
+    id: "70",
+    name: "Nintendo",
+    logo: { url: "https://images.igdb.com/igdb/image/upload/t_logo_med/newer.png" },
+  }]);
 });
 
 test("franchise and collection pages group catalogue series", () => {
