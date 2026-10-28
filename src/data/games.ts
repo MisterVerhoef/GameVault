@@ -1,6 +1,7 @@
 import generatedCatalogue from "../../public/catalog/games-index.json";
 import { normalizeCatalogue } from "./catalogue";
 import { collectDownloadableIds, partitionDownloadableContent } from "./downloadable";
+import type { ExternalLinkCategory } from "./websites";
 
 export type { Platform } from "./platforms";
 export { PLATFORM_COLORS } from "./platforms";
@@ -61,7 +62,7 @@ export interface VideoAsset {
 export interface ExternalLink {
   label: string;
   url: string;
-  category?: "store" | "website" | "community";
+  category?: ExternalLinkCategory;
 }
 
 export interface ContentRef {

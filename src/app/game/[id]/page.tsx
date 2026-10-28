@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
+import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type ExternalLink, type Game } from "@/data/games";
 import { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } from "@/data/game-facts";
+import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
@@ -80,6 +81,46 @@ function ScoreCard({
       </div>
       {countLabel ? <p className="mt-0.5 text-xs text-muted">{countLabel}</p> : null}
     </div>
+  );
+}
+
+function linkCaption(url: string) {
+  try {
+    const parsed = new URL(url);
+    const path = parsed.pathname === "/" ? "" : parsed.pathname.replace(/\/$/, "");
+    return `${parsed.hostname.replace(/^www\./, "")}${path}${parsed.search}`;
+  } catch {
+    return url;
+  }
+}
+
+function GuidesAndWiki({ links }: { links: readonly ExternalLink[] }) {
+  if (links.length === 0) return null;
+  return (
+    <section className="mb-12" aria-labelledby="guides-wiki">
+      <h2 id="guides-wiki" className="mb-4 text-lg font-bold tracking-tight text-foreground">
+        Guides & wiki
+      </h2>
+      <ul className="grid gap-2 sm:grid-cols-2">
+        {links.map((site) => {
+          const caption = linkCaption(site.url);
+          return (
+            <li key={site.url}>
+              <a
+                href={site.url}
+                target="_blank"
+                rel="noreferrer"
+                className="flex min-h-11 items-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm ring-1 ring-white/10 transition hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label={`${site.label}, ${caption}. Opens in a new tab.`}
+              >
+                <span className="shrink-0 font-medium text-foreground">{site.label}</span>
+                <span className="min-w-0 truncate text-xs text-muted">{caption}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }
 
@@ -181,6 +222,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const hasScores = game.rating != null || game.aggregatedRating != null;
   const hasPlay = gameModes.length > 0 || perspectives.length > 0 || playPhrases.length > 0;
   const hasDetails = hasPlay || playTimes.length > 0 || keywords.length > 0 || releases.length > 0;
+  const guides = guideLinks(game.websites);
 
   // Get primary platform for theming
   const primaryPlatform: Platform = game.platforms[0];
@@ -504,6 +546,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             </div>
           </section>
         )}
+
+        <GuidesAndWiki links={guides} />
 
         {display.screenshots.length > 0 && (
           <section className="mb-12">

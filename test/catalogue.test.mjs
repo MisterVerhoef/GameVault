@@ -10,6 +10,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
+const { guideLinks } = loadTsModule("src/data/websites.ts");
 const { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } = loadTsModule("src/data/game-facts.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
@@ -74,6 +75,11 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.deepEqual(game.collections, []);
   assert.equal(game.screenshots[0].width, 1920);
   assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
+  assert.deepEqual(game.websites, [{
+    label: "Official website",
+    url: "https://example.com/bg3",
+    category: "website",
+  }]);
   assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
   assert.deepEqual(game.warnings, []);
 });
@@ -153,6 +159,112 @@ test("catalogue import keeps sanitized detail fields and drops empty ones", () =
   assert.equal(formatCountLabel(1, "ratings"), "1 rating");
   assert.equal(formatCountLabel(2324, "reviews"), "2,324 reviews");
   assert.deepEqual(multiplayerPhrases(game.multiplayer), ["Online co-op", "Up to 4 players offline"]);
+});
+
+test("maps IGDB website types into wiki, guide, community, store, and official links", () => {
+  const [game] = normalizeIgdbExport([
+    {
+      id: 9,
+      name: "Linked",
+      slug: "linked",
+      platforms: [{ name: "PC" }],
+      websites: [
+        { name: "Official site", url: "https://example.com/game", category: 1 },
+        { url: "https://store.steampowered.com/app/1", category: 13 },
+        { url: "https://bulbapedia.bulbagarden.net/wiki/Pikachu", type: { id: 2, type: "wikia" } },
+        { url: "https://en.wikipedia.org/wiki/Linked", category: 3 },
+        { url: "https://www.reddit.com/r/linked", type: 14 },
+        { url: "https://discord.gg/linked", category: 18 },
+        { url: "https://example.com/guides", type: { id: 40, type: "GameFAQs" } },
+        { url: "https://itch.io/embed-upload/1", category: 15 },
+        { url: "https://bsky.app/profile/example", category: 19 },
+        { url: "javascript:alert(1)" },
+        { url: "https://en.wikipedia.org/wiki/Linked" },
+      ],
+    },
+  ]);
+
+  assert.deepEqual(game.websites, [
+    { label: "Official website", url: "https://example.com/game", category: "website" },
+    { label: "Steam", url: "https://store.steampowered.com/app/1", category: "store" },
+    { label: "Wikia", url: "https://bulbapedia.bulbagarden.net/wiki/Pikachu", category: "wiki" },
+    { label: "Wikipedia", url: "https://en.wikipedia.org/wiki/Linked", category: "wiki" },
+    { label: "Reddit", url: "https://www.reddit.com/r/linked", category: "community" },
+    { label: "Discord", url: "https://discord.gg/linked", category: "community" },
+    { label: "GameFAQs", url: "https://example.com/guides", category: "guide" },
+    { label: "itch.io", url: "https://itch.io/embed-upload/1", category: "store" },
+    { label: "Bluesky", url: "https://bsky.app/profile/example", category: "website" },
+  ]);
+  assert.deepEqual(guideLinks(game.websites).map((link) => link.label), [
+    "Wikia",
+    "Wikipedia",
+    "GameFAQs",
+    "Discord",
+    "Reddit",
+  ]);
+});
+
+test("catalogue import classifies stored wiki and community urls", () => {
+  const websites = [
+    { label: "Official website", url: "https://en.wikipedia.org/wiki/Example", category: "website" },
+    { label: "Official website", url: "https://example.fandom.com/wiki/Example", category: "website" },
+    { label: "Official website", url: "http://witcher.wikia.com/wiki/Example", category: "website" },
+    { label: "Official website", url: "https://eldenring.wiki.gg/", category: "website" },
+    { label: "Official website", url: "https://discord.gg/example", category: "website" },
+    { label: "Official website", url: "https://www.reddit.com/r/example", category: "website" },
+    { label: "Official website", url: "https://store.steampowered.com/app/1", category: "website" },
+    { label: "Press kit", url: "https://example.com/press", category: "website" },
+    { label: "Bulbapedia", url: "https://bulbapedia.bulbagarden.net/wiki/Pikachu", category: "wiki" },
+    { label: "Walkthrough", url: "https://example.com/walkthrough", category: "guide" },
+    { label: "Nope", url: "notaurl" },
+    { label: "Official website", url: "https://en.wikipedia.org/wiki/Example/", category: "website" },
+  ];
+  const overflow = Array.from({ length: 30 }, (_, index) => ({
+    label: "Official website",
+    url: `https://example.com/page-${index}`,
+    category: "website",
+  }));
+  const game = normalizeExternalGame({
+    id: "links",
+    title: "Links",
+    platforms: ["PC"],
+    websites,
+  }, "igdb", "2026-01-01");
+  const capped = normalizeExternalGame({
+    id: "capped",
+    title: "Capped",
+    platforms: ["PC"],
+    websites: [
+      ...overflow,
+      { label: "Official website", url: "https://en.wikipedia.org/wiki/Kept", category: "website" },
+    ],
+  }, "igdb", "2026-01-01");
+
+  assert.deepEqual(game.websites, [
+    { label: "Wikipedia", url: "https://en.wikipedia.org/wiki/Example", category: "wiki" },
+    { label: "Fandom", url: "https://example.fandom.com/wiki/Example", category: "wiki" },
+    { label: "Wikia", url: "http://witcher.wikia.com/wiki/Example", category: "wiki" },
+    { label: "Wiki", url: "https://eldenring.wiki.gg/", category: "wiki" },
+    { label: "Discord", url: "https://discord.gg/example", category: "community" },
+    { label: "Reddit", url: "https://www.reddit.com/r/example", category: "community" },
+    { label: "Steam", url: "https://store.steampowered.com/app/1", category: "store" },
+    { label: "Press kit", url: "https://example.com/press", category: "website" },
+    { label: "Bulbapedia", url: "https://bulbapedia.bulbagarden.net/wiki/Pikachu", category: "wiki" },
+    { label: "Walkthrough", url: "https://example.com/walkthrough", category: "guide" },
+  ]);
+  assert.deepEqual(guideLinks(game.websites).map((link) => [link.category, link.label]), [
+    ["wiki", "Bulbapedia"],
+    ["wiki", "Fandom"],
+    ["wiki", "Wiki"],
+    ["wiki", "Wikia"],
+    ["wiki", "Wikipedia"],
+    ["guide", "Walkthrough"],
+    ["community", "Discord"],
+    ["community", "Reddit"],
+  ]);
+  assert.equal(capped.websites.length, 24);
+  assert.equal(capped.websites.some((link) => link.url === "https://en.wikipedia.org/wiki/Kept"), true);
+  assert.equal(guideLinks([{ label: "Press kit", url: "https://example.com/press", category: "website" }]).length, 0);
 });
 
 test("maps navbar platform chips to IGDB platform variant labels", () => {
@@ -507,6 +619,11 @@ test("imports an IGDB fixture through the CLI and records provenance", async () 
   assert.equal(imported.games[0].aggregatedRating, 94.2);
   assert.equal(imported.games[0].ageRatings[0].board, "PEGI");
   assert.equal(imported.games[0].timeToBeat.normally, 270000);
+  assert.deepEqual(imported.games[0].websites, [{
+    label: "Official website",
+    url: "https://example.com/bg3",
+    category: "website",
+  }]);
   const report = JSON.parse(await readFile(reportPath, "utf8"));
   assert.deepEqual(report.warnings, []);
   await rm(directory, { recursive: true, force: true });
