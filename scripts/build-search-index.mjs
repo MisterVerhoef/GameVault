@@ -5,6 +5,7 @@ import { loadTsModule } from "./load-ts-module.mjs";
 
 const { gameMatchesGenre } = loadTsModule("src/data/browse.ts");
 const { collectDownloadableIds } = loadTsModule("src/data/downloadable.ts");
+const { toReleaseDateRecord } = loadTsModule("src/data/release-calendar.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
@@ -75,3 +76,12 @@ const browseGames = catalogue.games.map((game) => {
 const browseBody = `${JSON.stringify({ schemaVersion: 1, games: browseGames })}\n`;
 fs.writeFileSync(browsePath, browseBody);
 console.log(`Built browse index for ${browseGames.length} games (${(Buffer.byteLength(browseBody) / 1e6).toFixed(2)} MB).`);
+
+const releasePath = path.join(root, "public", "catalog", "release-dates.json");
+const releaseDates = catalogue.games
+  .map((game) => toReleaseDateRecord(game))
+  .filter(Boolean)
+  .sort((left, right) => left.id.localeCompare(right.id));
+const releaseBody = `${JSON.stringify({ schemaVersion: 1, games: releaseDates })}\n`;
+fs.writeFileSync(releasePath, releaseBody);
+console.log(`Built release dates for ${releaseDates.length} games (${(Buffer.byteLength(releaseBody) / 1e6).toFixed(2)} MB).`);
