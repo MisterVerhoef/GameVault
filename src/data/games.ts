@@ -11,6 +11,41 @@ export interface CompanyRef {
   name: string;
 }
 
+export interface AgeRating {
+  board: string;
+  label: string;
+}
+
+export interface PlatformRelease {
+  platform: string;
+  /** YYYY-MM-DD when IGDB has a timestamp. */
+  date?: string;
+  /** Human label when the date is only a year, quarter, or TBD. */
+  label?: string;
+}
+
+export interface MultiplayerInfo {
+  campaignCoop?: boolean;
+  dropIn?: boolean;
+  lanCoop?: boolean;
+  offlineCoop?: boolean;
+  offlineCoopMax?: number;
+  offlineMax?: number;
+  onlineCoop?: boolean;
+  onlineCoopMax?: number;
+  onlineMax?: number;
+  splitscreen?: boolean;
+  splitscreenOnline?: boolean;
+}
+
+/** IGDB time-to-beat durations, in seconds. */
+export interface TimeToBeat {
+  hastily?: number;
+  normally?: number;
+  completely?: number;
+  count?: number;
+}
+
 export interface ImageAsset {
   url: string;
   width?: number;
@@ -74,6 +109,18 @@ export interface Game {
   background?: ImageAsset;
   rating?: number;
   ratingCount?: number;
+  /** IGDB critic score, 0–100. */
+  aggregatedRating?: number;
+  aggregatedRatingCount?: number;
+  ageRatings?: AgeRating[];
+  gameModes?: string[];
+  playerPerspectives?: string[];
+  /** Capped keyword names for the detail page. */
+  keywords?: string[];
+  multiplayer?: MultiplayerInfo;
+  /** One date per platform, preferring a worldwide release. */
+  releases?: PlatformRelease[];
+  timeToBeat?: TimeToBeat;
   screenshots: ImageAsset[];
   videos: VideoAsset[];
   websites: ExternalLink[];
@@ -642,6 +689,8 @@ const hasMetadata = (game: Game, value: string) => {
   const metadata = [
     ...game.genres,
     ...game.themes,
+    ...(game.keywords ?? []),
+    ...(game.gameModes ?? []),
     game.summary ?? "",
     game.description ?? "",
   ].join(" ").toLowerCase();
@@ -762,6 +811,8 @@ function buildSearchText(game: Game) {
     game.description ?? "",
     ...game.genres,
     ...game.themes,
+    ...(game.keywords ?? []),
+    ...(game.gameModes ?? []),
     ...game.developers.map((company) => company.name),
     ...game.publishers.map((company) => company.name),
     ...game.franchises,

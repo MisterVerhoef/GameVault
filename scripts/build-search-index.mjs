@@ -21,6 +21,8 @@ const index = catalogue.games
       game.description ?? "",
       ...(game.genres ?? []),
       ...(game.themes ?? []),
+      ...(game.keywords ?? []),
+      ...(game.gameModes ?? []),
       ...(game.platforms ?? []),
       ...(game.developers ?? []).map((company) => company.name),
       ...(game.publishers ?? []).map((company) => company.name),

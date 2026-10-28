@@ -1,4 +1,4 @@
-import type { Game } from "./games";
+import type { AgeRating, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
 import type { Platform } from "./platforms";
 
 export interface CatalogueIndex {
@@ -79,6 +79,15 @@ export interface ExternalGameRecord {
   backgroundUrl?: string;
   rating?: number;
   ratingCount?: number;
+  aggregatedRating?: number;
+  aggregatedRatingCount?: number;
+  ageRatings?: AgeRating[];
+  gameModes?: string[];
+  playerPerspectives?: string[];
+  keywords?: string[];
+  multiplayer?: MultiplayerInfo;
+  releases?: PlatformRelease[];
+  timeToBeat?: TimeToBeat;
   screenshots?: { url: string; width?: number; height?: number }[];
   videos?: { id: string; name?: string; url: string }[];
   websites?: { label: string; url: string; category?: "store" | "website" | "community" }[];
@@ -124,6 +133,102 @@ function normalizeGameMedia(game: Game): Game {
   };
 }
 
+function positiveInt(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
+  return Math.round(value);
+}
+
+function finiteNumber(value: unknown): number | undefined {
+  if (typeof value !== "number" || !Number.isFinite(value)) return undefined;
+  return value;
+}
+
+function copyStringList(value: unknown, limit: number): string[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const entry of value) {
+    if (typeof entry !== "string") continue;
+    const trimmed = entry.trim();
+    const key = trimmed.toLowerCase();
+    if (!trimmed || trimmed.length > 40 || seen.has(key)) continue;
+    seen.add(key);
+    result.push(trimmed);
+    if (result.length >= limit) break;
+  }
+  return result.length > 0 ? result : undefined;
+}
+
+function copyAgeRatings(value: unknown): AgeRating[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const seen = new Set<string>();
+  const result: AgeRating[] = [];
+  for (const entry of value) {
+    if (!isRecord(entry) || typeof entry.board !== "string" || typeof entry.label !== "string") continue;
+    const board = entry.board.trim();
+    const label = entry.label.trim();
+    const key = board.toLowerCase();
+    if (!board || !label || label.length > 24 || seen.has(key)) continue;
+    seen.add(key);
+    result.push({ board, label });
+    if (result.length >= 8) break;
+  }
+  return result.length > 0 ? result : undefined;
+}
+
+function copyMultiplayer(value: unknown): MultiplayerInfo | undefined {
+  if (!isRecord(value)) return undefined;
+  const summary: MultiplayerInfo = {};
+  const flags = ["campaignCoop", "dropIn", "lanCoop", "offlineCoop", "onlineCoop", "splitscreen", "splitscreenOnline"] as const;
+  const maximums = ["offlineCoopMax", "offlineMax", "onlineCoopMax", "onlineMax"] as const;
+  for (const flag of flags) {
+    if (value[flag] === true) summary[flag] = true;
+  }
+  for (const maximum of maximums) {
+    const count = positiveInt(value[maximum]);
+    if (count && count > 1) summary[maximum] = count;
+  }
+  return Object.keys(summary).length > 0 ? summary : undefined;
+}
+
+function copyReleases(value: unknown): PlatformRelease[] | undefined {
+  if (!Array.isArray(value)) return undefined;
+  const seen = new Set<string>();
+  const result: PlatformRelease[] = [];
+  for (const entry of value) {
+    if (!isRecord(entry) || typeof entry.platform !== "string") continue;
+    const platform = entry.platform.trim();
+    const key = platform.toLowerCase();
+    if (!platform || seen.has(key)) continue;
+    const date = typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date) ? entry.date : undefined;
+    const label = typeof entry.label === "string" ? entry.label.trim() : "";
+    if (!date && !label) continue;
+    seen.add(key);
+    result.push({
+      platform,
+      ...(date ? { date } : {}),
+      ...(!date && label ? { label } : {}),
+    });
+    if (result.length >= 12) break;
+  }
+  return result.length > 0 ? result : undefined;
+}
+
+function copyTimeToBeat(value: unknown): TimeToBeat | undefined {
+  if (!isRecord(value)) return undefined;
+  const hastily = positiveInt(value.hastily);
+  const normally = positiveInt(value.normally);
+  const completely = positiveInt(value.completely);
+  const count = positiveInt(value.count);
+  if (!hastily && !normally && !completely) return undefined;
+  return {
+    ...(hastily ? { hastily } : {}),
+    ...(normally ? { normally } : {}),
+    ...(completely ? { completely } : {}),
+    ...(count ? { count } : {}),
+  };
+}
+
 function asImage(value: ExternalGameRecord["cover"] | ExternalGameRecord["background"], fallback?: string) {
   if (typeof value === "string") {
     const url = normalizeMediaUrl(value);
@@ -152,6 +257,15 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
   }
 
   const sourceId = record.source?.id ?? record.sourceId ?? record.id;
+  const aggregatedRating = finiteNumber(record.aggregatedRating);
+  const aggregatedRatingCount = positiveInt(record.aggregatedRatingCount);
+  const ageRatings = copyAgeRatings(record.ageRatings);
+  const gameModes = copyStringList(record.gameModes, 8);
+  const playerPerspectives = copyStringList(record.playerPerspectives, 8);
+  const keywords = copyStringList(record.keywords, 12);
+  const multiplayer = copyMultiplayer(record.multiplayer);
+  const releases = copyReleases(record.releases);
+  const timeToBeat = copyTimeToBeat(record.timeToBeat);
   return {
     id: record.id,
     slug: record.slug ?? record.id,
@@ -169,6 +283,15 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     background: asImage(record.background, record.backgroundUrl),
     rating: record.rating,
     ratingCount: record.ratingCount,
+    ...(aggregatedRating != null ? { aggregatedRating } : {}),
+    ...(aggregatedRatingCount ? { aggregatedRatingCount } : {}),
+    ...(ageRatings ? { ageRatings } : {}),
+    ...(gameModes ? { gameModes } : {}),
+    ...(playerPerspectives ? { playerPerspectives } : {}),
+    ...(keywords ? { keywords } : {}),
+    ...(multiplayer ? { multiplayer } : {}),
+    ...(releases ? { releases } : {}),
+    ...(timeToBeat ? { timeToBeat } : {}),
     screenshots: (record.screenshots ?? []).map((image) => ({
       url: normalizeMediaUrl(image.url) ?? "",
       width: image.width,

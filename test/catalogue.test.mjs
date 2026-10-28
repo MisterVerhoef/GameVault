@@ -10,6 +10,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
 
 const { findCatalogueEntry, normalizeExternalGame } = loadTsModule("src/data/catalogue.ts");
+const { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } = loadTsModule("src/data/game-facts.ts");
 const { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { browseQuery, gameMatchesGenre } = loadTsModule("src/data/browse.ts");
 const { collapsedLineCount, visibleLineCount } = loadTsModule("src/components/description-clamp.ts");
@@ -41,7 +42,33 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.releaseYear, 2023);
   assert.equal(game.cover, "https://images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg");
   assert.equal(game.ratingCount, 2500);
+  assert.equal(game.aggregatedRating, 94.2);
+  assert.equal(game.aggregatedRatingCount, 38);
+  assert.deepEqual(game.ageRatings, [
+    { board: "PEGI", label: "18" },
+    { board: "ESRB", label: "M" },
+  ]);
+  assert.deepEqual(game.gameModes, ["Single player", "Multiplayer", "Co-operative"]);
+  assert.deepEqual(game.playerPerspectives, ["Third person"]);
+  assert.deepEqual(game.keywords, ["Fantasy", "Romance", "Choices Matter"]);
+  assert.deepEqual(game.multiplayer, {
+    campaignCoop: true,
+    dropIn: true,
+    onlineCoop: true,
+    onlineCoopMax: 4,
+  });
+  assert.deepEqual(game.releases, [
+    { platform: "Windows", date: "2023-08-06" },
+    { platform: "PS5", date: "2023-08-07" },
+  ]);
+  assert.deepEqual(game.timeToBeat, {
+    hastily: 180000,
+    normally: 270000,
+    completely: 432000,
+    count: 150,
+  });
   assert.deepEqual(game.developers, [{ id: "1", name: "Larian Studios" }]);
+  assert.deepEqual(game.publishers, [{ id: "2", name: "Larian Studios" }]);
   assert.equal(game.themes[0], "Fantasy");
   assert.deepEqual(game.franchises, ["Baldur's Gate"]);
   assert.deepEqual(game.collections, []);
@@ -49,6 +76,83 @@ test("normalizes IGDB records into the provider-neutral import shape", () => {
   assert.equal(game.videos[0].url, "https://www.youtube.com/watch?v=abc123");
   assert.deepEqual(game.dlc, [{ id: "2001", title: "DLC One" }]);
   assert.deepEqual(game.warnings, []);
+});
+
+test("keeps detail fields compact and skips companies that are not publishers", () => {
+  const keywords = Array.from({ length: 14 }, (_, index) => ({ name: `Keyword ${String(index).padStart(2, "0")}` }));
+  keywords.push({ name: "Keyword 00" });
+  keywords.push({ name: "x".repeat(41) });
+  const [game] = normalizeIgdbExport([
+    {
+      id: 7,
+      name: "Compact",
+      slug: "compact",
+      platforms: [{ name: "PC" }],
+      involved_companies: [
+        { developer: true, publisher: true, company: { id: 4, name: "Both" } },
+        { developer: false, company: { id: 5, name: "Supporting only" } },
+      ],
+      keywords,
+      game_time_to_beats: [{ hastily: 0, normally: 90, completely: 0, count: 0 }],
+      release_dates: [
+        { date: 1609459200, human: "2021" },
+        { platform: { name: "Linux" }, human: "TBD" },
+      ],
+      age_ratings: [{ organization: { id: 2 }, rating_category: 9 }],
+    },
+  ]);
+
+  assert.equal(game.keywords.length, 12);
+  assert.equal(game.keywords[0], "Keyword 00");
+  assert.equal(game.keywords.includes("x".repeat(41)), false);
+  assert.deepEqual(game.developers, [{ id: "4", name: "Both" }]);
+  assert.deepEqual(game.publishers, [{ id: "4", name: "Both" }]);
+  assert.deepEqual(game.timeToBeat, { normally: 90 });
+  assert.deepEqual(game.releases, [{ platform: "Linux", label: "TBD" }]);
+  assert.equal(game.ageRatings, undefined);
+});
+
+test("catalogue import keeps sanitized detail fields and drops empty ones", () => {
+  const game = normalizeExternalGame({
+    id: "details",
+    title: "Details",
+    platforms: ["PC"],
+    aggregatedRating: 88.2,
+    aggregatedRatingCount: 0,
+    ageRatings: [
+      { board: "PEGI", label: "12" },
+      { board: "PEGI", label: "16" },
+      { board: " ", label: "M" },
+    ],
+    keywords: ["Open world", "open world", ...Array.from({ length: 20 }, (_, index) => `Tag ${index}`)],
+    multiplayer: { onlineCoop: true, onlineMax: 1, offlineMax: 4, campaignCoop: "yes" },
+    releases: [
+      { platform: "Windows", date: "2022-02-25", label: "ignored when dated" },
+      { platform: "Windows", date: "2020-01-01" },
+      { platform: "Switch", label: "Q4 2026" },
+    ],
+    timeToBeat: { hastily: 3600, normally: 0 },
+  }, "igdb", "2026-01-01");
+
+  assert.equal(game.aggregatedRating, 88.2);
+  assert.equal(game.aggregatedRatingCount, undefined);
+  assert.deepEqual(game.ageRatings, [{ board: "PEGI", label: "12" }]);
+  assert.equal(game.keywords.length, 12);
+  assert.deepEqual(game.multiplayer, { onlineCoop: true, offlineMax: 4 });
+  assert.deepEqual(game.releases, [
+    { platform: "Windows", date: "2022-02-25" },
+    { platform: "Switch", label: "Q4 2026" },
+  ]);
+  assert.deepEqual(game.timeToBeat, { hastily: 3600 });
+  assert.equal(formatPlayTime(180000), "50h");
+  assert.equal(formatPlayTime(5400), "1.5h");
+  assert.equal(formatPlayTime(90), "2m");
+  assert.equal(formatPlayTime(0), "");
+  assert.equal(formatReleaseDay("2022-02-25"), "25 Feb 2022");
+  assert.equal(formatReleaseDay("2022-02-31"), "");
+  assert.equal(formatCountLabel(1, "ratings"), "1 rating");
+  assert.equal(formatCountLabel(2324, "reviews"), "2,324 reviews");
+  assert.deepEqual(multiplayerPhrases(game.multiplayer), ["Online co-op", "Up to 4 players offline"]);
 });
 
 test("maps navbar platform chips to IGDB platform variant labels", () => {
@@ -297,7 +401,7 @@ test("browse index stays a light card catalogue", () => {
   assert.equal(browse.schemaVersion, 1);
   assert.equal(browse.games.length, catalogue.games.length);
   assert.deepEqual(browse.games.map((game) => game.id), catalogue.games.map((game) => game.id));
-  const heavy = ["description", "summary", "screenshots", "similarGames", "videos", "websites", "dlc"];
+  const heavy = ["description", "summary", "screenshots", "similarGames", "videos", "websites", "dlc", "keywords", "releases", "timeToBeat", "ageRatings", "aggregatedRating"];
   for (const field of heavy) assert.equal(browse.games.some((game) => field in game), false, field);
   const bytes = readFileSync(path.join(root, "public", "catalog", "browse-index.json")).length;
   assert.ok(bytes < 2_500_000, `browse index is ${bytes} bytes`);
@@ -400,6 +504,9 @@ test("imports an IGDB fixture through the CLI and records provenance", async () 
   assert.equal(imported.provenance.provider, "igdb");
   assert.equal(imported.provenance.sourceVersion, "fixture-2026");
   assert.equal(imported.provenance.sourceChecksum.length, 64);
+  assert.equal(imported.games[0].aggregatedRating, 94.2);
+  assert.equal(imported.games[0].ageRatings[0].board, "PEGI");
+  assert.equal(imported.games[0].timeToBeat.normally, 270000);
   const report = JSON.parse(await readFile(reportPath, "utf8"));
   assert.deepEqual(report.warnings, []);
   await rm(directory, { recursive: true, force: true });

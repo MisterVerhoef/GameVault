@@ -108,7 +108,7 @@ By default this writes `test/fixtures/demo-games-index.json`. Pass `--output pub
 npm run catalogue:import -- --input ./path/to/provider-export.json --provider igdb
 ```
 
-The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, ratings, release dates, companies, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
+The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, community and critic ratings, age ratings, game modes, player perspectives, a short keyword list, multiplayer modes, per-platform release dates, time to beat, companies, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
 
 To sync directly from IGDB during a trusted build or CI job, configure `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` as environment variables and run:
 
