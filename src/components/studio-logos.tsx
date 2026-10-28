@@ -4,21 +4,23 @@ import { useState } from "react";
 import { studioInitials } from "@/data/studio-profile";
 import { resolveStudioLogo, type CatalogueCompanyLogo } from "@/data/studio-logo";
 
+/** Same outer tile for an IGDB image, a local SVG, and initials. */
+const PORTRAIT =
+  "flex h-20 w-20 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white shadow-xl ring-4 ring-background sm:h-28 sm:w-28";
+
 /**
  * Brand mark for a studio.
- * Synced IGDB logos win. A local SVG is the next choice. A failed image steps
- * down that list so a bad URL never leaves a broken icon. `badge` is the
- * studio-page portrait and uses initials when nothing else is left.
+ * Synced IGDB logos win. A local SVG is next. Initials fill whatever is left,
+ * and a failed image steps down that list so nothing renders broken.
+ * `inline` is the 24px game-page chip. `badge` is the studio portrait.
  */
 export function StudioLogo({
   name,
   logo,
-  className = "h-4",
   variant = "inline",
 }: {
   name: string;
   logo?: CatalogueCompanyLogo | null;
-  className?: string;
   variant?: "inline" | "badge";
 }) {
   return (
@@ -26,7 +28,6 @@ export function StudioLogo({
       key={`${variant}:${name}:${logo?.url ?? ""}`}
       name={name}
       logo={logo}
-      className={className}
       variant={variant}
     />
   );
@@ -35,12 +36,10 @@ export function StudioLogo({
 function StudioLogoView({
   name,
   logo,
-  className,
   variant,
 }: {
   name: string;
   logo?: CatalogueCompanyLogo | null;
-  className: string;
   variant: "inline" | "badge";
 }) {
   const [stage, setStage] = useState(0);
@@ -56,44 +55,40 @@ function StudioLogoView({
     });
   }
 
-  if (!resolved) {
-    if (variant !== "badge") return null;
+  const initials = (
+    <span className={variant === "badge" ? "text-xl font-bold tracking-wide text-zinc-900 sm:text-3xl" : "px-0.5 text-[10px] font-bold leading-none tracking-wide text-zinc-900"}>
+      {studioInitials(name)}
+    </span>
+  );
+
+  if (variant === "badge") {
     return (
-      <div
-        className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
-        aria-hidden="true"
-      >
-        {studioInitials(name)}
+      <div className={resolved ? `${PORTRAIT} p-3 sm:p-4` : PORTRAIT} aria-hidden="true">
+        {resolved ? (
+          // Catalogue files use the IGDB host; local SVG stays an img.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={resolved.src} alt="" className="h-full w-full object-contain" onError={handleError} />
+        ) : initials}
       </div>
     );
   }
 
-  if (variant === "badge") {
+  if (!resolved) {
     return (
-      <div
-        className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-2xl bg-white p-2.5 shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:p-3.5"
-        aria-hidden="true"
-      >
-        {/* Local SVG stays an img; catalogue files are the same IGDB host as covers. */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={resolved.src} alt="" className="h-full w-full object-contain" onError={handleError} />
-      </div>
+      <span className="inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded bg-white ring-1 ring-black/15" aria-hidden="true">
+        {initials}
+      </span>
     );
   }
 
   return (
     <span
-      className={`relative inline-block shrink-0 overflow-hidden rounded-[3px] bg-white ring-1 ring-black/15 ${className}`}
-      style={{ width: "auto", aspectRatio: String(resolved.aspect) }}
+      className="inline-flex h-6 shrink-0 items-center justify-center overflow-hidden rounded bg-white p-0.5 ring-1 ring-black/15"
+      style={{ aspectRatio: String(Math.max(resolved.aspect, 1)), minWidth: "1.5rem" }}
       aria-hidden="true"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={resolved.src}
-        alt=""
-        className="absolute inset-[8%] size-[84%] object-contain"
-        onError={handleError}
-      />
+      <img src={resolved.src} alt="" className="h-full w-full object-contain" onError={handleError} />
     </span>
   );
 }

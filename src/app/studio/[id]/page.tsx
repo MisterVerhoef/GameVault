@@ -23,6 +23,8 @@ export default async function StudioPage({ params }: StudioPageProps) {
   const { id } = await params;
   const studio = getStudio(id);
   if (!studio) notFound();
+  const heroUrl = studio.backgroundUrl
+    ?? studio.games.find((game) => game.cover?.url)?.cover?.url;
 
   const metadata = studioMetadata({
     developedCount: studio.developedIds.length,
@@ -60,18 +62,17 @@ export default async function StudioPage({ params }: StudioPageProps) {
                 <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
               </svg>
             </Link>
-            <h1 className="flex min-w-0 items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl">
-              <StudioLogo name={studio.name} logo={studio.logo} className="h-6" />
-              <span className="truncate">{studio.name}</span>
+            <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
+              {studio.name}
             </h1>
           </div>
         </div>
       </div>
 
       <section className="relative h-44 overflow-hidden sm:h-60" aria-hidden="true">
-        {studio.backgroundUrl ? (
+        {heroUrl ? (
           <Image
-            src={studio.backgroundUrl}
+            src={heroUrl}
             alt=""
             fill
             priority
@@ -80,7 +81,7 @@ export default async function StudioPage({ params }: StudioPageProps) {
             sizes="100vw"
           />
         ) : (
-          <div className="h-full w-full bg-card" />
+          <div className="h-full w-full bg-gradient-to-br from-zinc-600 via-zinc-800 to-zinc-950" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-black/25" />
       </section>
