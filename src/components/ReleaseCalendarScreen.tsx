@@ -63,18 +63,11 @@ function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
   const platforms = entry.platforms.slice(0, 4).join(" · ");
   const body = (
     <>
-      {entry.cover ? (
-        <Image
-          src={entry.cover}
-          alt=""
-          width={36}
-          height={52}
-          unoptimized
-          className="h-12 w-9 shrink-0 rounded object-cover"
-        />
-      ) : (
-        <span className="h-12 w-9 shrink-0 rounded bg-white/5" aria-hidden="true" />
-      )}
+      <span className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-white/5">
+        {entry.cover ? (
+          <Image src={entry.cover} alt="" fill sizes="36px" unoptimized className="object-cover" />
+        ) : null}
+      </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium text-foreground">{entry.title}</span>
         <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
@@ -361,22 +354,24 @@ export default function ReleaseCalendarScreen() {
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {previous ? (
-            <Link href={calendarHref({ view: query.view, date: previous, scope: query.scope })} scroll={false} className={controlClass()}>
-              Previous {periodNoun}
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-wrap gap-2">
+            {previous ? (
+              <Link href={calendarHref({ view: query.view, date: previous, scope: query.scope })} scroll={false} className={controlClass()}>
+                Previous {periodNoun}
+              </Link>
+            ) : null}
+            <Link href={calendarHref({ view: query.view, date: today || null, scope: query.scope })} scroll={false} className={controlClass()}>
+              Today
             </Link>
-          ) : null}
-          <Link href={calendarHref({ view: query.view, date: today || null, scope: query.scope })} scroll={false} className={controlClass()}>
-            Today
-          </Link>
-          {next ? (
-            <Link href={calendarHref({ view: query.view, date: next, scope: query.scope })} scroll={false} className={controlClass()}>
-              Next {periodNoun}
-            </Link>
-          ) : null}
+            {next ? (
+              <Link href={calendarHref({ view: query.view, date: next, scope: query.scope })} scroll={false} className={controlClass()}>
+                Next {periodNoun}
+              </Link>
+            ) : null}
+          </div>
           {model ? (
-            <h2 className="min-w-0 flex-1 text-base font-semibold tracking-tight text-foreground sm:text-lg sm:text-right">
+            <h2 className="text-lg font-semibold tracking-tight text-foreground">
               {model.periodLabel}
             </h2>
           ) : null}
@@ -410,18 +405,18 @@ export default function ReleaseCalendarScreen() {
                 {query.view === "week" ? "This week" : `Releases in ${model.periodLabel}`}
                 <span className="ml-2 text-sm font-medium text-muted">{count}</span>
               </h2>
-              {count === 0 ? (
-                <p className="mt-3 text-sm text-muted" role="status">
-                  {query.scope === "wishlist"
-                    ? `No wishlist games with a known release day in this ${periodNoun}.`
-                    : `No games with a known release day in this ${periodNoun}.`}
-                </p>
-              ) : query.view === "week" ? (
+              {query.view === "week" ? (
                 <div className="mt-4 flex flex-col gap-6">
                   {model.days.map((day) => (
                     <DayList key={day.date} day={day} />
                   ))}
                 </div>
+              ) : count === 0 ? (
+                <p className="mt-3 text-sm text-muted" role="status">
+                  {query.scope === "wishlist"
+                    ? "No wishlist games with a known release day in this month."
+                    : "No games with a known release day in this month."}
+                </p>
               ) : (
                 <div className="mt-4 flex flex-col gap-6">
                   {model.days.filter((day) => day.inMonth && day.entries.length > 0).map((day) => (
