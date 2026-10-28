@@ -4,6 +4,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const {
   buildVaultStats,
+  completionPie,
   formatCompletion,
   formatShare,
   formatVaultUpdated,
@@ -77,6 +78,21 @@ test("formats completion and shares without hiding a real count", () => {
   assert.equal(formatShare(1, 4), "100%");
   assert.equal(formatShare(0.004, 1), "<1%");
   assert.equal(formatShare(0, 0), "0%");
+});
+
+test("draws completion as an empty disc, a slice, or a full disc", () => {
+  assert.deepEqual(completionPie(0), { kind: "empty" });
+  assert.deepEqual(completionPie(Number.NaN), { kind: "empty" });
+  assert.equal(completionPie(100).kind, "full");
+  assert.equal(completionPie(140).kind, "full");
+
+  const third = completionPie(33);
+  assert.equal(third.kind, "slice");
+  assert.match(third.d, /^M 18 18 L 18\.000 2\.000 A 16 16 0 0 1 /);
+
+  const most = completionPie(75);
+  assert.equal(most.kind, "slice");
+  assert.match(most.d, /A 16 16 0 1 1 /);
 });
 
 test("formats recent updates in the requested locale", () => {
@@ -164,6 +180,24 @@ test("joins vault entries to catalogue genres and platforms", () => {
   );
   assert.equal(stats.recent[0].href, "/game/1877");
   assert.equal(stats.recent[0].status, "wishlist");
+});
+
+test("lists real platforms before Other even when Other is larger", () => {
+  const stats = buildVaultStats({
+    a: entry("playing", "2026-10-01T00:00:00.000Z"),
+    b: entry("playing", "2026-10-02T00:00:00.000Z"),
+    c: entry("completed", "2026-10-03T00:00:00.000Z"),
+  }, (gameId) => ({
+    id: gameId,
+    title: gameId,
+    genres: [],
+    platforms: gameId === "c" ? ["PC"] : ["Other"],
+  }));
+
+  assert.deepEqual(stats.platforms.map((slice) => [slice.label, slice.count]), [
+    ["PC", 1],
+    ["Other", 2],
+  ]);
 });
 
 test("sorts a catalogue miss by date and leaves it out of the mixes", () => {

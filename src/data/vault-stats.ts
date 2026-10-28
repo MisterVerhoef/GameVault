@@ -83,6 +83,35 @@ export function formatCompletion(rate: number | null): string {
   return `${Math.round(rate * 100)}%`;
 }
 
+export type CompletionPie =
+  | { kind: "empty" }
+  | { kind: "full" }
+  | { kind: "slice"; d: string };
+
+/**
+ * Pie geometry for the completion mark. 0% is an empty disc and 100% is a
+ * filled disc. A stroked ring stays hollow at 100%, so the full value is not an arc.
+ */
+export function completionPie(percent: number): CompletionPie {
+  if (!Number.isFinite(percent) || percent <= 0) return { kind: "empty" };
+  if (percent >= 100) return { kind: "full" };
+  const radius = 16;
+  const cx = 18;
+  const cy = 18;
+  const start = -Math.PI / 2;
+  const end = start + (percent / 100) * Math.PI * 2;
+  const x1 = cx + radius * Math.cos(start);
+  const y1 = cy + radius * Math.sin(start);
+  const x2 = cx + radius * Math.cos(end);
+  const y2 = cy + radius * Math.sin(end);
+  const large = percent > 50 ? 1 : 0;
+  const point = (value: number) => value.toFixed(3);
+  return {
+    kind: "slice",
+    d: `M ${cx} ${cy} L ${point(x1)} ${point(y1)} A ${radius} ${radius} 0 ${large} 1 ${point(x2)} ${point(y2)} Z`,
+  };
+}
+
 export function formatShare(share: number, count: number): string {
   if (count <= 0 || !Number.isFinite(share)) return "0%";
   const percent = Math.round(share * 100);
@@ -135,7 +164,11 @@ function tally(values: readonly string[], counts: Map<string, { label: string; c
   return matched;
 }
 
-function toMix(counts: Map<string, { label: string; count: number }>, matched: number): MixSlice[] {
+function toMix(
+  counts: Map<string, { label: string; count: number }>,
+  matched: number,
+  pinLast?: string,
+): MixSlice[] {
   const slices: MixSlice[] = [];
   for (const [key, slice] of counts) {
     slices.push({
@@ -145,7 +178,13 @@ function toMix(counts: Map<string, { label: string; count: number }>, matched: n
       share: matched === 0 ? 0 : slice.count / matched,
     });
   }
-  slices.sort((left, right) => right.count - left.count || left.label.localeCompare(right.label) || left.key.localeCompare(right.key));
+  slices.sort((left, right) => {
+    if (pinLast) {
+      const pinned = Number(left.key === pinLast) - Number(right.key === pinLast);
+      if (pinned !== 0) return pinned;
+    }
+    return right.count - left.count || left.label.localeCompare(right.label) || left.key.localeCompare(right.key);
+  });
   return slices;
 }
 
@@ -204,7 +243,7 @@ export function buildVaultStats(
     completionRate: owned === 0 ? null : completed / owned,
     statusCounts,
     genres: toMix(genreCounts, genreMatched),
-    platforms: toMix(platformCounts, platformMatched),
+    platforms: toMix(platformCounts, platformMatched, "other"),
     genreMatched,
     platformMatched,
     missingFromCatalogue,

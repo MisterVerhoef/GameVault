@@ -181,15 +181,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
         {/* Nav links (desktop) */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
-          {["Discover"].map((item) => (
-            <a
-              key={item}
-              href="#"
-              className="rounded text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-            >
-              {item}
-            </a>
-          ))}
+          <Link
+            href="/"
+            aria-current={pathname === "/" ? "page" : undefined}
+            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              pathname === "/" ? "text-foreground" : "text-muted hover:text-foreground"
+            }`}
+          >
+            Discover
+          </Link>
           <Link
             href="/vault"
             aria-current={pathname === "/vault" ? "page" : undefined}
@@ -468,16 +468,16 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           }}
         >
           <div className="flex flex-col gap-1">
-            {["Discover"].map((item) => (
-              <a
-                key={item}
-                href="#"
-                onClick={() => setMenuOpen(false)}
-                className="flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium text-muted transition hover:bg-card hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                {item}
-              </a>
-            ))}
+            <Link
+              href="/"
+              onClick={() => setMenuOpen(false)}
+              aria-current={pathname === "/" ? "page" : undefined}
+              className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/" ? "text-foreground" : "text-muted hover:text-foreground"
+              }`}
+            >
+              Discover
+            </Link>
             <Link
               href="/vault"
               onClick={() => setMenuOpen(false)}

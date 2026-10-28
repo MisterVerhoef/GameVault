@@ -1,22 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useId, useMemo, useState, type ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import { PlatformName } from "@/components/platform-icons";
 import {
   LIBRARY_STATUSES,
   LIBRARY_STATUS_LABELS,
   useLibrary,
-  type LibraryStatus,
 } from "@/context/LibraryContext";
 import { browseQuery } from "@/data/browse";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { findBrowseGame, type BrowseCatalogue } from "@/data/library-view";
 import { PLATFORM_COLORS, PLATFORM_FAMILIES } from "@/data/platforms";
 import {
-  OWNED_STATUSES,
   buildVaultStats,
+  completionPie,
   formatCompletion,
   formatShare,
   formatVaultUpdated,
@@ -27,15 +26,10 @@ import {
 } from "@/data/vault-stats";
 
 const GENRE_PREVIEW = 8;
+const noteClass = "mt-3 text-sm text-foreground/75";
 
 function factsFor(catalogue: BrowseCatalogue, gameId: string) {
   return vaultCatalogueFacts(findBrowseGame(catalogue, gameId));
-}
-
-function joinedLabels(statuses: readonly LibraryStatus[]) {
-  const labels = statuses.map((status) => LIBRARY_STATUS_LABELS[status].toLowerCase());
-  if (labels.length <= 1) return labels[0] ?? "";
-  return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}`;
 }
 
 function platformFamily(label: string) {
@@ -57,6 +51,46 @@ function unmatchedNote(missing: number, mix: string) {
   if (missing <= 0) return null;
   if (missing === 1) return `1 game is not in the catalogue, so it is left out of ${mix}.`;
   return `${missing} games are not in the catalogue, so they are left out of ${mix}.`;
+}
+
+function completionLine(stats: VaultStats) {
+  if (stats.owned === 0) return "No owned games yet.";
+  const owned = `${stats.completed} of ${stats.owned} owned`;
+  if (stats.wishlist > 0) return `${owned} · wishlist excluded`;
+  return owned;
+}
+
+function InfoTip({ label, text }: { label: string; text: string }) {
+  const tipId = useId();
+  const [open, setOpen] = useState(false);
+  return (
+    <span className="relative inline-flex">
+      <button
+        type="button"
+        className="inline-flex h-11 w-11 items-center justify-center rounded-full text-foreground/75 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        aria-expanded={open}
+        aria-controls={tipId}
+        aria-label={label}
+        onClick={() => setOpen((value) => !value)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") setOpen(false);
+        }}
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden="true">
+          <path fillRule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-7-4a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM9 9a.75.75 0 0 0 0 1.5h.253a.25.25 0 0 1 .244.304l-.459 2.066A1.75 1.75 0 0 0 10.747 15H11a.75.75 0 0 0 0-1.5h-.253a.25.25 0 0 1-.244-.304l.459-2.066A1.75 1.75 0 0 0 9.253 9H9Z" clipRule="evenodd" />
+        </svg>
+      </button>
+      {open ? (
+        <span
+          id={tipId}
+          role="tooltip"
+          className="absolute left-0 top-full z-20 w-56 rounded-lg border border-white/10 bg-card px-3 py-2 text-left text-sm font-normal normal-case tracking-normal text-foreground shadow-lg"
+        >
+          {text}
+        </span>
+      ) : null}
+    </span>
+  );
 }
 
 function StatsFrame({ children }: { children: ReactNode }) {
@@ -91,88 +125,65 @@ function StatsFrame({ children }: { children: ReactNode }) {
           <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
             Stats
           </h1>
-          <Link
-            href="/vault"
-            className="ml-auto inline-flex min-h-11 items-center rounded px-1 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
-          >
-            My vault
-          </Link>
         </div>
       </div>
       <main id="stats-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
-        <div className="max-w-5xl">
-          {children}
-        </div>
+        {children}
       </main>
     </div>
   );
 }
 
-function CompletionRing({ rate }: { rate: number | null }) {
+function CompletionMark({ rate }: { rate: number | null }) {
   const percent = rate == null ? 0 : Math.max(0, Math.min(100, Math.round(rate * 100)));
+  const pie = completionPie(percent);
   return (
-    <svg viewBox="0 0 36 36" className="h-24 w-24 shrink-0 text-accent" aria-hidden="true">
-      <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="3" />
-      {percent > 0 ? (
-        <circle
-          cx="18"
-          cy="18"
-          r="15.5"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="3"
-          strokeLinecap="round"
-          strokeDasharray={`${percent} ${100 - percent}`}
-          pathLength={100}
-          transform="rotate(-90 18 18)"
-        />
-      ) : null}
+    <svg viewBox="0 0 36 36" className="h-24 w-24 shrink-0" aria-hidden="true">
+      <circle cx="18" cy="18" r="16" className="fill-foreground/15" />
+      {pie.kind === "full" ? <circle cx="18" cy="18" r="16" className="fill-accent" /> : null}
+      {pie.kind === "slice" ? <path d={pie.d} className="fill-accent" /> : null}
     </svg>
   );
 }
 
 function CompletionCard({ stats }: { stats: VaultStats }) {
-  const ownedNames = joinedLabels(OWNED_STATUSES);
   return (
     <section aria-labelledby="stats-completion" className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6">
-      <h2 id="stats-completion" className="text-lg font-bold tracking-tight text-foreground">
-        Completion
-      </h2>
-      <p className="mt-1 max-w-2xl text-sm text-muted">
-        Completed games divided by games you own ({ownedNames}). Wishlist stays out of this rate. The progress slider does not change it.
-      </p>
-      <div className="mt-5 flex items-center gap-5">
-        <CompletionRing rate={stats.completionRate} />
-        <div>
-          <p className="text-4xl font-bold tabular-nums tracking-tight text-foreground">
+      <div className="flex items-center gap-5">
+        <CompletionMark rate={stats.completionRate} />
+        <div className="min-w-0">
+          <h2 id="stats-completion" className="text-4xl font-bold tabular-nums tracking-tight text-foreground">
             {formatCompletion(stats.completionRate)}
-          </p>
-          <p className="mt-1 text-sm text-foreground">
-            {stats.owned === 0
-              ? "No owned games yet."
-              : `${stats.completed} of ${stats.owned} owned ${stats.owned === 1 ? "game" : "games"} completed.`}
+          </h2>
+          <p className="mt-1 flex items-center text-sm text-foreground/75">
+            <span>{completionLine(stats)}</span>
+            <InfoTip
+              label="How completion is counted"
+              text="Completed games divided by games you own. Wishlist is excluded, and the progress slider does not change it."
+            />
           </p>
         </div>
       </div>
-      {stats.wishlist > 0 ? (
-        <p className="mt-3 text-sm text-muted">
-          {stats.wishlist === 1
-            ? "1 wishlist game is not included."
-            : `${stats.wishlist} wishlist games are not included.`}
-        </p>
-      ) : null}
       <ul className="mt-5 flex flex-wrap gap-2" aria-label="Library status counts">
-        {LIBRARY_STATUSES.map((status) => (
-          <li key={status}>
-            <Link
-              href={`/vault?status=${status}`}
-              className="inline-flex min-h-11 items-center rounded-full bg-foreground/5 px-3 py-1.5 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
-            >
-              {LIBRARY_STATUS_LABELS[status]}
-              <span className="ml-1.5 tabular-nums">{stats.statusCounts[status]}</span>
-            </Link>
-          </li>
-        ))}
+        {LIBRARY_STATUSES.map((status) => {
+          const count = stats.statusCounts[status];
+          const quiet = count === 0;
+          return (
+            <li key={status}>
+              <Link
+                href={`/vault?status=${status}`}
+                className={`inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
+                  quiet
+                    ? "text-foreground/70 hover:text-foreground"
+                    : "bg-foreground/10 font-medium text-foreground hover:bg-foreground/15"
+                }`}
+              >
+                {LIBRARY_STATUS_LABELS[status]}
+                <span className="ml-1.5 tabular-nums">{count}</span>
+              </Link>
+            </li>
+          );
+        })}
       </ul>
     </section>
   );
@@ -200,13 +211,13 @@ function MixRow({
         <span className="min-w-0 flex-1 font-medium text-foreground">
           {icon ? <PlatformName name={slice.label} iconClassName="h-4 w-4" className="gap-1.5" /> : slice.label}
         </span>
-        <span className="shrink-0 tabular-nums text-muted">
+        <span className="shrink-0 tabular-nums text-foreground/75">
           {slice.count}
           <span aria-hidden="true"> · </span>
           {share}
         </span>
       </span>
-      <span aria-hidden="true" className="mt-1.5 block h-2 overflow-hidden rounded-full bg-foreground/10">
+      <span aria-hidden="true" className="mt-1.5 block h-2 overflow-hidden rounded-full bg-foreground/15">
         <span
           className={color ? "block h-full rounded-full" : "block h-full rounded-full bg-accent"}
           style={{ width: `${width}%`, backgroundColor: color }}
@@ -230,19 +241,21 @@ function MixRow({
 function MixCard({
   id,
   title,
-  description,
+  tip,
   children,
 }: {
   id: string;
   title: string;
-  description: string;
+  tip: string;
   children: ReactNode;
 }) {
   return (
     <section aria-labelledby={id} className="rounded-2xl border border-white/10 bg-card p-5 sm:p-6">
-      <h2 id={id} className="text-lg font-bold tracking-tight text-foreground">{title}</h2>
-      <p className="mt-1 text-sm text-muted">{description}</p>
-      <div className="mt-4">{children}</div>
+      <h2 id={id} className="flex items-center text-lg font-bold tracking-tight text-foreground">
+        {title}
+        <InfoTip label={`How ${title.toLowerCase()} are counted`} text={tip} />
+      </h2>
+      <div className="mt-3">{children}</div>
     </section>
   );
 }
@@ -254,15 +267,11 @@ function GenreMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFail
   const note = unmatchedNote(stats.missingFromCatalogue, "the genre mix");
 
   return (
-    <MixCard
-      id="stats-genres"
-      title="Genres"
-      description="Each game counts once per genre. Shares are of the vault games that list a genre."
-    >
+    <MixCard id="stats-genres" title="Genres" tip="Each game counts once per genre.">
       {catalogueFailed ? (
-        <p className="text-sm text-muted">The game catalogue could not be loaded, so genres are unavailable.</p>
+        <p className="text-sm text-foreground/75">The game catalogue could not be loaded, so genres are unavailable.</p>
       ) : stats.genres.length === 0 ? (
-        <p className="text-sm text-muted">None of these games list a genre.</p>
+        <p className="text-sm text-foreground/75">None of these games list a genre.</p>
       ) : (
         <ul className="space-y-2" aria-label="Genre mix">
           {slices.map((slice) => (
@@ -281,17 +290,12 @@ function GenreMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFail
           type="button"
           aria-expanded={expanded}
           onClick={() => setExpanded((open) => !open)}
-          className="mt-4 inline-flex min-h-11 items-center rounded-full bg-foreground/5 px-3 text-sm font-medium text-foreground transition hover:bg-foreground/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+          className="mt-4 inline-flex min-h-11 items-center rounded-full bg-foreground/10 px-3 text-sm font-medium text-foreground transition hover:bg-foreground/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
         >
           {expanded ? "Show fewer genres" : `Show all ${stats.genres.length} genres`}
         </button>
       ) : null}
-      {!catalogueFailed && note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
-      {!catalogueFailed && stats.genreMatched > 0 ? (
-        <p className="mt-2 text-xs text-muted">
-          {stats.genreMatched === 1 ? "1 game has a genre." : `${stats.genreMatched} games have a genre.`}
-        </p>
-      ) : null}
+      {!catalogueFailed && note ? <p className={noteClass}>{note}</p> : null}
     </MixCard>
   );
 }
@@ -299,15 +303,11 @@ function GenreMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFail
 function PlatformMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueFailed: boolean }) {
   const note = unmatchedNote(stats.missingFromCatalogue, "the platform mix");
   return (
-    <MixCard
-      id="stats-platforms"
-      title="Platforms"
-      description="A game on more than one platform counts in each. Shares are of the vault games that list a platform."
-    >
+    <MixCard id="stats-platforms" title="Platforms" tip="A game on more than one platform counts in each.">
       {catalogueFailed ? (
-        <p className="text-sm text-muted">The game catalogue could not be loaded, so platforms are unavailable.</p>
+        <p className="text-sm text-foreground/75">The game catalogue could not be loaded, so platforms are unavailable.</p>
       ) : stats.platforms.length === 0 ? (
-        <p className="text-sm text-muted">None of these games list a platform.</p>
+        <p className="text-sm text-foreground/75">None of these games list a platform.</p>
       ) : (
         <ul className="space-y-2" aria-label="Platform mix">
           {stats.platforms.map((slice) => (
@@ -323,12 +323,7 @@ function PlatformMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueF
           ))}
         </ul>
       )}
-      {!catalogueFailed && note ? <p className="mt-4 text-xs text-muted">{note}</p> : null}
-      {!catalogueFailed && stats.platformMatched > 0 ? (
-        <p className="mt-2 text-xs text-muted">
-          {stats.platformMatched === 1 ? "1 game has a platform." : `${stats.platformMatched} games have a platform.`}
-        </p>
-      ) : null}
+      {!catalogueFailed && note ? <p className={noteClass}>{note}</p> : null}
     </MixCard>
   );
 }
@@ -340,13 +335,13 @@ function RecentRow({ item, catalogueFailed }: { item: RecentVaultUpdate; catalog
   const body = (
     <span className="min-w-0">
       <span className="block truncate font-medium text-foreground">{item.title}</span>
-      <span className="mt-0.5 block text-xs text-muted">
+      <span className="mt-0.5 block text-sm text-foreground/75">
         {status}
         {" · "}
         {dated ? <time dateTime={item.updatedAt}>{when}</time> : when}
       </span>
       {!item.inCatalogue && !catalogueFailed ? (
-        <span className="mt-0.5 block text-xs text-muted">Not in the catalogue</span>
+        <span className="mt-0.5 block text-sm text-foreground/75">Not in the catalogue</span>
       ) : null}
     </span>
   );
@@ -372,12 +367,11 @@ function RecentUpdates({ stats, catalogueFailed }: { stats: VaultStats; catalogu
       <h2 id="stats-recent" className="text-lg font-bold tracking-tight text-foreground">
         Recently updated
       </h2>
-      <p className="mt-1 text-sm text-muted">Vault entries you changed most recently.</p>
       {catalogueFailed ? (
-        <p className="mt-3 text-sm text-muted">The catalogue could not be loaded, so these rows use the saved id.</p>
+        <p className={noteClass}>The catalogue could not be loaded, so these rows use the saved id.</p>
       ) : null}
       {stats.recent.length === 0 ? (
-        <p className="mt-4 text-sm text-muted">No updates yet.</p>
+        <p className={noteClass}>No updates yet.</p>
       ) : (
         <ol className="mt-2 list-none divide-y divide-foreground/10">
           {stats.recent.map((item) => (
@@ -388,13 +382,13 @@ function RecentUpdates({ stats, catalogueFailed }: { stats: VaultStats; catalogu
         </ol>
       )}
       {hidden > 0 ? (
-        <p className="mt-4 text-sm text-muted">
+        <p className={noteClass}>
           Showing {stats.recent.length} of {stats.recentTotal}.{" "}
           <Link
             href="/vault"
-            className="rounded font-medium text-foreground underline decoration-foreground/20 underline-offset-2 hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="rounded font-medium text-foreground underline decoration-foreground/30 underline-offset-2 hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            Open my vault
+            See all
           </Link>
         </p>
       ) : null}
@@ -406,7 +400,7 @@ function EmptyVault() {
   return (
     <div className="mt-6 rounded-2xl border border-white/10 bg-card px-5 py-8">
       <p className="text-sm text-foreground">Nothing in your vault yet.</p>
-      <p className="mt-1 text-sm text-muted">Open a game and choose a library status. Stats will show up here.</p>
+      <p className="mt-1 text-sm text-foreground/75">Open a game and choose a library status. Stats will show up here.</p>
       <Link
         href="/"
         className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -429,7 +423,7 @@ export default function StatsScreen() {
 
   let body: ReactNode;
   if (!ready || (entryCount > 0 && !stats)) {
-    body = <p className="mt-6 text-sm text-muted">Loading your stats…</p>;
+    body = <p className="mt-6 text-sm text-foreground/75">Loading your stats…</p>;
   } else if (!stats || stats.total === 0) {
     body = <EmptyVault />;
   } else {
@@ -447,9 +441,7 @@ export default function StatsScreen() {
 
   return (
     <StatsFrame>
-      <p className="max-w-2xl text-sm text-muted">
-        From the vault saved in this browser: completion, genres, platforms, and what you updated last.
-      </p>
+      <p className="text-sm text-foreground/75">From your vault in this browser.</p>
       {body}
     </StatsFrame>
   );
