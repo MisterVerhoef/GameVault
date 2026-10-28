@@ -7,6 +7,7 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/": ["./public/catalog/browse-index.json", "./public/catalog/search-index.json"],
     "/vault": ["./public/catalog/browse-index.json"],
+    "/stats": ["./public/catalog/browse-index.json"],
   },
   images: {
     remotePatterns: [

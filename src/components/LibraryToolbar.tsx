@@ -15,13 +15,29 @@ export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void
     <div className="p-4">
       <h2 className="text-sm font-semibold text-foreground">My library</h2>
       <p className="mt-1 text-xs text-muted">Stored locally in this browser. Export to move it between devices.</p>
-      <Link
-        href="/vault"
-        onClick={onNavigate}
-        className="mt-3 inline-flex rounded-full bg-accent px-3 py-1 text-xs font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      >
-        Open my vault
-      </Link>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Link
+          href="/vault"
+          onClick={onNavigate}
+          className="inline-flex min-h-11 items-center rounded-full bg-accent px-3 py-1 text-xs font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+        >
+          Open my vault
+        </Link>
+        <Link
+          href="/calendar"
+          onClick={onNavigate}
+          className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+        >
+          Release calendar
+        </Link>
+        <Link
+          href="/stats"
+          onClick={onNavigate}
+          className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+        >
+          View stats
+        </Link>
+      </div>
       <div className="mt-3 flex flex-wrap gap-1.5">
         {counts.map(([status, count]) => (
           <Link
