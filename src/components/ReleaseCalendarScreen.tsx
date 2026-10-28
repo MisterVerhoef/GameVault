@@ -20,6 +20,8 @@ import {
   shiftCursor,
   type CalendarEntry,
   type CalendarDayModel,
+  type CalendarScope,
+  type CalendarView,
   type ReleaseCalendarModel,
   type ReleaseDateRecord,
   type UndatedGroup,
@@ -40,13 +42,13 @@ function readServerToday() {
 }
 
 function chipClass(selected: boolean) {
-  return `inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
-    selected ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
+  return `inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
+    selected ? "bg-accent text-white" : "bg-card text-muted-strong hover:text-foreground"
   }`;
 }
 
 function controlClass() {
-  return "inline-flex min-h-11 items-center rounded-full bg-card px-3 py-1.5 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0";
+  return "inline-flex min-h-11 items-center rounded-full bg-card px-4 py-2 text-sm font-medium text-muted-strong transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0";
 }
 
 function WishlistBadge() {
@@ -70,12 +72,12 @@ function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium text-foreground">{entry.title}</span>
-        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted">
+        <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-strong">
           {entry.date ? <time dateTime={entry.date}>{dateText}</time> : <span>{dateText}</span>}
           {platforms ? <span>{platforms}</span> : null}
           {entry.wishlist ? <WishlistBadge /> : null}
         </span>
-        {later ? <span className="mt-0.5 block text-xs text-muted">{later}</span> : null}
+        {later ? <span className="mt-0.5 block text-xs text-muted-strong">{later}</span> : null}
       </span>
     </>
   );
@@ -91,7 +93,7 @@ function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
 function MonthGrid({ days }: { days: CalendarDayModel[] }) {
   return (
     <div className="mt-4">
-      <div aria-hidden="true" className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted">
+      <div aria-hidden="true" className="grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide text-muted-strong">
         {WEEKDAY_LABELS.map((label) => (
           <div key={label} className="py-1">{label}</div>
         ))}
@@ -106,7 +108,7 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
           } ${day.isToday ? "ring-2 ring-accent" : "ring-1 ring-white/5"}`;
           const inner = (
             <>
-              <span className={`text-xs tabular-nums ${day.inMonth ? "text-foreground" : "text-muted"}`}>{dayNumber}</span>
+              <span className={`text-xs tabular-nums ${day.inMonth ? "text-foreground" : "text-muted-strong"}`}>{dayNumber}</span>
               {day.entries.length > 0 ? (
                 <span className="mt-1 text-[10px] font-medium text-accent md:hidden">{day.entries.length}</span>
               ) : null}
@@ -120,7 +122,7 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
                       {entry.title}
                     </span>
                   ))}
-                  {extra > 0 ? <span className="block text-[11px] text-muted">+{extra}</span> : null}
+                  {extra > 0 ? <span className="block text-[11px] text-muted-strong">+{extra}</span> : null}
                 </span>
               ) : null}
             </>
@@ -150,23 +152,20 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
 }
 
 function DayList({ day }: { day: CalendarDayModel }) {
+  if (day.entries.length === 0) return null;
   return (
     <section aria-labelledby={`releases-${day.date}`} className={day.isToday ? "rounded-2xl ring-2 ring-accent" : undefined}>
       <h3 id={`releases-${day.date}`} className="scroll-mt-28 text-sm font-semibold text-foreground">
         <time dateTime={day.date}>{entryDateLabel({ date: day.date })}</time>
         {day.isToday ? <span className="ml-2 text-xs font-medium uppercase tracking-wide text-accent">Today</span> : null}
       </h3>
-      {day.entries.length === 0 ? (
-        <p className="mt-2 text-sm text-muted">No releases</p>
-      ) : (
-        <ul className="mt-2 flex flex-col gap-2">
-          {day.entries.map((entry) => (
-            <li key={entry.id}>
-              <CalendarEntryLink entry={entry} />
-            </li>
-          ))}
-        </ul>
-      )}
+      <ul className="mt-2 flex flex-col gap-2">
+        {day.entries.map((entry) => (
+          <li key={entry.id}>
+            <CalendarEntryLink entry={entry} />
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }
@@ -198,7 +197,7 @@ function UndatedGroups({ groups, todayYear }: { groups: UndatedGroup[]; todayYea
                 className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <span className="text-sm font-semibold text-foreground">{label}</span>
-                <span className="text-xs text-muted">{group.entries.length} {group.entries.length === 1 ? "game" : "games"}</span>
+                <span className="text-xs text-muted-strong">{group.entries.length} {group.entries.length === 1 ? "game" : "games"}</span>
               </button>
             </h3>
             {open ? (
@@ -219,6 +218,356 @@ function UndatedGroups({ groups, todayYear }: { groups: UndatedGroup[]; todayYea
 
 function periodCount(model: ReleaseCalendarModel) {
   return model.days.reduce((sum, day) => sum + day.entries.length, 0);
+}
+
+function ScopeControls({
+  query,
+  cursor,
+  ready,
+  wishlistCount,
+}: {
+  query: { view: CalendarView; scope: CalendarScope };
+  cursor: string | null;
+  ready: boolean;
+  wishlistCount: number;
+}) {
+  return (
+    <div className="flex flex-wrap gap-3" role="group" aria-label="Which games to show">
+      <Link
+        href={calendarHref({ view: query.view, date: cursor, scope: "all" })}
+        aria-current={query.scope === "all" ? "page" : undefined}
+        scroll={false}
+        className={chipClass(query.scope === "all")}
+      >
+        All
+      </Link>
+      <Link
+        href={calendarHref({ view: query.view, date: cursor, scope: "wishlist" })}
+        aria-current={query.scope === "wishlist" ? "page" : undefined}
+        scroll={false}
+        className={chipClass(query.scope === "wishlist")}
+      >
+        Wishlist
+        {ready ? <span className="ml-1.5 tabular-nums">{wishlistCount}</span> : null}
+      </Link>
+    </div>
+  );
+}
+
+function CalendarChrome({
+  query,
+  cursor,
+  previous,
+  next,
+  today,
+  periodLabel,
+  periodNoun,
+  ready,
+  wishlistCount,
+}: {
+  query: { view: CalendarView; scope: CalendarScope };
+  cursor: string | null;
+  previous: string | null;
+  next: string | null;
+  today: string;
+  periodLabel: string;
+  periodNoun: string;
+  ready: boolean;
+  wishlistCount: number;
+}) {
+  return (
+    <div className="mt-6 flex flex-col gap-5">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-3" role="group" aria-label="Calendar view">
+          <Link
+            href={calendarHref({ view: "month", date: cursor, scope: query.scope })}
+            aria-current={query.view === "month" ? "page" : undefined}
+            scroll={false}
+            className={chipClass(query.view === "month")}
+          >
+            Month
+          </Link>
+          <Link
+            href={calendarHref({ view: "week", date: cursor, scope: query.scope })}
+            aria-current={query.view === "week" ? "page" : undefined}
+            scroll={false}
+            className={chipClass(query.view === "week")}
+          >
+            Week
+          </Link>
+        </div>
+        <ScopeControls query={query} cursor={cursor} ready={ready} wishlistCount={wishlistCount} />
+      </div>
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-wrap gap-3">
+          {previous ? (
+            <Link href={calendarHref({ view: query.view, date: previous, scope: query.scope })} scroll={false} className={controlClass()}>
+              Previous {periodNoun}
+            </Link>
+          ) : null}
+          <Link href={calendarHref({ view: query.view, date: today || null, scope: query.scope })} scroll={false} className={controlClass()}>
+            Today
+          </Link>
+          {next ? (
+            <Link href={calendarHref({ view: query.view, date: next, scope: query.scope })} scroll={false} className={controlClass()}>
+              Next {periodNoun}
+            </Link>
+          ) : null}
+        </div>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">{periodLabel}</h2>
+      </div>
+    </div>
+  );
+}
+
+function PeriodReleases({
+  model,
+  view,
+  scope,
+  count,
+}: {
+  model: ReleaseCalendarModel;
+  view: CalendarView;
+  scope: CalendarScope;
+  count: number;
+}) {
+  const periodNoun = view === "week" ? "week" : "month";
+  const days = model.days.filter((day) => (view === "week" || day.inMonth) && day.entries.length > 0);
+  return (
+    <section aria-labelledby="calendar-period-releases" className="mt-8">
+      {view === "month" ? <MonthGrid days={model.days} /> : null}
+      <h2 id="calendar-period-releases" className="text-lg font-bold tracking-tight text-foreground">
+        {view === "week" ? "This week" : `Releases in ${model.periodLabel}`}
+        <span className="ml-2 text-sm font-medium text-muted-strong">{count}</span>
+      </h2>
+      {count === 0 ? (
+        <p className="mt-3 text-sm text-muted-strong" role="status">
+          {scope === "wishlist"
+            ? `No wishlist games with a release day this ${periodNoun}.`
+            : `No games with a release day this ${periodNoun}.`}
+        </p>
+      ) : (
+        <div className="mt-4 flex flex-col gap-6">
+          {days.map((day) => (
+            <DayList key={day.date} day={day} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function WishlistSection({
+  model,
+  ready,
+  periodNoun,
+  scope,
+  noDayDates,
+}: {
+  model: ReleaseCalendarModel;
+  ready: boolean;
+  periodNoun: string;
+  scope: CalendarScope;
+  noDayDates: boolean;
+}) {
+  const outside = model.wishlistOutside.length;
+  return (
+    <section aria-labelledby="calendar-wishlist" className="mt-10">
+      <h2 id="calendar-wishlist" className="text-lg font-bold tracking-tight text-foreground">
+        On your wishlist
+      </h2>
+      {!ready ? (
+        <p className="mt-2 text-sm text-muted-strong">Loading your wishlist…</p>
+      ) : outside === 0 && model.days.every((day) => !day.entries.some((entry) => entry.wishlist)) ? (
+        <p className="mt-2 max-w-2xl text-sm text-muted-strong">
+          Nothing on your wishlist in this browser. Open a game and choose Wishlist. It will be highlighted here.
+        </p>
+      ) : outside === 0 ? (
+        <p className="mt-2 text-sm text-muted-strong">
+          Every wishlisted game with a known day is already in this {periodNoun}.
+        </p>
+      ) : (
+        <>
+          <p className="mt-2 max-w-2xl text-sm text-muted-strong">
+            {noDayDates
+              ? "Games you have marked as wishlist."
+              : `Wishlist games outside this ${periodNoun}, or with no day yet.`}
+          </p>
+          <ul className="mt-4 flex flex-col gap-2">
+            {model.wishlistOutside.map((entry) => (
+              <li key={entry.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1">
+                  <CalendarEntryLink entry={entry} />
+                </div>
+                {entry.date ? (
+                  <Link
+                    href={calendarHref({ view: "month", date: entry.date, scope })}
+                    scroll={false}
+                    className={controlClass()}
+                  >
+                    Show month
+                  </Link>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </section>
+  );
+}
+
+function YearOnlySection({
+  model,
+  today,
+  todayYear,
+  primary,
+}: {
+  model: ReleaseCalendarModel;
+  today: string;
+  todayYear: number | null;
+  primary: boolean;
+}) {
+  return (
+    <section aria-labelledby="calendar-year-only" className={primary ? "mt-8" : "mt-10"}>
+      <h2
+        id="calendar-year-only"
+        className={primary
+          ? "text-xl font-bold tracking-tight text-foreground sm:text-2xl"
+          : "text-lg font-bold tracking-tight text-foreground"}
+      >
+        Release year only
+      </h2>
+      <p className="mt-2 max-w-2xl text-sm text-muted-strong">
+        {primary
+          ? "Only this year and later years are shown."
+          : "A specific day is not known yet, so these stay off the calendar. Only this year and later years are shown."}
+      </p>
+      {!today ? (
+        <p className="mt-3 text-sm text-muted-strong">Loading dates for this browser…</p>
+      ) : model.undatedGroups.length === 0 ? (
+        <p className="mt-3 text-sm text-muted-strong" role="status">No upcoming games are missing a release day.</p>
+      ) : (
+        <UndatedGroups groups={model.undatedGroups} todayYear={todayYear} />
+      )}
+    </section>
+  );
+}
+
+function CalendarBody({
+  model,
+  query,
+  cursor,
+  previous,
+  next,
+  today,
+  todayYear,
+  ready,
+  wishlistCount,
+  datesFailed,
+  count,
+  periodNoun,
+}: {
+  model: ReleaseCalendarModel;
+  query: { view: CalendarView; scope: CalendarScope };
+  cursor: string | null;
+  previous: string | null;
+  next: string | null;
+  today: string;
+  todayYear: number | null;
+  ready: boolean;
+  wishlistCount: number;
+  datesFailed: boolean;
+  count: number;
+  periodNoun: string;
+}) {
+  const noDayDates = model.datedGameCount === 0;
+  const chrome = (
+    <CalendarChrome
+      query={query}
+      cursor={cursor}
+      previous={previous}
+      next={next}
+      today={today}
+      periodLabel={model.periodLabel}
+      periodNoun={periodNoun}
+      ready={ready}
+      wishlistCount={wishlistCount}
+    />
+  );
+  const wishlist = (
+    <WishlistSection
+      model={model}
+      ready={ready}
+      periodNoun={periodNoun}
+      scope={query.scope}
+      noDayDates={noDayDates}
+    />
+  );
+  const yearOnly = query.scope === "all" ? (
+    <YearOnlySection model={model} today={today} todayYear={todayYear} primary={noDayDates} />
+  ) : null;
+
+  if (noDayDates) {
+    return (
+      <>
+        <p className="max-w-2xl text-sm text-muted-strong">
+          {datesFailed
+            ? "Release days could not be loaded. Upcoming games are grouped by year."
+            : "Upcoming games from the catalogue and your wishlist. Release days are not in the library yet, so titles are grouped by year."}
+        </p>
+        <div className="mt-6">
+          <ScopeControls query={query} cursor={cursor} ready={ready} wishlistCount={wishlistCount} />
+        </div>
+        {yearOnly}
+        {wishlist}
+        <details className="mt-12 rounded-2xl border border-white/10 px-4 py-1">
+          <summary className="min-h-11 cursor-pointer py-3 text-sm font-semibold text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+            Month and week
+          </summary>
+          <div className="flex flex-col gap-4 pb-4">
+            <div className="flex flex-wrap gap-3" role="group" aria-label="Calendar view">
+              <Link
+                href={calendarHref({ view: "month", date: cursor, scope: query.scope })}
+                aria-current={query.view === "month" ? "page" : undefined}
+                scroll={false}
+                className={chipClass(query.view === "month")}
+              >
+                Month
+              </Link>
+              <Link
+                href={calendarHref({ view: "week", date: cursor, scope: query.scope })}
+                aria-current={query.view === "week" ? "page" : undefined}
+                scroll={false}
+                className={chipClass(query.view === "week")}
+              >
+                Week
+              </Link>
+            </div>
+            <p className="text-sm text-muted-strong" role="status">
+              {datesFailed
+                ? "Release days could not be loaded."
+                : query.view === "week"
+                  ? "No games with a release day this week."
+                  : `No games with a release day in ${model.periodLabel}.`}
+            </p>
+          </div>
+        </details>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <p className="max-w-2xl text-sm text-muted-strong">
+        Upcoming releases from the catalogue and your wishlist. A game appears on a day when its release date is known.
+      </p>
+      {chrome}
+      <PeriodReleases model={model} view={query.view} scope={query.scope} count={count} />
+      {wishlist}
+      {yearOnly}
+    </>
+  );
 }
 
 export default function ReleaseCalendarScreen() {
@@ -309,183 +658,25 @@ export default function ReleaseCalendarScreen() {
       </div>
 
       <main id="calendar-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
-        <p className="max-w-2xl text-sm text-muted">
-          Upcoming releases from the catalogue and your wishlist. Switch between a month and a week.
-          A game is placed on a day only when the catalogue includes an IGDB release date.
-        </p>
-
-        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Calendar view">
-            <Link
-              href={calendarHref({ view: "month", date: cursor, scope: query.scope })}
-              aria-current={query.view === "month" ? "page" : undefined}
-              scroll={false}
-              className={chipClass(query.view === "month")}
-            >
-              Month
-            </Link>
-            <Link
-              href={calendarHref({ view: "week", date: cursor, scope: query.scope })}
-              aria-current={query.view === "week" ? "page" : undefined}
-              scroll={false}
-              className={chipClass(query.view === "week")}
-            >
-              Week
-            </Link>
-          </div>
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Which games to show">
-            <Link
-              href={calendarHref({ view: query.view, date: cursor, scope: "all" })}
-              aria-current={query.scope === "all" ? "page" : undefined}
-              scroll={false}
-              className={chipClass(query.scope === "all")}
-            >
-              All
-            </Link>
-            <Link
-              href={calendarHref({ view: query.view, date: cursor, scope: "wishlist" })}
-              aria-current={query.scope === "wishlist" ? "page" : undefined}
-              scroll={false}
-              className={chipClass(query.scope === "wishlist")}
-            >
-              Wishlist
-              {ready ? <span className="ml-1.5 tabular-nums">{wishlistIds.size}</span> : null}
-            </Link>
-          </div>
-        </div>
-
-        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex flex-wrap gap-2">
-            {previous ? (
-              <Link href={calendarHref({ view: query.view, date: previous, scope: query.scope })} scroll={false} className={controlClass()}>
-                Previous {periodNoun}
-              </Link>
-            ) : null}
-            <Link href={calendarHref({ view: query.view, date: today || null, scope: query.scope })} scroll={false} className={controlClass()}>
-              Today
-            </Link>
-            {next ? (
-              <Link href={calendarHref({ view: query.view, date: next, scope: query.scope })} scroll={false} className={controlClass()}>
-                Next {periodNoun}
-              </Link>
-            ) : null}
-          </div>
-          {model ? (
-            <h2 className="text-lg font-semibold tracking-tight text-foreground">
-              {model.periodLabel}
-            </h2>
-          ) : null}
-        </div>
-
         {catalogueFailed ? (
-          <p className="mt-8 text-sm text-muted" role="status">The game catalogue could not be loaded.</p>
+          <p className="text-sm text-muted-strong" role="status">The game catalogue could not be loaded.</p>
         ) : waiting || !model ? (
-          <p className="mt-8 text-sm text-muted" role="status">Loading the release calendar…</p>
+          <p className="text-sm text-muted-strong" role="status">Loading the release calendar…</p>
         ) : (
-          <>
-            {datesFailed ? (
-              <p className="mt-4 max-w-2xl text-sm text-muted" role="status">
-                Release days could not be loaded. Games are listed by release year only.
-              </p>
-            ) : null}
-            <p className="mt-4 max-w-2xl text-sm text-muted">
-              This catalogue has a full release date for {model.datedGameCount} of {model.catalogueCount} games,
-              a release year only for {model.yearOnlyCount}, and no date for {model.missingDateCount}.
-            </p>
-            {model.datedGameCount === 0 && query.scope === "all" ? (
-              <p className="mt-2 max-w-2xl text-sm text-muted">
-                No title can be placed on a day yet. Games with a release year of this year or later are listed under Release year only.
-              </p>
-            ) : null}
-
-            {query.view === "month" ? <MonthGrid days={model.days} /> : null}
-
-            <section aria-labelledby="calendar-period-releases" className="mt-8">
-              <h2 id="calendar-period-releases" className="text-lg font-bold tracking-tight text-foreground">
-                {query.view === "week" ? "This week" : `Releases in ${model.periodLabel}`}
-                <span className="ml-2 text-sm font-medium text-muted">{count}</span>
-              </h2>
-              {query.view === "week" ? (
-                <div className="mt-4 flex flex-col gap-6">
-                  {model.days.map((day) => (
-                    <DayList key={day.date} day={day} />
-                  ))}
-                </div>
-              ) : count === 0 ? (
-                <p className="mt-3 text-sm text-muted" role="status">
-                  {query.scope === "wishlist"
-                    ? "No wishlist games with a known release day in this month."
-                    : "No games with a known release day in this month."}
-                </p>
-              ) : (
-                <div className="mt-4 flex flex-col gap-6">
-                  {model.days.filter((day) => day.inMonth && day.entries.length > 0).map((day) => (
-                    <DayList key={day.date} day={day} />
-                  ))}
-                </div>
-              )}
-            </section>
-
-            <section aria-labelledby="calendar-wishlist" className="mt-10">
-              <h2 id="calendar-wishlist" className="text-lg font-bold tracking-tight text-foreground">
-                On your wishlist
-              </h2>
-              {!ready ? (
-                <p className="mt-2 text-sm text-muted">Loading your wishlist…</p>
-              ) : wishlistIds.size === 0 ? (
-                <p className="mt-2 max-w-2xl text-sm text-muted">
-                  Nothing on your wishlist in this browser. Open a game and choose Wishlist. It will be highlighted here.
-                </p>
-              ) : model.wishlistOutside.length === 0 ? (
-                <p className="mt-2 text-sm text-muted">
-                  Every wishlisted game with a known day is already in this {periodNoun}.
-                </p>
-              ) : (
-                <>
-                  <p className="mt-2 max-w-2xl text-sm text-muted">
-                    Wishlist games outside this {periodNoun}, or with no day in the catalogue.
-                  </p>
-                  <ul className="mt-4 flex flex-col gap-2">
-                    {model.wishlistOutside.map((entry) => (
-                      <li key={entry.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                        <div className="min-w-0 flex-1">
-                          <CalendarEntryLink entry={entry} />
-                        </div>
-                        {entry.date ? (
-                          <Link
-                            href={calendarHref({ view: "month", date: entry.date, scope: query.scope })}
-                            scroll={false}
-                            className={controlClass()}
-                          >
-                            Show month
-                          </Link>
-                        ) : null}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              )}
-            </section>
-
-            {query.scope === "all" ? (
-              <section aria-labelledby="calendar-year-only" className="mt-10">
-                <h2 id="calendar-year-only" className="text-lg font-bold tracking-tight text-foreground">
-                  Release year only
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm text-muted">
-                  These games have a release year from IGDB and no day in their release dates, so they stay off the grid.
-                  Only this year and later years are listed.
-                </p>
-                {!today ? (
-                  <p className="mt-3 text-sm text-muted">Loading dates for this browser…</p>
-                ) : model.undatedGroups.length === 0 ? (
-                  <p className="mt-3 text-sm text-muted" role="status">No upcoming games are missing a release day.</p>
-                ) : (
-                  <UndatedGroups groups={model.undatedGroups} todayYear={todayYear} />
-                )}
-              </section>
-            ) : null}
-          </>
+          <CalendarBody
+            model={model}
+            query={query}
+            cursor={cursor}
+            previous={previous}
+            next={next}
+            today={today}
+            todayYear={todayYear}
+            ready={ready}
+            wishlistCount={wishlistIds.size}
+            datesFailed={datesFailed}
+            count={count}
+            periodNoun={periodNoun}
+          />
         )}
       </main>
     </div>
