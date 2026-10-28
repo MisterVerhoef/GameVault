@@ -49,6 +49,15 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* Calendar notes, weekday labels, and empty states. Light pages need a dark grey for AA. */
+.calendar-meta {
+  color: #3f3f46;
+}
+
+html.dark .calendar-meta {
+  color: #e4e4e7;
+}
+
 /* Hide scrollbar but keep functionality */
 .scrollbar-hide {
   -ms-overflow-style: none;
