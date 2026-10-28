@@ -1,5 +1,7 @@
 import type { Game, StoreId } from "./games";
 
+export type { StoreId };
+
 export type StoreMatch = "external-id" | "exact-title" | "edition";
 
 export interface StoreIdentity {

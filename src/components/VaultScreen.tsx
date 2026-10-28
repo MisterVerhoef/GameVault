@@ -5,6 +5,7 @@ import { useId, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import Navbar from "@/components/Navbar";
+import WishlistPrices, { WishlistPriceNote, type WishlistOfferState } from "@/components/WishlistPrices";
 import { useRovingCards } from "@/components/use-roving-cards";
 import {
   LIBRARY_STATUSES,
@@ -17,6 +18,7 @@ import {
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { findBrowseGame, toCard } from "@/data/library-view";
+import { useStoreOfferIndex } from "@/data/load-store-offers";
 
 interface VaultItem {
   gameId: string;
@@ -33,10 +35,12 @@ function compareVaultItems(left: VaultItem, right: VaultItem) {
 function VaultShelf({
   status,
   items,
+  offerState,
   onRemove,
 }: {
   status: LibraryStatus;
   items: VaultItem[];
+  offerState: WishlistOfferState;
   onRemove: (gameId: string) => void;
 }) {
   const known = items.filter((item) => item.game);
@@ -54,6 +58,7 @@ function VaultShelf({
       <p id={hintId} className="sr-only">
         Arrow keys move between games in {label}.
       </p>
+      {status === "wishlist" && known.length > 0 && <WishlistPriceNote state={offerState} />}
       {known.length > 0 && (
         <ul
           ref={ref}
@@ -69,6 +74,14 @@ function VaultShelf({
                 personalRating={item.entry.rating}
                 progress={item.entry.progress}
               />
+              {status === "wishlist" && item.game && (
+                <WishlistPrices
+                  gameId={item.game.id}
+                  title={item.game.title}
+                  platforms={item.game.platforms}
+                  state={offerState}
+                />
+              )}
               {(item.entry.progress > 0 || item.entry.notes) && (
                 <div className="mt-1.5 space-y-0.5">
                   {item.entry.progress > 0 && (
@@ -111,6 +124,19 @@ export default function VaultScreen() {
   const { catalogue, failed } = useBrowseCatalogue(false);
   const requested = params.get("status");
   const activeStatus = isLibraryStatus(requested) ? requested : null;
+  const wishlistCount = useMemo(
+    () => Object.values(entries).filter((entry) => entry.status === "wishlist").length,
+    [entries],
+  );
+  const showWishlistPrices = ready && wishlistCount > 0 && (activeStatus == null || activeStatus === "wishlist");
+  const storeOffers = useStoreOfferIndex(showWishlistPrices);
+  const offerState: WishlistOfferState = !showWishlistPrices
+    ? { status: "hidden" }
+    : storeOffers.failed
+      ? { status: "error" }
+      : storeOffers.index
+        ? { status: "ready", index: storeOffers.index }
+        : { status: "loading" };
 
   const groups = useMemo(() => {
     return LIBRARY_STATUSES.map((status) => ({
@@ -220,6 +246,7 @@ export default function VaultScreen() {
                 key={group.status}
                 status={group.status}
                 items={group.items}
+                offerState={group.status === "wishlist" ? offerState : { status: "hidden" }}
                 onRemove={(gameId) => setStatus(gameId, null)}
               />
             ))
