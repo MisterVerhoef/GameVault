@@ -24,6 +24,13 @@ export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void
           Open my vault
         </Link>
         <Link
+          href="/calendar"
+          onClick={onNavigate}
+          className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
+        >
+          Release calendar
+        </Link>
+        <Link
           href="/stats"
           onClick={onNavigate}
           className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"

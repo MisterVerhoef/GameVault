@@ -530,8 +530,10 @@ test("browse index stays a light card catalogue", () => {
 test("search index rebuild is idempotent against the committed catalogue", () => {
   const searchIndexPath = path.join(root, "public", "catalog", "search-index.json");
   const browseIndexPath = path.join(root, "public", "catalog", "browse-index.json");
+  const releaseDatesPath = path.join(root, "public", "catalog", "release-dates.json");
   const searchBefore = readFileSync(searchIndexPath, "utf8");
   const browseBefore = readFileSync(browseIndexPath, "utf8");
+  const releaseBefore = readFileSync(releaseDatesPath, "utf8");
   const result = spawnSync(process.execPath, ["scripts/build-search-index.mjs"], {
     cwd: root,
     encoding: "utf8",
@@ -540,6 +542,7 @@ test("search index rebuild is idempotent against the committed catalogue", () =>
   assert.equal(result.status, 0, result.stderr);
   assert.equal(readFileSync(searchIndexPath, "utf8"), searchBefore);
   assert.equal(readFileSync(browseIndexPath, "utf8"), browseBefore);
+  assert.equal(readFileSync(releaseDatesPath, "utf8"), releaseBefore);
 });
 
 test("demo catalogue generation does not overwrite the published IGDB index", () => {
