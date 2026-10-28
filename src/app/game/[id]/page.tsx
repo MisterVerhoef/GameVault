@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type Game } from "@/data/games";
+import { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } from "@/data/game-facts";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
@@ -50,6 +51,48 @@ function NamedCatalogueLinks({
         );
       })}
     </dd>
+  );
+}
+
+function ScoreCard({
+  label,
+  value,
+  count,
+  countNoun,
+}: {
+  label: string;
+  value: number;
+  count?: number;
+  countNoun: string;
+}) {
+  const formatted = formatRating(value);
+  const countLabel = formatCountLabel(count, countNoun);
+  return (
+    <div
+      className="min-w-36 rounded-xl bg-card px-4 py-3 ring-1 ring-white/10"
+      aria-label={`${label} score ${formatted} out of 100${countLabel ? `, ${countLabel}` : ""}`}
+    >
+      <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
+      <div className="mt-1 flex items-baseline gap-2">
+        <span className="text-2xl font-bold text-yellow-400" aria-hidden="true">★</span>
+        <span className="text-2xl font-semibold tabular-nums text-foreground">{formatted}</span>
+        <span className="text-xs text-muted">/ 100</span>
+      </div>
+      {countLabel ? <p className="mt-0.5 text-xs text-muted">{countLabel}</p> : null}
+    </div>
+  );
+}
+
+function FactChips({ items }: { items: readonly string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <ul className="flex flex-wrap gap-2">
+      {items.map((item) => (
+        <li key={item} className="rounded bg-white/10 px-2.5 py-1 text-sm font-medium text-foreground/90">
+          {item}
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -124,6 +167,20 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   }
 
   const { game: display, offers, captions } = presentCatalogueGame(game);
+  const ageRatings = game.ageRatings ?? [];
+  const gameModes = game.gameModes ?? [];
+  const perspectives = game.playerPerspectives ?? [];
+  const keywords = game.keywords ?? [];
+  const releases = game.releases ?? [];
+  const playPhrases = multiplayerPhrases(game.multiplayer);
+  const playTimes = [
+    game.timeToBeat?.hastily ? ["Hastily", game.timeToBeat.hastily] : null,
+    game.timeToBeat?.normally ? ["Normally", game.timeToBeat.normally] : null,
+    game.timeToBeat?.completely ? ["Completely", game.timeToBeat.completely] : null,
+  ].filter((entry): entry is [string, number] => entry !== null);
+  const hasScores = game.rating != null || game.aggregatedRating != null;
+  const hasPlay = gameModes.length > 0 || perspectives.length > 0 || playPhrases.length > 0;
+  const hasDetails = hasPlay || playTimes.length > 0 || keywords.length > 0 || releases.length > 0;
 
   // Get primary platform for theming
   const primaryPlatform: Platform = game.platforms[0];
@@ -195,14 +252,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
                 {game.title}
               </h2>
-              <div className="mt-2 flex items-center gap-3 text-sm text-muted">
-                <span>{game.releaseYear}</span>
-                <span aria-hidden="true">•</span>
-                <span className="text-yellow-400" aria-label={`Rating ${formatRating(game.rating)} out of 10`}>
-                  <span aria-hidden="true">★ </span>
-                  {formatRating(game.rating)}
-                </span>
-                <span aria-hidden="true">•</span>
+              <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+                {game.releaseYear != null && <span>{game.releaseYear}</span>}
+                {game.releaseYear != null && game.genres.length > 0 && <span aria-hidden="true">•</span>}
                 <span className="flex flex-wrap gap-1 font-medium">
                   {game.genres.map((genre, index) => (
                     <span key={genre}>
@@ -217,6 +269,16 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   ))}
                 </span>
               </div>
+              {hasScores && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {game.rating != null && (
+                    <ScoreCard label="Community" value={game.rating} count={game.ratingCount} countNoun="ratings" />
+                  )}
+                  {game.aggregatedRating != null && (
+                    <ScoreCard label="Critics" value={game.aggregatedRating} count={game.aggregatedRatingCount} countNoun="reviews" />
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Platforms */}
@@ -230,6 +292,20 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 </span>
               ))}
             </div>
+
+            {ageRatings.length > 0 && (
+              <ul className="flex flex-wrap gap-2" aria-label="Age ratings">
+                {ageRatings.map((rating) => (
+                  <li
+                    key={rating.board}
+                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-semibold text-foreground"
+                  >
+                    <span className="font-medium text-muted">{rating.board}</span>
+                    <span className="ml-1.5">{rating.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {display.description ? <GameDescription text={display.description} /> : null}
 
@@ -286,10 +362,6 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             <div>
               <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Release year</dt>
               <dd className="mt-0.5 text-sm text-foreground/90">{game.releaseYear}</dd>
-            </div>
-            <div>
-              <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Rating</dt>
-              <dd className="mt-0.5 text-sm text-foreground/90">{formatRating(game.rating)}/10</dd>
             </div>
             {game.developers.length > 0 && (
               <div>
@@ -361,6 +433,77 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             )}
           </dl>
         </section>
+
+        {hasDetails && (
+          <section className="mb-12" aria-labelledby="game-details">
+            <h2 id="game-details" className="mb-4 text-lg font-bold tracking-tight text-foreground">
+              Details
+            </h2>
+            <div className="grid gap-6 lg:grid-cols-2">
+              {hasPlay && (
+                <div>
+                  <h3 className="text-[11px] font-medium uppercase tracking-wider text-muted">How it&apos;s played</h3>
+                  <div className="mt-2 flex flex-col gap-2">
+                    <FactChips items={gameModes} />
+                    <FactChips items={perspectives} />
+                    {playPhrases.length > 0 && (
+                      <p className="text-sm text-foreground/90">{playPhrases.join(" · ")}</p>
+                    )}
+                  </div>
+                </div>
+              )}
+              {playTimes.length > 0 && (
+                <div>
+                  <h3 className="text-[11px] font-medium uppercase tracking-wider text-muted">Time to beat</h3>
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {playTimes.map(([label, seconds]) => (
+                      <li key={label} className="min-w-28 flex-1 rounded-lg bg-card px-3 py-3">
+                        <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
+                        <div className="mt-1 text-lg font-semibold tabular-nums text-foreground">{formatPlayTime(seconds)}</div>
+                      </li>
+                    ))}
+                  </ul>
+                  {game.timeToBeat?.count ? (
+                    <p className="mt-2 text-xs text-muted">{formatCountLabel(game.timeToBeat.count, "submissions")}</p>
+                  ) : null}
+                </div>
+              )}
+              {keywords.length > 0 && (
+                <div className={hasPlay && playTimes.length > 0 ? "lg:col-span-2" : undefined}>
+                  <h3 className="text-[11px] font-medium uppercase tracking-wider text-muted">Keywords</h3>
+                  <ul className="mt-2 flex flex-wrap gap-2">
+                    {keywords.map((keyword) => (
+                      <li key={keyword}>
+                        <Link
+                          href={`/?search=${encodeURIComponent(keyword)}`}
+                          className="inline-flex rounded bg-white/10 px-2.5 py-1 text-sm font-medium text-foreground/90 transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                        >
+                          {keyword}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {releases.length > 0 && (
+                <div className="lg:col-span-2">
+                  <h3 className="text-[11px] font-medium uppercase tracking-wider text-muted">Release dates</h3>
+                  <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                    {releases.map((release) => (
+                      <li
+                        key={`${release.platform}-${release.date ?? release.label}`}
+                        className="flex items-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
+                      >
+                        <PlatformName name={release.platform} iconClassName="h-5 w-5" />
+                        <span className="shrink-0 text-muted">{formatReleaseDay(release.date) || release.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         {display.screenshots.length > 0 && (
           <section className="mb-12">

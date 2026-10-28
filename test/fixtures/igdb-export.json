@@ -19,6 +19,25 @@
     "dlcs": [{ "id": 2001, "name": "DLC One" }],
     "franchises": [{ "name": "Baldur's Gate" }],
     "rating": 96.7,
-    "rating_count": 2500
+    "rating_count": 2500,
+    "aggregated_rating": 94.2,
+    "aggregated_rating_count": 38,
+    "age_ratings": [
+      { "organization": { "name": "Pan European Game Information (PEGI)" }, "rating_category": { "rating": "18" } },
+      { "category": 1, "rating": 11 }
+    ],
+    "game_modes": [{ "name": "Single player" }, { "name": "Multiplayer" }, { "name": "Co-operative" }],
+    "player_perspectives": [{ "name": "Third person" }],
+    "keywords": [{ "name": "Fantasy" }, { "name": "Romance" }, { "name": "Choices Matter" }],
+    "multiplayer_modes": [
+      { "onlinecoop": true, "onlinecoopmax": 4, "campaigncoop": true, "offlinemax": 1 },
+      { "onlinecoop": true, "onlinecoopmax": 2, "dropin": true }
+    ],
+    "release_dates": [
+      { "platform": { "name": "PC (Microsoft Windows)" }, "date": 1690848000, "region": 2, "human": "Aug 01, 2023" },
+      { "platform": { "name": "PC (Microsoft Windows)" }, "date": 1691280000, "region": 8, "human": "Aug 06, 2023" },
+      { "platform": { "name": "PlayStation 5" }, "date": 1691366400, "release_region": { "region": "europe" }, "human": "Aug 07, 2023" }
+    ],
+    "game_time_to_beat": { "hastily": 180000, "normally": 270000, "completely": 432000, "count": 150 }
   }
 ]

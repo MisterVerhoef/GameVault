@@ -30,8 +30,11 @@ if (!Number.isInteger(minimumGames) || minimumGames < 1) {
 }
 
 const defaultQuery = [
-  "fields id,name,slug,summary,storyline,first_release_date,rating,rating_count,",
-  "genres.name,themes.name,platforms.name,cover.url,artworks.url,",
+  "fields id,name,slug,summary,storyline,first_release_date,rating,rating_count,aggregated_rating,aggregated_rating_count,",
+  "genres.name,themes.name,game_modes.name,player_perspectives.name,platforms.name,cover.url,artworks.url,",
+  "age_ratings.organization.name,age_ratings.rating_category.rating,age_ratings.category,age_ratings.rating,",
+  "multiplayer_modes.campaigncoop,multiplayer_modes.dropin,multiplayer_modes.lancoop,multiplayer_modes.offlinecoop,multiplayer_modes.offlinecoopmax,multiplayer_modes.offlinemax,multiplayer_modes.onlinecoop,multiplayer_modes.onlinecoopmax,multiplayer_modes.onlinemax,multiplayer_modes.splitscreen,multiplayer_modes.splitscreenonline,",
+  "release_dates.date,release_dates.human,release_dates.platform.name,release_dates.region,release_dates.release_region.region,",
   "screenshots.url,screenshots.width,screenshots.height,",
   "videos.id,videos.name,videos.video_id,websites.url,websites.category,",
   "external_games.uid,external_games.external_game_source,external_games.category,external_games.url,",
@@ -58,19 +61,76 @@ async function requestToken() {
   return body.access_token;
 }
 
+async function igdbQuery(token, endpoint, body) {
+  return fetch(`https://api.igdb.com/v4/${endpoint}`, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Client-ID": clientId,
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "text/plain",
+    },
+    body,
+  });
+}
+
+function pause(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+async function attachBatched(games, token, endpoint, queryFor, apply) {
+  const ids = games.map((game) => game.id).filter((id) => Number.isInteger(id));
+  const byId = new Map(games.map((game) => [game.id, game]));
+  const batchSize = 200;
+  for (let index = 0; index < ids.length; index += batchSize) {
+    const batch = ids.slice(index, index + batchSize);
+    const response = await igdbQuery(token, endpoint, queryFor(batch));
+    if (!response.ok) {
+      const detail = await response.text();
+      console.warn(`IGDB ${endpoint} request failed with HTTP ${response.status}: ${detail.slice(0, 180)}. Continuing without the rest of that enrichment.`);
+      return;
+    }
+    const rows = await response.json();
+    if (!Array.isArray(rows)) {
+      console.warn(`IGDB ${endpoint} returned an unexpected payload. Continuing without the rest of that enrichment.`);
+      return;
+    }
+    for (const row of rows) apply(byId, row);
+    if (index + batchSize < ids.length) await pause(250);
+  }
+}
+
+async function attachDetailFields(games, token) {
+  await attachBatched(
+    games,
+    token,
+    "games",
+    (batch) => `fields id,keywords.name; where id = (${batch.join(",")}); limit ${batch.length};`,
+    (byId, row) => {
+      const game = byId.get(row?.id);
+      if (game && Array.isArray(row.keywords)) game.keywords = row.keywords;
+    },
+  );
+  await pause(250);
+  await attachBatched(
+    games,
+    token,
+    "game_time_to_beats",
+    (batch) => `fields game_id,hastily,normally,completely,count; where game_id = (${batch.join(",")}); limit ${batch.length};`,
+    (byId, row) => {
+      const gameId = typeof row?.game_id === "number" ? row.game_id : row?.game_id?.id;
+      const game = byId.get(gameId);
+      if (game) game.game_time_to_beat = row;
+    },
+  );
+}
+
 async function requestGames(token) {
   const games = [];
   async function requestPage(pageQuery) {
-    const response = await fetch("https://api.igdb.com/v4/games", {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Client-ID": clientId,
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "text/plain",
-      },
-      body: pageQuery,
-    });
+    const response = await igdbQuery(token, "games", pageQuery);
     if (!response.ok) {
       const detail = await response.text();
       throw new Error(`IGDB games request failed with HTTP ${response.status}: ${detail.slice(0, 300)}`);
@@ -95,7 +155,9 @@ async function requestGames(token) {
   if (!Array.isArray(games) || games.length === 0) {
     throw new Error("IGDB returned no games; refusing to replace the checked-in catalogue.");
   }
-  return Array.from(new Map(games.map((game) => [game.id, game])).values());
+  const unique = Array.from(new Map(games.map((game) => [game.id, game])).values());
+  await attachDetailFields(unique, token);
+  return unique;
 }
 
 const temporaryInput = path.join(os.tmpdir(), `gamevault-igdb-${process.pid}.json`);
