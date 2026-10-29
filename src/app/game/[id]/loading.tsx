@@ -1,13 +1,24 @@
 import Navbar from "@/components/Navbar";
 
 function Skeleton({ className }: { className: string }) {
-  return <div className={`animate-pulse rounded-lg bg-card ring-1 ring-white/5 ${className}`} />;
+  return (
+    <div
+      className={`animate-pulse rounded-lg bg-foreground/10 ring-1 ring-black/5 dark:ring-white/5 ${className}`}
+    />
+  );
 }
 
 export default function GameDetailLoading() {
   return (
     <div className="relative min-h-screen" aria-busy="true">
       <Navbar />
+
+      <div className="border-b border-black/5 bg-background/80 dark:border-white/5">
+        <div className="mx-auto flex h-12 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
+          <Skeleton className="h-11 w-11 flex-shrink-0 rounded-full md:h-9 md:w-9" />
+          <Skeleton className="h-6 w-48 max-w-[45%]" />
+        </div>
+      </div>
 
       <main
         aria-label="Loading game details"
@@ -21,7 +32,6 @@ export default function GameDetailLoading() {
               <Skeleton className="h-10 w-4/5 max-w-lg" />
               <Skeleton className="h-5 w-2/5 max-w-xs" />
               <div className="flex gap-3 pt-2">
-                <Skeleton className="h-20 w-36" />
                 <Skeleton className="h-20 w-36" />
               </div>
             </div>
