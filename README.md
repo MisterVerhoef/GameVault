@@ -28,6 +28,11 @@
 
 ## Quick Start
 
+### Requirements
+
+- Node.js 20.9 or newer
+- npm
+
 From the repository root:
 
 ```bash
@@ -36,6 +41,29 @@ npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+For a production-style local check, run:
+
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+npm run start
+```
+
+The GitHub Actions `validate` job runs the catalogue tests, regenerates and checks the
+static indexes, runs the TypeScript check and ESLint, and builds the application.
+
+## Routes
+
+- `/` — Discover catalogue, search, and platform/genre browsing
+- `/vault` — Personal vault, statuses, progress, ratings, notes, export/import, and wishlist prices
+- `/game/[id]` — Game detail page with metadata, media, stores, and related catalogue links
+- `/franchise/[id]` — Franchise catalogue
+- `/collection/[id]` — Collection catalogue
+- `/studio/[id]` — Studio catalogue
+- `/calendar` — Release calendar
+- `/stats` — Personal completion, genre, platform, rating, and recent-game statistics
 
 ## Deploy to Vercel
 
@@ -66,7 +94,7 @@ Copy `.env.example` to `.env.local` only if you sync the catalogue on your machi
 | `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
 | `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
 
-Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule). That job commits `public/catalog/games-index.json`, `public/catalog/browse-index.json`, `public/catalog/search-index.json`, `public/catalog/release-dates.json`, and `public/catalog/store-offers.json`. After it pushes to the production branch, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
+Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule at 04:17 UTC). The workflow runs `npm ci` and `npm run catalogue:sync:igdb`, then commits `public/catalog/games-index.json`, `public/catalog/browse-index.json`, `public/catalog/search-index.json`, `public/catalog/release-dates.json`, and `public/catalog/store-offers.json` when they change. After it pushes to `main`, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
 
 `public/catalog/games-index.json` is about 34 MB, `browse-index.json` about 1.7 MB, `search-index.json` about 3.6 MB, and `store-offers.json` about 0.8 MB. `release-dates.json` is the day-level subset (`releases[].date`) used by the release calendar. Home and search use the browse index and the search index. My vault uses the browse index, and fetches `store-offers.json` only when the wishlist is on screen. The release calendar fetches the browse index and `release-dates.json`. Game and studio pages read the full games index on the server. The home page does not import store offers.
 
