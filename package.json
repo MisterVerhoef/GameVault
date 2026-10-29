@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "npm run test:catalogue",
     "catalogue:generate": "node scripts/generate-catalogue.mjs",
     "catalogue:import": "node scripts/import-catalogue.mjs",
     "catalogue:sync:igdb": "node scripts/sync-igdb.mjs",
