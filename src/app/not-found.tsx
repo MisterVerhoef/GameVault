@@ -20,7 +20,7 @@ export default function NotFound() {
       >
         <div className="w-full max-w-xl">
           <div
-            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-card text-2xl font-bold text-accent ring-1 ring-white/10"
+            className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-card text-2xl font-bold text-accent ring-1 ring-black/10 dark:ring-white/10"
             aria-hidden="true"
           >
             404
@@ -43,7 +43,7 @@ export default function NotFound() {
             </Link>
             <Link
               href="/vault"
-              className="rounded-lg bg-card px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-white/10 transition hover:bg-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background [.light_&]:ring-black/10"
+              className="rounded-lg bg-card px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-black/10 transition hover:bg-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background dark:ring-white/10"
             >
               Open my vault
             </Link>
