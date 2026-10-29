@@ -29,10 +29,10 @@ export default function NotFound() {
             Page not found
           </p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-5xl">
-            Game not found
+            Page not found
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base leading-7 text-muted">
-            We couldn&apos;t find that game or page in GameVault. Browse the catalogue or return to your vault to keep exploring.
+            This page doesn&apos;t exist in GameVault. Browse the catalogue or return to your vault.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link
@@ -43,7 +43,7 @@ export default function NotFound() {
             </Link>
             <Link
               href="/vault"
-              className="rounded-lg bg-card px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-white/10 transition hover:bg-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="rounded-lg bg-card px-5 py-3 text-sm font-semibold text-foreground ring-1 ring-white/10 transition hover:bg-card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background [.light_&]:ring-black/10"
             >
               Open my vault
             </Link>
