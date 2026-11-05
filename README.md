@@ -1,28 +1,29 @@
 # GameVault
 
-**Jellyfin / Emby Plex media manager like game library** built with Next.js + React + Tailwind CSS.
+A Jellyfin/Plex-style game library built with Next.js, React, and Tailwind CSS.
 
 ## Features
 
-- Dark cinematic landscape layout
-- Horizontal scrolling rows (Action, RPG, Indie, Multiplayer)
-- Featured "Continue Gaming" hero section with progress
-- Game cards with platform badges, hover play overlay, and achievements progress bars
-- platform specific filtering (PC, PS5, Xbox, Switch)
-- platform specific theme colors (Xbox green, PS5 blue, Switch red)
-- Sticky glassmorphism navbar with search
-- Fully responsive
-- Every platform has it own color scheme when selected
-- Main platforms are pc, xbox, Playstation, Nintendo. Smaller or older platforms like sega, Atari, CDO, CDI are placed in a dropdown menu.
+- Dark, cinematic landscape layout
+- Horizontally scrolling rows for Action, RPG, Indie, and Multiplayer games
+- Featured “Continue Gaming” section with progress
+- Game cards with platform badges, hover play overlays, and achievement progress bars
+- Platform-specific filtering (PC, PlayStation 5, Xbox, and Nintendo Switch)
+- Platform-specific theme colors (Xbox green, PlayStation blue, and Nintendo red)
+- Sticky glassmorphism navigation bar with search
+- Fully responsive layout
+- A distinct color scheme for each selected platform
+- Main platforms (PC, Xbox, PlayStation, and Nintendo Switch) are shown directly; older and additional platforms (Sega, Atari, CD-i, and 3DO) are available in a dropdown menu
 
 ## Each game has a number of sections
+
 - Description
-- DLC  
+- DLC and expansions
 - Trailers
 - Screenshots
-- Review blurps
-- Achievements list
-- Collections of it has sequels/ prequals or spinoffs
+- Review blurbs
+- Achievement lists
+- Related games, including sequels, prequels, and spin-offs
 - Walkthrough links
 - Similar games
 
@@ -58,6 +59,7 @@ static indexes, runs the TypeScript check and ESLint, and builds the application
 
 - `/` — Discover catalogue, search, and platform/genre browsing
 - `/vault` — Personal vault, statuses, progress, ratings, notes, export/import, and wishlist prices
+- `/lists` — Personal game lists, stored in this browser
 - `/game/[id]` — Game detail page with metadata, media, stores, and related catalogue links
 - `/franchise/[id]` — Franchise catalogue
 - `/collection/[id]` — Collection catalogue
