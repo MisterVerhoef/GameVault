@@ -216,7 +216,7 @@ export function parseSteamAppId(url: string): string | undefined {
   try {
     const parsed = new URL(url);
     if (parsed.hostname !== "store.steampowered.com") return undefined;
-    return parsed.pathname.match(/^\\/app\\/(\\d+)(?:\\/|$)/)?.[1];
+    return parsed.pathname.match(/^\/app\/(\d+)(?:\/|$)/)?.[1];
   } catch {
     return undefined;
   }
