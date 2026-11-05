@@ -12,6 +12,10 @@ import { LIST_NAME_LIMIT } from "@/context/game-lists";
 import { findBrowseGame, toCard } from "@/data/library-view";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 
+function gameCountLabel(count: number) {
+  return `${count} ${count === 1 ? "game" : "games"}`;
+}
+
 function ListForm({ onCreate }: { onCreate: (name: string) => { error?: string } }) {
   const [name, setName] = useState("");
   const [error, setError] = useState("");
@@ -145,11 +149,13 @@ export default function ListsScreen() {
       <Navbar />
       <div className="border-b border-white/5 bg-background/80">
         <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
-          <Link href="/lists" aria-label="Back to lists" className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
-          </Link>
+          {requestedId && (
+            <Link href="/lists" aria-label="Back to lists" className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5" aria-hidden="true"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" /></svg>
+            </Link>
+          )}
           <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">{requestedId && activeList ? activeList.name : "Lists"}</h1>
-          {requestedId && activeList && <span className="ml-auto text-xs text-muted">{activeList.gameIds.length} games</span>}
+          {requestedId && activeList && <span className="ml-auto text-xs text-muted">{gameCountLabel(activeList.gameIds.length)}</span>}
         </div>
       </div>
 
@@ -209,7 +215,7 @@ export default function ListsScreen() {
               <div className="rounded-2xl border border-white/10 bg-card px-5 py-8">
                 <p className="text-sm text-foreground">You haven&apos;t made any lists yet.</p>
                 <p className="mt-1 text-sm text-muted">Create a list above, or open a game and add it to a list.</p>
-                <Link href="/" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-sm font-medium text-white hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">Browse games</Link>
+                <Link href="/" className="mt-4 inline-flex min-h-11 items-center rounded-full border border-white/10 bg-background px-4 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">Browse games</Link>
               </div>
             ) : (
               <ul className="grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3">
@@ -221,16 +227,20 @@ export default function ListsScreen() {
                   return (
                     <li key={list.id} className="rounded-2xl border border-white/10 bg-card p-4">
                       <Link href={`/lists?id=${encodeURIComponent(list.id)}`} className="block rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-                        <div className="grid h-24 grid-cols-4 gap-1 overflow-hidden rounded-lg bg-background">
-                          {covers.length > 0 ? covers.map((cover) => (
-                            <div key={cover.id} className="relative min-w-0 overflow-hidden">
-                              <Image src={cover.cover as string} alt={cover.title} fill sizes="80px" className="object-cover" unoptimized />
-                            </div>
-                          )) : <div className="col-span-4 flex items-center justify-center text-xs text-muted">No covers yet</div>}
-                        </div>
+                        {covers.length > 0 ? (
+                          <div className="grid h-24 gap-1 overflow-hidden rounded-lg bg-background" style={{ gridTemplateColumns: `repeat(${covers.length}, minmax(0, 1fr))` }}>
+                            {covers.map((cover) => (
+                              <div key={cover.id} className="relative min-w-0 overflow-hidden">
+                                <Image src={cover.cover as string} alt={cover.title} fill sizes="80px" className="object-cover" unoptimized />
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="flex h-24 items-center justify-center rounded-lg bg-background text-xs text-muted">No covers yet</div>
+                        )}
                         <div className="mt-3 flex items-center justify-between gap-3">
                           <h2 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground">{list.name}</h2>
-                          <span className="shrink-0 text-xs tabular-nums text-muted">{list.gameIds.length} games</span>
+                          <span className="shrink-0 text-xs tabular-nums text-muted">{gameCountLabel(list.gameIds.length)}</span>
                         </div>
                       </Link>
                       <div className="mt-3 flex flex-wrap items-center gap-2">
