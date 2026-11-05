@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LibraryProvider } from "@/context/LibraryContext";
+import { ListsProvider } from "@/context/ListsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <ThemeProvider>
-          <LibraryProvider>{children}</LibraryProvider>
+          <LibraryProvider><ListsProvider>{children}</ListsProvider></LibraryProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -12,6 +12,7 @@ import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
+import ListControls from "@/components/ListControls";
 import CardScroller from "@/components/CardScroller";
 import Navbar from "@/components/Navbar";
 
@@ -370,6 +371,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 </a>
               ))}
               <LibraryControls gameId={game.id} />
+              <ListControls gameId={game.id} gameTitle={game.title} />
             </div>
             {offers.length > 0 && (
               <p className="text-xs text-muted">Prices in EUR for the Netherlands.</p>
