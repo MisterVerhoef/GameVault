@@ -60,7 +60,7 @@ function portalRecords(payload, output = []) {
     const parsedYear = typeof yearValue === "number"
       ? yearValue
       : typeof yearValue === "string" ? Number.parseInt(yearValue.slice(0, 4), 10) : NaN;
-    const idValue = record.conceptId ?? record.concept_id ?? record.psStoreId ?? record.ps_store_id ?? record.id;
+    const idValue = record.conceptId ?? record.concept_id ?? record.psStoreId ?? record.ps_store_id;
     const id = idValue == null ? undefined : String(idValue).trim();
     output.push({
       id: id && /^\d+$/.test(id) ? id : undefined,
