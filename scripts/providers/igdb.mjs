@@ -25,6 +25,7 @@ const IGDB_STORE_SOURCES = {
   11: "xbox",
   31: "xbox",
   36: "playstation",
+  54: "xbox",
 };
 
 function storeIdsFromIgdb(externalGames = []) {
