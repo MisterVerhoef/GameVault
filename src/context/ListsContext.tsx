@@ -40,7 +40,7 @@ export function ListsProvider({ children }: { children: React.ReactNode }) {
         setState(normalizeListsState(JSON.parse(saved)));
       }
     } catch {
-      window.localStorage.removeItem(STORAGE_KEY);
+      try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be unavailable in private browsing. */ }
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ schemaVersion: 1, lists: [] });
     }
