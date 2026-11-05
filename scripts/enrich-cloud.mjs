@@ -124,6 +124,7 @@ async function loadXboxCloudIds() {
 
 async function loadBoosteroidSteamIds() {
   const urls = [
+    "https://store.steampowered.com/curator/45507051/ajaxgetfilteredrecommendations/render/?query=&start=0&count=1000&tagids=&sort=recent&types=0",
     "https://store.steampowered.com/curator/45507051/ajaxgetfilteredrecommendations/?query=&start=0&count=1000&tagid=0",
     "https://store.steampowered.com/curator/45507051/",
   ];
