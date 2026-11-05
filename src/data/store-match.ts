@@ -211,6 +211,17 @@ export function parseStoreUrl(url: string): StoreIdentity | undefined {
   return undefined;
 }
 
+/** Steam app id from an IGDB Steam website link. */
+export function parseSteamAppId(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "store.steampowered.com") return undefined;
+    return parsed.pathname.match(/^\\/app\\/(\\d+)(?:\\/|$)/)?.[1];
+  } catch {
+    return undefined;
+  }
+}
+
 export function identitiesFromGame(game: {
   websites?: { url: string }[];
   externalIds?: { store: StoreId; id: string }[];
