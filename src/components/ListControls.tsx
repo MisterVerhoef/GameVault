@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { listsForGame } from "@/context/game-lists";
+import { LIST_NAME_LIMIT, listsForGame } from "@/context/game-lists";
 import { useLists } from "@/context/ListsContext";
 
 export default function ListControls({ gameId, gameTitle }: { gameId: string; gameTitle: string }) {
@@ -87,7 +87,7 @@ export default function ListControls({ gameId, gameTitle }: { gameId: string; ga
                       toggleGame(item.id, gameId);
                       setAnnouncement(item.gameIds.includes(gameId) ? `Removed from ${item.name}` : `Added to ${item.name}`);
                     }}
-                    className="h-4 w-4 accent-[var(--color-accent)]"
+                    className="h-4 w-4 accent-accent"
                   />
                   <span>{item.name}</span>
                   <span className="ml-auto text-xs text-muted">{item.gameIds.length}</span>
@@ -104,7 +104,7 @@ export default function ListControls({ gameId, gameTitle }: { gameId: string; ga
                 id={`new-list-${gameId}`}
                 value={name}
                 onChange={(event) => { setName(event.target.value); setError(""); }}
-                maxLength={60}
+                maxLength={LIST_NAME_LIMIT}
                 placeholder="e.g. Couch co-op"
                 className="h-11 min-w-0 flex-1 rounded-lg border border-white/10 bg-background px-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
               />
