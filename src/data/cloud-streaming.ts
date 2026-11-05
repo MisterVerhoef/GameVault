@@ -34,7 +34,7 @@ function isServiceId(value: unknown): value is CloudServiceId {
 
 export function normalizeCloudTitle(value: string): string {
   return normalizeTitle(value);
-
+}
 
 export function parsePlayStationConceptId(value: string): string | undefined {
   try {
