@@ -46,7 +46,7 @@ export function normalizeListsState(raw: unknown): ListsState {
     if (!name || seen.has(id) || lists.length >= LIST_LIMIT) continue;
     seen.add(id);
     const gameIds = Array.isArray(item.gameIds)
-      ? [...new Set(item.gameIds.filter((gameId): gameId is string => typeof gameId === "string" && gameId.trim()).map((gameId) => gameId.trim()))].slice(0, LIST_GAME_LIMIT)
+      ? [...new Set(item.gameIds.filter((gameId): gameId is string => typeof gameId === "string" && gameId.trim().length > 0).map((gameId) => gameId.trim()))].slice(0, LIST_GAME_LIMIT)
       : [];
     const createdAt = timestamp(item.createdAt, now);
     lists.push({
