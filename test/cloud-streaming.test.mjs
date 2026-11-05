@@ -15,7 +15,7 @@ test("normalizes titles without introducing fuzzy matches", () => {
   assert.equal(normalizeCloudTitle("Baldur’s Gate 3"), "baldurs gate 3");
   assert.equal(normalizeCloudTitle("Tom Clancy's The Division 2"), "tom clancys the division 2");
   assert.equal(matchCloudTitle({ title: "Hades", releaseYear: 2020 }, [
-    { id: "1", title: "Hades", year: 2018 },
+    { id: "1", title: "Hades", year: 2017 },
   ]), undefined);
   assert.equal(matchCloudTitle({ title: "Hades" }, [
     { id: "1", title: "Hades" },
