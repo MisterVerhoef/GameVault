@@ -215,7 +215,7 @@ export default function ListsScreen() {
               <ul className="grid list-none gap-4 sm:grid-cols-2 xl:grid-cols-3">
                 {lists.map((list) => {
                   const covers = list.gameIds.slice(0, 4).flatMap((id) => {
-                    const game = findBrowseGame(catalogue, id);
+                    const game = catalogue ? findBrowseGame(catalogue, id) : null;
                     return game?.cover ? [{ id, title: game.title, cover: game.cover }] : [];
                   });
                   return (
