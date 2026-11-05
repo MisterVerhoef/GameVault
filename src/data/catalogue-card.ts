@@ -7,4 +7,6 @@ export interface CatalogueCard {
   platformVariants?: readonly string[];
   releaseYear?: number;
   rating?: number;
+  /** Cloud streaming services matched by the offline Netherlands catalogue. */
+  cloudServices?: readonly string[];
 }
