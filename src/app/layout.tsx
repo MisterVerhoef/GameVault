@@ -4,7 +4,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LibraryProvider } from "@/context/LibraryContext";
 import { ListsProvider } from "@/context/ListsContext";
-import { ListsProvider } from "@/context/ListsContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
