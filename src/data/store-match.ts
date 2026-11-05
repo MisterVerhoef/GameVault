@@ -81,6 +81,7 @@ const IGDB_STORE_SOURCES: Record<number, StoreId> = {
   11: "xbox",
   31: "xbox",
   36: "playstation",
+  54: "xbox",
 };
 
 export function storePlatform(store: StoreId): StoreOffer["platform"] {
