@@ -1,4 +1,6 @@
-import type { Game } from "./games";
+import { normalizeTitle, parseSteamAppId } from "./store-match";
+
+export { parseSteamAppId };
 
 export type CloudServiceId = "xbox-cloud" | "boosteroid" | "ps-plus";
 export type CloudMatch = "external-id" | "exact-title";
@@ -31,27 +33,8 @@ function isServiceId(value: unknown): value is CloudServiceId {
 }
 
 export function normalizeCloudTitle(value: string): string {
-  return value
-    .normalize("NFKD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/&/g, " and ")
-    .toLowerCase()
-    .replace(/['’]/g, "")
-    .replace(/[^a-z0-9]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
+  return normalizeTitle(value);
 
-export function parseSteamAppId(value: string): string | undefined {
-  try {
-    const url = new URL(value);
-    if (url.hostname !== "store.steampowered.com" && !url.hostname.endsWith(".steampowered.com")) return undefined;
-    const match = url.pathname.match(/^\/app\/(\d+)(?:\/|$)/);
-    return match?.[1];
-  } catch {
-    return undefined;
-  }
-}
 
 export function parsePlayStationConceptId(value: string): string | undefined {
   try {
@@ -152,10 +135,3 @@ export function cloudServiceNames(services: readonly CloudStreamingService[]): s
   return services.map((service) => service.name);
 }
 
-/** Resolve only IDs explicitly present in the game catalogue; title matching is handled by the enrichment job. */
-export function gameSteamAppIds(game: Pick<Game, "websites">): string[] {
-  return Array.from(new Set(game.websites.flatMap((site) => {
-    const id = parseSteamAppId(site.url);
-    return id ? [id] : [];
-  })));
-}
