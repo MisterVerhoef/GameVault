@@ -226,8 +226,6 @@ function retainPrevious(gameId, serviceId, target) {
 
 for (const game of games) {
   const services = [];
-  const previousServices = previousGames[game.id]?.services ?? [];
-
   if (feeds.xbox.ok) {
     const id = [...xboxIds(game)].find((value) => feeds.xbox.value.has(value));
     if (id) {
