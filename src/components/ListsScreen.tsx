@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import Navbar from "@/components/Navbar";
 import { useRovingCards } from "@/components/use-roving-cards";
 import { useLists } from "@/context/ListsContext";
+import { LIST_NAME_LIMIT } from "@/context/game-lists";
 import { findBrowseGame, toCard } from "@/data/library-view";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 
@@ -38,7 +39,7 @@ function ListForm({ onCreate }: { onCreate: (name: string) => { error?: string }
           id="create-list-name"
           value={name}
           onChange={(event) => { setName(event.target.value); setError(""); }}
-          maxLength={60}
+          maxLength={LIST_NAME_LIMIT}
           placeholder="e.g. Couch co-op"
           className="h-11 min-w-0 flex-1 rounded-lg border border-white/10 bg-background px-3 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         />
@@ -102,6 +103,7 @@ function ListNameEditor({ listId, currentName, onSave }: {
 
 export default function ListsScreen() {
   const params = useSearchParams();
+  const router = useRouter();
   const requestedId = params.get("id");
   const { state, ready, create, rename, remove, removeGame } = useLists();
   const { catalogue, failed } = useBrowseCatalogue(false);
@@ -134,7 +136,7 @@ export default function ListsScreen() {
     if (!window.confirm(`Delete the list “${name}”? Games will remain in your vault.`)) return;
     remove(listId);
     setAnnouncement(`Deleted ${name}`);
-    if (requestedId) window.location.assign("/lists");
+    if (requestedId) router.push("/lists");
   };
 
   return (
