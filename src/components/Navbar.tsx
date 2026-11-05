@@ -200,6 +200,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             My vault
           </Link>
           <Link
+            href="/lists"
+            aria-current={pathname === "/lists" ? "page" : undefined}
+            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+              pathname === "/lists" ? "text-foreground" : "text-muted hover:text-foreground"
+            }`}
+          >
+            Lists
+          </Link>
+          <Link
             href="/calendar"
             aria-current={pathname === "/calendar" ? "page" : undefined}
             className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
@@ -496,6 +505,16 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               }`}
             >
               My vault
+            </Link>
+            <Link
+              href="/lists"
+              onClick={() => setMenuOpen(false)}
+              aria-current={pathname === "/lists" ? "page" : undefined}
+              className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/lists" ? "text-foreground" : "text-muted hover:text-foreground"
+              }`}
+            >
+              Lists
             </Link>
             <Link
               href="/calendar"
