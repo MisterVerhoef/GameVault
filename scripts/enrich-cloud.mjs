@@ -87,8 +87,8 @@ function playStationIds(game) {
   const ids = new Set();
   for (const entry of game.externalIds ?? []) {
     if (entry.store === "playstation") {
-      const id = String(entry.id).replace(/^(concept:|product:)/, "");
-      if (/^\d+$/.test(id)) ids.add(id);
+      const id = String(entry.id);
+      if (id.startsWith("concept:") && /^\d+$/.test(id.slice("concept:".length))) ids.add(id.slice("concept:".length));
     }
   }
   for (const site of game.websites ?? []) {
