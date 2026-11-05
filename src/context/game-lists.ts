@@ -64,7 +64,7 @@ export function normalizeListsState(raw: unknown): ListsState {
 function validateName(state: ListsState, name: unknown, exceptId?: string) {
   const clean = cleanName(name);
   if (!clean) return { name: clean, error: "Enter a list name." };
-  if (state.lists.some((list) => list.id !== exceptId && list.name.toLocaleLowerCase() === clean.toLocaleLowerCase())) {
+  if (state.lists.some((list) => list.id !== exceptId && list.name.toLowerCase() === clean.toLowerCase())) {
     return { name: clean, error: "A list with that name already exists." };
   }
   return { name: clean, error: "" };
