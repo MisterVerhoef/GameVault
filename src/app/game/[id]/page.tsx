@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type ExternalLink, type Game } from "@/data/games";
@@ -18,6 +19,15 @@ import Navbar from "@/components/Navbar";
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: GameDetailPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const game = allGames.find((entry) => entry.id === id);
+
+  return {
+    title: game ? `${game.title} · GameVault` : "Game not found · GameVault",
+  };
 }
 
 function getYouTubeThumbnail(url: string) {
