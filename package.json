@@ -12,9 +12,10 @@
     "catalogue:import": "node scripts/import-catalogue.mjs",
     "catalogue:sync:igdb": "node scripts/sync-igdb.mjs",
     "catalogue:enrich:stores": "node scripts/enrich-stores.mjs",
+    "catalogue:enrich:cloud": "node scripts/enrich-cloud.mjs",
     "catalogue:search-index": "node scripts/build-search-index.mjs",
     "catalogue:diff": "node scripts/catalogue-diff.mjs",
-    "test:catalogue": "node --test test/format-helpers.test.mjs test/game-lists.test.mjs test/catalogue.test.mjs test/store-enrichment.test.mjs test/store-offer-index.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs test/release-calendar.test.mjs test/vault-stats.test.mjs"
+    "test:catalogue": "node --test test/format-helpers.test.mjs test/game-lists.test.mjs test/catalogue.test.mjs test/store-enrichment.test.mjs test/store-offer-index.test.mjs test/cloud-streaming.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs test/release-calendar.test.mjs test/vault-stats.test.mjs"
   },
   "dependencies": {
     "next": "16.3.6",

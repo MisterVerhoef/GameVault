@@ -81,6 +81,7 @@ const IGDB_STORE_SOURCES: Record<number, StoreId> = {
   11: "xbox",
   31: "xbox",
   36: "playstation",
+  54: "xbox",
 };
 
 export function storePlatform(store: StoreId): StoreOffer["platform"] {
@@ -208,6 +209,17 @@ export function parseStoreUrl(url: string): StoreIdentity | undefined {
     if (nsuid) return { store: "nintendo", id: nsuid[0] };
   }
   return undefined;
+}
+
+/** Steam app id from an IGDB Steam website link. */
+export function parseSteamAppId(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "store.steampowered.com") return undefined;
+    return parsed.pathname.match(/^\/app\/(\d+)(?:\/|$)/)?.[1];
+  } catch {
+    return undefined;
+  }
 }
 
 export function identitiesFromGame(game: {
