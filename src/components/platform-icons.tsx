@@ -251,15 +251,19 @@ export function PlatformName({
   name,
   className = "gap-1.5",
   iconClassName = "h-4 w-4",
+  hideLabel = false,
 }: {
   name: string;
   className?: string;
   iconClassName?: string;
+  /** Visually hide the name when the icon can stand in for it. */
+  hideLabel?: boolean;
 }) {
+  const hasIcon = platformIconKind(name) !== null;
   return (
     <span className={`inline-flex min-w-0 items-center ${className}`}>
       <PlatformIcon name={name} className={iconClassName} />
-      <span>{name}</span>
+      <span className={hideLabel && hasIcon ? "sr-only" : undefined}>{name}</span>
     </span>
   );
 }
