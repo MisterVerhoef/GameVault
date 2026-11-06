@@ -107,46 +107,44 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               Details
             </button>
           </div>
-        </div>
 
-        {availableGames.length > 1 && (
-          <div className="flex items-center justify-center gap-2 lg:absolute lg:bottom-6 lg:right-8" aria-label="Featured title selector">
-            <button
-              type="button"
-              onClick={() => setSelectedIndex((index) => (index - 1 + availableGames.length) % availableGames.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label="Previous featured title"
-            >
-              <span aria-hidden="true">←</span>
-            </button>
-            <div className="flex max-w-[min(60vw,28rem)] gap-1 overflow-x-auto px-1 py-1">
-              {availableGames.map((game, index) => (
-                <button
-                  key={game.id}
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                  aria-label={`Show featured title ${index + 1}: ${game.title}`}
-                  aria-current={index === selectedIndex ? "true" : undefined}
-                  className={`max-w-32 truncate rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    index === selectedIndex
-                      ? "bg-accent text-white"
-                      : "bg-card/70 text-muted hover:text-foreground"
-                  }`}
-                >
-                  {game.title}
-                </button>
-              ))}
+          {availableGames.length > 1 && (
+            <div className="mt-4 flex items-center justify-center gap-2 lg:justify-start" aria-label="Featured title selector">
+              <button
+                type="button"
+                onClick={() => setSelectedIndex((index) => (index - 1 + availableGames.length) % availableGames.length)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="Previous featured title"
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <div className="flex items-center gap-2 px-1 py-1">
+                {availableGames.map((game, index) => (
+                  <button
+                    key={game.id}
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    aria-label={`Show featured title ${index + 1}: ${game.title}`}
+                    aria-current={index === selectedIndex ? "true" : undefined}
+                    className={`h-2.5 w-2.5 rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                      index === selectedIndex
+                        ? "bg-accent scale-125"
+                        : "bg-white/35 hover:bg-white/55"
+                    }`}
+                  />
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedIndex((index) => (index + 1) % availableGames.length)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="Next featured title"
+              >
+                <span aria-hidden="true">→</span>
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setSelectedIndex((index) => (index + 1) % availableGames.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label="Next featured title"
-            >
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

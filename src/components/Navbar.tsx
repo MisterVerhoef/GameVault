@@ -26,9 +26,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [desktopSearchCompact, setDesktopSearchCompact] = useState(false);
+  const [desktopSearchExpanded, setDesktopSearchExpanded] = useState(false);
   const searchToggleRef = useRef<HTMLButtonElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
+  const desktopSearchRef = useRef<HTMLInputElement>(null);
+  const headerRef = useRef<HTMLElement>(null);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
+  /** Below this header width, platform + nav leave too little room for a labeled field. */
+  const DESKTOP_SEARCH_COMPACT_HEADER = 1180;
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
@@ -70,6 +76,22 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   useEffect(() => {
     if (searchOpen) mobileSearchRef.current?.focus();
   }, [searchOpen]);
+
+  useEffect(() => {
+    if (desktopSearchExpanded) desktopSearchRef.current?.focus();
+  }, [desktopSearchExpanded]);
+
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      const compact = entry.contentRect.width < DESKTOP_SEARCH_COMPACT_HEADER;
+      setDesktopSearchCompact(compact);
+      if (!compact) setDesktopSearchExpanded(false);
+    });
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const desktop = window.matchMedia("(min-width: 640px)");
@@ -162,7 +184,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
+    <header ref={headerRef} className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
       <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
@@ -245,7 +267,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
         </div>
 
         {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
           {/* Search icon (mobile toggle). The field is the next DOM node so
               screen readers and Tab reach it before the library and menu. */}
@@ -310,40 +332,83 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             />
           </form>
 
-          {/* Search input (desktop) */}
-          <form
-            role="search"
-            onSubmit={submitSearch}
-            className="relative hidden sm:block"
+          {/* Search input (desktop). Collapses to an icon when the header is too narrow. */}
+          <div
+            className={`relative hidden h-9 sm:block ${
+              desktopSearchCompact && !desktopSearchExpanded ? "w-9" : "w-44"
+            }`}
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              aria-hidden="true"
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-              />
-            </svg>
-            <label htmlFor="navbar-search" className="sr-only">
-              Search games
-            </label>
-            <input
-              id="navbar-search"
-              type="search"
-              placeholder="Search games..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              onBlur={(e) => rememberSearch(e.target.value)}
-              className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-            />
-          </form>
+            {desktopSearchCompact && !desktopSearchExpanded ? (
+              <button
+                type="button"
+                onClick={() => setDesktopSearchExpanded(true)}
+                aria-label="Search games"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
+              </button>
+            ) : (
+              <form
+                role="search"
+                onSubmit={submitSearch}
+                className={`relative h-9 ${desktopSearchCompact ? "absolute right-0 top-0 z-20 w-[min(11rem,calc(100vw-8rem))]" : "w-full"}`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                  />
+                </svg>
+                <label htmlFor="navbar-search" className="sr-only">
+                  Search games
+                </label>
+                <input
+                  ref={desktopSearchRef}
+                  id="navbar-search"
+                  type="search"
+                  placeholder="Search games..."
+                  value={search}
+                  onChange={(e) => handleSearch(e.target.value)}
+                  onBlur={(e) => {
+                    rememberSearch(e.target.value);
+                    if (desktopSearchCompact && !e.target.value.trim()) {
+                      setDesktopSearchExpanded(false);
+                    }
+                  }}
+                  onKeyDown={(event) => {
+                    if (event.key === "Escape" && desktopSearchCompact) {
+                      event.preventDefault();
+                      setDesktopSearchExpanded(false);
+                    }
+                  }}
+                  className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                />
+              </form>
+            )}
+          </div>
 
           {/* Library menu */}
           <div className="relative">
