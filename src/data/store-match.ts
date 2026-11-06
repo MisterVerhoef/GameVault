@@ -12,7 +12,7 @@ export interface StoreIdentity {
 
 export interface StoreOffer {
   store: StoreId;
-  platform: "Xbox" | "PS5" | "Switch";
+  platform: "Xbox" | "PS5" | "Switch" | "PC";
   productId: string;
   url: string;
   title: string;
@@ -75,12 +75,27 @@ const STORE_PLATFORM = {
   xbox: "Xbox",
   playstation: "PS5",
   nintendo: "Switch",
+  steam: "PC",
+  epic: "PC",
+  gog: "PC",
 } as const;
 
 const IGDB_STORE_SOURCES: Record<number, StoreId> = {
+  1: "steam",
+  5: "gog",
   11: "xbox",
+  26: "epic",
   31: "xbox",
   36: "playstation",
+};
+
+const STORE_NAMES: Record<StoreId, string> = {
+  xbox: "Microsoft Store",
+  playstation: "PlayStation Store",
+  nintendo: "Nintendo eShop",
+  steam: "Steam",
+  epic: "Epic Games Store",
+  gog: "GOG",
 };
 
 export function storePlatform(store: StoreId): StoreOffer["platform"] {
@@ -207,6 +222,18 @@ export function parseStoreUrl(url: string): StoreIdentity | undefined {
     const nsuid = url.match(/700\d{11,14}/);
     if (nsuid) return { store: "nintendo", id: nsuid[0] };
   }
+  if (host === "store.steampowered.com") {
+    const app = parsed.pathname.match(/\/(?:agecheck\/)?app\/(\d+)/i);
+    if (app) return { store: "steam", id: app[1] };
+  }
+  if (host === "gog.com") {
+    const slug = parsed.pathname.match(/\/game\/([A-Za-z0-9][A-Za-z0-9_-]*)\/?$/i);
+    if (slug) return { store: "gog", id: slug[1] };
+  }
+  if (host === "store.epicgames.com" || host === "epicgames.com") {
+    const slug = parsed.pathname.match(/\/(?:p|product)\/([A-Za-z0-9][A-Za-z0-9_-]*)(?:\/|$)/i);
+    if (slug) return { store: "epic", id: slug[1] };
+  }
   return undefined;
 }
 
@@ -245,7 +272,7 @@ export function storeIdsFromIgdb(externalGames: readonly {
   const seen = new Set<string>();
   for (const entry of externalGames) {
     const store = IGDB_STORE_SOURCES[entry.external_game_source ?? entry.category ?? -1];
-    const uid = entry.uid?.trim();
+    const uid = typeof entry.uid === "string" ? entry.uid.trim() : "";
     if (!store || !uid) continue;
     const key = `${store}:${uid}`;
     if (seen.has(key)) continue;
@@ -280,7 +307,7 @@ export function mergeStoreOffers(
   previous: readonly StoreOffer[] | undefined,
   attempts: Partial<Record<StoreId, StoreAttempt>>,
 ): StoreOffer[] {
-  const stores: StoreId[] = ["xbox", "playstation", "nintendo"];
+  const stores: StoreId[] = ["xbox", "playstation", "nintendo", "steam", "epic", "gog"];
   const offers: StoreOffer[] = [];
   for (const store of stores) {
     const attempt = attempts[store];
@@ -365,9 +392,7 @@ export function applyFills(game: Game, fills: StoreFills | undefined): { game: G
 }
 
 export function storeName(store: StoreId): string {
-  if (store === "xbox") return "Microsoft Store";
-  if (store === "playstation") return "PlayStation Store";
-  return "Nintendo eShop";
+  return STORE_NAMES[store];
 }
 
 export function ageInDays(checkedAt: string, today: string): number {

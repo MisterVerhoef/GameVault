@@ -39,11 +39,13 @@ export function createCircuit(name) {
   };
 }
 
-async function fetchJsonOnce(url, headers) {
+async function fetchJsonOnce(url, headers, options = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12_000);
   try {
     const response = await fetch(url, {
+      method: options.method ?? "GET",
+      body: options.body,
       headers: { Accept: "application/json", "User-Agent": USER_AGENT, ...headers },
       signal: controller.signal,
       redirect: "follow",
@@ -66,13 +68,13 @@ async function fetchJsonOnce(url, headers) {
   }
 }
 
-export async function fetchJson(url, headers = {}) {
+export async function fetchJson(url, headers = {}, options = {}) {
   try {
-    return await fetchJsonOnce(url, headers);
+    return await fetchJsonOnce(url, headers, options);
   } catch (error) {
     if (error.status && error.status < 500 && error.status !== 429) throw error;
     await new Promise((resolve) => setTimeout(resolve, 400));
-    return fetchJsonOnce(url, headers);
+    return fetchJsonOnce(url, headers, options);
   }
 }
 
