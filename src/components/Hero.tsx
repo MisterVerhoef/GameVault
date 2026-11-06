@@ -56,11 +56,11 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
       </div>
 
       <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-[30px] lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-12">
-        {/* Cover art — centered on mobile, side on desktop */}
+        {/* Cover art — centered on mobile, portrait beside the title on desktop. */}
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:h-[564px] lg:w-[calc(75%+3rem)]"
+        className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:mx-0 lg:aspect-[3/4] lg:h-[564px] lg:w-auto"
       >
         {coverUrl && (
           <Image
@@ -75,14 +75,14 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
       </Link>
 
         {/* Info */}
-        <div className="relative z-10 flex flex-1 flex-col gap-3 text-center lg:text-left">
+        <div className="relative z-10 flex min-w-0 flex-1 flex-col gap-3 text-center lg:text-left">
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
             Featured Game
           </p>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h1 className="break-words text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {featured.title}
           </h1>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
             <span aria-hidden="true">•</span>
             <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
@@ -90,7 +90,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               {formatRating(featured.rating)}
             </span>
             <span aria-hidden="true">•</span>
-            <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
+            <div className="flex min-w-0 max-w-full flex-wrap justify-center gap-1.5 lg:justify-start">
               {listedSystemNames(featured).slice(0, 4).map((name) => (
                 <span
                   key={name}
@@ -103,9 +103,13 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           </div>
 
           <div className="mt-4 flex flex-wrap justify-center gap-3 lg:justify-start">
-            <button className="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background" style={{ borderColor: `${themeColor}33` }}>
+            <Link
+              href={`/game/${featured.id}`}
+              className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              style={{ borderColor: `${themeColor}33` }}
+            >
               Details
-            </button>
+            </Link>
           </div>
 
           {availableGames.length > 1 && (
@@ -133,7 +137,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
                       className={`h-2.5 w-2.5 rounded-full transition ${
                         index === selectedIndex
                           ? "scale-125 bg-accent"
-                          : "bg-white/35 group-hover:bg-white/55"
+                          : "bg-foreground/60 group-hover:bg-foreground/85"
                       }`}
                     />
                   </button>
