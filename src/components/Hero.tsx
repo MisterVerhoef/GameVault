@@ -118,7 +118,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               >
                 <span aria-hidden="true">←</span>
               </button>
-              <div className="flex items-center gap-2 px-1 py-1">
+              <div className="flex items-center gap-0 px-1 py-1">
                 {availableGames.map((game, index) => (
                   <button
                     key={game.id}
@@ -126,12 +126,17 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
                     onClick={() => setSelectedIndex(index)}
                     aria-label={`Show featured title ${index + 1}: ${game.title}`}
                     aria-current={index === selectedIndex ? "true" : undefined}
-                    className={`h-2.5 w-2.5 rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
-                      index === selectedIndex
-                        ? "bg-accent scale-125"
-                        : "bg-white/35 hover:bg-white/55"
-                    }`}
-                  />
+                    className="group flex h-11 w-11 items-center justify-center rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`h-2.5 w-2.5 rounded-full transition ${
+                        index === selectedIndex
+                          ? "scale-125 bg-accent"
+                          : "bg-white/35 group-hover:bg-white/55"
+                      }`}
+                    />
+                  </button>
                 ))}
               </div>
               <button

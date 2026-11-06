@@ -647,9 +647,16 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
         {game.similarGames.length > 0 && (
           <section className="mb-12" aria-labelledby="similar-games">
-            <h2 id="similar-games" className="mb-4 text-lg font-bold tracking-tight text-foreground">Similar games</h2>
             <p className="sr-only">Arrow keys move between games in the catalogue.</p>
-            <CardScroller className="flex gap-4 overflow-x-auto pb-3">
+            <CardScroller
+              label="Similar games"
+              heading={
+                <h2 id="similar-games" className="text-lg font-bold tracking-tight text-foreground">
+                  Similar games
+                </h2>
+              }
+              className="flex gap-4 overflow-x-auto pb-3"
+            >
               {game.similarGames.map((item) => (
                 <SimilarGameCard key={item.id} item={item} />
               ))}

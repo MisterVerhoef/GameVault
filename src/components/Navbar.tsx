@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { browseQuery } from "@/data/browse";
@@ -31,6 +31,8 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const searchToggleRef = useRef<HTMLButtonElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
   const desktopSearchRef = useRef<HTMLInputElement>(null);
+  const desktopSearchIconRef = useRef<HTMLButtonElement>(null);
+  const restoreDesktopSearchIconFocusRef = useRef(false);
   const headerRef = useRef<HTMLElement>(null);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
   /** Below this header width, platform + nav leave too little room for a labeled field. */
@@ -78,16 +80,30 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   }, [searchOpen]);
 
   useEffect(() => {
-    if (desktopSearchExpanded) desktopSearchRef.current?.focus();
+    if (desktopSearchExpanded) {
+      desktopSearchRef.current?.focus();
+      return;
+    }
+    if (!restoreDesktopSearchIconFocusRef.current) return;
+    restoreDesktopSearchIconFocusRef.current = false;
+    desktopSearchIconRef.current?.focus();
   }, [desktopSearchExpanded]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const header = headerRef.current;
-    if (!header || typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) => {
-      const compact = entry.contentRect.width < DESKTOP_SEARCH_COMPACT_HEADER;
+    if (!header) return;
+
+    const applyWidth = (width: number) => {
+      const compact = width < DESKTOP_SEARCH_COMPACT_HEADER;
       setDesktopSearchCompact(compact);
       if (!compact) setDesktopSearchExpanded(false);
+    };
+
+    applyWidth(header.getBoundingClientRect().width);
+
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(([entry]) => {
+      applyWidth(entry.contentRect.width);
     });
     observer.observe(header);
     return () => observer.disconnect();
@@ -98,7 +114,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const onChange = () => {
       if (!desktop.matches || !searchOpen) return;
       setSearchOpen(false);
-      document.getElementById("navbar-search")?.focus();
+      const input = document.getElementById("navbar-search");
+      if (input) {
+        input.focus();
+        return;
+      }
+      // Compact mode: input is unmounted until expanded.
+      setDesktopSearchExpanded(true);
     };
     desktop.addEventListener("change", onChange);
     return () => desktop.removeEventListener("change", onChange);
@@ -340,6 +362,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           >
             {desktopSearchCompact && !desktopSearchExpanded ? (
               <button
+                ref={desktopSearchIconRef}
                 type="button"
                 onClick={() => setDesktopSearchExpanded(true)}
                 aria-label="Search games"
@@ -401,6 +424,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   onKeyDown={(event) => {
                     if (event.key === "Escape" && desktopSearchCompact) {
                       event.preventDefault();
+                      restoreDesktopSearchIconFocusRef.current = true;
                       setDesktopSearchExpanded(false);
                     }
                   }}
