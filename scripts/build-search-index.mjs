@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadTsModule } from "./load-ts-module.mjs";
 
-const { gameMatchesGenre } = loadTsModule("src/data/browse.ts");
+const { criticScore, gameMatchesGenre, releaseOnForGame } = loadTsModule("src/data/browse.ts");
 const { collectDownloadableIds } = loadTsModule("src/data/downloadable.ts");
 const { toReleaseDateRecord } = loadTsModule("src/data/release-calendar.ts");
 
@@ -64,7 +64,11 @@ const browseGames = catalogue.games.map((game) => {
   const cover = coverUrl(game.cover?.url);
   if (cover) record.cover = cover;
   if (game.releaseYear != null) record.releaseYear = game.releaseYear;
+  const releaseOn = releaseOnForGame(game);
+  if (releaseOn) record.releaseOn = releaseOn;
   if (game.rating != null) record.rating = game.rating;
+  const aggregatedRating = criticScore(game.aggregatedRating);
+  if (aggregatedRating != null) record.aggregatedRating = aggregatedRating;
   if (game.genres?.length) record.genres = game.genres;
   if (game.themes?.length) record.themes = game.themes;
   if (game.platformVariants?.length) record.platformVariants = game.platformVariants;

@@ -1,16 +1,18 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import GameRow from "@/components/GameRow";
 import GameWall from "@/components/GameWall";
 import { useLibrary } from "@/context/LibraryContext";
+import { browseQuery, type GenreSort } from "@/data/browse";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { buildLibraryView, readHomeQuery, sameHomeQuery, type LibraryView } from "@/data/library-view";
 
 export default function HomeScreen({ initialView }: { initialView: LibraryView }) {
+  const router = useRouter();
   const params = useSearchParams();
   const queryString = params.toString();
   const urlSearch = params.get("search") ?? "";
@@ -34,12 +36,25 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
     variant: params.get("variant"),
     genre: params.get("genre"),
     exclusives: params.get("exclusives"),
+    sort: params.get("sort"),
   });
   const view = catalogue && (!sameHomeQuery(liveQuery, initialView.query) || (ready && playingIds.length > 0))
     ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
     : initialView;
 
   const featured = view.heroGames[0] ?? view.featuredGame;
+  const genreSort = Boolean(view.query.genre) && !view.searching && view.wall != null;
+  const onSortChange = (sort: GenreSort) => {
+    router.push(browseQuery({
+      search: view.query.search,
+      family: view.query.family,
+      platform: view.query.platform,
+      variant: view.query.variant,
+      genre: view.query.genre,
+      exclusives: view.query.exclusives,
+      sort,
+    }));
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -69,6 +84,8 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
             backLabel={view.wall.backLabel}
             emptyLabel={view.wall.emptyLabel}
             sections={view.wall.sections}
+            sortValue={genreSort ? view.query.sort : undefined}
+            onSortChange={genreSort ? onSortChange : undefined}
           />
         ) : (
           <>
