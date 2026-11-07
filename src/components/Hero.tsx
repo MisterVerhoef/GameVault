@@ -25,6 +25,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
   const [selectedIndex, setSelectedIndex] = useState(0);
   const featured = availableGames[Math.min(selectedIndex, Math.max(availableGames.length - 1, 0))];
   const coverUrl = featured?.cover?.url ? getHighQualityCoverUrl(featured.cover.url) : undefined;
+  const ratingText = featured ? formatRating(featured.rating) : "";
   if (!featured) return null;
   
   // Get primary platform for theming (use selected platform or first platform of the game)
@@ -84,11 +85,15 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
-            <span aria-hidden="true">•</span>
-            <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
-              <span aria-hidden="true">★ </span>
-              {formatRating(featured.rating)}
-            </span>
+            {ratingText ? (
+              <>
+                <span aria-hidden="true">•</span>
+                <span className="text-yellow-400" aria-label={`Rating ${ratingText} out of 100`}>
+                  <span aria-hidden="true">★ </span>
+                  {ratingText}
+                </span>
+              </>
+            ) : null}
             <span aria-hidden="true">•</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
               {listedSystemNames(featured).slice(0, 4).map((name) => (
