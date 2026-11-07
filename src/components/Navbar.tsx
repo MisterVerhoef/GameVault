@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { browseQuery } from "@/data/browse";
 import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
+import { measureHeaderFit, nextHeaderFit } from "./header-fit.mjs";
 import LibraryToolbar from "./LibraryToolbar";
 import { PlatformName } from "./platform-icons";
 import ThemeToggle from "./ThemeToggle";
@@ -27,6 +28,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [desktopSearchCompact, setDesktopSearchCompact] = useState(false);
+  const [platformLabelsHidden, setPlatformLabelsHidden] = useState(false);
+  const compactRef = useRef(false);
+  const labelsHiddenRef = useRef(false);
+  const labeledWidthRef = useRef(0);
+  const iconWidthRef = useRef(0);
   const [desktopSearchExpanded, setDesktopSearchExpanded] = useState(false);
   const searchToggleRef = useRef<HTMLButtonElement>(null);
   const mobileSearchRef = useRef<HTMLInputElement>(null);
@@ -34,9 +40,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const desktopSearchIconRef = useRef<HTMLButtonElement>(null);
   const restoreDesktopSearchIconFocusRef = useRef(false);
   const headerRef = useRef<HTMLElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+  const platformsRef = useRef<HTMLDivElement>(null);
   const menuToggleRef = useRef<HTMLButtonElement>(null);
-  /** Below this header width, platform + nav leave too little room for a labeled field. */
-  const DESKTOP_SEARCH_COMPACT_HEADER = 1180;
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
@@ -90,23 +96,47 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   }, [desktopSearchExpanded]);
 
   useLayoutEffect(() => {
-    const header = headerRef.current;
-    if (!header) return;
+    const row = rowRef.current;
+    if (!row) return;
 
-    const applyWidth = (width: number) => {
-      const compact = width < DESKTOP_SEARCH_COMPACT_HEADER;
-      setDesktopSearchCompact(compact);
-      if (!compact) setDesktopSearchExpanded(false);
+    const applyFit = () => {
+      const cluster = platformsRef.current;
+      const room = measureHeaderFit(row, cluster);
+      if (cluster && cluster.getClientRects().length > 0) {
+        const content = cluster.scrollWidth;
+        if (labelsHiddenRef.current) iconWidthRef.current = content;
+        else labeledWidthRef.current = content;
+      }
+      const next = nextHeaderFit(compactRef.current, labelsHiddenRef.current, {
+        ...room,
+        labeledWidth: labeledWidthRef.current,
+        iconWidth: iconWidthRef.current,
+      });
+      compactRef.current = next.compact;
+      labelsHiddenRef.current = next.hideLabels;
+      setDesktopSearchCompact(next.compact);
+      if (!next.compact) setDesktopSearchExpanded(false);
+      setPlatformLabelsHidden(next.hideLabels);
     };
 
-    applyWidth(header.getBoundingClientRect().width);
+    applyFit();
 
+    const cluster = platformsRef.current;
     if (typeof ResizeObserver === "undefined") return;
-    const observer = new ResizeObserver(([entry]) => {
-      applyWidth(entry.contentRect.width);
-    });
-    observer.observe(header);
-    return () => observer.disconnect();
+    const observer = new ResizeObserver(applyFit);
+    observer.observe(row);
+    if (cluster) observer.observe(cluster);
+    let cancelled = false;
+    const fontsReady = document.fonts?.ready;
+    if (fontsReady) {
+      fontsReady.then(() => {
+        if (!cancelled) applyFit();
+      });
+    }
+    return () => {
+      cancelled = true;
+      observer.disconnect();
+    };
   }, []);
 
   useEffect(() => {
@@ -208,23 +238,23 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   return (
     <header ref={headerRef} className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
-      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div ref={rowRef} className="mx-auto flex h-16 w-full min-w-0 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link
           href="/"
           aria-label="GameVault home"
           onClick={goHome}
-          className="flex min-h-11 min-w-11 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 md:min-w-0"
+          className="flex min-h-11 min-w-11 shrink-0 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 md:min-w-0"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
             GV
           </span>
-          <span className="hidden text-xl font-bold tracking-tight sm:block">
+          <span className="hidden whitespace-nowrap text-xl font-bold tracking-tight sm:block">
             GameVault
           </span>
         </Link>
 
         {/* Nav links (desktop) */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden shrink-0 items-center gap-4 whitespace-nowrap md:flex xl:gap-6" aria-label="Main">
           <Link
             href="/"
             aria-current={pathname === "/" ? "page" : undefined}
@@ -272,24 +302,29 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
         </nav>
 
-        {/* Platform filter buttons (desktop) */}
-        <div className="hidden items-center gap-2 md:flex">
+        {/* Platform filters. This cluster scrolls instead of colliding with the logo. */}
+        <div ref={platformsRef} className="scrollbar-hide hidden min-w-0 items-center gap-2 overflow-x-auto md:flex">
           {platformFamilies.map((family) => (
             <button
               key={family.key}
               onClick={() => handlePlatformSelect(family.platform, family.key)}
               aria-label={`Filter by ${family.label}`}
               aria-pressed={selectedFamilyKey === family.key}
-              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              className={`flex h-8 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
               style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
-              <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
+              <PlatformName
+                name={family.label}
+                iconClassName="h-4 w-4"
+                className={platformLabelsHidden ? "gap-0" : "gap-1.5"}
+                hideLabel={platformLabelsHidden}
+              />
             </button>
           ))}
         </div>
 
         {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
           {/* Search icon (mobile toggle). The field is the next DOM node so
               screen readers and Tab reach it before the library and menu. */}
@@ -356,8 +391,8 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
           {/* Search input (desktop). Collapses to an icon when the header is too narrow. */}
           <div
-            className={`relative hidden h-9 sm:block ${
-              desktopSearchCompact && !desktopSearchExpanded ? "w-9" : "w-44"
+            className={`relative hidden h-9 shrink-0 sm:block ${
+              desktopSearchCompact ? "w-9" : "w-44"
             }`}
           >
             {desktopSearchCompact && !desktopSearchExpanded ? (
@@ -388,7 +423,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               <form
                 role="search"
                 onSubmit={submitSearch}
-                className={`relative h-9 ${desktopSearchCompact ? "absolute right-0 top-0 z-20 w-[min(11rem,calc(100vw-8rem))]" : "w-full"}`}
+                className={`h-9 ${desktopSearchCompact ? "absolute right-0 top-0 z-20 w-[min(11rem,calc(100vw-8rem))]" : "relative w-full"}`}
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
