@@ -3,7 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { browseQuery } from "@/data/browse";
+import { browseQuery, platformFilterHref } from "@/data/browse";
 import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
 import LibraryToolbar from "./LibraryToolbar";
 import { PlatformName } from "./platform-icons";
@@ -136,6 +136,17 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     menuToggleRef.current?.focus();
   };
 
+  const pushPlatformFilter = (selection: {
+    family?: string | null;
+    platform?: string | null;
+    variant?: string | null;
+  }) => {
+    router.push(platformFilterHref(pathname === "/" ? window.location.search : "", {
+      search: pathname === "/" ? search.trim() : "",
+      ...selection,
+    }));
+  };
+
   const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
     const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
     setSelectedFamilyKey(nextFamily?.key ?? null);
@@ -144,11 +155,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onPlatformVariantSelect?.(null);
     onPlatformSelect?.(nextFamily?.platform ?? null);
     setMenuOpen(false);
-    router.push(browseQuery({
-      search: pathname === "/" ? search.trim() : "",
+    pushPlatformFilter({
       family: nextFamily?.label ?? null,
       platform: nextFamily?.platform ?? null,
-    }));
+    });
   };
 
   const handleVariantSelect = (variant: string) => {
@@ -159,12 +169,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     // Sega and Atari only reveal their nested list. Every finished pick dismisses
     // the phone menu; the desktop breakdown is not tied to that menu.
     if (!opensNestedMenu) setMenuOpen(false);
-    router.push(browseQuery({
-      search: pathname === "/" ? search.trim() : "",
+    pushPlatformFilter({
       family: selectedFamily?.label ?? null,
       platform: selectedFamily?.platform ?? null,
       variant: nextVariant,
-    }));
+    });
   };
 
   const handleSearch = (query: string) => {
