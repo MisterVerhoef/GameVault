@@ -78,6 +78,7 @@ function ScoreCard({
   countNoun: string;
 }) {
   const formatted = formatRating(value);
+  if (!formatted) return null;
   const countLabel = formatCountLabel(count, countNoun);
   return (
     <div
