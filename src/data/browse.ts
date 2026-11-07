@@ -302,3 +302,32 @@ export function browseQuery(input: {
   const query = params.toString();
   return query ? `/?${query}` : "/";
 }
+
+/**
+ * Navbar platform and variant picks. A genre already in the address bar stays,
+ * along with a validated non-default sort. Outside a genre view the landing
+ * URL is only the platform selection.
+ */
+export function platformFilterHref(
+  currentSearch: string,
+  selection: {
+    search?: string | null;
+    family?: string | null;
+    platform?: string | null;
+    variant?: string | null;
+  },
+) {
+  const raw = currentSearch.includes("?")
+    ? currentSearch.slice(currentSearch.indexOf("?") + 1)
+    : currentSearch.replace(/^\?/, "");
+  const params = new URLSearchParams(raw);
+  const genre = (params.get("genre") ?? "").trim();
+  return browseQuery({
+    search: selection.search,
+    family: selection.family,
+    platform: selection.platform,
+    variant: selection.variant,
+    genre: genre || null,
+    sort: genre ? params.get("sort") : null,
+  });
+}

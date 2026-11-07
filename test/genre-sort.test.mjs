@@ -10,6 +10,7 @@ const {
   browseQuery,
   compareGenreBrowse,
   parseGenreSort,
+  platformFilterHref,
   releaseOnForGame,
 } = loadTsModule("src/data/browse.ts");
 const { createBrowseCatalogue, buildLibraryView, readHomeQuery } = loadTsModule("src/data/library-view.ts");
@@ -204,6 +205,80 @@ test("sort query values round-trip and invalid values are ignored", () => {
   assert.equal(browseQuery(readHomeQuery({ genre: "action", sort: "nope" })), "/?genre=action");
   assert.equal(GENRE_SORT_OPTIONS.some((option) => /metacritic/i.test(option.label)), false);
   assert.equal(GENRE_SORT_OPTIONS.filter((option) => option.value !== "default").every((option) => option.label.length > 0), true);
+});
+
+test("PlayStation to PS5 from a genre keeps the genre and a validated sort", () => {
+  const reported = {
+    family: "PlayStation",
+    platform: "PS5",
+    variant: "PS5",
+  };
+  const afterFamily = platformFilterHref("?genre=action&sort=critic-desc", {
+    family: "PlayStation",
+    platform: "PS5",
+  });
+  assert.equal(afterFamily, "/?family=PlayStation&platform=PS5&genre=action&sort=critic-desc");
+  assert.equal(
+    platformFilterHref(afterFamily, reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5&genre=action&sort=critic-desc",
+  );
+
+  for (const sort of ["critic-asc", "released-desc", "released-asc"]) {
+    assert.equal(
+      platformFilterHref(`?genre=action&sort=${sort}`, reported),
+      `/?family=PlayStation&platform=PS5&variant=PS5&genre=action&sort=${sort}`,
+    );
+  }
+
+  assert.equal(
+    platformFilterHref("?genre=action", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5&genre=action",
+  );
+  assert.equal(
+    platformFilterHref("?genre=action&sort=default", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5&genre=action",
+  );
+  assert.equal(
+    platformFilterHref("?genre=action&sort=metacritic", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5&genre=action",
+  );
+  assert.equal(
+    platformFilterHref("?genre=action&sort=not-a-sort", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5&genre=action",
+  );
+});
+
+test("platform filters outside a genre keep the normal landing URL", () => {
+  const reported = {
+    family: "PlayStation",
+    platform: "PS5",
+    variant: "PS5",
+  };
+  assert.equal(
+    platformFilterHref("", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5",
+  );
+  assert.equal(
+    platformFilterHref("?family=PC&platform=PC", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5",
+  );
+  assert.equal(
+    platformFilterHref("?sort=critic-desc", reported),
+    "/?family=PlayStation&platform=PS5&variant=PS5",
+  );
+  assert.equal(
+    platformFilterHref("?search=halo", { search: "halo", family: "PlayStation", platform: "PS5" }),
+    "/?search=halo&family=PlayStation&platform=PS5",
+  );
+  assert.equal(
+    platformFilterHref("?genre=action&sort=critic-desc&family=PlayStation&platform=PS5", {
+      search: "",
+      family: null,
+      platform: null,
+      variant: null,
+    }),
+    "/?genre=action&sort=critic-desc",
+  );
 });
 
 function catalogueFrom(records) {
