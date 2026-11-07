@@ -3,13 +3,14 @@ import rawCatalogue from "../../public/catalog/store-offers.json";
 import { applyFills, type StoreFills } from "./store-match";
 import {
   formatEuro,
+  formatOfferPrice,
   indexStoreOffers,
   offersForGame,
   type CachedStoreOffer,
 } from "./store-offer-index";
 
 export type { StoreFills, CachedStoreOffer };
-export { formatEuro };
+export { formatEuro, formatOfferPrice };
 
 interface StoreGameEntry {
   fills?: StoreFills;

@@ -88,7 +88,7 @@ export interface SourceRef {
   id: string;
 }
 
-export type StoreId = "xbox" | "playstation" | "nintendo";
+export type StoreId = "xbox" | "playstation" | "nintendo" | "steam" | "epic" | "gog";
 
 /** Store product id captured from IGDB external_games or a store URL. */
 export interface ExternalStoreId {

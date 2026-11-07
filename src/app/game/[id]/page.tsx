@@ -7,7 +7,7 @@ import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
-import { formatEuro, presentCatalogueGame } from "@/data/store-offers";
+import { formatEuro, formatOfferPrice, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
@@ -371,13 +371,13 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-full border bg-white/5 px-4 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={{ borderColor: `${themeColor}66`, color: themeColor }}
-                  aria-label={`${game.title} on the ${storeName(offer.store)}${offer.price != null ? `, ${formatEuro(offer.price)}` : ""}`}
+                  aria-label={`${game.title} on the ${storeName(offer.store)}${offer.price != null ? `, ${formatOfferPrice(offer.price)}` : ""}`}
                 >
                   <span>{storeName(offer.store)}</span>
                   {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
                     <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
                   )}
-                  {offer.price != null && <span className="font-semibold text-foreground">{formatEuro(offer.price)}</span>}
+                  {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
                 </a>
               ))}
               <LibraryControls gameId={game.id} />

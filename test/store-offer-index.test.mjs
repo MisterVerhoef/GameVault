@@ -4,6 +4,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const {
   formatEuro,
+  formatOfferPrice,
   indexStoreOffers,
   isStoreDeal,
   offersForGame,
@@ -35,9 +36,13 @@ const republic = {
 test("formats Netherlands euros", () => {
   assert.equal(formatEuro(5.99), "€\u00a05,99");
   assert.equal(formatEuro(0), "€\u00a00,00");
+  assert.equal(formatOfferPrice(24.5), "€\u00a024,50");
+  assert.equal(formatOfferPrice(0), "Free");
+  assert.equal(formatOfferPrice(null), "Price unavailable");
   assert.equal(isStoreDeal(5.99, 14.99), true);
   assert.equal(isStoreDeal(29.99, 29.99), false);
   assert.equal(isStoreDeal(null, 14.99), false);
+  assert.equal(isStoreDeal(0, 0), false);
 });
 
 test("matches cached offers by catalogue game id and platform", () => {
@@ -112,6 +117,69 @@ test("leaves a game unpriced when the offer is missing or not a real euro amount
 
   assert.equal(offersForGame(index, "2").length, 0);
   assert.equal(offersForGame(index, "missing").length, 0);
+});
+
+test("indexes PC store offers and hides them from other platforms", () => {
+  const hades = {
+    store: "steam",
+    platform: "PC",
+    url: "https://store.steampowered.com/app/1145360",
+    title: "Hades",
+    price: 24.5,
+    regularPrice: 24.5,
+    currency: "EUR",
+  };
+  const index = indexStoreOffers(catalogue({
+    "113112": {
+      offers: [
+        hades,
+        {
+          ...hades,
+          store: "epic",
+          url: "https://store.epicgames.com/en-US/p/hades",
+          price: 12.25,
+          regularPrice: 24.5,
+        },
+        {
+          ...hades,
+          store: "gog",
+          url: "https://www.gog.com/en/game/hades",
+          price: 0,
+          regularPrice: 0,
+        },
+        {
+          ...hades,
+          store: "xbox",
+          platform: "Xbox",
+          url: "https://www.xbox.com/nl-nl/games/store/hades/9P8DL6W0JBB8",
+          price: 24.99,
+          regularPrice: 24.99,
+        },
+        {
+          store: "steam",
+          platform: "Xbox",
+          url: "https://store.steampowered.com/app/1",
+          title: "Wrong platform",
+          price: 1,
+          regularPrice: 1,
+          currency: "EUR",
+        },
+      ],
+    },
+  }));
+
+  const pc = offersForGame(index, "113112", ["PC"]);
+  assert.deepEqual(pc.map((offer) => offer.store), ["steam", "epic", "gog"]);
+  assert.equal(pc[0].platform, "PC");
+  assert.equal(pc[1].deal, true);
+  assert.equal(pc[2].price, 0);
+  assert.equal(pc[2].deal, false);
+
+  const withConsole = offersForGame(index, "113112", ["PC", "Xbox"]);
+  assert.deepEqual(withConsole.map((offer) => offer.store), ["xbox", "steam", "epic", "gog"]);
+
+  assert.equal(offersForGame(index, "113112", ["Switch", "PS5"]).length, 0);
+  assert.equal(offersForGame(index, "113112", ["Xbox"]).map((offer) => offer.store).join(), "xbox");
 });
 
 test("returns no prices for an unsupported catalogue file", () => {
