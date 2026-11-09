@@ -25,6 +25,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
   const [selectedIndex, setSelectedIndex] = useState(0);
   const featured = availableGames[Math.min(selectedIndex, Math.max(availableGames.length - 1, 0))];
   const coverUrl = featured?.cover?.url ? getHighQualityCoverUrl(featured.cover.url) : undefined;
+  const ratingText = featured ? formatRating(featured.rating) : "";
   if (!featured) return null;
   
   // Get primary platform for theming (use selected platform or first platform of the game)
@@ -84,11 +85,15 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
-            <span aria-hidden="true">•</span>
-            <span className="text-yellow-400" aria-label={`Rating ${formatRating(featured.rating)} out of 10`}>
-              <span aria-hidden="true">★ </span>
-              {formatRating(featured.rating)}
-            </span>
+            {ratingText ? (
+              <>
+                <span aria-hidden="true">•</span>
+                <span className="text-yellow-400" aria-label={`Rating ${ratingText} out of 100`}>
+                  <span aria-hidden="true">★ </span>
+                  {ratingText}
+                </span>
+              </>
+            ) : null}
             <span aria-hidden="true">•</span>
             <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
               {listedSystemNames(featured).slice(0, 4).map((name) => (
@@ -107,46 +112,49 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               Details
             </button>
           </div>
-        </div>
 
-        {availableGames.length > 1 && (
-          <div className="flex items-center justify-center gap-2 lg:absolute lg:bottom-6 lg:right-8" aria-label="Featured title selector">
-            <button
-              type="button"
-              onClick={() => setSelectedIndex((index) => (index - 1 + availableGames.length) % availableGames.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label="Previous featured title"
-            >
-              <span aria-hidden="true">←</span>
-            </button>
-            <div className="flex max-w-[min(60vw,28rem)] gap-1 overflow-x-auto px-1 py-1">
-              {availableGames.map((game, index) => (
-                <button
-                  key={game.id}
-                  type="button"
-                  onClick={() => setSelectedIndex(index)}
-                  aria-label={`Show featured title ${index + 1}: ${game.title}`}
-                  aria-current={index === selectedIndex ? "true" : undefined}
-                  className={`max-w-32 truncate rounded-full px-2.5 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    index === selectedIndex
-                      ? "bg-accent text-white"
-                      : "bg-card/70 text-muted hover:text-foreground"
-                  }`}
-                >
-                  {game.title}
-                </button>
-              ))}
+          {availableGames.length > 1 && (
+            <div className="mt-4 flex items-center justify-center gap-2 lg:justify-start" aria-label="Featured title selector">
+              <button
+                type="button"
+                onClick={() => setSelectedIndex((index) => (index - 1 + availableGames.length) % availableGames.length)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="Previous featured title"
+              >
+                <span aria-hidden="true">←</span>
+              </button>
+              <div className="flex items-center gap-0 px-1 py-1">
+                {availableGames.map((game, index) => (
+                  <button
+                    key={game.id}
+                    type="button"
+                    onClick={() => setSelectedIndex(index)}
+                    aria-label={`Show featured title ${index + 1}: ${game.title}`}
+                    aria-current={index === selectedIndex ? "true" : undefined}
+                    className="group flex h-11 w-11 items-center justify-center rounded-full transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={`h-2.5 w-2.5 rounded-full transition ${
+                        index === selectedIndex
+                          ? "scale-125 bg-accent"
+                          : "bg-white/35 group-hover:bg-white/55"
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedIndex((index) => (index + 1) % availableGames.length)}
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label="Next featured title"
+              >
+                <span aria-hidden="true">→</span>
+              </button>
             </div>
-            <button
-              type="button"
-              onClick={() => setSelectedIndex((index) => (index + 1) % availableGames.length)}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-card/80 text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label="Next featured title"
-            >
-              <span aria-hidden="true">→</span>
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
     </section>
   );

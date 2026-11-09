@@ -253,3 +253,321 @@ export async function searchNintendo(title, wait) {
     wt: "json",
   }, wait);
 }
+
+const STEAM_OTHER = new Set(["dlc", "music", "software", "video", "demo", "mod", "advertising", "hardware"]);
+
+function releaseYear(value) {
+  const match = String(value ?? "").match(/\b(19|20)\d{2}\b/);
+  return match ? Number(match[0]) : undefined;
+}
+
+function cents(value) {
+  return typeof value === "number" && Number.isFinite(value) ? Math.round(value) / 100 : null;
+}
+
+export function steamCandidate(appId, data) {
+  if (!data?.name) return undefined;
+  const overview = data.price_overview;
+  const free = data.is_free === true;
+  const priced = overview?.currency === "EUR";
+  const screenshots = unique((data.screenshots ?? []).slice(0, 4).map((shot) => httpsUrl(shot?.path_full)));
+  const movie = (data.movies ?? []).find((entry) => entry?.mp4?.max || entry?.webm?.max);
+  let price = null;
+  let regularPrice = null;
+  let currency;
+  if (free) {
+    price = 0;
+    regularPrice = 0;
+    currency = "EUR";
+  } else if (priced) {
+    price = cents(overview.final);
+    regularPrice = cents(overview.initial);
+    currency = "EUR";
+  }
+  return {
+    id: String(data.steam_appid ?? appId),
+    title: data.name,
+    kind: data.type === "game" ? "game" : "other",
+    year: releaseYear(data.release_date?.date),
+    price,
+    regularPrice,
+    currency,
+    description: typeof data.short_description === "string" ? data.short_description : undefined,
+    cover: httpsUrl(data.header_image),
+    screenshots,
+    trailer: httpsUrl(movie?.mp4?.max || movie?.webm?.max),
+    url: `https://store.steampowered.com/app/${data.steam_appid ?? appId}`,
+  };
+}
+
+export async function lookupSteam(appId, wait) {
+  await wait();
+  const url = new URL("https://store.steampowered.com/api/appdetails");
+  url.searchParams.set("appids", String(appId));
+  url.searchParams.set("cc", "nl");
+  url.searchParams.set("l", "dutch");
+  const body = await fetchJson(url);
+  const entry = body?.[String(appId)];
+  if (!entry?.success || !entry.data) return undefined;
+  return steamCandidate(appId, entry.data);
+}
+
+export async function searchSteam(title, wait) {
+  await wait();
+  const url = new URL("https://store.steampowered.com/api/storesearch/");
+  url.searchParams.set("term", title);
+  url.searchParams.set("l", "dutch");
+  url.searchParams.set("cc", "NL");
+  const body = await fetchJson(url);
+  return (body?.items ?? []).flatMap((item) => {
+    if (!item?.id || !item.name) return [];
+    const type = String(item.type ?? "").toLowerCase();
+    const price = item.price;
+    const priced = price?.currency === "EUR" && typeof price.final === "number";
+    return [{
+      id: String(item.id),
+      title: item.name,
+      kind: STEAM_OTHER.has(type) ? "other" : "game",
+      price: priced ? price.final / 100 : null,
+      regularPrice: priced && typeof price.initial === "number" ? price.initial / 100 : null,
+      currency: priced ? "EUR" : undefined,
+      url: `https://store.steampowered.com/app/${item.id}`,
+    }];
+  });
+}
+
+let gogLocale = "nl-NL";
+
+function gogYear(value) {
+  const year = Number(String(value ?? "").slice(0, 4));
+  return year >= 1970 && year <= 2100 ? year : undefined;
+}
+
+function gogAmount(value) {
+  if (typeof value === "number" && Number.isFinite(value)) return Math.round(value * 100) / 100;
+  if (typeof value !== "string" || value.trim() === "") return null;
+  const amount = Number(value);
+  return Number.isFinite(amount) ? Math.round(amount * 100) / 100 : null;
+}
+
+function gogApiPrice(value) {
+  const match = String(value ?? "").match(/^(-?\d+(?:\.\d+)?)\s+([A-Z]{3})$/);
+  if (!match) return undefined;
+  return { amount: Number(match[1]) / 100, currency: match[2] };
+}
+
+export function gogCandidate(product) {
+  if (!product?.title) return undefined;
+  const slug = typeof product.slug === "string" && product.slug ? product.slug : undefined;
+  const id = slug || (product.id != null ? String(product.id) : "");
+  if (!id) return undefined;
+  const finalMoney = product.price?.finalMoney;
+  const baseMoney = product.price?.baseMoney;
+  const currency = finalMoney?.currency === "EUR" ? "EUR" : undefined;
+  const type = String(product.productType ?? product.game_type ?? "");
+  return {
+    id,
+    title: product.title,
+    kind: type === "game" || type === "pack" ? "game" : "other",
+    year: gogYear(product.releaseDate ?? product.release_date),
+    price: currency ? gogAmount(finalMoney.amount) : null,
+    regularPrice: currency ? gogAmount(baseMoney?.amount ?? finalMoney.amount) : null,
+    currency,
+    description: typeof product.description === "string" ? product.description : undefined,
+    cover: httpsUrl(product.coverVertical || product.coverHorizontal),
+    screenshots: [],
+    url: typeof product.storeLink === "string" && product.storeLink.startsWith("https://")
+      ? product.storeLink
+      : `https://www.gog.com/en/game/${slug || id}`,
+  };
+}
+
+async function gogCatalog(query, wait, limit = "20") {
+  async function request(locale) {
+    await wait();
+    const url = new URL("https://catalog.gog.com/v1/catalog");
+    url.searchParams.set("limit", limit);
+    url.searchParams.set("countryCode", "NL");
+    url.searchParams.set("locale", locale);
+    url.searchParams.set("currencyCode", "EUR");
+    url.searchParams.set("productType", "in:game,pack");
+    url.searchParams.set("query", `like:${query}`);
+    const body = await fetchJson(url);
+    return Array.isArray(body?.products) ? body.products : [];
+  }
+  const products = await request(gogLocale);
+  if (products.length > 0 || gogLocale === "en-US") return products;
+  gogLocale = "en-US";
+  return request("en-US");
+}
+
+export async function lookupGog(id, wait) {
+  const key = String(id);
+  if (/^\d+$/.test(key)) {
+    await wait();
+    let product;
+    try {
+      product = await fetchJson(`https://api.gog.com/products/${key}?locale=en-US`);
+    } catch (error) {
+      if (isMiss(error)) return undefined;
+      throw error;
+    }
+    if (!product?.title) return undefined;
+    await wait();
+    let prices;
+    try {
+      prices = await fetchJson(`https://api.gog.com/products/${key}/prices?countryCode=NL`);
+    } catch (error) {
+      if (isMiss(error)) prices = undefined;
+      else throw error;
+    }
+    const listed = (prices?._embedded?.prices ?? []).find((entry) => entry?.currency?.code === "EUR");
+    const finalPrice = gogApiPrice(listed?.finalPrice);
+    const basePrice = gogApiPrice(listed?.basePrice);
+    const slug = typeof product.slug === "string" ? product.slug : "";
+    return {
+      id: slug || key,
+      title: product.title,
+      kind: product.game_type === "game" ? "game" : "other",
+      year: gogYear(product.release_date),
+      price: finalPrice?.currency === "EUR" ? finalPrice.amount : null,
+      regularPrice: basePrice?.currency === "EUR" ? basePrice.amount : finalPrice?.amount ?? null,
+      currency: finalPrice?.currency === "EUR" ? "EUR" : undefined,
+      description: typeof product.description === "string" ? product.description : undefined,
+      cover: undefined,
+      screenshots: [],
+      url: `https://www.gog.com/en/game/${slug || key}`,
+    };
+  }
+  const products = await gogCatalog(key.replace(/[_-]+/g, " "), wait);
+  const found = products.find((product) => product?.slug === key);
+  return found ? gogCandidate(found) : undefined;
+}
+
+export async function searchGog(title, wait) {
+  const products = await gogCatalog(title, wait, "10");
+  return products.map(gogCandidate).filter(Boolean);
+}
+
+const EPIC_GRAPHQL = "https://store.epicgames.com/graphql";
+const EPIC_SEARCH = `query searchStoreQuery($keywords: String!, $country: String!, $locale: String!, $count: Int, $category: String) {
+  Catalog {
+    searchStore(
+      keywords: $keywords
+      country: $country
+      locale: $locale
+      count: $count
+      category: $category
+      sortBy: "relevancy"
+      sortDir: "DESC"
+    ) {
+      elements {
+        title
+        id
+        namespace
+        description
+        effectiveDate
+        categories { path }
+        price(country: $country) { totalPrice { discountPrice originalPrice currencyCode } }
+        catalogNs { mappings(pageType: "productHome") { pageSlug pageType } }
+        offerMappings { pageSlug pageType }
+      }
+    }
+  }
+}`;
+
+function epicSlug(element) {
+  const mappings = [
+    ...(element?.catalogNs?.mappings ?? []),
+    ...(element?.offerMappings ?? []),
+  ];
+  const home = mappings.find((mapping) => mapping?.pageType === "productHome" && mapping.pageSlug);
+  return home?.pageSlug || element?.productSlug || element?.urlSlug || "";
+}
+
+function epicKind(element) {
+  const paths = (element?.categories ?? []).map((category) => String(category?.path ?? ""));
+  if (paths.some((path) => path.startsWith("addons") || path.includes("dlc") || path.includes("soundtrack"))) return "other";
+  if (paths.includes("games/edition/base") || paths.includes("bundles/games") || paths.includes("games")) return "game";
+  return "other";
+}
+
+export function epicCandidate(element) {
+  const slug = epicSlug(element);
+  if (!slug || !element?.title) return undefined;
+  const total = element.price?.totalPrice;
+  const priced = total?.currencyCode === "EUR";
+  return {
+    id: slug,
+    title: element.title,
+    kind: epicKind(element),
+    year: releaseYear(element.effectiveDate),
+    price: priced ? cents(total.discountPrice) : null,
+    regularPrice: priced ? cents(total.originalPrice) : null,
+    currency: "EUR",
+    description: typeof element.description === "string" ? element.description : undefined,
+    cover: undefined,
+    screenshots: [],
+    url: `https://store.epicgames.com/en-US/p/${slug}`,
+  };
+}
+
+function epicFatal(error) {
+  if (error?.status === 401 || error?.status === 403 || error?.status === 429) error.fatal = true;
+  return error;
+}
+
+async function epicQuery(keywords, category, count) {
+  const body = await fetchJson(EPIC_GRAPHQL, {
+    "Content-Type": "application/json",
+    Origin: "https://store.epicgames.com",
+    Referer: "https://store.epicgames.com/",
+  }, {
+    method: "POST",
+    body: JSON.stringify({
+      query: EPIC_SEARCH,
+      variables: {
+        keywords,
+        country: "NL",
+        locale: "en-US",
+        count,
+        category,
+      },
+    }),
+  });
+  const elements = body?.data?.Catalog?.searchStore?.elements;
+  if (!Array.isArray(elements)) {
+    const rejected = new Error(body?.errors?.[0]?.message || "Epic Games Store rejected the catalogue query");
+    rejected.status = 400;
+    rejected.fatal = true;
+    throw rejected;
+  }
+  return elements;
+}
+
+async function epicSearch(keywords, wait, { category, count }) {
+  await wait();
+  try {
+    return await epicQuery(keywords, category, count);
+  } catch (error) {
+    if (error?.status !== 403) throw epicFatal(error);
+    // The public storefront sometimes answers the first request with a challenge page.
+    await wait();
+    try {
+      return await epicQuery(keywords, category, count);
+    } catch (retryError) {
+      throw epicFatal(retryError);
+    }
+  }
+}
+
+export async function lookupEpic(slug, wait) {
+  const elements = await epicSearch(String(slug), wait, { category: "games/edition/base", count: 8 });
+  const matches = elements.map(epicCandidate).filter((candidate) => candidate?.id === slug);
+  return matches.find((candidate) => candidate.kind === "game") ?? matches[0];
+}
+
+export async function searchEpic(title, wait) {
+  const elements = await epicSearch(title, wait, { category: "games/edition/base", count: 8 });
+  return elements.map(epicCandidate).filter(Boolean);
+}

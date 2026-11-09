@@ -1,4 +1,4 @@
-import { browseQuery, byRatingThenTitle, gameMatchesGenre, genreDefinition, GENRE_DEFINITIONS } from "./browse";
+import { browseQuery, byRatingThenTitle, compareGenreBrowse, criticScore, gameMatchesGenre, genreDefinition, GENRE_DEFINITIONS, parseGenreSort, releaseOrder, type GenreSort } from "./browse";
 import type { CatalogueCard } from "./catalogue-card";
 import cloudStreamingCatalogue from "../../public/catalog/cloud-streaming.json";
 import { cloudServiceNames, cloudServicesForGame, indexCloudStreaming } from "./cloud-streaming";
@@ -14,7 +14,11 @@ export interface BrowseRecord {
   title: string;
   cover?: string;
   releaseYear?: number;
+  /** Honest first-release token: YYYY-MM-DD, YYYY-MM, YYYY-Q1..Q4, or YYYY. */
+  releaseOn?: string;
   rating?: number;
+  /** IGDB critic aggregate. Never copied from `rating`. */
+  aggregatedRating?: number;
   genres?: string[];
   themes?: string[];
   platforms?: string[];
@@ -40,7 +44,9 @@ export interface BrowseGame {
   title: string;
   cover?: string;
   releaseYear?: number;
+  releaseOn?: string;
   rating?: number;
+  aggregatedRating?: number;
   genres: string[];
   themes: string[];
   platforms: Platform[];
@@ -65,6 +71,7 @@ export interface HomeQuery {
   variant: string | null;
   genre: string | null;
   exclusives: boolean;
+  sort: GenreSort;
 }
 
 export interface LibraryWallSection {
@@ -118,13 +125,17 @@ export function createBrowseCatalogue(browse: BrowseIndexFile, search: SearchInd
     if (platforms.length === 0) {
       throw new Error(`Browse index record ${record.id} has no platforms.`);
     }
+    const aggregatedRating = criticScore(record.aggregatedRating);
+    const releaseOn = releaseOrder(record.releaseOn) ? record.releaseOn : undefined;
     return {
       id: record.id,
       slug: record.slug,
       title: record.title,
       cover: record.cover,
       releaseYear: record.releaseYear,
+      ...(releaseOn ? { releaseOn } : {}),
       rating: record.rating,
+      ...(aggregatedRating != null ? { aggregatedRating } : {}),
       genres: record.genres ?? [],
       themes: record.themes ?? [],
       platforms,
@@ -181,6 +192,7 @@ export function readHomeQuery(params: {
   variant?: string | string[] | null;
   genre?: string | string[] | null;
   exclusives?: string | string[] | null;
+  sort?: string | string[] | null;
 }): HomeQuery {
   const platform = oneParam(params.platform);
   const family = oneParam(params.family).trim();
@@ -193,6 +205,7 @@ export function readHomeQuery(params: {
     variant: variant || null,
     genre: genre || null,
     exclusives: oneParam(params.exclusives) === "1",
+    sort: parseGenreSort(oneParam(params.sort)),
   };
 }
 
@@ -202,7 +215,8 @@ export function sameHomeQuery(left: HomeQuery, right: HomeQuery) {
     && left.platform === right.platform
     && left.variant === right.variant
     && left.genre === right.genre
-    && left.exclusives === right.exclusives;
+    && left.exclusives === right.exclusives
+    && left.sort === right.sort;
 }
 
 function onThisPlatform(game: BrowseGame, catalogue: BrowseCatalogue, platform: Platform | null, variant: string | null) {
@@ -303,14 +317,14 @@ export function buildLibraryView(
     ? []
     : catalogue.games
       .filter((game) => matchesGenre(game, genreKey) && onThisPlatform(game, catalogue, platform, variant))
-      .sort(byRatingThenTitle);
+      .sort((left, right) => compareGenreBrowse(query.sort, left, right));
 
   const genreRows = trimmedSearch || genreKey
     ? []
     : GENRE_DEFINITIONS.map((definition) => ({
       key: definition.key,
       label: definition.label,
-      href: browseQuery({ family, platform, variant, genre: definition.key }),
+      href: browseQuery({ family, platform, variant, genre: definition.key, sort: query.sort }),
       games: catalogue.games
         .filter((game) => matchesGenre(game, definition.key) && onThisPlatform(game, catalogue, platform, variant))
         .sort(byRatingThenTitle)
@@ -349,7 +363,7 @@ export function buildLibraryView(
   } else if (genreKey) {
     const label = genreDefinition(genreKey)?.label ?? genreKey.trim();
     wall = {
-      key: `genre:${genreKey}:${place ?? ""}`,
+      key: `genre:${genreKey}:${place ?? ""}:${query.sort}`,
       title: place ? `${label} on ${place}` : label,
       games: genreGames.map(toCard),
       backHref: libraryHref,

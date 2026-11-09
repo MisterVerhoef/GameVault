@@ -2,6 +2,7 @@ import { loadTsModule } from "../load-ts-module.mjs";
 
 const { resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { mapIgdbWebsites } = loadTsModule("src/data/websites.ts");
+const { storeIdsFromIgdb } = loadTsModule("src/data/store-match.ts");
 
 function imageUrl(image, size = "t_thumb") {
   const url = image?.url?.replace(/^\/\//, "https://");
@@ -19,28 +20,6 @@ function contentRefs(records = []) {
         ...(cover ? { cover: { url: cover } } : {}),
       };
     });
-}
-
-const IGDB_STORE_SOURCES = {
-  11: "xbox",
-  31: "xbox",
-  36: "playstation",
-  54: "xbox",
-};
-
-function storeIdsFromIgdb(externalGames = []) {
-  const ids = [];
-  const seen = new Set();
-  for (const entry of externalGames) {
-    const source = IGDB_STORE_SOURCES[entry?.external_game_source ?? entry?.category];
-    const uid = typeof entry?.uid === "string" ? entry.uid.trim() : "";
-    if (!source || !uid) continue;
-    const key = `${source}:${uid}`;
-    if (seen.has(key)) continue;
-    seen.add(key);
-    ids.push({ store: source, id: uid });
-  }
-  return ids;
 }
 
 function companyLogo(logo) {

@@ -1,10 +1,13 @@
-import { offersForGame, formatEuro, type StoreOfferIndex } from "@/data/store-offer-index";
+import { offersForGame, formatEuro, formatOfferPrice, type StoreOfferIndex } from "@/data/store-offer-index";
 import { storeName, type StoreId } from "@/data/store-match";
 
 const STORE_LABEL: Record<StoreId, string> = {
   xbox: "Xbox",
   playstation: "PlayStation",
   nintendo: "Nintendo",
+  steam: "Steam",
+  epic: "Epic",
+  gog: "GOG",
 };
 
 export type WishlistOfferState =
@@ -54,7 +57,7 @@ export default function WishlistPrices({
   return (
     <ul className="mt-1.5 space-y-1" aria-label={`${title} store prices`}>
       {offers.map((offer) => {
-        const priceLabel = offer.price != null ? formatEuro(offer.price) : "Price unavailable";
+        const priceLabel = formatOfferPrice(offer.price);
         const dealLabel = offer.deal && offer.regularPrice != null
           ? `, was ${formatEuro(offer.regularPrice)}, on sale`
           : "";
@@ -77,7 +80,7 @@ export default function WishlistPrices({
               </span>
               <span className="mt-0.5 flex flex-wrap items-baseline gap-1">
                 {offer.price != null ? (
-                  <span className="font-semibold">{formatEuro(offer.price)}</span>
+                  <span className="font-semibold">{priceLabel}</span>
                 ) : (
                   <span className="text-muted">Price unavailable</span>
                 )}

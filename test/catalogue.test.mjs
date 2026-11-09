@@ -641,7 +641,7 @@ test("browse index stays a light card catalogue", () => {
   assert.equal(browse.schemaVersion, 1);
   assert.equal(browse.games.length, catalogue.games.length);
   assert.deepEqual(browse.games.map((game) => game.id), catalogue.games.map((game) => game.id));
-  const heavy = ["description", "summary", "screenshots", "similarGames", "videos", "websites", "dlc", "keywords", "releases", "timeToBeat", "ageRatings", "aggregatedRating"];
+  const heavy = ["description", "summary", "screenshots", "similarGames", "videos", "websites", "dlc", "keywords", "releases", "timeToBeat", "ageRatings"];
   for (const field of heavy) assert.equal(browse.games.some((game) => field in game), false, field);
   const bytes = readFileSync(path.join(root, "public", "catalog", "browse-index.json")).length;
   assert.ok(bytes < 2_500_000, `browse index is ${bytes} bytes`);

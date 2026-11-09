@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { PlatformIcon } from "./platform-icons";
 
@@ -30,6 +31,31 @@ interface GameWallProps {
   platformLabel?: string | null;
   /** Present only when a search mix of base games and DLC should render as separate grids. */
   sections?: GameWallSection[];
+  /** Genre results only. Omitted for search, shelves, and platform exclusives. */
+  sortValue?: GenreSort;
+  onSortChange?: (sort: GenreSort) => void;
+}
+
+function GenreSortControl({ value, onChange }: { value: GenreSort; onChange: (sort: GenreSort) => void }) {
+  return (
+    <div className="flex w-full min-w-0 flex-col gap-1 sm:w-auto">
+      <label htmlFor="genre-sort" className="text-sm font-medium text-muted">
+        Sort
+      </label>
+      <select
+        id="genre-sort"
+        value={value}
+        onChange={(event) => onChange(parseGenreSort(event.target.value))}
+        className="min-h-11 w-full min-w-0 rounded-full border border-black/10 bg-card px-3 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-white/15 sm:w-auto sm:max-w-full"
+      >
+        {GENRE_SORT_OPTIONS.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
 }
 
 function countLabel(count: number, kind: "games" | "dlc" | "results") {
@@ -174,6 +200,8 @@ export default function GameWall({
   titleLevel = "h1",
   focusTitle = true,
   platformLabel,
+  sortValue,
+  onSortChange,
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const split = sections && sections.length > 0 ? sections : null;
@@ -202,14 +230,19 @@ export default function GameWall({
             {countLabel(total, split ? "results" : "games")}
           </p>
         </div>
-        {backHref && backLabel ? (
-          <Link
-            href={backHref}
-            className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            {platformLabel ? <PlatformIcon name={platformLabel} className="h-4 w-4 shrink-0" /> : null}
-            {backLabel}
-          </Link>
+        {onSortChange || (backHref && backLabel) ? (
+          <div className="flex w-full min-w-0 flex-col items-start gap-2 sm:w-auto sm:items-end">
+            {onSortChange ? <GenreSortControl value={sortValue ?? "default"} onChange={onSortChange} /> : null}
+            {backHref && backLabel ? (
+              <Link
+                href={backHref}
+                className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:self-end"
+              >
+                {platformLabel ? <PlatformIcon name={platformLabel} className="h-4 w-4 shrink-0" /> : null}
+                {backLabel}
+              </Link>
+            ) : null}
+          </div>
         ) : null}
       </div>
 

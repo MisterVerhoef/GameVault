@@ -3,7 +3,7 @@ import { storePlatform, type StoreId } from "./store-match";
 /** A cached Netherlands store offer, matched to a catalogue game id. */
 export interface CachedStoreOffer {
   store: StoreId;
-  platform: "Xbox" | "PS5" | "Switch";
+  platform: "Xbox" | "PS5" | "Switch" | "PC";
   url: string;
   title: string;
   /** Current price in EUR. Null when the catalogue has a link but no usable price. */
@@ -25,6 +25,9 @@ const STORE_ORDER: Record<StoreId, number> = {
   xbox: 0,
   playstation: 1,
   nintendo: 2,
+  steam: 3,
+  epic: 4,
+  gog: 5,
 };
 
 const EMPTY_INDEX: StoreOfferIndex = {
@@ -34,7 +37,8 @@ const EMPTY_INDEX: StoreOfferIndex = {
 };
 
 function isStore(value: unknown): value is StoreId {
-  return value === "xbox" || value === "playstation" || value === "nintendo";
+  return value === "xbox" || value === "playstation" || value === "nintendo"
+    || value === "steam" || value === "epic" || value === "gog";
 }
 
 /** A negative amount is a sentinel for "unknown", not a price. */
@@ -62,6 +66,13 @@ export function isStoreDeal(price: number | null, regularPrice: number | null): 
 
 export function formatEuro(amount: number): string {
   return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(amount);
+}
+
+/** A cached amount for a store button. Zero is a free game, not a missing price. */
+export function formatOfferPrice(amount: number | null): string {
+  if (amount == null) return "Price unavailable";
+  if (amount === 0) return "Free";
+  return formatEuro(amount);
 }
 
 function parseOffer(value: unknown): CachedStoreOffer | undefined {
