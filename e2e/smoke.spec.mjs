@@ -4,10 +4,12 @@ import { test, expect } from "@playwright/test";
 // Home (catalogue) -> game detail -> vault.
 
 test("home, game detail, and vault render", async ({ page }) => {
-  // 1. Home: catalogue loads and game cards are rendered
+  // 1. Home: catalogue loads and game cards are rendered.
+  // Target the game cards via data-roving-card so we don't match the
+  // Navbar's "Open library menu" button, which also starts with "Open ".
   await page.goto("/");
   await expect(page).toHaveTitle(/GameVault/i);
-  const card = page.getByRole("button", { name: /^Open / }).first();
+  const card = page.locator("button[data-roving-card]").first();
   await expect(card).toBeVisible();
 
   // 2. Game detail: wait for the client-side navigation to /game/<id>
