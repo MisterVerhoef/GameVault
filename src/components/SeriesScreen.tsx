@@ -17,6 +17,12 @@ export default function SeriesScreen({ series }: { series: Series }) {
 
   return (
     <div className="relative min-h-screen">
+      <a
+        href="#series-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-accent focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-white"
+      >
+        Skip to content
+      </a>
       <div className="relative">
         <Navbar />
         <div className="border-b border-white/5 bg-background/80">
@@ -44,65 +50,68 @@ export default function SeriesScreen({ series }: { series: Series }) {
         </div>
       </div>
 
-      <section className="relative h-44 overflow-hidden sm:h-60" aria-hidden="true">
-        {series.backgroundUrl ? (
-          <Image
-            src={series.backgroundUrl}
-            alt=""
-            fill
-            priority
-            unoptimized
-            className="object-cover"
-            sizes="100vw"
-          />
-        ) : (
-          <div className="h-full w-full bg-card" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-black/25" />
-      </section>
+      <main id="series-content" tabIndex={-1} className="focus:outline-none">
+        <section className="relative h-44 overflow-hidden sm:h-60" aria-hidden="true">
+          {series.backgroundUrl ? (
+            <Image
+              src={series.backgroundUrl}
+              alt=""
+              fill
 
-      <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
-        <div className="flex items-end gap-4">
-          <div
-            className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
-            aria-hidden="true"
-          >
-            {seriesInitials(series.name)}
+              priority
+              unoptimized
+              className="object-cover"
+              sizes="100vw"
+            />
+          ) : (
+            <div className="h-full w-full bg-card" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-black/25" />
+        </section>
+
+        <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
+          <div className="flex items-end gap-4">
+            <div
+              className="flex h-20 w-20 flex-shrink-0 items-center justify-center rounded-full bg-card text-xl font-bold tracking-wide text-foreground shadow-xl ring-4 ring-background sm:h-28 sm:w-28 sm:text-3xl"
+              aria-hidden="true"
+            >
+              {seriesInitials(series.name)}
+            </div>
+            <div className="min-w-0 pb-1">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
+                {series.name}
+              </h2>
+              <p className="mt-1 text-sm text-muted">{metadata}</p>
+            </div>
           </div>
-          <div className="min-w-0 pb-1">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {series.name}
-            </h2>
-            <p className="mt-1 text-sm text-muted">{metadata}</p>
-          </div>
+
+          <GameDescription
+            text={series.summary}
+            showHeading={false}
+            inset="quarter"
+            collapseDesktop={false}
+          />
+          <p className="mt-2 text-xs text-muted">Summary from the GameVault catalogue.</p>
         </div>
 
-        <GameDescription
-          text={series.summary}
-          showHeading={false}
-          inset="quarter"
-          collapseDesktop={false}
-        />
-        <p className="mt-2 text-xs text-muted">Summary from the GameVault catalogue.</p>
-      </div>
-
-      <div className="mt-10">
-        <GameWall
-          title="Games"
-          games={series.games.map((game): CatalogueCard => ({
-            id: game.id,
-            title: game.title,
-            cover: game.cover ? { url: game.cover.url } : undefined,
-            platforms: game.platforms,
-            platformVariants: game.platformVariants,
-            releaseYear: game.releaseYear,
-            rating: game.rating,
-          }))}
-          resetKey={`${series.kind}:${series.id}`}
-          titleLevel="h2"
-          focusTitle={false}
-        />
-      </div>
+        <div className="mt-10">
+          <GameWall
+            title="Games"
+            games={series.games.map((game): CatalogueCard => ({
+              id: game.id,
+              title: game.title,
+              cover: game.cover ? { url: game.cover.url } : undefined,
+              platforms: game.platforms,
+              platformVariants: game.platformVariants,
+              releaseYear: game.releaseYear,
+              rating: game.rating,
+            }))}
+            resetKey={`${series.kind}:${series.id}`}
+            titleLevel="h2"
+            focusTitle={false}
+          />
+        </div>
+      </main>
     </div>
   );
 }

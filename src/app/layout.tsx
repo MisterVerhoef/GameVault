@@ -17,7 +17,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GameVault",
-  description: "Jellyfin / Emby style landscape game library",
+  description:
+    "Personal game vault: browse a curated catalogue, track statuses, progress, ratings and notes, follow the release calendar, and see your completion stats.",
 };
 
 export default function RootLayout({
