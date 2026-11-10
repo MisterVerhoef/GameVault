@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: GameDetailPageProps): Promise
   const game = allGames.find((entry) => entry.id === id);
 
   return {
-    title: game ? `${game.title} · GameVault` : "Game not found · GameVault",
+    title: game ? `${game.title} Â· GameVault` : "Game not found Â· GameVault",
   };
 }
 
@@ -46,8 +46,7 @@ function NamedCatalogueLinks({
   names: readonly string[];
   hrefFor: (name: string) => string | undefined;
 }) {
-  r
-eturn (
+  return (
     <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
       {names.map((name, index) => {
         const href = hrefFor(name);
@@ -92,7 +91,7 @@ function ScoreCard({
     >
       <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-yellow-400" aria-hidden="true">★</span>
+        <span className="text-2xl font-bold text-yellow-400" aria-hidden="true">â</span>
         <span className="text-2xl font-semibold tabular-nums text-foreground">{formatted}</span>
         <span className="text-xs text-muted">/ 100</span>
       </div>
@@ -112,8 +111,7 @@ function linkCaption(url: string) {
 }
 
 function GuidesAndWiki({ links }: { links: readonly ExternalLink[] }) {
-  if (links.length === 0) return null
-;
+  if (links.length === 0) return null;
   return (
     <section className="mb-12" aria-labelledby="guides-wiki">
       <h2 id="guides-wiki" className="mb-4 text-lg font-bold tracking-tight text-foreground">
@@ -169,7 +167,6 @@ function LabeledContentGrid({ items }: { items: readonly (readonly [string, stri
 }
 
 function SimilarGameCard({ item }: { item: ContentRef }) {
-
   const catalogueGame: Game | undefined = findGameByProviderId(item.id);
   const coverUrl = catalogueGame?.cover?.url ?? item.cover?.url;
   const className = catalogueGame
@@ -220,8 +217,7 @@ export function generateStaticParams() {
 export default async function GameDetailPage({ params }: GameDetailPageProps) {
   // Resolve params promise for SSR compatibility
   const resolvedParams = await params;
-  c
-onst game = allGames.find(g => g.id === resolvedParams.id);
+  const game = allGames.find(g => g.id === resolvedParams.id);
   
   if (!game) {
     notFound();
@@ -263,8 +259,7 @@ onst game = allGames.find(g => g.id === resolvedParams.id);
       <div className="relative">
         <Navbar />
         <div className="border-b border-white/5 bg-background/80">
-          <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 s
-m:px-6 lg:px-8">
+          <div className="mx-auto flex h-14 max-w-[1920px] items-center gap-4 px-4 sm:px-6 lg:px-8">
             <Link
               href="/"
               className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
@@ -310,7 +305,6 @@ m:px-6 lg:px-8">
           </div>
 
           {/* Game info */}
-
           <div className="flex flex-1 flex-col gap-4">
             {/* Title and rating */}
             <div>
@@ -319,7 +313,7 @@ m:px-6 lg:px-8">
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
                 {game.releaseYear != null && <span>{game.releaseYear}</span>}
-                {game.releaseYear != null && game.genres.length > 0 && <span aria-hidden="true">•</span>}
+                {game.releaseYear != null && game.genres.length > 0 && <span aria-hidden="true">â¢</span>}
                 <span className="flex flex-wrap gap-1 font-medium">
                   {game.genres.map((genre, index) => (
                     <span key={genre}>
@@ -352,8 +346,7 @@ m:px-6 lg:px-8">
                 <span
                   key={name}
                   className="rounded bg-white/10 px-2.5 py-1 text-sm font-medium"
-     
-           >
+                >
                   <PlatformName name={name} iconClassName="h-5 w-5" className="gap-1.5" />
                 </span>
               ))}
@@ -390,8 +383,7 @@ m:px-6 lg:px-8">
                   {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
                     <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
                   )}
-                  {offer.price != null && <span className="font-semibold tex
-t-foreground">{formatOfferPrice(offer.price)}</span>}
+                  {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
                 </a>
               ))}
               <LibraryControls gameId={game.id} gameTitle={game.title} />
@@ -423,8 +415,7 @@ t-foreground">{formatOfferPrice(offer.price)}</span>}
           </div>
         </section>
 
-        <section 
-className="mb-8">
+        <section className="mb-8">
           <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
             About {game.title}
           </h2>
@@ -459,8 +450,7 @@ className="mb-8">
                         href={`/studio/${encodeURIComponent(company.id)}`}
                         className="inline-flex items-center gap-1.5 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
-                        <StudioLogo name={company.name} logo={company.lo
-go} />
+                        <StudioLogo name={company.name} logo={company.logo} />
                         {company.name}
                       </Link>
                       {index < game.developers.length - 1 ? ", " : ""}
@@ -502,8 +492,7 @@ go} />
             )}
             {game.themes.length > 0 && (
               <div>
-                <dt className=
-"text-[11px] font-medium uppercase tracking-wider text-muted">Themes</dt>
+                <dt className="text-[11px] font-medium uppercase tracking-wider text-muted">Themes</dt>
                 <dd className="mt-0.5 flex flex-wrap gap-x-1 text-sm text-foreground/90">
                   {game.themes.map((theme, index) => (
                     <span key={theme}>
@@ -535,7 +524,7 @@ go} />
                     <FactChips items={gameModes} />
                     <FactChips items={perspectives} />
                     {playPhrases.length > 0 && (
-                      <p className="text-sm text-foreground/90">{playPhrases.join(" · ")}</p>
+                      <p className="text-sm text-foreground/90">{playPhrases.join(" Â· ")}</p>
                     )}
                   </div>
                 </div>
@@ -545,8 +534,7 @@ go} />
                   <h3 className="text-[11px] font-medium uppercase tracking-wider text-muted">Time to beat</h3>
                   <ul className="mt-2 flex flex-wrap gap-2">
                     {playTimes.map(([label, seconds]) => (
-                      <li key={label} className=
-"min-w-28 flex-1 rounded-lg bg-card px-3 py-3">
+                      <li key={label} className="min-w-28 flex-1 rounded-lg bg-card px-3 py-3">
                         <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
                         <div className="mt-1 text-lg font-semibold tabular-nums text-foreground">{formatPlayTime(seconds)}</div>
                       </li>
@@ -581,8 +569,7 @@ go} />
                     {releases.map((release) => (
                       <li
                         key={`${release.platform}-${release.date ?? release.label}`}
-                        className="flex i
-tems-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
+                        className="flex items-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
                       >
                         <PlatformName name={release.platform} iconClassName="h-5 w-5" />
                         <span className="shrink-0 text-muted">{formatReleaseDay(release.date) || release.label}</span>
@@ -629,8 +616,7 @@ tems-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Trailers</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-             
- {display.videos.map((video) => (
+              {display.videos.map((video) => (
                 <a
                   key={video.id}
                   href={video.url}
@@ -662,8 +648,7 @@ tems-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
                   <span className="border-t border-white/10 px-3 py-2.5 text-sm font-semibold text-foreground">
                     {video.name || `${game.title} trailer`}
                   </span>
- 
-               </a>
+                </a>
               ))}
             </div>
           </section>
@@ -683,7 +668,7 @@ tems-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
           </section>
         )}
 
-        {game.similarGames.length > 0 && (
+        {game.similargames.length > 0 && (
           <section className="mb-12" aria-labelledby="similar-games">
             <p className="sr-only">Arrow keys move between games in the catalogue.</p>
             <CardScroller
@@ -705,3 +690,4 @@ tems-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"
     </div>
   );
 }
+
