@@ -11,9 +11,10 @@ import {
   lookupPlayStationConcept,
   lookupPlayStationProduct,
   lookupSteam,
+  priceNintendoCandidate,
+  priceNintendoCandidates,
   searchEpic,
   searchGog,
-  searchMicrosoft,
   searchNintendo,
   searchPlayStation,
   searchSteam,
@@ -23,7 +24,10 @@ const {
   ageInDays,
   chooseCandidate,
   identitiesFromGame,
+  isAllowedStoreMatch,
   isEpicPageSlug,
+  isNintendoGameNsuid,
+  isUsableStoreId,
   matchesStoreIdOnly,
   mergeStoreOffers,
   preferIdentity,
@@ -36,6 +40,11 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
 const offersPath = path.join(root, "public", "catalog", "store-offers.json");
 const stores = ["xbox", "playstation", "nintendo", "steam", "epic", "gog"];
+const requestedStores = (process.env.STORE_STORES ?? "").split(",").map((store) => store.trim()).filter(Boolean);
+for (const store of requestedStores) {
+  if (!stores.includes(store)) throw new Error(`Unknown STORE_STORES entry: ${store}`);
+}
+const activeStores = requestedStores.length > 0 ? stores.filter((store) => requestedStores.includes(store)) : stores;
 const platformFor = {
   xbox: "Xbox",
   playstation: "PS5",
@@ -131,6 +140,7 @@ function included(game) {
 }
 
 function stale(game, store) {
+  if (!activeStores.includes(store)) return false;
   if (!included(game)) return false;
   if (!game.platforms.includes(platformFor[store])) return false;
   const entry = previousGames[game.id];
@@ -194,7 +204,7 @@ async function lookupIdentity(game, store, identity) {
     if (store === "xbox") {
       const found = await guard(store, () => lookupMicrosoft([identity.id], limiters.xbox));
       const product = found.get(identity.id.toUpperCase());
-      if (!product) setAttempt(game.id, store, { status: "miss" });
+      if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
@@ -248,7 +258,7 @@ async function lookupIdentity(game, store, identity) {
       return;
     }
     const product = await guard(store, () => lookupNintendo(identity.id, limiters.nintendo));
-    if (!product) setAttempt(game.id, store, { status: "miss" });
+    if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
     else accept(game, store, product, "external-id", 1);
   } catch (error) {
     if (isMiss(error)) setAttempt(game.id, store, { status: "miss" });
@@ -260,16 +270,7 @@ async function searchIdentity(game, store) {
   const query = { title: game.title, year: game.releaseYear };
   try {
     if (store === "xbox") {
-      const candidates = await guard(store, () => searchMicrosoft(game.title, limiters.xbox));
-      const chosen = chooseCandidate(query, candidates);
-      if (!chosen) {
-        setAttempt(game.id, store, { status: "miss" });
-        return;
-      }
-      const found = await guard(store, () => lookupMicrosoft([chosen.candidate.id], limiters.xbox));
-      const product = found.get(chosen.candidate.id);
-      if (!product) setAttempt(game.id, store, { status: "miss" });
-      else accept(game, store, product, chosen.match, chosen.score);
+      setAttempt(game.id, store, { status: "miss" });
       return;
     }
     if (store === "steam") {
@@ -285,13 +286,23 @@ async function searchIdentity(game, store) {
       else accept(game, store, product, confirmed.match, confirmed.score);
       return;
     }
+    if (store === "nintendo") {
+      const candidates = await guard(store, () => searchNintendo(game.title, limiters.nintendo));
+      const chosen = chooseCandidate(query, candidates);
+      if (!chosen) {
+        setAttempt(game.id, store, { status: "miss" });
+        return;
+      }
+      const priced = await guard(store, () => priceNintendoCandidate(chosen.candidate, limiters.nintendo));
+      if (!priced?.title || priced.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      else accept(game, store, priced, chosen.match, chosen.score);
+      return;
+    }
     const candidates = store === "playstation"
       ? await guard(store, () => searchPlayStation(game.title, limiters.playstation))
       : store === "epic"
         ? await guard(store, () => searchEpic(game.title, limiters.epic))
-        : store === "gog"
-          ? await guard(store, () => searchGog(game.title, limiters.gog))
-          : await guard(store, () => searchNintendo(game.title, limiters.nintendo));
+        : await guard(store, () => searchGog(game.title, limiters.gog));
     const chosen = chooseCandidate(query, candidates);
     if (!chosen) setAttempt(game.id, store, { status: "miss" });
     else accept(game, store, chosen.candidate, chosen.match, chosen.score);
@@ -330,7 +341,7 @@ for (let offset = 0; offset < xboxJobs.length; offset += 20) {
     const found = await guard("xbox", () => lookupMicrosoft(chunk.map((job) => job.identity.id), limiters.xbox));
     for (const job of chunk) {
       const product = found.get(job.identity.id.toUpperCase());
-      if (!product) setAttempt(job.game.id, "xbox", { status: "miss" });
+      if (!product || product.kind === "other") setAttempt(job.game.id, "xbox", { status: "miss" });
       else accept(job.game, "xbox", product, "external-id", 1);
     }
   } catch (error) {
@@ -358,6 +369,36 @@ await mapPool(otherIdJobs, async (job) => {
 writeOffers();
 console.log("Cached store records after id lookups.");
 
+const nintendoReprice = [];
+for (const game of games) {
+  if (!stale(game, "nintendo") || attempts.get(game.id)?.nintendo) continue;
+  if (preferIdentity(identitiesFromGame(game), "nintendo")) continue;
+  const prior = previousGames[game.id]?.offers?.find((offer) => offer.store === "nintendo");
+  if (!prior || !isAllowedStoreMatch("nintendo", prior.match) || !isNintendoGameNsuid(prior.productId)) continue;
+  nintendoReprice.push({ game, prior });
+}
+console.log(`Nintendo price refreshes ${nintendoReprice.length}.`);
+for (let offset = 0; offset < nintendoReprice.length; offset += 50) {
+  const chunk = nintendoReprice.slice(offset, offset + 50);
+  try {
+    const priced = await guard("nintendo", () => priceNintendoCandidates(chunk.map((job) => ({
+      id: job.prior.productId,
+      title: job.prior.title,
+      url: job.prior.url,
+      kind: "game",
+    })), limiters.nintendo));
+    for (const job of chunk) {
+      const product = priced.get(job.prior.productId);
+      if (!product?.title || !product.url) setAttempt(job.game.id, "nintendo", { status: "miss" });
+      else accept(job.game, "nintendo", product, job.prior.match, job.prior.score ?? 0.95);
+    }
+  } catch (error) {
+    const status = isMiss(error) ? "miss" : "failed";
+    for (const job of chunk) setAttempt(job.game.id, "nintendo", { status });
+  }
+}
+if (nintendoReprice.length > 0) writeOffers();
+
 const searchJobs = [];
 for (const game of games) {
   const identities = identitiesFromGame(game);
@@ -374,7 +415,10 @@ let searched = 0;
 await mapPool(selectedSearches, async (job) => {
   await searchIdentity(job.game, job.store);
   searched += 1;
-  if (searched % 100 === 0) console.log(`Title searches finished ${searched}/${selectedSearches.length}`);
+  if (searched % 100 === 0) {
+    console.log(`Title searches finished ${searched}/${selectedSearches.length}`);
+    writeOffers();
+  }
 });
 
 function writeOffers() {
@@ -421,22 +465,26 @@ const ordered = writeOffers();
 
 const summary = {};
 for (const store of stores) {
-  summary[store] = { eligible: 0, withId: 0, matched: 0, "external-id": 0, "exact-title": 0, edition: 0 };
+  summary[store] = { eligible: 0, withId: 0, matched: 0, withPrice: 0, "external-id": 0, "exact-title": 0, edition: 0 };
 }
 for (const game of games) {
   const identities = identitiesFromGame(game);
   for (const store of stores) {
     if (!game.platforms.includes(platformFor[store])) continue;
     summary[store].eligible += 1;
-    if (identities.some((identity) => identity.store === store)) summary[store].withId += 1;
+    if (identities.some((identity) => identity.store === store && isUsableStoreId(store, identity.id))) {
+      summary[store].withId += 1;
+    }
     const offer = ordered[game.id]?.offers?.find((item) => item.store === store);
     if (!offer) continue;
     summary[store].matched += 1;
+    if (offer.price != null) summary[store].withPrice += 1;
     summary[store][offer.match] += 1;
   }
 }
 for (const store of stores) {
-  console.log(`Coverage ${store}: ${summary[store].matched} matched / ${summary[store].withId} with a store id`);
+  const row = summary[store];
+  console.log(`Coverage ${store}: ${row.matched} matched / ${row.withId} with a store id, ${row.withPrice} with an NL price (${row["external-id"]} by id, ${row["exact-title"]} by exact title)`);
 }
 const bytes = fs.statSync(offersPath).size;
 console.log(JSON.stringify({

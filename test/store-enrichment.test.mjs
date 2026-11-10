@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
-import { matchEpicSlug } from "../scripts/stores/clients.mjs";
+import { applyNintendoPrice, matchEpicSlug, microsoftProduct, nintendoCandidate } from "../scripts/stores/clients.mjs";
 import { retryDelayMs } from "../scripts/stores/http.mjs";
 
 const {
@@ -10,11 +10,17 @@ const {
   chooseCandidate,
   identitiesFromGame,
   isEpicPageSlug,
+  isAllowedStoreMatch,
+  isNintendoGameNsuid,
+  isUsableStoreId,
+  isXboxBigId,
   matchesStoreIdOnly,
   mergeStoreOffers,
   parseStoreUrl,
   preferIdentity,
   reconcileFills,
+  selectMicrosoftPrice,
+  selectNintendoPrice,
   selectPlayStationPrice,
   steamAppIds,
   storeIdsFromIgdb,
@@ -170,13 +176,30 @@ test("matches store products by exact title and rejects loose or ambiguous hits"
     { id: "a", title: "Hades", kind: "game" },
     { id: "b", title: "Hades", kind: "game" },
   ]), undefined);
-  assert.equal(chooseCandidate({ title: "Outer Wilds" }, [
+  assert.equal(chooseCandidate({ title: "Outer Wilds", year: 2019 }, [
     { id: "base", title: "Outer Wilds", kind: "game", year: 2019 },
     { id: "edition", title: "Outer Wilds: Archaeologist Edition", kind: "game", year: 2020 },
   ])?.candidate.id, "base");
-  assert.equal(chooseCandidate({ title: "Hades" }, [
+  assert.equal(chooseCandidate({ title: "Hades", year: 2020 }, [
     { id: "deluxe", title: "Hades Deluxe Edition", kind: "game", year: 2020 },
-  ])?.match, "edition");
+  ]), undefined);
+  assert.equal(titleScore({ title: "Hades", year: 2020 }, {
+    id: "game",
+    title: "Hades",
+    kind: "game",
+  }), undefined);
+  assert.equal(titleScore({ title: "Hades" }, {
+    id: "game",
+    title: "Hades",
+    kind: "game",
+    year: 2020,
+  }), undefined);
+  assert.deepEqual(titleScore({ title: "Hades!", year: 2018 }, {
+    id: "game",
+    title: "Hades",
+    kind: "game",
+    year: 2020,
+  }), { match: "exact-title", score: 0.95 });
   assert.equal(titleScore({ title: "Hades", year: 2020 }, {
     id: "sequel",
     title: "Hades II",
@@ -313,7 +336,7 @@ test("matches PC stores by stable ids and retries rate limits with backoff", () 
   assert.equal(matchesStoreIdOnly("steam"), true);
   assert.equal(matchesStoreIdOnly("epic"), true);
   assert.equal(matchesStoreIdOnly("gog"), true);
-  assert.equal(matchesStoreIdOnly("xbox"), false);
+  assert.equal(matchesStoreIdOnly("xbox"), true);
   assert.equal(matchesStoreIdOnly("playstation"), false);
   assert.equal(matchesStoreIdOnly("nintendo"), false);
 
@@ -366,4 +389,161 @@ test("matches PC stores by stable ids and retries rate limits with backoff", () 
     { id: "one-aaaaaa", title: "One", kind: "game" },
     { id: "two-aaaaaa", title: "Two", kind: "game" },
   ], "store-aaaaaa"), undefined);
+});
+
+test("matches console stores by product id and keeps only an exact title inside two years", () => {
+  assert.equal(isXboxBigId("9P8RQH67TTT1"), true);
+  assert.equal(isXboxBigId("c4h36b87svl1"), true);
+  assert.equal(isXboxBigId("66acd000-77fe-1000-9115-d802425307d1"), false);
+  assert.equal(isXboxBigId("xbox36066acd000-77fe-1000-9115-d802425307d1"), false);
+  assert.equal(isNintendoGameNsuid("70010000033132"), true);
+  assert.equal(isNintendoGameNsuid("70050000031296"), false);
+  assert.equal(isNintendoGameNsuid("70070000000962"), false);
+  assert.equal(isUsableStoreId("xbox", "9P8RQH67TTT1"), true);
+  assert.equal(isUsableStoreId("xbox", "66acd000-77fe-1000-9115-d802425307d1"), false);
+  assert.equal(isUsableStoreId("nintendo", "70010000033132"), true);
+  assert.equal(isUsableStoreId("playstation", "10001850"), true);
+  assert.equal(isUsableStoreId("playstation", "concept:10001850"), true);
+
+  assert.deepEqual(preferIdentity([
+    { store: "xbox", id: "xbox36066acd000-77fe-1000-9115-d802425307d1" },
+    { store: "xbox", id: "9p8rqh67ttt1" },
+  ], "xbox"), { store: "xbox", id: "9p8rqh67ttt1" });
+  assert.equal(preferIdentity([
+    { store: "xbox", id: "66acd000-77fe-1000-9115-d802425307d1" },
+  ], "xbox"), undefined);
+  assert.deepEqual(preferIdentity([
+    { store: "nintendo", id: "70050000031296" },
+    { store: "nintendo", id: "70010000033132" },
+  ], "nintendo"), { store: "nintendo", id: "70010000033132" });
+
+  assert.equal(isAllowedStoreMatch("xbox", "external-id"), true);
+  assert.equal(isAllowedStoreMatch("xbox", "exact-title"), false);
+  assert.equal(isAllowedStoreMatch("xbox", "edition"), false);
+  assert.equal(isAllowedStoreMatch("playstation", "exact-title"), true);
+  assert.equal(isAllowedStoreMatch("nintendo", "edition"), false);
+  assert.equal(isAllowedStoreMatch("steam", "external-id"), true);
+
+  const xboxTitle = {
+    store: "xbox",
+    platform: "Xbox",
+    productId: "9N",
+    url: "https://www.xbox.com/nl-nl/games/store/game/9N",
+    title: "Hades",
+    price: 24.99,
+    regularPrice: 24.99,
+    currency: "EUR",
+    match: "exact-title",
+    score: 0.95,
+    checkedAt: "2026-10-01",
+  };
+  const nintendoEdition = {
+    ...xboxTitle,
+    store: "nintendo",
+    platform: "Switch",
+    match: "edition",
+    url: "https://www.nintendo.com/nl-nl/Games/example",
+  };
+  const merged = mergeStoreOffers([xboxTitle, nintendoEdition], {});
+  assert.deepEqual(merged, []);
+});
+
+test("uses the outright Xbox price and the official Nintendo NL price", () => {
+  assert.deepEqual(selectMicrosoftPrice([
+    {
+      skuType: "full",
+      actions: ["Purchase"],
+      remediationRequired: true,
+      currency: "EUR",
+      listPrice: 31.99,
+      msrp: 39.99,
+    },
+    {
+      skuType: "full",
+      actions: ["Purchase"],
+      remediationRequired: false,
+      currency: "EUR",
+      listPrice: 19.99,
+      msrp: 39.99,
+    },
+  ]), { price: 19.99, regularPrice: 39.99 });
+  assert.equal(selectMicrosoftPrice([
+    {
+      skuType: "trial",
+      actions: ["Purchase"],
+      remediationRequired: false,
+      currency: "EUR",
+      listPrice: 0,
+      msrp: 0,
+    },
+  ]), undefined);
+
+  const upsellFirst = microsoftProduct({
+    ProductId: "9P8RQH67TTT1",
+    ProductKind: "Game",
+    LocalizedProperties: [{ ProductTitle: "Grand Theft Auto V", Images: [] }],
+    DisplaySkuAvailabilities: [{
+      Sku: { SkuType: "full" },
+      Availabilities: [
+        {
+          Actions: ["Purchase"],
+          RemediationRequired: true,
+          OrderManagementData: { Price: { CurrencyCode: "EUR", ListPrice: 31.99, MSRP: 39.99 } },
+        },
+        {
+          Actions: ["Purchase"],
+          RemediationRequired: false,
+          OrderManagementData: { Price: { CurrencyCode: "EUR", ListPrice: 39.99, MSRP: 39.99 } },
+        },
+      ],
+    }],
+  });
+  assert.equal(upsellFirst.price, 39.99);
+  assert.equal(upsellFirst.regularPrice, 39.99);
+  assert.equal(upsellFirst.currency, "EUR");
+
+  const indexed = nintendoCandidate({
+    title: "Mario Kart 8 Deluxe",
+    nsuid_txt: ["70070000000962", "70010000000126"],
+    price_regular_f: 84.98,
+    price_lowest_f: 24.99,
+    price_has_discount_b: false,
+    type: "GAME",
+    date_from: "2017-04-28T00:00:00Z",
+    url: "/nl-nl/Games/Nintendo-Switch-games/Mario-Kart-8-Deluxe-1173296.html",
+  });
+  assert.equal(indexed.id, "70010000000126");
+  assert.equal(indexed.year, 2017);
+  assert.equal(indexed.price, undefined);
+  assert.equal(nintendoCandidate({
+    title: "Physical only",
+    nsuid_txt: ["70070000000962"],
+    type: "GAME",
+    url: "/nl-nl/Games/example",
+  }), undefined);
+
+  assert.deepEqual(selectNintendoPrice({
+    sales_status: "onsale",
+    regular_price: { currency: "EUR", raw_value: "59.99" },
+  }), { price: 59.99, regularPrice: 59.99 });
+  assert.deepEqual(selectNintendoPrice({
+    sales_status: "onsale",
+    regular_price: { currency: "EUR", raw_value: "19.99" },
+    discount_price: { currency: "EUR", raw_value: "3.99" },
+  }), { price: 3.99, regularPrice: 19.99 });
+  assert.equal(selectNintendoPrice({
+    sales_status: "not_found",
+    regular_price: { currency: "EUR", raw_value: "29.99" },
+  }), undefined);
+
+  const priced = applyNintendoPrice(indexed, {
+    title_id: 70010000000126,
+    sales_status: "onsale",
+    regular_price: { currency: "EUR", raw_value: "59.99" },
+    discount_price: { currency: "EUR", raw_value: "39.99" },
+  });
+  assert.equal(priced.price, 39.99);
+  assert.equal(priced.regularPrice, 59.99);
+  assert.equal(priced.currency, "EUR");
+  assert.equal(priced.url, "https://www.nintendo.com/nl-nl/Games/Nintendo-Switch-games/Mario-Kart-8-Deluxe-1173296.html");
 });
