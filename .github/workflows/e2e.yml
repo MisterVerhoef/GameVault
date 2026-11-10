@@ -31,14 +31,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      - name: Install Playwright package (no lockfile change)
+        run: |
+          npm install --no-save @playwright/test@1.56.0 \
+            || (sleep 20 && npm install --no-save @playwright/test@1.56.0)
       - name: Install Playwright browser
         run: |
-          npx -y @playwright/test@1.56.0 install --with-deps chromium \
-            || (sleep 20 && npx -y @playwright/test@1.56.0 install --with-deps chromium)
+          npx playwright install --with-deps chromium \
+            || (sleep 20 && npx playwright install --with-deps chromium)
       - name: Run smoke tests
         run: |
           set -o pipefail
-          npx -y @playwright/test@1.56.0 test 2>&1 | tee e2e-output.log
+          npx playwright test 2>&1 | tee e2e-output.log
       - name: Report failure to PR
         if: failure() && github.event_name == 'pull_request'
         env:
