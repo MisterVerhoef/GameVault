@@ -638,9 +638,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     )}
                     <span
                       className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-red-600 text-white shadow-xl shadow-black/50 ring-4 ring-black/25 transition duration-300 group-hover:scale-105"
-                      aria(hidden="true"
+                      aria-hidden="true"
                     >
-                      <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" ariahidden="true">
+                      <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true">
                         <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l11.04-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z" />
                       </svg>
                     </span>
