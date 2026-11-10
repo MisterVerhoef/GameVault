@@ -1,0 +1,70 @@
+name: E2E smoke test
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - "src/**"
+      - "e2e/**"
+      - "playwright.config.mjs"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
+  push:
+    branches: [main]
+
+# Default GITHUB_TOKEN is read-only; the report step needs PR write access.
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Install Playwright package (no lockfile change)
+        run: |
+          npm install --no-save @playwright/test@1.56.0 \
+            || (sleep 20 && npm install --no-save @playwright/test@1.56.0)
+      - name: Install Playwright browser
+        run: |
+          npx playwright install --with-deps chromium \
+            || (sleep 20 && npx playwright install --with-deps chromium)
+      - name: Run smoke tests
+        run: |
+          set -o pipefail
+          npx playwright test 2>&1 | tee e2e-output.log
+      - name: Report failure to PR
+        if: failure() && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "### E2E run failed"
+            echo '---'
+            tail -c 8000 e2e-output.log
+          } > comment.md
+          gh pr comment ${{ github.event.pull_request.number }} --body-file comment.md
+      - name: Upload test output on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output-log
+          path: e2e-output.log
+          retention-days: 7
+      - name: Upload trace on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-traces
+          path: test-results/
+          retention-days: 7

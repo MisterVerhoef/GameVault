@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "npm run test:catalogue",
+    "test:e2e": "npx -y @playwright/test@1.56.0 test",
     "catalogue:generate": "node scripts/generate-catalogue.mjs",
     "catalogue:import": "node scripts/import-catalogue.mjs",
     "catalogue:sync:igdb": "node scripts/sync-igdb.mjs",
