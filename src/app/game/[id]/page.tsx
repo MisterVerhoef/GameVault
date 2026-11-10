@@ -16,6 +16,7 @@ import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streamin
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
+import { GameStorePrice } from "@/components/GameStorePrice";
 import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
 import CardScroller from "@/components/CardScroller";
@@ -381,18 +382,18 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   style={{ borderColor: `${themeColor}66`, color: themeColor }}
                   aria-label={[
                     `${game.title} on the ${storeName(offer.store)}`,
-                    offer.price != null ? formatOfferPrice(offer.price) : null,
-                    offer.discountLabel && offer.regularPrice != null
+                    formatOfferPrice(offer.price),
+                    offer.price != null && offer.discountLabel && offer.regularPrice != null
                       ? `${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
                       : null,
-                    offer.lowestRecorded
+                    offer.price != null && offer.lowestRecorded
                       ? `Lowest price GameVault has recorded: ${formatEuro(offer.lowestRecorded.price)} on ${formatHistoryDate(offer.lowestRecorded.date)}`
                       : null,
                   ].filter(Boolean).join(", ") + ". Opens in a new tab."}
                 >
                   <span className="inline-flex flex-wrap items-center gap-2">
                     <span>{storeName(offer.store)}</span>
-                    {offer.discountLabel && (
+                    {offer.price != null && offer.discountLabel && (
                       <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
                         {offer.discountLabel}
                       </span>
@@ -400,9 +401,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
                       <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
                     )}
-                    {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
+                    <GameStorePrice price={offer.price} />
                   </span>
-                  {offer.lowestRecorded && (
+                  {offer.price != null && offer.lowestRecorded && (
                     <span className="text-[10px] font-normal text-muted">{formatLowestRecorded(offer.lowestRecorded)}</span>
                   )}
                 </a>
@@ -430,7 +431,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             {offers.length > 0 && (
               <p className="text-xs text-muted">
                 Prices in EUR for the Netherlands.
-                {offers.some((offer) => offer.lowestRecorded) ? ` ${LOWEST_RECORDED_NOTE}` : ""}
+                {offers.some((offer) => offer.price != null && offer.lowestRecorded) ? ` ${LOWEST_RECORDED_NOTE}` : ""}
               </p>
             )}
             {captions.length > 0 && (
