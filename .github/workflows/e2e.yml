@@ -30,7 +30,9 @@ jobs:
           npx -y @playwright/test@1.56.0 install --with-deps chromium \
             || (sleep 20 && npx -y @playwright/test@1.56.0 install --with-deps chromium)
       - name: Run smoke tests
-        run: npx -y @playwright/test@1.56.0 test
+        run: |
+          set -o pipefail
+          npx -y @playwright/test@1.56.0 test 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Upload trace on failure
         if: failure()
         uses: actions/upload-artifact@v4
