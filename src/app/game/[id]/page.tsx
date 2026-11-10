@@ -386,7 +386,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
                 </a>
               ))}
-              <LibraryControls gameId={game.id} />
+              <LibraryControls gameId={game.id} gameTitle={game.title} />
               <ListControls gameId={game.id} gameTitle={game.title} />
             </div>
             {cloudServices.length > 0 && (
@@ -648,8 +648,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   <span className="border-t border-white/10 px-3 py-2.5 text-sm font-semibold text-foreground">
                     {video.name || `${game.title} trailer`}
                   </span>
-                </a>
-              ))}
+                  </a>
+                ))}
             </div>
           </section>
         )}
@@ -690,3 +690,4 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
     </div>
   );
 }
+

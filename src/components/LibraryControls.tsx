@@ -9,10 +9,11 @@ import {
   type LibraryStatus,
 } from "@/context/LibraryContext";
 
-export default function LibraryControls({ gameId }: { gameId: string }) {
+export default function LibraryControls({ gameId, gameTitle }: { gameId: string; gameTitle?: string }) {
   const { entries, setStatus, setProgress, setRating, setNotes } = useLibrary();
   const entry = entries[gameId];
   const notes = entry?.notes ?? "";
+  const title = gameTitle ?? gameId;
 
   return (
     <>
@@ -26,7 +27,7 @@ export default function LibraryControls({ gameId }: { gameId: string }) {
             if (value) setStatus(gameId, value);
             else setStatus(gameId, null);
           }}
-          className="rounded-full border border-white/20 bg-white/5 px-3 py-2 text-sm text-foreground"
+          className="rounded-full border border-white/20 bg-white/5 px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         >
           <option value="">Not in library</option>
           {LIBRARY_STATUSES.map((status) => (
@@ -42,7 +43,8 @@ export default function LibraryControls({ gameId }: { gameId: string }) {
               max="100"
               value={entry.progress}
               onChange={(event) => setProgress(gameId, Number(event.target.value))}
-              aria-label={`Progress for ${gameId}`}
+              aria-label={`Progress for ${title}`}
+              className="focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             />
             <span>{entry.progress}%</span>
           </label>
@@ -51,6 +53,7 @@ export default function LibraryControls({ gameId }: { gameId: string }) {
       {entry && (
         <div className="w-full max-w-xl basis-full rounded-2xl border border-white/10 bg-white/5 p-3">
           <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-muted">In your vault</p>
+
           <StarRating value={entry.rating} onChange={(rating) => setRating(gameId, rating)} />
           <label htmlFor={`library-notes-${gameId}`} className="mt-3 block text-xs font-medium text-muted">
             Notes
