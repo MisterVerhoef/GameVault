@@ -41,7 +41,10 @@ Requirements: Node.js 20.9 or newer and npm.
 
 ## Before you open a pull request
 
-Run the same checks as the GitHub Actions `validate` job:
+Run these checks locally. The GitHub Actions `validate` job runs the same TypeScript, lint and
+build checks (it lints a fixed list of files rather than the full `npm run lint`, and it also
+verifies that `npm run catalogue:search-index` leaves the JSON files in `public/catalog/`
+unchanged):
 
 ```bash
 npm test
