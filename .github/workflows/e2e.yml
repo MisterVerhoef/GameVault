@@ -32,7 +32,15 @@ jobs:
       - name: Run smoke tests
         run: |
           set -o pipefail
-          npx -y @playwright/test@1.56.0 test 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          npx -y @playwright/test@1.56.0 test 2>&1 | tee e2e-output.log
+      - name: Commit test output for diagnosis
+        if: always()
+        run: |
+          git config user.email "ci@example.com"
+          git config user.name "ci"
+          git add e2e-output.log
+          git commit -m "ci: e2e output log [skip ci]" || true
+          git push
       - name: Upload trace on failure
         if: failure()
         uses: actions/upload-artifact@v4
