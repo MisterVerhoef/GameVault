@@ -30,7 +30,7 @@ export async function generateMetadata({ params }: GameDetailPageProps): Promise
   const game = allGames.find((entry) => entry.id === id);
 
   return {
-    title: game ? `${game.title} Â· GameVault` : "Game not found Â· GameVault",
+    title: game ? `${game.title} · GameVault` : "Game not found · GameVault",
   };
 }
 
@@ -91,7 +91,7 @@ function ScoreCard({
     >
       <div className="text-[11px] font-medium uppercase tracking-wider text-muted">{label}</div>
       <div className="mt-1 flex items-baseline gap-2">
-        <span className="text-2xl font-bold text-yellow-400" aria-hidden="true">â</span>
+        <span className="text-2xl font-bold text-yellow-400" aria-hidden="true">★</span>
         <span className="text-2xl font-semibold tabular-nums text-foreground">{formatted}</span>
         <span className="text-xs text-muted">/ 100</span>
       </div>
@@ -313,7 +313,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
                 {game.releaseYear != null && <span>{game.releaseYear}</span>}
-                {game.releaseYear != null && game.genres.length > 0 && <span aria-hidden="true">â¢</span>}
+                {game.releaseYear != null && game.genres.length > 0 && <span aria-hidden="true">•</span>}
                 <span className="flex flex-wrap gap-1 font-medium">
                   {game.genres.map((genre, index) => (
                     <span key={genre}>
@@ -524,7 +524,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     <FactChips items={gameModes} />
                     <FactChips items={perspectives} />
                     {playPhrases.length > 0 && (
-                      <p className="text-sm text-foreground/90">{playPhrases.join(" Â· ")}</p>
+                      <p className="text-sm text-foreground/90">{playPhrases.join(" · ")}</p>
                     )}
                   </div>
                 </div>
@@ -638,9 +638,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     )}
                     <span
                       className="absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-red-600 text-white shadow-xl shadow-black/50 ring-4 ring-black/25 transition duration-300 group-hover:scale-105"
-                      aria-hidden="true"
+                      aria(hidden="true"
                     >
-                      <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" className="ml-0.5 h-5 w-5 fill-current" ariahidden="true">
                         <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l11.04-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z" />
                       </svg>
                     </span>
@@ -648,8 +648,8 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   <span className="border-t border-white/10 px-3 py-2.5 text-sm font-semibold text-foreground">
                     {video.name || `${game.title} trailer`}
                   </span>
-                </a>
-              ))}
+                  </a>
+                ))}
             </div>
           </section>
         )}
@@ -668,7 +668,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         )}
 
-        {game.similargames.length > 0 && (
+        {game.similarGames.length > 0 && (
           <section className="mb-12" aria-labelledby="similar-games">
             <p className="sr-only">Arrow keys move between games in the catalogue.</p>
             <CardScroller
