@@ -35,6 +35,7 @@ const {
   steamAppIds,
   storePlatform,
 } = loadTsModule("src/data/store-match.ts");
+const { recordAttemptPrices } = loadTsModule("src/data/price-history.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
@@ -430,7 +431,7 @@ function writeOffers() {
     continue;
   }
   const gameAttempts = attempts.get(game.id) ?? {};
-  const offers = mergeStoreOffers(prior?.offers, gameAttempts);
+  const offers = mergeStoreOffers(prior?.offers, recordAttemptPrices(prior?.offers, gameAttempts, today));
   const misses = { ...(prior?.misses ?? {}) };
   for (const store of stores) {
     const attempt = gameAttempts[store];

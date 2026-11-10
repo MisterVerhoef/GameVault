@@ -7,6 +7,8 @@ import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
+import { LOWEST_RECORDED_NOTE, formatHistoryDate } from "@/data/price-history";
+import { formatLowestRecorded } from "@/data/store-offer-index";
 import { formatEuro, formatOfferPrice, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
 import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
@@ -375,15 +377,34 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   href={offer.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 rounded-full border bg-white/5 px-4 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                  className="inline-flex flex-col items-start gap-0.5 rounded-full border bg-white/5 px-4 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                   style={{ borderColor: `${themeColor}66`, color: themeColor }}
-                  aria-label={`${game.title} on the ${storeName(offer.store)}${offer.price != null ? `, ${formatOfferPrice(offer.price)}` : ""}`}
+                  aria-label={[
+                    `${game.title} on the ${storeName(offer.store)}`,
+                    offer.price != null ? formatOfferPrice(offer.price) : null,
+                    offer.discountLabel && offer.regularPrice != null
+                      ? `${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
+                      : null,
+                    offer.lowestRecorded
+                      ? `Lowest price GameVault has recorded: ${formatEuro(offer.lowestRecorded.price)} on ${formatHistoryDate(offer.lowestRecorded.date)}`
+                      : null,
+                  ].filter(Boolean).join(", ") + ". Opens in a new tab."}
                 >
-                  <span>{storeName(offer.store)}</span>
-                  {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
-                    <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
+                  <span className="inline-flex flex-wrap items-center gap-2">
+                    <span>{storeName(offer.store)}</span>
+                    {offer.discountLabel && (
+                      <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
+                        {offer.discountLabel}
+                      </span>
+                    )}
+                    {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
+                      <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
+                    )}
+                    {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
+                  </span>
+                  {offer.lowestRecorded && (
+                    <span className="text-[10px] font-normal text-muted">{formatLowestRecorded(offer.lowestRecorded)}</span>
                   )}
-                  {offer.price != null && <span className="font-semibold text-foreground">{formatOfferPrice(offer.price)}</span>}
                 </a>
               ))}
               <LibraryControls gameId={game.id} gameTitle={game.title} />
@@ -407,7 +428,10 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               </section>
             )}
             {offers.length > 0 && (
-              <p className="text-xs text-muted">Prices in EUR for the Netherlands.</p>
+              <p className="text-xs text-muted">
+                Prices in EUR for the Netherlands.
+                {offers.some((offer) => offer.lowestRecorded) ? ` ${LOWEST_RECORDED_NOTE}` : ""}
+              </p>
             )}
             {captions.length > 0 && (
               <p className="text-xs text-muted">{captions.join(" ")}</p>
