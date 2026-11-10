@@ -158,6 +158,13 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
             >
               <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
                 <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+                {game.cloudServices && game.cloudServices.length > 0 ? (
+                  <span className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm" title={`Cloud streaming: ${game.cloudServices.join(", ")}`} aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}>
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
+                    </svg>
+                  </span>
+                ) : null}
                 {game.cover?.url && (
                   <Image
                     src={game.cover.url}

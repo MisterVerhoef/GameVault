@@ -1,9 +1,12 @@
 import { browseQuery, byRatingThenTitle, compareGenreBrowse, criticScore, gameMatchesGenre, genreDefinition, GENRE_DEFINITIONS, parseGenreSort, releaseOrder, type GenreSort } from "./browse";
 import type { CatalogueCard } from "./catalogue-card";
+import cloudStreamingCatalogue from "../../public/catalog/cloud-streaming.json";
+import { cloudServiceNames, cloudServicesForGame, indexCloudStreaming } from "./cloud-streaming";
 import { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, type Platform } from "./platforms";
 import { matchesSearchTerms } from "./search-terms";
 
 const PLATFORMS: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
+const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
 export interface BrowseRecord {
   id: string;
@@ -173,6 +176,7 @@ export function toCard(game: BrowseGame): CatalogueCard {
     platformVariants: game.platformVariants,
     releaseYear: game.releaseYear,
     rating: game.rating,
+    cloudServices: cloudServiceNames(cloudServicesForGame(cloudStreamingIndex, game.id)),
   };
 }
 

@@ -9,6 +9,8 @@ import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
 import { formatEuro, formatOfferPrice, presentCatalogueGame } from "@/data/store-offers";
 import { storeName } from "@/data/store-match";
+import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
+import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
@@ -16,6 +18,8 @@ import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
 import CardScroller from "@/components/CardScroller";
 import Navbar from "@/components/Navbar";
+
+const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
@@ -220,6 +224,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   }
 
   const { game: display, offers, captions } = presentCatalogueGame(game);
+  const cloudServices = cloudServicesForGame(cloudStreamingIndex, game.id);
   const ageRatings = game.ageRatings ?? [];
   const gameModes = game.gameModes ?? [];
   const perspectives = game.playerPerspectives ?? [];
@@ -384,6 +389,23 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <LibraryControls gameId={game.id} />
               <ListControls gameId={game.id} gameTitle={game.title} />
             </div>
+            {cloudServices.length > 0 && (
+              <section className="mt-4 rounded-xl bg-card/80 p-4 ring-1 ring-white/10" aria-labelledby="cloud-streaming-heading">
+                <h3 id="cloud-streaming-heading" className="text-sm font-semibold text-foreground">Cloud streaming</h3>
+                <ul className="mt-3 grid gap-3 sm:grid-cols-2">
+                  {cloudServices.map((service) => (
+                    <li key={service.id} className="flex min-w-0 flex-col gap-1 rounded-lg bg-white/5 p-3">
+                      <a href={service.url} target="_blank" rel="noreferrer" className="w-fit text-sm font-semibold text-foreground underline decoration-white/30 underline-offset-4 transition hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+                        {service.name}
+                      </a>
+                      {service.tier ? <span className="text-xs font-medium text-foreground/90">{service.tier}</span> : null}
+                      {service.storeRequirement ? <span className="text-xs text-muted">{service.storeRequirement}</span> : null}
+                      <span className="mt-1 text-[11px] text-muted">Last checked: {new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeZone: "UTC" }).format(new Date(`${service.checkedAt}T00:00:00Z`))}</span>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
             {offers.length > 0 && (
               <p className="text-xs text-muted">Prices in EUR for the Netherlands.</p>
             )}

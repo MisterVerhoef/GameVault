@@ -41,6 +41,7 @@ export default function GameCard({
   const details = [
     personalRating ? `your rating ${personalRating} out of 5` : "",
     typeof progress === "number" && progress > 0 ? `${progress}% progress` : "",
+    game.cloudServices?.length ? `cloud streaming via ${game.cloudServices.join(", ")}` : "",
   ].filter(Boolean);
 
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
@@ -81,6 +82,18 @@ export default function GameCard({
 
         {/* Gradient overlay at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+        {game.cloudServices && game.cloudServices.length > 0 ? (
+          <span
+            className="absolute right-1.5 top-1.5 z-20 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"
+            title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
+            aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
+            </svg>
+          </span>
+        ) : null}
 
         {personalRating ? (
           <span className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm" aria-hidden="true">

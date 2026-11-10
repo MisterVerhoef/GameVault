@@ -87,6 +87,7 @@ const IGDB_STORE_SOURCES: Record<number, StoreId> = {
   26: "epic",
   31: "xbox",
   36: "playstation",
+  54: "xbox",
 };
 
 const STORE_NAMES: Record<StoreId, string> = {
@@ -235,6 +236,17 @@ export function parseStoreUrl(url: string): StoreIdentity | undefined {
     if (slug) return { store: "epic", id: slug[1] };
   }
   return undefined;
+}
+
+/** Steam app id from an IGDB Steam website link. */
+export function parseSteamAppId(url: string): string | undefined {
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== "store.steampowered.com") return undefined;
+    return parsed.pathname.match(/^\/app\/(\d+)(?:\/|$)/)?.[1];
+  } catch {
+    return undefined;
+  }
 }
 
 export function identitiesFromGame(game: {
