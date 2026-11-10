@@ -12,10 +12,13 @@ test("home, game detail, and vault render without errors", async ({ page }) => {
   await expect(page).toHaveTitle(/GameVault/i);
   const card = page.getByRole("button", { name: /^Open / }).first();
   await expect(card).toBeVisible();
-  await card.click();
 
-  // 2. Game detail: navigating from a card lands on a detail page
-  await expect(page).not.toHaveURL(/\/$/);
+  // 2. Game detail: wait for the client-side navigation to /game/<id>
+  await Promise.all([
+    page.waitForURL(/\/game\//),
+    card.click(),
+  ]);
+  await expect(page.getByRole("main")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 
   // 3. Vault: personal library screen renders its main landmark
