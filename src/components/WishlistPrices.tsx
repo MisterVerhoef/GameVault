@@ -1,4 +1,5 @@
-import { offersForGame, formatEuro, formatOfferPrice, type StoreOfferIndex } from "@/data/store-offer-index";
+import { LOWEST_RECORDED_NOTE, formatHistoryDate } from "@/data/price-history";
+import { offersForGame, formatEuro, formatLowestRecorded, formatOfferPrice, type StoreOfferIndex } from "@/data/store-offer-index";
 import { storeName, type StoreId } from "@/data/store-match";
 
 const STORE_LABEL: Record<StoreId, string> = {
@@ -30,7 +31,7 @@ export function WishlistPriceNote({ state }: { state: WishlistOfferState }) {
   if (state.status === "ready") {
     return (
       <p className="mb-3 text-xs text-muted">
-        Netherlands EUR prices from the cached store catalogue. Games without a match stay unpriced.
+        Netherlands EUR prices from the cached store catalogue. Games without a match stay unpriced. {LOWEST_RECORDED_NOTE}
       </p>
     );
   }
@@ -58,8 +59,11 @@ export default function WishlistPrices({
     <ul className="mt-1.5 space-y-1" aria-label={`${title} store prices`}>
       {offers.map((offer) => {
         const priceLabel = formatOfferPrice(offer.price);
-        const dealLabel = offer.deal && offer.regularPrice != null
-          ? `, was ${formatEuro(offer.regularPrice)}, on sale`
+        const saleLabel = offer.discountLabel && offer.regularPrice != null
+          ? `, ${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
+          : "";
+        const lowestLabel = offer.lowestRecorded
+          ? ` Lowest price GameVault has recorded: ${formatEuro(offer.lowestRecorded.price)} on ${formatHistoryDate(offer.lowestRecorded.date)}.`
           : "";
         return (
           <li key={offer.store}>
@@ -67,14 +71,14 @@ export default function WishlistPrices({
               href={offer.url}
               target="_blank"
               rel="noreferrer"
-              aria-label={`${title} on the ${storeName(offer.store)}, ${priceLabel}${dealLabel}. Opens in a new tab.`}
+              aria-label={`${title} on the ${storeName(offer.store)}, ${priceLabel}${saleLabel}.${lowestLabel} Opens in a new tab.`}
               className="block rounded-lg bg-white/5 px-2 py-1.5 text-[11px] leading-snug text-foreground transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <span className="flex flex-wrap items-center gap-1">
                 <span className="font-medium">{STORE_LABEL[offer.store]}</span>
-                {offer.deal && (
-                  <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-accent">
-                    Deal
+                {offer.discountLabel && (
+                  <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
+                    {offer.discountLabel}
                   </span>
                 )}
               </span>
@@ -88,6 +92,9 @@ export default function WishlistPrices({
                   <span className="text-muted line-through">{formatEuro(offer.regularPrice)}</span>
                 )}
               </span>
+              {offer.lowestRecorded && (
+                <span className="mt-0.5 block text-[10px] text-muted">{formatLowestRecorded(offer.lowestRecorded)}</span>
+              )}
             </a>
           </li>
         );

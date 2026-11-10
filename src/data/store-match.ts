@@ -1,4 +1,5 @@
 import type { Game, StoreId } from "./games";
+import type { PriceHistoryPoint } from "./price-history";
 
 export type { StoreId };
 
@@ -22,6 +23,8 @@ export interface StoreOffer {
   match: StoreMatch;
   score: number;
   checkedAt: string;
+  /** Daily Netherlands prices GameVault has stored for this product, in cents. */
+  history?: PriceHistoryPoint[];
 }
 
 export interface FieldSource {

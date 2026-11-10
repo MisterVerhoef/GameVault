@@ -19,6 +19,7 @@ import type { CatalogueCard } from "@/data/catalogue-card";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { findBrowseGame, toCard } from "@/data/library-view";
 import { useStoreOfferIndex } from "@/data/load-store-offers";
+import { gameIsOnSale } from "@/data/store-offer-index";
 
 interface VaultItem {
   gameId: string;
@@ -128,6 +129,7 @@ export default function VaultScreen() {
     () => Object.values(entries).filter((entry) => entry.status === "wishlist").length,
     [entries],
   );
+  const onSale = activeStatus === "wishlist" && params.get("sale") === "1";
   const showWishlistPrices = ready && wishlistCount > 0 && (activeStatus == null || activeStatus === "wishlist");
   const storeOffers = useStoreOfferIndex(showWishlistPrices);
   const offerState: WishlistOfferState = !showWishlistPrices
@@ -156,7 +158,17 @@ export default function VaultScreen() {
   }, [catalogue, entries]);
 
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
-  const selected = activeStatus ? groups.filter((group) => group.status === activeStatus) : groups;
+  const wishlistGroup = groups.find((group) => group.status === "wishlist");
+  const onSaleCount = offerState.status === "ready" && wishlistGroup
+    ? wishlistGroup.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)).length
+    : null;
+  const selected = (activeStatus ? groups.filter((group) => group.status === activeStatus) : groups).map((group) => {
+    if (!onSale || group.status !== "wishlist" || offerState.status !== "ready") return group;
+    return {
+      ...group,
+      items: group.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)),
+    };
+  });
   const visible = selected.filter((group) => group.items.length > 0);
 
   const chipClass = (selected: boolean) =>
@@ -225,6 +237,18 @@ export default function VaultScreen() {
             </Link>
           ))}
         </nav>
+        {activeStatus === "wishlist" && wishlistCount > 0 && (
+          <nav className="mt-3 flex flex-wrap gap-2" aria-label="Filter wishlist">
+            <Link
+              href={onSale ? "/vault?status=wishlist" : "/vault?status=wishlist&sale=1"}
+              aria-current={onSale ? "page" : undefined}
+              className={chipClass(onSale)}
+            >
+              On sale
+              <span className="ml-1.5 tabular-nums">{onSaleCount == null ? "–" : onSaleCount}</span>
+            </Link>
+          </nav>
+        )}
 
         <div className="mt-8">
           {!ready || (!catalogue && !failed) ? (
@@ -242,6 +266,12 @@ export default function VaultScreen() {
                 Browse games
               </Link>
             </div>
+          ) : onSale && offerState.status === "loading" ? (
+            <p className="text-sm text-muted">Loading cached Netherlands store prices…</p>
+          ) : onSale && offerState.status === "error" ? (
+            <p className="text-sm text-muted">Cached store prices could not be loaded, so on-sale games cannot be filtered.</p>
+          ) : onSale && wishlistCount > 0 && visible.length === 0 ? (
+            <p className="text-sm text-muted">No wishlist games are on sale in the cached prices.</p>
           ) : visible.length === 0 && activeStatus ? (
             <p className="text-sm text-muted">
               No games marked as {LIBRARY_STATUS_LABELS[activeStatus].toLowerCase()}.

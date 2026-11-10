@@ -1,3 +1,4 @@
+import { discountBadge, formatHistoryDate, lowestRecorded, normalizePriceHistory } from "./price-history";
 import { storePlatform, type StoreId } from "./store-match";
 
 /** A cached Netherlands store offer, matched to a catalogue game id. */
@@ -13,6 +14,10 @@ export interface CachedStoreOffer {
   currency: "EUR";
   /** True when the cached price is lower than the list price. */
   deal: boolean;
+  /** "-40%" when `deal` is true. Null when the price is not below the list price. */
+  discountLabel: string | null;
+  /** Lowest price GameVault has stored for this store, with the first day it was seen. */
+  lowestRecorded: { price: number; date: string } | null;
 }
 
 export interface StoreOfferIndex {
@@ -68,6 +73,11 @@ export function formatEuro(amount: number): string {
   return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(amount);
 }
 
+/** Visible lowest-recorded line. The date is the first day GameVault stored that price. */
+export function formatLowestRecorded(lowest: { price: number; date: string }): string {
+  return `Lowest recorded ${formatEuro(lowest.price)} on ${formatHistoryDate(lowest.date)}`;
+}
+
 /** A cached amount for a store button. Zero is a free game, not a missing price. */
 export function formatOfferPrice(amount: number | null): string {
   if (amount == null) return "Price unavailable";
@@ -88,6 +98,8 @@ function parseOffer(value: unknown): CachedStoreOffer | undefined {
   const price = euroAmount(offer.price);
   const regularPrice = euroAmount(offer.regularPrice);
   if (price === undefined || regularPrice === undefined) return undefined;
+  const history = normalizePriceHistory(offer.history);
+  const lowest = lowestRecorded(history);
   return {
     store: offer.store,
     platform,
@@ -97,6 +109,8 @@ function parseOffer(value: unknown): CachedStoreOffer | undefined {
     regularPrice,
     currency: "EUR",
     deal: isStoreDeal(price, regularPrice),
+    discountLabel: discountBadge(price, regularPrice),
+    lowestRecorded: lowest ? { price: lowest.cents / 100, date: lowest.date } : null,
   };
 }
 
@@ -154,4 +168,13 @@ export function offersForGame(
   const offers = index.byGameId.get(gameId) ?? [];
   if (!platforms) return offers;
   return offers.filter((offer) => platforms.includes(offer.platform));
+}
+
+/** True when any cached offer for this game, on these platforms, is below its list price. */
+export function gameIsOnSale(
+  index: StoreOfferIndex,
+  gameId: string,
+  platforms?: readonly string[],
+): boolean {
+  return offersForGame(index, gameId, platforms).some((offer) => offer.deal);
 }
