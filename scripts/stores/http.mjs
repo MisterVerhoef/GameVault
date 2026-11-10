@@ -1,14 +1,26 @@
 const USER_AGENT = "GameVaultCatalogue/1.0";
 
 export function createLimiter(intervalMs) {
+  let gap = intervalMs;
   let next = 0;
-  return async function waitTurn() {
+  async function waitTurn() {
     const now = Date.now();
     const slot = Math.max(now, next);
-    next = slot + intervalMs;
+    next = slot + gap;
     const delay = slot - now;
     if (delay > 0) await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+  waitTurn.slow = () => {
+    gap = Math.min(Math.max(gap * 2, gap + 200), 4000);
   };
+  return waitTurn;
+}
+
+/** Delay before another try. Zero means the status should not be retried. */
+export function retryDelayMs(status, attempt) {
+  if (status && status < 500 && status !== 429) return 0;
+  const delays = [500, 1500, 4000];
+  return delays[attempt] ?? 0;
 }
 
 export function createCircuit(name) {
@@ -69,12 +81,16 @@ async function fetchJsonOnce(url, headers, options = {}) {
 }
 
 export async function fetchJson(url, headers = {}, options = {}) {
-  try {
-    return await fetchJsonOnce(url, headers, options);
-  } catch (error) {
-    if (error.status && error.status < 500 && error.status !== 429) throw error;
-    await new Promise((resolve) => setTimeout(resolve, 400));
-    return fetchJsonOnce(url, headers, options);
+  let attempt = 0;
+  for (;;) {
+    try {
+      return await fetchJsonOnce(url, headers, options);
+    } catch (error) {
+      const delay = retryDelayMs(error.status, attempt);
+      attempt += 1;
+      if (!delay) throw error;
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
   }
 }
 

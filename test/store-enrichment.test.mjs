@@ -2,15 +2,21 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 import { normalizeIgdbExport } from "../scripts/providers/igdb.mjs";
+import { matchEpicSlug } from "../scripts/stores/clients.mjs";
+import { retryDelayMs } from "../scripts/stores/http.mjs";
 
 const {
   applyFills,
   chooseCandidate,
   identitiesFromGame,
+  isEpicPageSlug,
+  matchesStoreIdOnly,
   mergeStoreOffers,
   parseStoreUrl,
+  preferIdentity,
   reconcileFills,
   selectPlayStationPrice,
+  steamAppIds,
   storeIdsFromIgdb,
   storeName,
   storePlatform,
@@ -301,4 +307,63 @@ test("keeps cached offers when a store fails and fills only missing IGDB fields"
   assert.equal(kept.cover.url, "https://www.nintendo.com/cover.jpg");
   const replaced = reconcileFills({ ...baseGame, cover: { url: "https://images.igdb.com/cover.jpg" } }, kept, []);
   assert.equal(replaced.cover, undefined);
+});
+
+test("matches PC stores by stable ids and retries rate limits with backoff", () => {
+  assert.equal(matchesStoreIdOnly("steam"), true);
+  assert.equal(matchesStoreIdOnly("epic"), true);
+  assert.equal(matchesStoreIdOnly("gog"), true);
+  assert.equal(matchesStoreIdOnly("xbox"), false);
+  assert.equal(matchesStoreIdOnly("playstation"), false);
+  assert.equal(matchesStoreIdOnly("nintendo"), false);
+
+  assert.equal(isEpicPageSlug("hades"), true);
+  assert.equal(isEpicPageSlug("bioshock-the-collection"), true);
+  assert.equal(isEpicPageSlug("2ae6edb2223c4f8c97e9839b5b6497bb"), false);
+  assert.equal(isEpicPageSlug("54fb014e-a694-4a6c-b945-0c132e1e2d6a"), false);
+  assert.deepEqual(preferIdentity([
+    { store: "epic", id: "2ae6edb2223c4f8c97e9839b5b6497bb" },
+    { store: "epic", id: "54fb014e-a694-4a6c-b945-0c132e1e2d6a" },
+    { store: "epic", id: "hades" },
+  ], "epic"), { store: "epic", id: "hades" });
+  assert.deepEqual(
+    parseStoreUrl("https://store.epicgames.com/en-US/bundles/bioshock-the-collection"),
+    { store: "epic", id: "bioshock-the-collection" },
+  );
+
+  assert.deepEqual(steamAppIds("1145360"), ["1145360"]);
+  assert.deepEqual(steamAppIds("292030,378649,378648"), ["292030", "378649", "378648"]);
+  assert.deepEqual(steamAppIds("292030,292030"), ["292030"]);
+
+  assert.equal(retryDelayMs(404, 0), 0);
+  assert.equal(retryDelayMs(429, 0), 500);
+  assert.ok(retryDelayMs(429, 1) > retryDelayMs(429, 0));
+  assert.ok(retryDelayMs(500, 2) > retryDelayMs(500, 1));
+  assert.equal(retryDelayMs(429, 9), 0);
+  assert.ok(retryDelayMs(undefined, 0) > 0);
+
+  const trails = {
+    id: "the-legend-of-heroes-trails-beyond-the-horizon-9a0e43",
+    title: "Trails",
+    kind: "game",
+  };
+  assert.equal(
+    matchEpicSlug([trails], "the-legend-of-heroes-trails-beyond-the-horizon-9a0e43")?.id,
+    trails.id,
+  );
+  assert.equal(
+    matchEpicSlug(
+      [{ id: "better-mart-simulator-b8bd9b", title: "Better Mart Simulator", kind: "game" }],
+      "bettermart-b8bd9b",
+    )?.id,
+    "better-mart-simulator-b8bd9b",
+  );
+  assert.equal(matchEpicSlug(
+    [{ id: "heroes-of-might-and-magic-3-remake", title: "Remake", kind: "game" }],
+    "might-and-magic-heroes-3",
+  ), undefined);
+  assert.equal(matchEpicSlug([
+    { id: "one-aaaaaa", title: "One", kind: "game" },
+    { id: "two-aaaaaa", title: "Two", kind: "game" },
+  ], "store-aaaaaa"), undefined);
 });

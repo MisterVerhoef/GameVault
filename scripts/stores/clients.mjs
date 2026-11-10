@@ -300,14 +300,24 @@ export function steamCandidate(appId, data) {
   };
 }
 
-export async function lookupSteam(appId, wait) {
+async function steamDetails(appId, wait) {
   await wait();
   const url = new URL("https://store.steampowered.com/api/appdetails");
   url.searchParams.set("appids", String(appId));
   url.searchParams.set("cc", "nl");
   url.searchParams.set("l", "dutch");
   const body = await fetchJson(url);
-  const entry = body?.[String(appId)];
+  return body?.[String(appId)];
+}
+
+export async function lookupSteam(appId, wait) {
+  let entry = await steamDetails(appId, wait);
+  if (!entry?.success || !entry.data) {
+    // Steam sometimes answers a rate limit with success:false. One delayed
+    // retry separates that from an app that is not in the NL catalogue.
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    entry = await steamDetails(appId, wait);
+  }
   if (!entry?.success || !entry.data) return undefined;
   return steamCandidate(appId, entry.data);
 }
@@ -418,7 +428,8 @@ export async function lookupGog(id, wait) {
     try {
       prices = await fetchJson(`https://api.gog.com/products/${key}/prices?countryCode=NL`);
     } catch (error) {
-      if (isMiss(error)) prices = undefined;
+      // 400 PRICES_NOT_FOUND means the product exists but has no Netherlands price.
+      if (isMiss(error) || error.status === 400) prices = undefined;
       else throw error;
     }
     const listed = (prices?._embedded?.prices ?? []).find((entry) => entry?.currency?.code === "EUR");
@@ -492,6 +503,12 @@ function epicKind(element) {
   return "other";
 }
 
+function epicUrl(slug, element) {
+  const paths = (element?.categories ?? []).map((category) => String(category?.path ?? ""));
+  const bundle = paths.includes("bundles/games") || paths.includes("bundles");
+  return `https://store.epicgames.com/en-US/${bundle ? "bundles" : "p"}/${slug}`;
+}
+
 export function epicCandidate(element) {
   const slug = epicSlug(element);
   if (!slug || !element?.title) return undefined;
@@ -508,12 +525,12 @@ export function epicCandidate(element) {
     description: typeof element.description === "string" ? element.description : undefined,
     cover: undefined,
     screenshots: [],
-    url: `https://store.epicgames.com/en-US/p/${slug}`,
+    url: epicUrl(slug, element),
   };
 }
 
 function epicFatal(error) {
-  if (error?.status === 401 || error?.status === 403 || error?.status === 429) error.fatal = true;
+  if (error?.status === 401 || error?.status === 403) error.fatal = true;
   return error;
 }
 
@@ -546,25 +563,53 @@ async function epicQuery(keywords, category, count) {
 }
 
 async function epicSearch(keywords, wait, { category, count }) {
-  await wait();
-  try {
-    return await epicQuery(keywords, category, count);
-  } catch (error) {
-    if (error?.status !== 403) throw epicFatal(error);
-    // The public storefront sometimes answers the first request with a challenge page.
+  let last;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
     await wait();
     try {
       return await epicQuery(keywords, category, count);
-    } catch (retryError) {
-      throw epicFatal(retryError);
+    } catch (error) {
+      last = error;
+      if (error?.status === 429) throw error;
+      if (error?.status !== 403) throw epicFatal(error);
+      if (attempt === 3) throw epicFatal(error);
+      await new Promise((resolve) => setTimeout(resolve, 1000 * 2 ** attempt));
     }
   }
+  throw epicFatal(last);
+}
+
+function epicKeywords(slug) {
+  const key = String(slug);
+  const stem = key.replace(/-[0-9a-f]{6}$/i, "");
+  return stem === key ? [key] : [stem, key];
+}
+
+/** Exact Epic page slug, or the one product that shares the URL's 6-character id suffix. */
+export function matchEpicSlug(candidates, slug) {
+  const list = candidates.filter((candidate) => candidate?.id && candidate.kind !== "other");
+  const exact = [...new Map(list.filter((candidate) => candidate.id === slug).map((candidate) => [candidate.id, candidate])).values()];
+  if (exact.length === 1) return exact[0];
+  const suffix = String(slug).match(/-([0-9a-f]{6})$/i)?.[1].toLowerCase();
+  if (!suffix) return undefined;
+  const suffixed = [...new Map(
+    list
+      .filter((candidate) => String(candidate.id).toLowerCase().endsWith(`-${suffix}`))
+      .map((candidate) => [candidate.id, candidate]),
+  ).values()];
+  return suffixed.length === 1 ? suffixed[0] : undefined;
 }
 
 export async function lookupEpic(slug, wait) {
-  const elements = await epicSearch(String(slug), wait, { category: "games/edition/base", count: 8 });
-  const matches = elements.map(epicCandidate).filter((candidate) => candidate?.id === slug);
-  return matches.find((candidate) => candidate.kind === "game") ?? matches[0];
+  const keywords = epicKeywords(slug);
+  for (const category of ["games/edition/base", "bundles/games"]) {
+    for (const keyword of keywords) {
+      const elements = await epicSearch(keyword, wait, { category, count: 12 });
+      const found = matchEpicSlug(elements.map(epicCandidate).filter(Boolean), slug);
+      if (found) return found;
+    }
+  }
+  return undefined;
 }
 
 export async function searchEpic(title, wait) {
