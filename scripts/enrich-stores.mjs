@@ -23,9 +23,12 @@ const {
   ageInDays,
   chooseCandidate,
   identitiesFromGame,
+  isEpicPageSlug,
+  matchesStoreIdOnly,
   mergeStoreOffers,
   preferIdentity,
   reconcileFills,
+  steamAppIds,
   storePlatform,
 } = loadTsModule("src/data/store-match.ts");
 
@@ -47,21 +50,28 @@ const onlyIds = new Set(
 const maxSearches = Number.parseInt(process.env.STORE_MAX_SEARCHES ?? "800", 10);
 const maxAge = Number.parseInt(process.env.STORE_PRICE_MAX_AGE_DAYS ?? "6", 10);
 const intervalMs = Number.parseInt(process.env.STORE_REQUEST_INTERVAL_MS ?? "150", 10);
+const steamIntervalMs = Number.parseInt(process.env.STORE_STEAM_INTERVAL_MS ?? "350", 10);
 const refresh = process.env.STORE_REFRESH === "1";
+const retryMisses = process.env.STORE_RETRY_MISSES === "1";
 const today = new Date().toISOString().slice(0, 10);
 
-if (!Number.isInteger(maxSearches) || maxSearches < 0) {
-  throw new Error("STORE_MAX_SEARCHES must be a non-negative integer.");
+function nonNegativeInteger(name, value) {
+  if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`);
 }
-if (!Number.isInteger(maxAge) || maxAge < 0) {
-  throw new Error("STORE_PRICE_MAX_AGE_DAYS must be a non-negative integer.");
-}
+
+nonNegativeInteger("STORE_MAX_SEARCHES", maxSearches);
+nonNegativeInteger("STORE_PRICE_MAX_AGE_DAYS", maxAge);
+nonNegativeInteger("STORE_REQUEST_INTERVAL_MS", intervalMs);
+nonNegativeInteger("STORE_STEAM_INTERVAL_MS", steamIntervalMs);
 
 const catalogue = JSON.parse(fs.readFileSync(cataloguePath, "utf8"));
 const games = Array.isArray(catalogue.games) ? catalogue.games : [];
 const previous = fs.existsSync(offersPath) ? JSON.parse(fs.readFileSync(offersPath, "utf8")) : { games: {} };
 const previousGames = previous.games ?? {};
-const limiters = Object.fromEntries(stores.map((store) => [store, createLimiter(intervalMs)]));
+const limiters = Object.fromEntries(stores.map((store) => [
+  store,
+  createLimiter(store === "steam" ? steamIntervalMs : intervalMs),
+]));
 const circuits = {
   xbox: createCircuit("Microsoft Store"),
   playstation: createCircuit("PlayStation Store"),
@@ -126,7 +136,10 @@ function stale(game, store) {
   const entry = previousGames[game.id];
   const offer = entry?.offers?.find((item) => item.store === store);
   const miss = entry?.misses?.[store];
-  if (!refresh && miss && ageInDays(miss, today) <= maxAge) return false;
+  if (!refresh && miss && ageInDays(miss, today) <= maxAge) {
+    const retryOlder = retryMisses && matchesStoreIdOnly(store) && miss < today;
+    if (!retryOlder) return false;
+  }
   if (!offer || refresh || ageInDays(offer.checkedAt, today) > maxAge) return true;
   const fills = entry?.fills;
   if (!game.cover?.url && !fills?.cover) return true;
@@ -157,7 +170,10 @@ async function guard(store, fn) {
     circuits[store].success();
     return result;
   } catch (error) {
-    if (!isMiss(error)) circuits[store].fail(error);
+    if (!isMiss(error)) {
+      if (error.status === 429) limiters[store].slow();
+      else circuits[store].fail(error);
+    }
     throw error;
   }
 }
@@ -192,20 +208,42 @@ async function lookupIdentity(game, store, identity) {
       return;
     }
     if (store === "steam") {
-      const product = await guard(store, () => lookupSteam(identity.id, limiters.steam));
-      if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
-      else accept(game, store, product, "external-id", 1);
+      const ids = [...new Set(
+        identitiesFromGame(game)
+          .filter((item) => item.store === "steam")
+          .flatMap((item) => steamAppIds(item.id)),
+      )];
+      if (ids.length === 0) {
+        setAttempt(game.id, store, { status: "miss" });
+        return;
+      }
+      let fallback;
+      for (const id of ids) {
+        const product = await guard(store, () => lookupSteam(id, limiters.steam));
+        if (!product?.title) continue;
+        if (product.kind !== "other" || ids.length === 1) {
+          accept(game, store, product, "external-id", 1);
+          return;
+        }
+        fallback ??= product;
+      }
+      if (fallback) accept(game, store, fallback, "external-id", 1);
+      else setAttempt(game.id, store, { status: "miss" });
       return;
     }
     if (store === "epic") {
+      if (!isEpicPageSlug(identity.id)) {
+        setAttempt(game.id, store, { status: "miss" });
+        return;
+      }
       const product = await guard(store, () => lookupEpic(identity.id, limiters.epic));
-      if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      if (!product?.title || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
     if (store === "gog") {
       const product = await guard(store, () => lookupGog(identity.id, limiters.gog));
-      if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      if (!product?.title) setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
@@ -305,11 +343,16 @@ for (let offset = 0; offset < xboxJobs.length; offset += 20) {
 }
 
 const otherIdJobs = idJobs.filter((job) => job.store !== "xbox");
+const idOnlyJobs = otherIdJobs.filter((job) => matchesStoreIdOnly(job.store)).length;
+console.log(`Id lookups ${otherIdJobs.length} (${idOnlyJobs} Steam, Epic, or GOG by store id).`);
 let finished = 0;
 await mapPool(otherIdJobs, async (job) => {
   await lookupIdentity(job.game, job.store, job.identity);
   finished += 1;
-  if (finished % 200 === 0) console.log(`Store id lookups ${finished}/${otherIdJobs.length}`);
+  if (finished % 100 === 0) {
+    console.log(`Store id lookups ${finished}/${otherIdJobs.length}`);
+    writeOffers();
+  }
 });
 
 writeOffers();
@@ -319,6 +362,7 @@ const searchJobs = [];
 for (const game of games) {
   const identities = identitiesFromGame(game);
   for (const store of stores) {
+    if (matchesStoreIdOnly(store)) continue;
     if (!stale(game, store) || preferIdentity(identities, store) || attempts.get(game.id)?.[store]) continue;
     searchJobs.push({ game, store });
   }
@@ -377,17 +421,22 @@ const ordered = writeOffers();
 
 const summary = {};
 for (const store of stores) {
-  summary[store] = { eligible: 0, matched: 0, "external-id": 0, "exact-title": 0, edition: 0 };
+  summary[store] = { eligible: 0, withId: 0, matched: 0, "external-id": 0, "exact-title": 0, edition: 0 };
 }
 for (const game of games) {
+  const identities = identitiesFromGame(game);
   for (const store of stores) {
     if (!game.platforms.includes(platformFor[store])) continue;
     summary[store].eligible += 1;
+    if (identities.some((identity) => identity.store === store)) summary[store].withId += 1;
     const offer = ordered[game.id]?.offers?.find((item) => item.store === store);
     if (!offer) continue;
     summary[store].matched += 1;
     summary[store][offer.match] += 1;
   }
+}
+for (const store of stores) {
+  console.log(`Coverage ${store}: ${summary[store].matched} matched / ${summary[store].withId} with a store id`);
 }
 const bytes = fs.statSync(offersPath).size;
 console.log(JSON.stringify({

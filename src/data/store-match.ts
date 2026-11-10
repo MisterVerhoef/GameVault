@@ -234,6 +234,8 @@ export function parseStoreUrl(url: string): StoreIdentity | undefined {
   if (host === "store.epicgames.com" || host === "epicgames.com") {
     const slug = parsed.pathname.match(/\/(?:p|product)\/([A-Za-z0-9][A-Za-z0-9_-]*)(?:\/|$)/i);
     if (slug) return { store: "epic", id: slug[1] };
+    const bundle = parsed.pathname.match(/\/bundles\/([A-Za-z0-9][A-Za-z0-9_-]*)(?:\/|$)/i);
+    if (bundle) return { store: "epic", id: bundle[1] };
   }
   return undefined;
 }
@@ -267,10 +269,39 @@ export function identitiesFromGame(game: {
   return identities;
 }
 
+const EPIC_CATALOG_ID = /^[0-9a-f]{32}$/i;
+const EPIC_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const ID_ONLY_STORES = new Set<StoreId>(["steam", "epic", "gog"]);
+
+/** Steam, Epic, and GOG prices come from store ids. Title search is not a match. */
+export function matchesStoreIdOnly(store: StoreId): boolean {
+  return ID_ONLY_STORES.has(store);
+}
+
+/** Epic page slug. Catalog item hashes and sandbox UUIDs are not page slugs. */
+export function isEpicPageSlug(id: string): boolean {
+  return /^[A-Za-z0-9][A-Za-z0-9_-]*$/.test(id) && !EPIC_CATALOG_ID.test(id) && !EPIC_UUID.test(id);
+}
+
+/** Numeric Steam app ids. IGDB sometimes stores several ids in one field. */
+export function steamAppIds(id: string): string[] {
+  const ids: string[] = [];
+  const seen = new Set<string>();
+  for (const part of id.split(/[^0-9]+/)) {
+    if (!part || seen.has(part)) continue;
+    seen.add(part);
+    ids.push(part);
+  }
+  return ids;
+}
+
 export function preferIdentity(identities: readonly StoreIdentity[], store: StoreId): StoreIdentity | undefined {
   const matches = identities.filter((identity) => identity.store === store);
   if (store === "playstation") {
     return matches.find((identity) => identity.id.startsWith("concept:")) ?? matches[0];
+  }
+  if (store === "epic") {
+    return matches.find((identity) => isEpicPageSlug(identity.id)) ?? matches[0];
   }
   return matches[0];
 }
