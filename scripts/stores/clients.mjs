@@ -1,14 +1,14 @@
+import { loadTsModule } from "../load-ts-module.mjs";
 import { fetchJson, httpsUrl, isMiss } from "./http.mjs";
+
+const { selectMicrosoftPrice, selectNintendoPrice, selectPlayStationPrice } = loadTsModule("src/data/store-match.ts");
+const NINTENDO_GAME_NSUID = /^700100\d{8}$/;
 
 const CONCEPT_HASH = process.env.PS_CONCEPT_HASH ?? "cc90404ac049d935afbd9968aef523da2b6723abfb9d586e5f77ebf7c5289006";
 const PRICING_HASH = process.env.PS_PRICING_HASH ?? "abcb311ea830e679fe2b697a27f755764535d825b24510ab1239a4ca3092bd09";
 
 function unique(urls) {
   return [...new Set(urls.filter(Boolean))];
-}
-
-function euro(value) {
-  return typeof value === "number" && Number.isFinite(value) ? Math.round(value * 100) / 100 : null;
 }
 
 export function microsoftProduct(product) {
@@ -18,17 +18,27 @@ export function microsoftProduct(product) {
   const cover = images.find((image) => image.ImagePurpose === "BoxArt")
     ?? images.find((image) => image.ImagePurpose === "Poster");
   const screenshots = unique(images.filter((image) => image.ImagePurpose === "Screenshot").map(uri)).slice(0, 4);
-  const availability = (product.DisplaySkuAvailabilities ?? [])
-    .flatMap((sku) => sku.Availabilities ?? [])
-    .find((entry) => entry?.OrderManagementData?.Price?.CurrencyCode === "EUR");
-  const price = availability?.OrderManagementData?.Price;
+  const priced = selectMicrosoftPrice((product.DisplaySkuAvailabilities ?? []).flatMap((sku) => (
+    (sku.Availabilities ?? []).map((availability) => {
+      const price = availability?.OrderManagementData?.Price;
+      return {
+        skuType: sku?.Sku?.SkuType,
+        actions: availability?.Actions ?? [],
+        remediationRequired: availability?.RemediationRequired === true,
+        currency: price?.CurrencyCode,
+        listPrice: price?.ListPrice,
+        msrp: price?.MSRP,
+      };
+    })
+  )));
+  const game = product.ProductKind === "Game" || product.ProductType === "Game";
   return {
     id: product.ProductId,
     title: localized.ProductTitle ?? "",
-    kind: "game",
-    price: euro(price?.ListPrice),
-    regularPrice: euro(price?.MSRP ?? price?.ListPrice),
-    currency: price?.CurrencyCode === "EUR" ? "EUR" : undefined,
+    kind: game ? "game" : "other",
+    price: priced ? priced.price : null,
+    regularPrice: priced ? priced.regularPrice : null,
+    currency: priced ? "EUR" : undefined,
     description: localized.ProductDescription || localized.ShortDescription || undefined,
     cover: cover ? uri(cover) : undefined,
     screenshots,
@@ -50,30 +60,6 @@ export async function lookupMicrosoft(ids, wait) {
     if (product?.ProductId) found.set(product.ProductId.toUpperCase(), microsoftProduct(product));
   }
   return found;
-}
-
-export async function searchMicrosoft(title, wait) {
-  await wait();
-  const url = new URL("https://displaycatalog.mp.microsoft.com/v7.0/productFamilies/autosuggest");
-  url.searchParams.set("query", title);
-  url.searchParams.set("market", "NL");
-  url.searchParams.set("languages", "nl-NL");
-  url.searchParams.set("platformdependencyname", "Windows.Xbox");
-  url.searchParams.set("productFamilyNames", "Games");
-  url.searchParams.set("topProducts", "8");
-  const body = await fetchJson(url);
-  const candidates = [];
-  for (const result of body.Results ?? []) {
-    for (const product of result.Products ?? []) {
-      if (!product?.ProductId || !product.Title) continue;
-      candidates.push({
-        id: String(product.ProductId).toUpperCase(),
-        title: product.Title,
-        kind: product.Type === "Game" ? "game" : "other",
-      });
-    }
-  }
-  return candidates;
 }
 
 async function playstationGraphql(operationName, hash, variables, wait) {
@@ -120,13 +106,7 @@ export async function lookupPlayStationConcept(conceptId, wait, { media = false 
   const priced = await playstationGraphql("metGetPricingDataByConceptId", PRICING_HASH, { conceptId }, wait);
   const product = priced?.data?.conceptRetrieve?.defaultProduct;
   if (!product?.id) return undefined;
-  const ctas = product.mobilectas ?? [];
-  const outright = ctas.find((cta) => (
-    cta?.price?.currencyCode === "EUR" &&
-    cta.price.isTiedToSubscription !== true &&
-    typeof cta.price.discountedValue === "number" &&
-    typeof cta.price.basePriceValue === "number"
-  ));
+  const outright = selectPlayStationPrice(product.mobilectas ?? []);
   let details = {};
   if (media) {
     const concept = await playstationGraphql("metGetConceptById", CONCEPT_HASH, { conceptId }, wait);
@@ -136,8 +116,8 @@ export async function lookupPlayStationConcept(conceptId, wait, { media = false 
     id: String(product.id),
     title: product.name || product.invariantName || details.title || "",
     kind: "game",
-    price: outright ? outright.price.discountedValue / 100 : null,
-    regularPrice: outright ? outright.price.basePriceValue / 100 : null,
+    price: outright ? outright.price : null,
+    regularPrice: outright ? outright.regularPrice : null,
     currency: outright ? "EUR" : undefined,
     description: details.description,
     cover: details.cover,
@@ -198,26 +178,51 @@ export async function searchPlayStation(title, wait) {
   });
 }
 
-function nintendoCandidate(doc) {
+export function nintendoCandidate(doc) {
   const ids = (doc.nsuid_txt ?? []).map(String);
-  const nsuid = ids.find((id) => id.startsWith("700100")) ?? ids[0];
+  const nsuid = ids.find((id) => NINTENDO_GAME_NSUID.test(id));
   if (!nsuid || !doc.title) return undefined;
   const year = typeof doc.date_from === "string" ? Number(doc.date_from.slice(0, 4)) : undefined;
-  const regular = euro(doc.price_regular_f ?? doc.price_lowest_f);
-  const onSale = doc.price_has_discount_b === true;
   return {
     id: nsuid,
     title: doc.title,
     kind: doc.type === "GAME" ? "game" : "other",
     year: Number.isInteger(year) ? year : undefined,
-    price: euro(onSale ? doc.price_lowest_f : regular),
-    regularPrice: regular,
-    currency: typeof doc.price_lowest_f === "number" ? "EUR" : undefined,
     description: doc.product_catalog_description_s,
     cover: httpsUrl(doc.image_url_sq_s || doc.image_url),
     screenshots: [],
-    url: typeof doc.url === "string" ? `https://www.nintendo.com${doc.url}` : undefined,
+    url: typeof doc.url === "string" && doc.url.startsWith("/") ? `https://www.nintendo.com${doc.url}` : undefined,
   };
+}
+
+export function applyNintendoPrice(candidate, entry) {
+  if (!candidate) return undefined;
+  const selected = selectNintendoPrice(entry);
+  if (!selected) return { ...candidate, price: null, regularPrice: null, currency: undefined };
+  return { ...candidate, price: selected.price, regularPrice: selected.regularPrice, currency: "EUR" };
+}
+
+async function fetchNintendoPrices(ids, wait) {
+  await wait();
+  const url = new URL("https://api.ec.nintendo.com/v1/price");
+  url.searchParams.set("country", "NL");
+  url.searchParams.set("lang", "nl");
+  url.searchParams.set("ids", ids.join(","));
+  const body = await fetchJson(url);
+  return new Map((body?.prices ?? []).map((price) => [String(price.title_id), price]));
+}
+
+export async function priceNintendoCandidate(candidate, wait) {
+  const priced = await priceNintendoCandidates([candidate], wait);
+  return priced.get(String(candidate.id));
+}
+
+export async function priceNintendoCandidates(candidates, wait) {
+  const found = new Map();
+  if (candidates.length === 0) return found;
+  const prices = await fetchNintendoPrices(candidates.map((candidate) => candidate.id), wait);
+  for (const candidate of candidates) found.set(String(candidate.id), applyNintendoPrice(candidate, prices.get(String(candidate.id))));
+  return found;
 }
 
 async function nintendoSelect(params, wait) {
@@ -229,25 +234,22 @@ async function nintendoSelect(params, wait) {
 }
 
 export async function lookupNintendo(nsuid, wait) {
+  if (!NINTENDO_GAME_NSUID.test(String(nsuid))) return undefined;
   const docs = await nintendoSelect({
     q: "*:*",
     fq: `type:GAME AND nsuid_txt:${nsuid}`,
     rows: "1",
     wt: "json",
   }, wait);
-  return docs[0];
+  const doc = docs[0];
+  if (!doc) return undefined;
+  const priced = await priceNintendoCandidates([doc], wait);
+  return priced.get(String(doc.id));
 }
 
 export async function searchNintendo(title, wait) {
-  const exact = await nintendoSelect({
-    q: `title:"${title.replace(/"/g, "")}"`,
-    fq: "type:GAME",
-    rows: "5",
-    wt: "json",
-  }, wait);
-  if (exact.length > 0) return exact;
   return nintendoSelect({
-    q: title,
+    q: `title:"${title.replace(/"/g, "")}"`,
     fq: "type:GAME",
     rows: "8",
     wt: "json",

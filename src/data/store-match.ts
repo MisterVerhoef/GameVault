@@ -56,20 +56,8 @@ export type StoreAttempt =
   | { status: "miss" }
   | { status: "failed" };
 
-const EDITION_SUFFIXES = [
-  "game of the year edition",
-  "goty edition",
-  "definitive edition",
-  "complete edition",
-  "deluxe edition",
-  "gold edition",
-  "ultimate edition",
-  "anniversary edition",
-  "remastered",
-  "remaster",
-];
-
 const EXTRA_TOKENS = ["soundtrack", "demo", "dlc", "costume", "avatar", "addon", "skin", "upgrade pack", "add on"];
+const SKIPPED_MICROSOFT_SKU = new Set(["trial", "subscription", "consumable"]);
 
 const STORE_PLATFORM = {
   xbox: "Xbox",
@@ -127,21 +115,6 @@ export function plainText(value: string, max = 480): string {
     .slice(0, max);
 }
 
-function stripEdition(title: string): string {
-  let base = normalizeTitle(title);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const suffix of EDITION_SUFFIXES) {
-      if (base.endsWith(` ${suffix}`)) {
-        base = base.slice(0, -(suffix.length + 1)).trim();
-        changed = true;
-      }
-    }
-  }
-  return base;
-}
-
 function extraTokens(title: string): string[] {
   const padded = ` ${normalizeTitle(title)} `;
   return EXTRA_TOKENS.filter((token) => padded.includes(` ${token} `));
@@ -156,32 +129,12 @@ export function titleScore(
   const candidateExtras = extraTokens(candidate.title);
   const queryExtras = new Set(extraTokens(query.title));
   if (candidateExtras.some((token) => !queryExtras.has(token))) return undefined;
-  if (
-    typeof query.year === "number" &&
-    typeof candidate.year === "number" &&
-    Math.abs(query.year - candidate.year) > 2
-  ) {
-    return undefined;
-  }
-
-  const normalizedQuery = normalizeTitle(query.title);
-  if (normalizedQuery === normalizeTitle(candidate.title)) {
-    return { match: "exact-title", score: 0.95 };
-  }
-  // A store listing that only adds a generic edition suffix can fill a base-title
-  // catalogue entry. The reverse is rejected: a more specific catalogue title
-  // must match that edition exactly.
-  const queryBase = stripEdition(query.title);
-  const candidateBase = stripEdition(candidate.title);
-  if (
-    queryBase.length >= 3 &&
-    queryBase === normalizedQuery &&
-    queryBase === candidateBase &&
-    candidateBase !== normalizeTitle(candidate.title)
-  ) {
-    return { match: "edition", score: 0.86 };
-  }
-  return undefined;
+  // Title fallback is an exact normalized title inside a two-year window.
+  // A missing year, a remake, or an edition suffix is not a match.
+  if (typeof query.year !== "number" || typeof candidate.year !== "number") return undefined;
+  if (Math.abs(query.year - candidate.year) > 2) return undefined;
+  if (normalizeTitle(query.title) !== normalizeTitle(candidate.title)) return undefined;
+  return { match: "exact-title", score: 0.95 };
 }
 
 export function chooseCandidate<T extends StoreCandidate>(
@@ -271,7 +224,37 @@ export function identitiesFromGame(game: {
 
 const EPIC_CATALOG_ID = /^[0-9a-f]{32}$/i;
 const EPIC_UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ID_ONLY_STORES = new Set<StoreId>(["steam", "epic", "gog"]);
+const ID_ONLY_STORES = new Set<StoreId>(["xbox", "steam", "epic", "gog"]);
+
+/** Microsoft Store product id. Xbox 360 title ids and GUIDs are not bigIds. */
+export function isXboxBigId(id: string): boolean {
+  return /^[A-Z0-9]{12}$/.test(id.toUpperCase());
+}
+
+/** Digital Nintendo eShop game id. Upgrade and retail ids use other 700 prefixes. */
+export function isNintendoGameNsuid(id: string): boolean {
+  return /^700100\d{8}$/.test(id);
+}
+
+export function isUsableStoreId(store: StoreId, id: string): boolean {
+  if (store === "xbox") return isXboxBigId(id);
+  if (store === "nintendo") return isNintendoGameNsuid(id);
+  if (store === "playstation") {
+    if (id.startsWith("concept:")) return /^\d+$/.test(id.slice("concept:".length));
+    if (id.startsWith("product:")) return id.length > "product:".length;
+    return id.trim().length > 0;
+  }
+  return id.trim().length > 0;
+}
+
+/** Xbox prices come from a product id. PlayStation and Nintendo may also use an exact title. */
+export function isAllowedStoreMatch(store: StoreId, match: string): boolean {
+  if (store === "xbox") return match === "external-id";
+  if (store === "playstation" || store === "nintendo") {
+    return match === "external-id" || match === "exact-title";
+  }
+  return true;
+}
 
 /** Steam, Epic, and GOG prices come from store ids. Title search is not a match. */
 export function matchesStoreIdOnly(store: StoreId): boolean {
@@ -297,6 +280,9 @@ export function steamAppIds(id: string): string[] {
 
 export function preferIdentity(identities: readonly StoreIdentity[], store: StoreId): StoreIdentity | undefined {
   const matches = identities.filter((identity) => identity.store === store);
+  if (store === "xbox" || store === "nintendo") {
+    return matches.find((identity) => isUsableStoreId(store, identity.id));
+  }
   if (store === "playstation") {
     return matches.find((identity) => identity.id.startsWith("concept:")) ?? matches[0];
   }
@@ -323,6 +309,65 @@ export function storeIdsFromIgdb(externalGames: readonly {
     ids.push({ store, id: uid });
   }
   return ids;
+}
+
+function roundCents(value: number): number {
+  return Math.round(value * 100) / 100;
+}
+
+function rawEuro(value: string | undefined): number | undefined {
+  if (typeof value !== "string" || value.trim() === "") return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+  return roundCents(parsed);
+}
+
+/**
+ * Outright Netherlands purchase price. A cheaper availability that requires
+ * remediation is a subscription upsell, not the store price.
+ */
+export function selectMicrosoftPrice(availabilities: readonly {
+  skuType?: string;
+  actions?: readonly string[];
+  remediationRequired?: boolean;
+  currency?: string | null;
+  listPrice?: number | null;
+  msrp?: number | null;
+}[]): { price: number; regularPrice: number } | undefined {
+  for (const availability of availabilities) {
+    const skuType = (availability.skuType ?? "").toLowerCase();
+    if (SKIPPED_MICROSOFT_SKU.has(skuType)) continue;
+    if (availability.remediationRequired) continue;
+    if (!(availability.actions ?? []).includes("Purchase")) continue;
+    if (availability.currency !== "EUR") continue;
+    if (typeof availability.listPrice !== "number" || !Number.isFinite(availability.listPrice) || availability.listPrice < 0) {
+      continue;
+    }
+    const regular = typeof availability.msrp === "number"
+      && Number.isFinite(availability.msrp)
+      && availability.msrp >= availability.listPrice
+      ? availability.msrp
+      : availability.listPrice;
+    return { price: roundCents(availability.listPrice), regularPrice: roundCents(regular) };
+  }
+  return undefined;
+}
+
+/** Official NL eShop price for one NSUID. Search-index prices are not used. */
+export function selectNintendoPrice(entry: {
+  sales_status?: string;
+  regular_price?: { currency?: string; raw_value?: string };
+  discount_price?: { currency?: string; raw_value?: string };
+} | null | undefined): { price: number; regularPrice: number } | undefined {
+  if (!entry) return undefined;
+  const status = (entry.sales_status ?? "").toLowerCase();
+  if (status !== "onsale" && status !== "preorder") return undefined;
+  if (entry.regular_price?.currency !== "EUR") return undefined;
+  const regular = rawEuro(entry.regular_price.raw_value);
+  if (regular == null) return undefined;
+  const discount = entry.discount_price?.currency === "EUR" ? rawEuro(entry.discount_price.raw_value) : undefined;
+  if (discount != null && discount <= regular) return { price: discount, regularPrice: regular };
+  return { price: regular, regularPrice: regular };
 }
 
 export function selectPlayStationPrice(ctas: readonly {
@@ -355,12 +400,13 @@ export function mergeStoreOffers(
   for (const store of stores) {
     const attempt = attempts[store];
     const prior = previous?.find((offer) => offer.store === store);
+    const retained = prior && isAllowedStoreMatch(store, prior.match) ? prior : undefined;
     if (!attempt) {
-      if (prior) offers.push(prior);
+      if (retained) offers.push(retained);
       continue;
     }
-    if (attempt.status === "matched") offers.push(attempt.offer);
-    else if (attempt.status === "failed" && prior) offers.push(prior);
+    if (attempt.status === "matched" && isAllowedStoreMatch(store, attempt.offer.match)) offers.push(attempt.offer);
+    else if (attempt.status === "failed" && retained) offers.push(retained);
   }
   return offers;
 }
