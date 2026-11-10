@@ -26,7 +26,9 @@ jobs:
       - run: npm ci
       - run: npm run build
       - name: Install Playwright browser
-        run: npx -y @playwright/test@1.56.0 install --with-deps chromium
+        run: |
+          npx -y @playwright/test@1.56.0 install --with-deps chromium \
+            || (sleep 20 && npx -y @playwright/test@1.56.0 install --with-deps chromium)
       - name: Run smoke tests
         run: npx -y @playwright/test@1.56.0 test
       - name: Upload trace on failure
