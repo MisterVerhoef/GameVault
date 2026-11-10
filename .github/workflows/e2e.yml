@@ -15,7 +15,7 @@ on:
 
 jobs:
   e2e:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
@@ -27,9 +27,8 @@ jobs:
       - run: npm run build
       - name: Install Playwright browser
         run: |
-          set -o pipefail
-          npx -y @playwright/test@1.56.0 install --with-deps chromium 2>&1 | tee "$GITHUB_STEP_SUMMARY" || \
-            { echo "RETRY" >> "$GITHUB_STEP_SUMMARY"; sleep 20; npx -y @playwright/test@1.56.0 install --with-deps chromium 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"; }
+          npx -y @playwright/test@1.56.0 install --with-deps chromium \
+            || (sleep 20 && npx -y @playwright/test@1.56.0 install --with-deps chromium)
       - name: Run smoke tests
         run: npx -y @playwright/test@1.56.0 test
       - name: Upload trace on failure
