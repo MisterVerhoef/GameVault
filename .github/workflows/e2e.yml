@@ -27,8 +27,9 @@ jobs:
       - run: npm run build
       - name: Install Playwright browser
         run: |
-          npx -y @playwright/test@1.56.0 install --with-deps chromium \
-            || (sleep 20 && npx -y @playwright/test@1.56.0 install --with-deps chromium)
+          set -o pipefail
+          npx -y @playwright/test@1.56.0 install --with-deps chromium 2>&1 | tee "$GITHUB_STEP_SUMMARY" || \
+            { echo "RETRY" >> "$GITHUB_STEP_SUMMARY"; sleep 20; npx -y @playwright/test@1.56.0 install --with-deps chromium 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"; }
       - name: Run smoke tests
         run: npx -y @playwright/test@1.56.0 test
       - name: Upload trace on failure
