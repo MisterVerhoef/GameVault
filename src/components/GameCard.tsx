@@ -72,7 +72,6 @@ export default function GameCard({
             fill
             className="object-cover transition-opacity duration-500 group-hover:opacity-90"
             sizes="(max-width: 1024px) 128px, 224px"
-            unoptimized
             loading="lazy"
             onError={(e) => {
               (e.target as HTMLImageElement).style.display = "none";

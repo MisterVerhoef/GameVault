@@ -49,7 +49,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               alt=""
               fill
               className="object-cover opacity-30 blur-2xl scale-110"
-              unoptimized
+              sizes="256px"
               loading="lazy"
             />
           )}
@@ -69,7 +69,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
             alt={featured.title}
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
-            unoptimized
+            sizes="(max-width: 1024px) 80vw, 75vw"
             priority
           />
         )}
