@@ -181,7 +181,7 @@ export default function ListsScreen() {
             {activeList.gameIds.length === 0 ? (
               <div className="rounded-2xl border border-white/10 bg-card px-5 py-8">
                 <p className="text-sm text-foreground">This list is empty.</p>
-                <p className="mt-1 text-sm text-muted">Open a game and choose “Add to list” to put it here.</p>
+                <p className="mt-1 text-sm text-muted">Open a game and choose &ldquo;Add to list&rdquo; to put it here.</p>
                 <Link href="/" className="mt-4 inline-flex min-h-11 items-center rounded-full bg-accent px-4 text-sm font-medium text-white hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">Browse games</Link>
               </div>
             ) : (
@@ -231,7 +231,7 @@ export default function ListsScreen() {
                           <div className="grid h-24 gap-1 overflow-hidden rounded-lg bg-background" style={{ gridTemplateColumns: `repeat(${covers.length}, minmax(0, 1fr))` }}>
                             {covers.map((cover) => (
                               <div key={cover.id} className="relative min-w-0 overflow-hidden">
-                                <Image src={cover.cover as string} alt={cover.title} fill sizes="80px" className="object-cover" unoptimized />
+                                <Image src={cover.cover as string} alt={cover.title} fill sizes="80px" className="object-cover" />
                               </div>
                             ))}
                           </div>

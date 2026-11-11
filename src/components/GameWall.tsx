@@ -170,7 +170,6 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
                     src={game.cover.url}
                     alt=""
                     fill
-                    unoptimized
                     loading="lazy"
                     sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 10vw"
                     className="object-cover"
