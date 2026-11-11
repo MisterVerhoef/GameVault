@@ -8,20 +8,20 @@ test("header does not overflow and keeps both bars intact", async ({ page }) => 
   await page.goto("/");
   await expect(page.locator("header")).toBeVisible();
 
-  for (const width of [320, 600, 700, 768, 900, 1024, 1280, 1440, 1600]) {
+  for (const width of [320, 480, 600, 700, 768, 900, 1024, 1100, 1200, 1280, 1366, 1440, 1536, 1600]) {
     await page.setViewportSize({ width, height: 800 });
     const metrics = await page.evaluate(() => {
       const doc = document.documentElement;
       const nav = document.querySelector('nav[aria-label="Main"]');
       const menu = document.querySelector('button[aria-label="Menu"]');
-      const platforms = document.querySelector('button[aria-label="Filter by PC"]');
       const logo = document.querySelector('a[aria-label="GameVault home"]')?.getBoundingClientRect();
       const discover = [...document.querySelectorAll('nav[aria-label="Main"] a')]
         .find((link) => link.textContent.trim() === "Discover")
         ?.getBoundingClientRect();
       const navVisible = Boolean(nav && getComputedStyle(nav).display !== "none");
+      const discoverVisible = Boolean(discover && discover.width > 0 && discover.height > 0);
       let overlap = false;
-      if (navVisible && logo && discover) {
+      if (logo && discover && discoverVisible) {
         overlap = !(
           logo.right <= discover.left + 0.5
           || discover.right <= logo.left + 0.5
@@ -32,23 +32,23 @@ test("header does not overflow and keeps both bars intact", async ({ page }) => 
       return {
         overflow: doc.scrollWidth - doc.clientWidth,
         navVisible,
+        discoverVisible,
         menuVisible: Boolean(menu && getComputedStyle(menu).display !== "none"),
-        platformsVisible: Boolean(platforms && platforms.offsetParent !== null),
         overlap,
+        logoWidth: logo ? logo.width : 0,
       };
     });
 
     expect(metrics.overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
-    expect(metrics.overlap, `logo overlaps Discover at ${width}px`).toBe(false);
-    if (width <= 1280) {
+    if (width >= 1024) {
+      expect(metrics.navVisible, `desktop nav at ${width}px`).toBe(true);
+      expect(metrics.discoverVisible, `Discover at ${width}px`).toBe(true);
+      expect(metrics.menuVisible, `hamburger at ${width}px`).toBe(false);
+      expect(metrics.overlap, `logo overlaps Discover at ${width}px`).toBe(false);
+      expect(metrics.logoWidth, `logo collapsed at ${width}px`).toBeGreaterThan(120);
+    } else {
       expect(metrics.menuVisible, `compact menu at ${width}px`).toBe(true);
       expect(metrics.navVisible, `desktop nav at ${width}px`).toBe(false);
-      expect(metrics.platformsVisible, `platform chips at ${width}px`).toBe(false);
-    }
-    if (width >= 1600) {
-      expect(metrics.navVisible, "desktop nav").toBe(true);
-      expect(metrics.menuVisible, "compact menu hidden on desktop").toBe(false);
-      expect(metrics.platformsVisible, "platform chips").toBe(true);
     }
   }
 
