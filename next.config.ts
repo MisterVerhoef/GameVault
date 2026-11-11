@@ -11,6 +11,9 @@ const nextConfig: NextConfig = {
     "/stats": ["./public/catalog/browse-index.json"],
   },
   images: {
+    // Covers are resized by IGDB's own CDN via the custom loader below; no
+    // Vercel image-optimization usage is incurred.
+    loaderFile: "./src/lib/igdb-image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",

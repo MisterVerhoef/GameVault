@@ -76,7 +76,6 @@ export default async function StudioPage({ params }: StudioPageProps) {
             alt=""
             fill
             priority
-            unoptimized
             className="object-cover"
             sizes="100vw"
           />

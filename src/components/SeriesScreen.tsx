@@ -57,9 +57,7 @@ export default function SeriesScreen({ series }: { series: Series }) {
               src={series.backgroundUrl}
               alt=""
               fill
-
               priority
-              unoptimized
               className="object-cover"
               sizes="100vw"
             />
