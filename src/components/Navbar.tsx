@@ -40,6 +40,8 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   /** Below this header width, platform + nav leave too little room for a labeled field. */
   const DESKTOP_SEARCH_COMPACT_HEADER = 1180;
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
+  const [storesOpen, setStoresOpen] = useState(false);
+  const storesToggleRef = useRef<HTMLButtonElement>(null);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
@@ -157,6 +159,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     onPlatformVariantSelect?.(null);
     onPlatformSelect?.(nextFamily?.platform ?? null);
     setMenuOpen(false);
+    setStoresOpen(false);
     pushPlatformFilter({
       family: nextFamily?.label ?? null,
       platform: nextFamily?.platform ?? null,
@@ -207,6 +210,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     setMenuOpen(false);
     setSearchOpen(false);
     setLibraryMenuOpen(false);
+    setStoresOpen(false);
     setSelectedFamilyKey(null);
     setSelectedVariant(null);
     onSearch?.("");
@@ -219,14 +223,14 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   return (
     <header ref={headerRef} className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
-      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:gap-2 lg:px-4">
         <Link
           href="/"
           aria-label="GameVault home"
           onClick={goHome}
-          className="flex min-h-11 min-w-11 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 md:min-w-0"
+          className="flex min-h-11 min-w-11 shrink-0 items-center gap-3 whitespace-nowrap rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:min-h-0"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
             GV
           </span>
           <span className="hidden text-xl font-bold tracking-tight sm:block">
@@ -236,7 +240,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
         {/* Nav links (desktop). These routes preload the catalogue, and Next
             would apply that preload while prefetching them from here. */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden shrink-0 items-center gap-3 whitespace-nowrap lg:flex xl:gap-4" aria-label="Main">
           <Link
             href="/"
             aria-current={pathname === "/" ? "page" : undefined}
@@ -288,24 +292,65 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
         </nav>
 
-        {/* Platform filter buttons (desktop) */}
-        <div className="hidden items-center gap-2 md:flex">
+        {/* Store filters. One menu until the row can hold a chip per store. */}
+        <div className="relative hidden shrink-0 lg:block xl:hidden">
+          <button
+            ref={storesToggleRef}
+            type="button"
+            onClick={() => setStoresOpen((open) => !open)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape" && storesOpen) {
+                event.preventDefault();
+                setStoresOpen(false);
+              }
+            }}
+            aria-label="Stores"
+            aria-expanded={storesOpen}
+            aria-controls="stores-menu"
+            className={`flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamily ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+            style={selectedFamily?.platform ? { backgroundColor: PLATFORM_COLORS[selectedFamily.platform] } : {}}
+          >
+            <span>{selectedFamily ? selectedFamily.label : "Stores"}</span>
+          </button>
+          {storesOpen && (
+            <div
+              id="stores-menu"
+              className="absolute left-0 top-10 z-50 w-44 rounded-xl border border-white/10 bg-card p-1 shadow-xl shadow-black/20"
+            >
+              {platformFamilies.map((family) => (
+                <button
+                  key={family.key}
+                  type="button"
+                  onClick={() => handlePlatformSelect(family.platform, family.key)}
+                  aria-label={`Filter by ${family.label}`}
+                  aria-pressed={selectedFamilyKey === family.key}
+                  className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
+                  style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
+                >
+                  <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="hidden shrink-0 items-center gap-1 xl:flex">
           {platformFamilies.map((family) => (
             <button
               key={family.key}
+              type="button"
               onClick={() => handlePlatformSelect(family.platform, family.key)}
               aria-label={`Filter by ${family.label}`}
               aria-pressed={selectedFamilyKey === family.key}
-              className={`flex h-8 items-center justify-center rounded-full px-3 text-sm font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              className={`flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
               style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
-              <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
+              <PlatformName name={family.label} iconClassName="h-3.5 w-3.5" className="gap-1" />
             </button>
           ))}
         </div>
 
         {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-2">
           <ThemeToggle />
           {/* Search icon (mobile toggle). The field is the next DOM node so
               screen readers and Tab reach it before the library and menu. */}
@@ -460,7 +505,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               aria-label="Open library menu"
               aria-expanded={libraryMenuOpen}
               aria-controls="library-menu"
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:h-9 lg:w-9"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -498,7 +543,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             aria-label="Menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
           >
             {menuOpen ? (
               <svg
@@ -531,7 +576,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       </div>
 
       {selectedFamily && (
-        <div className="hidden border-t border-white/5 md:block">
+        <div className="hidden border-t border-white/5 lg:block">
           <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
             <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
               <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
@@ -583,7 +628,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       {menuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/5 px-4 py-3 md:hidden"
+          className="border-t border-white/5 px-4 py-3 lg:hidden"
           aria-label="Mobile"
           onKeyDown={(event) => {
             if (event.key === "Escape") {

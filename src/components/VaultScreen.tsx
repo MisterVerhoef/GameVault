@@ -68,33 +68,45 @@ function VaultShelf({
           onFocus={onFocus}
           className="flex list-none flex-wrap gap-x-4 gap-y-5"
         >
-          {known.map((item) => (
-            <li key={item.gameId} className="w-32 flex-shrink-0 lg:w-44">
-              <GameCard
-                game={item.game as CatalogueCard}
-                personalRating={item.entry.rating}
-                progress={item.entry.progress}
-              />
-              {status === "wishlist" && item.game && (
-                <WishlistPrices
-                  gameId={item.game.id}
-                  title={item.game.title}
-                  platforms={item.game.platforms}
-                  state={offerState}
-                />
-              )}
-              {(item.entry.progress > 0 || item.entry.notes) && (
-                <div className="mt-1.5 space-y-0.5">
-                  {item.entry.progress > 0 && (
-                    <p className="text-[11px] font-medium text-muted" aria-hidden="true">{item.entry.progress}% played</p>
-                  )}
-                  {item.entry.notes && (
-                    <p className="line-clamp-2 text-xs leading-snug text-muted">{item.entry.notes}</p>
-                  )}
+          {known.map((item) => {
+            const showPrices = status === "wishlist" && item.game;
+            const details = (item.entry.progress > 0 || item.entry.notes) ? (
+              <div className="mt-1.5 space-y-0.5">
+                {item.entry.progress > 0 && (
+                  <p className="text-[11px] font-medium text-muted" aria-hidden="true">{item.entry.progress}% played</p>
+                )}
+                {item.entry.notes && (
+                  <p className="line-clamp-2 text-xs leading-snug text-muted">{item.entry.notes}</p>
+                )}
+              </div>
+            ) : null;
+            return (
+              <li
+                key={item.gameId}
+                className={showPrices
+                  ? "flex w-full min-w-0 max-w-full flex-col gap-2 sm:w-[36rem] sm:max-w-full sm:flex-row sm:items-start sm:gap-3"
+                  : "w-32 flex-shrink-0 lg:w-44"}
+              >
+                <div className={showPrices ? "w-32 shrink-0 lg:w-44" : undefined}>
+                  <GameCard
+                    game={item.game as CatalogueCard}
+                    personalRating={item.entry.rating}
+                    progress={item.entry.progress}
+                  />
+                  {details}
                 </div>
-              )}
-            </li>
-          ))}
+                {showPrices && item.game && (
+                  <WishlistPrices
+                    gameId={item.game.id}
+                    title={item.game.title}
+                    platforms={item.game.platforms}
+                    state={offerState}
+                    className="w-full flex-1"
+                  />
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
       {missing.length > 0 && (

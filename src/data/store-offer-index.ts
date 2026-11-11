@@ -69,6 +69,27 @@ export function isStoreDeal(price: number | null, regularPrice: number | null): 
   return price != null && regularPrice != null && regularPrice > price;
 }
 
+/**
+ * True when this current price is the cheapest and another offer costs more.
+ * Stores that share that cheapest price all match. A missing price, the only
+ * price, and a set of equal prices do not.
+ */
+export function isLowestCurrentPrice(
+  offers: readonly { price: number | null }[],
+  offer: { price: number | null },
+): boolean {
+  if (offer.price == null) return false;
+  let matched = false;
+  let higher = false;
+  for (const candidate of offers) {
+    if (candidate.price == null) continue;
+    if (candidate.price < offer.price) return false;
+    if (candidate.price === offer.price) matched = true;
+    else higher = true;
+  }
+  return matched && higher;
+}
+
 export function formatEuro(amount: number): string {
   return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(amount);
 }
