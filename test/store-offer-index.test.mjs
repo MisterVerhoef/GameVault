@@ -6,6 +6,7 @@ const {
   formatEuro,
   formatOfferPrice,
   indexStoreOffers,
+  isLowestCurrentPrice,
   isStoreDeal,
   offersForGame,
 } = loadTsModule("src/data/store-offer-index.ts");
@@ -180,6 +181,28 @@ test("indexes PC store offers and hides them from other platforms", () => {
 
   assert.equal(offersForGame(index, "113112", ["Switch", "PS5"]).length, 0);
   assert.equal(offersForGame(index, "113112", ["Xbox"]).map((offer) => offer.store).join(), "xbox");
+});
+
+test("marks only a strictly lower current price as the lowest", () => {
+  const priced = [
+    { price: 59.99 },
+    { price: 49.99 },
+    { price: 59.99 },
+    { price: null },
+  ];
+  assert.equal(isLowestCurrentPrice(priced, priced[0]), false);
+  assert.equal(isLowestCurrentPrice(priced, priced[1]), true);
+  assert.equal(isLowestCurrentPrice(priced, priced[2]), false);
+  assert.equal(isLowestCurrentPrice(priced, priced[3]), false);
+
+  const tied = [{ price: 49.99 }, { price: 49.99 }, { price: 59.99 }];
+  assert.equal(isLowestCurrentPrice(tied, tied[0]), true);
+  assert.equal(isLowestCurrentPrice(tied, tied[1]), true);
+  assert.equal(isLowestCurrentPrice(tied, tied[2]), false);
+
+  const flat = [{ price: 59.99 }, { price: 59.99 }];
+  assert.equal(isLowestCurrentPrice(flat, flat[0]), false);
+  assert.equal(isLowestCurrentPrice([{ price: 49.99 }, { price: null }], { price: 49.99 }), false);
 });
 
 test("returns no prices for an unsupported catalogue file", () => {

@@ -224,7 +224,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           href="/"
           aria-label="GameVault home"
           onClick={goHome}
-          className="flex min-h-11 min-w-11 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 md:min-w-0"
+          className="flex min-h-11 min-w-11 shrink-0 items-center gap-3 rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent header:min-h-0"
         >
           <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
             GV
@@ -236,7 +236,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
         {/* Nav links (desktop). These routes preload the catalogue, and Next
             would apply that preload while prefetching them from here. */}
-        <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
+        <nav className="hidden shrink-0 items-center gap-6 header:flex" aria-label="Main">
           <Link
             href="/"
             aria-current={pathname === "/" ? "page" : undefined}
@@ -289,7 +289,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
         </nav>
 
         {/* Platform filter buttons (desktop) */}
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden shrink-0 items-center gap-2 header:flex">
           {platformFamilies.map((family) => (
             <button
               key={family.key}
@@ -305,7 +305,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
         </div>
 
         {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-3">
           <ThemeToggle />
           {/* Search icon (mobile toggle). The field is the next DOM node so
               screen readers and Tab reach it before the library and menu. */}
@@ -460,7 +460,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               aria-label="Open library menu"
               aria-expanded={libraryMenuOpen}
               aria-controls="library-menu"
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:h-9 md:w-9"
+              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent header:h-9 header:w-9"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -498,7 +498,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             aria-label="Menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:hidden"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent header:hidden"
           >
             {menuOpen ? (
               <svg
@@ -531,7 +531,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       </div>
 
       {selectedFamily && (
-        <div className="hidden border-t border-white/5 md:block">
+        <div className="hidden border-t border-white/5 header:block">
           <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
             <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
               <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
@@ -583,7 +583,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       {menuOpen && (
         <nav
           id="mobile-nav"
-          className="border-t border-white/5 px-4 py-3 md:hidden"
+          className="border-t border-white/5 px-4 py-3 header:hidden"
           aria-label="Mobile"
           onKeyDown={(event) => {
             if (event.key === "Escape") {

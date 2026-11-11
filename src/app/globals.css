@@ -44,6 +44,10 @@
   --color-muted-strong: var(--muted-strong);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  /* Desktop header (logo, links, store chips, search) is about 1363px wide.
+     Below that the logo shrinks onto Discover and the page scrolls sideways.
+     header: keeps the compact bar until the row fits. */
+  --breakpoint-header: 90rem;
 }
 
 body {
