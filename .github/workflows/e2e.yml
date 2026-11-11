@@ -37,8 +37,11 @@ jobs:
             || (sleep 20 && npm install --no-save @playwright/test@1.56.0)
       - name: Install Playwright browser
         run: |
-          npx playwright install --with-deps chromium \
-            || (sleep 20 && npx playwright install --with-deps chromium)
+          # Apt mirrors sometimes fail DNS and never return, which burns the
+          # whole job before the retry. Bound that, then install the browser.
+          timeout 120 npx playwright install-deps chromium || true
+          npx playwright install chromium \
+            || (sleep 20 && npx playwright install chromium)
       - name: Run smoke tests
         run: |
           set -o pipefail

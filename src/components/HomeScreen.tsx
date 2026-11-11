@@ -22,13 +22,16 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
     setTrackedQuery(queryString);
     setDraftSearch(urlSearch);
   }
-  const { catalogue, failed } = useBrowseCatalogue(true);
+  // The server already rendered this view. Loading the catalogue indexes on
+  // first paint saturates the connection and the main thread, which is what
+  // holds mobile LCP. Fetch them when search starts, or when saved "playing"
+  // titles have to replace the server row.
+  const [prepareSearch, setPrepareSearch] = useState(false);
   const { entries, ready } = useLibrary();
   const playingIds = useMemo(
     () => Object.entries(entries).filter(([, entry]) => entry.status === "playing").map(([gameId]) => gameId),
     [entries],
   );
-
   const liveQuery = readHomeQuery({
     search: draftSearch,
     family: params.get("family"),
@@ -38,7 +41,14 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
     exclusives: params.get("exclusives"),
     sort: params.get("sort"),
   });
-  const view = catalogue && (!sameHomeQuery(liveQuery, initialView.query) || (ready && playingIds.length > 0))
+  const queryDirty = !sameHomeQuery(liveQuery, initialView.query);
+  const libraryDirty = ready && playingIds.length > 0;
+  const loadSearch = prepareSearch || queryDirty;
+  const { catalogue, failed } = useBrowseCatalogue(loadSearch, loadSearch || libraryDirty);
+  // A browse-only catalogue has no search terms. Keep the server view until a
+  // search can actually be applied, or the results flash empty.
+  const searchReady = !queryDirty || catalogue?.termsById != null;
+  const view = catalogue && searchReady && (queryDirty || libraryDirty)
     ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
     : initialView;
 
@@ -65,12 +75,14 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
         Skip to content
       </a>
 
-      <Navbar searchQuery={urlSearch} onSearch={setDraftSearch} />
+      <Navbar searchQuery={urlSearch} onSearch={setDraftSearch} onSearchPrepare={() => setPrepareSearch(true)} />
 
       <main id="main-content" tabIndex={-1} className="flex-1 scroll-mt-20 focus:outline-none">
-        {failed && !catalogue && !sameHomeQuery(liveQuery, initialView.query) ? (
-          <p className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8">
-            The catalogue could not be loaded. This page is showing the last results.
+        {queryDirty && !catalogue?.termsById ? (
+          <p className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8" role="status">
+            {failed
+              ? "The catalogue could not be loaded. This page is showing the last results."
+              : "Searching the catalogue."}
           </p>
         ) : null}
         {view.wall ? (

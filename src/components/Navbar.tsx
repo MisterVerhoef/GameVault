@@ -14,13 +14,15 @@ interface NavbarProps {
   onPlatformFamilySelect?: (family: string | null) => void;
   onPlatformVariantSelect?: (variant: string | null) => void;
   onSearch?: (query: string) => void;
+  /** Fired when the search field is focused, before the first keystroke. */
+  onSearchPrepare?: () => void;
   /** Current `search` query. The field keeps its own value while it is focused. */
   searchQuery?: string;
 }
 
 const platformFamilies = PLATFORM_FAMILIES;
 
-export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, searchQuery }: NavbarProps) {
+export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState("");
@@ -232,7 +234,8 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </span>
         </Link>
 
-        {/* Nav links (desktop) */}
+        {/* Nav links (desktop). These routes preload the catalogue, and Next
+            would apply that preload while prefetching them from here. */}
         <nav className="hidden items-center gap-6 md:flex" aria-label="Main">
           <Link
             href="/"
@@ -245,6 +248,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
           <Link
             href="/vault"
+            prefetch={false}
             aria-current={pathname === "/vault" ? "page" : undefined}
             className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
@@ -254,6 +258,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
           <Link
             href="/lists"
+            prefetch={false}
             aria-current={pathname === "/lists" ? "page" : undefined}
             className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               pathname === "/lists" ? "text-foreground" : "text-muted hover:text-foreground"
@@ -263,6 +268,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
           <Link
             href="/calendar"
+            prefetch={false}
             aria-current={pathname === "/calendar" ? "page" : undefined}
             className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               pathname === "/calendar" ? "text-foreground" : "text-muted hover:text-foreground"
@@ -272,6 +278,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
           </Link>
           <Link
             href="/stats"
+            prefetch={false}
             aria-current={pathname === "/stats" ? "page" : undefined}
             className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
               pathname === "/stats" ? "text-foreground" : "text-muted hover:text-foreground"
@@ -358,6 +365,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               placeholder="Search games..."
               value={search}
               onChange={(e) => handleSearch(e.target.value)}
+              onFocus={() => onSearchPrepare?.()}
               onBlur={(e) => rememberSearch(e.target.value)}
               className="h-11 w-full rounded-full border border-white/10 bg-card px-4 text-base text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
             />
@@ -424,6 +432,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   placeholder="Search games..."
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
+                  onFocus={() => onSearchPrepare?.()}
                   onBlur={(e) => {
                     rememberSearch(e.target.value);
                     if (desktopSearchCompact && !e.target.value.trim()) {
@@ -596,6 +605,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             </Link>
             <Link
               href="/vault"
+              prefetch={false}
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/vault" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
@@ -606,6 +616,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             </Link>
             <Link
               href="/lists"
+              prefetch={false}
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/lists" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
@@ -616,6 +627,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             </Link>
             <Link
               href="/calendar"
+              prefetch={false}
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/calendar" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
@@ -626,6 +638,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             </Link>
             <Link
               href="/stats"
+              prefetch={false}
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/stats" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
