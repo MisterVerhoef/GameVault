@@ -34,15 +34,18 @@ export function loadBrowseCatalogue(withSearch: boolean) {
   return Promise.all([browse, loadSearchFile()]).then(([browseFile, searchFile]) => createBrowseCatalogue(browseFile, searchFile));
 }
 
-export function useBrowseCatalogue(withSearch: boolean) {
+export function useBrowseCatalogue(withSearch: boolean, enabled = true) {
   const [catalogue, setCatalogue] = useState<BrowseCatalogue | null>(null);
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    if (!enabled) return;
     let active = true;
     loadBrowseCatalogue(withSearch).then(
       (value) => {
-        if (active) setCatalogue(value);
+        if (!active) return;
+        setCatalogue(value);
+        setFailed(false);
       },
       () => {
         if (active) setFailed(true);
@@ -51,7 +54,7 @@ export function useBrowseCatalogue(withSearch: boolean) {
     return () => {
       active = false;
     };
-  }, [withSearch]);
+  }, [withSearch, enabled]);
 
   return { catalogue, failed };
 }

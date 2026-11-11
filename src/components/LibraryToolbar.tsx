@@ -18,6 +18,7 @@ export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void
       <div className="mt-3 flex flex-wrap gap-2">
         <Link
           href="/vault"
+          prefetch={false}
           onClick={onNavigate}
           className="inline-flex min-h-11 items-center rounded-full bg-accent px-3 py-1 text-xs font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
         >
@@ -25,6 +26,7 @@ export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void
         </Link>
         <Link
           href="/calendar"
+          prefetch={false}
           onClick={onNavigate}
           className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
         >
@@ -32,6 +34,7 @@ export default function LibraryToolbar({ onNavigate }: { onNavigate?: () => void
         </Link>
         <Link
           href="/stats"
+          prefetch={false}
           onClick={onNavigate}
           className="inline-flex min-h-11 items-center rounded-full border border-white/10 px-3 py-1 text-xs font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0"
         >
