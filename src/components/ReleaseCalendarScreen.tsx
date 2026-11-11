@@ -67,7 +67,7 @@ function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
     <>
       <span className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-white/5">
         {entry.cover ? (
-          <Image src={entry.cover} alt="" fill sizes="36px" unoptimized className="object-cover" />
+          <Image src={entry.cover} alt="" fill sizes="36px" className="object-cover" />
         ) : null}
       </span>
       <span className="min-w-0 flex-1">

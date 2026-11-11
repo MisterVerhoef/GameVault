@@ -183,7 +183,6 @@ function SimilarGameCard({ item }: { item: ContentRef }) {
           fill
           className={`object-cover${catalogueGame ? " transition duration-300 group-hover:scale-105" : ""}`}
           sizes="176px"
-          unoptimized
           loading="lazy"
         />
       )}
@@ -296,7 +295,6 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 alt={game.title}
                 fill
                 className="object-cover"
-                unoptimized
                 priority
               />
             ) : (
@@ -627,7 +625,6 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                     fill
                     className="object-cover transition duration-300 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    unoptimized
                     loading="lazy"
                   />
                 </a>
@@ -656,7 +653,6 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         fill
                         className="object-cover transition duration-300 group-hover:scale-105"
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        unoptimized
                         loading="lazy"
                       />
                     )}
