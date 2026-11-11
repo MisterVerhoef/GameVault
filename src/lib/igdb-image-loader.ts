@@ -7,27 +7,69 @@ import type { ImageLoaderProps } from "next/image";
  * counts unique source images against the Vercel plan limits and returns 402
  * once those are exhausted), we let IGDB's own image CDN do the resizing.
  *
- * Every size in the ladder below uses IGDB's "fit" behaviour, so the aspect
- * ratio is always preserved. Sizes per https://api-docs.igdb.com/#images:
- * cover_small 90, cover_big 264, cover_big_2x 528, 720p 1280, 1080p 1920,
- * 720p_2x 2560, original.
+ * Every size below uses IGDB's "fit" behaviour, so the aspect ratio is always
+ * preserved (sizes per https://api-docs.igdb.com/#images). Each artwork family
+ * keeps its own ladder, so a screenshot slot can step through
+ * screenshot_med/big/huge instead of jumping from a 528px cover to 1280px.
  */
-const IGDB_SIZES: Array<{ suffix: string; width: number }> = [
-  { suffix: "t_cover_small", width: 90 },
-  { suffix: "t_cover_big", width: 264 },
-  { suffix: "t_cover_big_2x", width: 528 },
-  { suffix: "t_720p", width: 1280 },
-  { suffix: "t_1080p", width: 1920 },
-  { suffix: "t_720p_2x", width: 2560 },
+type IgdbStep = { suffix: string; width: number };
+
+const COVER_STEPS: IgdbStep[] = [
+  { suffix: "cover_small", width: 90 },
+  { suffix: "cover_big", width: 264 },
+  { suffix: "cover_big_2x", width: 528 },
+  { suffix: "720p", width: 1280 },
+  { suffix: "1080p", width: 1920 },
+  { suffix: "720p_2x", width: 2560 },
 ];
 
-const IGDB_URL = /^(https:\/\/[\w.-]*igdb\.com\/.+\/upload\/)t_[^/]+(\/[^?]+)(\?.*)?$/;
+const SCREENSHOT_STEPS: IgdbStep[] = [
+  { suffix: "screenshot_med", width: 569 },
+  { suffix: "screenshot_big", width: 889 },
+  { suffix: "screenshot_huge", width: 1280 },
+  { suffix: "1080p", width: 1920 },
+  { suffix: "720p_2x", width: 2560 },
+];
+
+const LOGO_STEPS: IgdbStep[] = [
+  { suffix: "logo_med", width: 320 },
+  { suffix: "720p", width: 1280 },
+  { suffix: "1080p", width: 1920 },
+  { suffix: "720p_2x", width: 2560 },
+];
+
+const IGDB_URL = /^(https:\/\/[\w.-]*igdb\.com\/.+\/upload\/)t_([^/?]+)(\/[^?]+)(\?.*)?$/;
+
+function ladderFor(prefix: string): IgdbStep[] {
+  if (prefix.startsWith("screenshot")) return SCREENSHOT_STEPS;
+  if (prefix.startsWith("logo")) return LOGO_STEPS;
+  return COVER_STEPS;
+}
+
+/**
+ * Pick the step that needs the least resampling for the requested width. An
+ * upscale counts 1.5x heavier than the same factor of downscale, so a 640px
+ * slot takes the 528px step instead of jumping to 1280px, while a 176px slot
+ * still takes the 264px step.
+ */
+function pickStep(steps: IgdbStep[], width: number): IgdbStep {
+  let best = steps[0];
+  let bestCost = Number.POSITIVE_INFINITY;
+  for (const step of steps) {
+    const ratio = step.width / width;
+    const cost = ratio >= 1 ? ratio : 1.5 / ratio;
+    if (cost < bestCost) {
+      bestCost = cost;
+      best = step;
+    }
+  }
+  return best;
+}
 
 export default function igdbImageLoader({ src, width }: ImageLoaderProps): string {
   const match = IGDB_URL.exec(src);
-  if (!match) return src;
-  // Pick the smallest IGDB size whose box fits the requested width. The
-  // quality parameter is ignored: IGDB does not support it.
-  const size = IGDB_SIZES.find((step) => step.width >= width) ?? { suffix: "t_original" };
-  return `${match[1]}${size.suffix}${match[2]}${match[3] ?? ""}`;
+  if (!match || !width) return src;
+  // The quality parameter is ignored: IGDB does not support it.
+  const step = pickStep(ladderFor(match[2]), width);
+  return `${match[1]}t_${step.suffix}${match[3]}${match[4] ?? ""}`;
 }

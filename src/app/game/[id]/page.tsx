@@ -294,6 +294,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 src={display.cover.url}
                 alt={game.title}
                 fill
+                sizes="(max-width: 639px) 176px, (max-width: 1023px) 224px, 256px"
                 className="object-cover"
                 priority
               />
