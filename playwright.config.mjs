@@ -20,6 +20,10 @@ export default defineConfig({
     url: "http://localhost:3000",
     reuseExistingServer: true,
     timeout: 120_000,
+    env: {
+      ...process.env,
+      IGDB_MOCK: "1",
+    },
   },
   projects: [
     {
