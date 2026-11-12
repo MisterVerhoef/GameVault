@@ -566,7 +566,9 @@ test("franchise and collection pages group catalogue series", () => {
   assert.equal(zelda.id, "the-legend-of-zelda");
   assert.equal(breath.id, "the-legend-of-zelda-breath-of-the-wild");
   assert.ok(halo.gameIds.length > haloCollection.gameIds.length);
-  assert.ok(breath.gameIds.includes("7346"));
+  const breathGame = catalogue.games.find((game) => game.title === "The Legend of Zelda: Breath of the Wild");
+  assert.ok(breathGame, "Breath of the Wild should exist in the committed catalogue");
+  assert.ok(breath.gameIds.includes(breathGame.id));
   assert.match(halo.summary, /Halo is a franchise/);
   assert.match(breath.summary, /The Legend of Zelda: Breath of the Wild is a collection/);
   for (const group of [catalogueFranchises, catalogueCollections]) {

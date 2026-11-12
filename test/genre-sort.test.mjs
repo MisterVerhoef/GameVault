@@ -380,7 +380,9 @@ test("committed browse index stores critic scores and first-release tokens witho
   const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
   const browse = JSON.parse(readFileSync(path.join(root, "public/catalog/browse-index.json"), "utf8"));
   const byId = new Map(browse.games.map((entry) => [entry.id, entry]));
-  assert.equal(byId.get("9146").aggregatedRating, 0);
+  const zeroScore = catalogue.games.find((entry) => entry.aggregatedRating === 0);
+  assert.ok(zeroScore, "catalogue should contain a game with a zero critic score");
+  assert.equal(byId.get(zeroScore.id).aggregatedRating, 0);
   const withScore = catalogue.games.filter((entry) => typeof entry.aggregatedRating === "number" && entry.aggregatedRating >= 0);
   const withoutScore = catalogue.games.filter((entry) => !(typeof entry.aggregatedRating === "number" && Number.isFinite(entry.aggregatedRating) && entry.aggregatedRating >= 0));
   assert.ok(withScore.length > 0);
