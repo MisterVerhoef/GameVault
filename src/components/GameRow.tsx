@@ -207,8 +207,8 @@ export default function GameRow({
         onKeyDown={onKeyDown}
         onFocus={onFocus}
         className={virtualize && rowWindow
-          ? "scrollbar-hide overflow-x-auto pb-4"
-          : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 sm:px-6 lg:px-8"}
+          ? "scrollbar-hide overflow-x-auto pb-4 scroll-pl-4 scroll-pr-4 sm:scroll-pl-6 sm:scroll-pr-6 lg:scroll-pl-8 lg:scroll-pr-8"
+          : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 scroll-pl-4 scroll-pr-4 sm:px-6 sm:scroll-pl-6 sm:scroll-pr-6 lg:px-8 lg:scroll-pl-8 lg:scroll-pr-8"}
         style={virtualize && rowWindow ? { overflowAnchor: "none" } : undefined}
       >
         {rowWindow ? (

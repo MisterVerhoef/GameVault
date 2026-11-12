@@ -27,7 +27,7 @@ export default function LibraryControls({ gameId, gameTitle }: { gameId: string;
             if (value) setStatus(gameId, value);
             else setStatus(gameId, null);
           }}
-          className="rounded-full border border-white/20 bg-white/5 px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          className="rounded-full border border-foreground/15 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent dark:border-white/20 dark:bg-white/5"
         >
           <option value="">Not in library</option>
           {LIBRARY_STATUSES.map((status) => (

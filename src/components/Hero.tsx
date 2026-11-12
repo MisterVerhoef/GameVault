@@ -37,7 +37,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
   const themeColor = PLATFORM_COLORS[primaryPlatform];
 
   return (
-    <section className="relative mb-10 overflow-hidden">
+    <section className="relative mb-10 overflow-x-clip">
       {/* Background blur of cover */}
       <div className="absolute inset-0" aria-hidden="true">
         <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
@@ -56,12 +56,12 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
         </div>
       </div>
 
-      <div className="relative mx-auto flex max-w-[1920px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-[30px] lg:flex-row lg:items-end lg:gap-10 lg:px-8 lg:py-12">
+      <div className="relative mx-auto grid w-full min-w-0 max-w-[1920px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 sm:py-[30px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-end lg:gap-8 lg:px-8 lg:py-12 xl:gap-10">
         {/* Cover art — centered on mobile, side on desktop */}
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group relative mx-auto block h-[344px] w-[calc(75%+1.5rem)] flex-shrink-0 overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:h-[464px] sm:w-[calc(75%+2.25rem)] lg:h-[564px] lg:w-[calc(75%+3rem)]"
+        className="group relative mx-auto block aspect-[3/4] w-full max-w-[min(100%,22.5rem)] justify-self-center overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:max-w-[26rem] lg:mx-0 lg:max-h-[564px] lg:max-w-none lg:justify-self-stretch lg:self-end"
       >
         {coverUrl && (
           <Image
@@ -76,11 +76,11 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
       </Link>
 
         {/* Info */}
-        <div className="relative z-10 flex flex-1 flex-col gap-3 text-center lg:text-left">
+        <div className="relative z-10 flex min-w-0 flex-col gap-3 text-center lg:text-left">
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
             Featured Game
           </p>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
+          <h1 className="text-2xl font-bold tracking-tight break-words sm:text-4xl lg:text-5xl">
             {featured.title}
           </h1>
           <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
@@ -114,7 +114,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           </div>
 
           {availableGames.length > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2 lg:justify-start" aria-label="Featured title selector">
+            <div className="mt-4 flex max-w-full flex-wrap items-center justify-center gap-2 lg:justify-start" aria-label="Featured title selector">
               <button
                 type="button"
                 onClick={() => setSelectedIndex((index) => (index - 1 + availableGames.length) % availableGames.length)}
