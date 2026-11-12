@@ -74,6 +74,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run format:check
       - run: npm run test:catalogue
       - run: npm run catalogue:search-index
       - run: git diff --exit-code -- public/catalog/search-index.json public/catalog/browse-index.json public/catalog/release-dates.json

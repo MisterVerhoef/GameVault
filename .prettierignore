@@ -1,0 +1,19 @@
+# dependencies & build output
+node_modules/
+.next/
+out/
+build/
+next-env.d.ts
+
+# generated catalogue data
+public/
+
+# lockfile
+package-lock.json
+
+# test & coverage artifacts
+coverage/
+reports/
+test-results/
+playwright-report/
+*.log
