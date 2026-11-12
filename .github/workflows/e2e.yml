@@ -13,6 +13,11 @@ on:
   push:
     branches: [main]
 
+# Superseded PR runs are cancelled; main runs always finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 # Default GITHUB_TOKEN is read-only; the report step needs PR write access.
 permissions:
   contents: read
