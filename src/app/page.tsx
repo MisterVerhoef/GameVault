@@ -1,4 +1,3 @@
-import { Suspense } from "react";
 import HomeScreen from "@/components/HomeScreen";
 import { getBrowseCatalogue } from "@/data/browse-server";
 import { buildLibraryView, readHomeQuery } from "@/data/library-view";
@@ -11,9 +10,5 @@ export default async function Home({
   const params = await searchParams;
   const initialView = buildLibraryView(getBrowseCatalogue(), readHomeQuery(params), []);
 
-  return (
-    <Suspense fallback={<div className="min-h-screen" />}>
-      <HomeScreen initialView={initialView} />
-    </Suspense>
-  );
+  return <HomeScreen initialView={initialView} />;
 }
