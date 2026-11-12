@@ -19,6 +19,11 @@ on:
   push:
     branches: [main]
 
+# Superseded PR runs are cancelled; scheduled and main runs always finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   sync-igdb:
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
