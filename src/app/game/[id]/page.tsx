@@ -7,16 +7,14 @@ import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
-import { LOWEST_RECORDED_NOTE, formatHistoryDate } from "@/data/price-history";
-import { formatLowestRecorded } from "@/data/store-offer-index";
-import { formatEuro, formatOfferPrice, presentCatalogueGame } from "@/data/store-offers";
-import { storeName } from "@/data/store-match";
+import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
+import { presentCatalogueGame } from "@/data/store-offers";
+import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
 import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
-import { GameStorePrice } from "@/components/GameStorePrice";
 import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
 import CardScroller from "@/components/CardScroller";
@@ -360,7 +358,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 {ageRatings.map((rating) => (
                   <li
                     key={rating.board}
-                    className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm font-semibold text-foreground"
+                    className="rounded-full border border-foreground/15 bg-card px-3 py-1 text-sm font-semibold text-foreground dark:border-white/15 dark:bg-white/5"
                   >
                     <span className="font-medium text-muted">{rating.board}</span>
                     <span className="ml-1.5">{rating.label}</span>
@@ -373,40 +371,14 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
               {offers.map((offer) => (
-                <a
+                <StoreOfferPriceLink
                   key={offer.store}
-                  href={offer.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex flex-col items-start gap-0.5 rounded-full border bg-white/5 px-4 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                  style={{ borderColor: `${themeColor}66`, color: themeColor }}
-                  aria-label={[
-                    `${game.title} on the ${storeName(offer.store)}`,
-                    formatOfferPrice(offer.price),
-                    offer.price != null && offer.discountLabel && offer.regularPrice != null
-                      ? `${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
-                      : null,
-                    offer.price != null && offer.lowestRecorded
-                      ? `Lowest price GameVault has recorded: ${formatEuro(offer.lowestRecorded.price)} on ${formatHistoryDate(offer.lowestRecorded.date)}`
-                      : null,
-                  ].filter(Boolean).join(", ") + ". Opens in a new tab."}
-                >
-                  <span className="inline-flex flex-wrap items-center gap-2">
-                    <span>{storeName(offer.store)}</span>
-                    {offer.price != null && offer.discountLabel && (
-                      <span className="rounded-full bg-accent/20 px-1.5 py-0.5 text-[10px] font-semibold tracking-wide text-accent">
-                        {offer.discountLabel}
-                      </span>
-                    )}
-                    {offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
-                      <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
-                    )}
-                    <GameStorePrice price={offer.price} />
-                  </span>
-                  {offer.price != null && offer.lowestRecorded && (
-                    <span className="text-[10px] font-normal text-muted">{formatLowestRecorded(offer.lowestRecorded)}</span>
-                  )}
-                </a>
+                  offers={offers}
+                  offer={offer}
+                  gameTitle={game.title}
+                  variant="detail"
+                  themeColor={themeColor}
+                />
               ))}
               <LibraryControls gameId={game.id} gameTitle={game.title} />
               <ListControls gameId={game.id} gameTitle={game.title} />
@@ -416,7 +388,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                 <h3 id="cloud-streaming-heading" className="text-sm font-semibold text-foreground">Cloud streaming</h3>
                 <ul className="mt-3 grid gap-3 sm:grid-cols-2">
                   {cloudServices.map((service) => (
-                    <li key={service.id} className="flex min-w-0 flex-col gap-1 rounded-lg bg-white/5 p-3">
+                    <li key={service.id} className="flex min-w-0 flex-col gap-1 rounded-lg border border-foreground/10 bg-card p-3 dark:border-transparent dark:bg-white/5">
                       <a href={service.url} target="_blank" rel="noreferrer" className="w-fit text-sm font-semibold text-foreground underline decoration-white/30 underline-offset-4 transition hover:decoration-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
                         {service.name}
                       </a>

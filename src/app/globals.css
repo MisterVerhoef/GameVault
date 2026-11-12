@@ -52,6 +52,15 @@ body {
   font-family: var(--font-sans), system-ui, sans-serif;
 }
 
+/* Tailwind v4 defaults borders to currentColor; keep light surfaces readable. */
+@layer base {
+  :where(:root.light, :root.light *) {
+    :where(*, ::before, ::after) {
+      border-color: color-mix(in srgb, var(--foreground) 15%, transparent);
+    }
+  }
+}
+
 /* Calendar notes, weekday labels, and empty states. Light pages need a dark grey for AA. */
 .calendar-meta {
   color: #3f3f46;
