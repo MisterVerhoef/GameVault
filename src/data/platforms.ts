@@ -39,7 +39,19 @@ export const PLATFORM_FAMILIES: readonly PlatformFamily[] = [
     key: "nintendo",
     label: "Nintendo",
     platform: "Switch",
-    variants: ["Switch", "Switch 2", "Wii U", "Wii", "GameCube", "N64", "SNES", "NES", "3DS", "DS", "Game Boy"],
+    variants: [
+      "Switch",
+      "Switch 2",
+      "Wii U",
+      "Wii",
+      "GameCube",
+      "N64",
+      "SNES",
+      "NES",
+      "3DS",
+      "DS",
+      "Game Boy",
+    ],
   },
   {
     key: "other",
@@ -47,8 +59,28 @@ export const PLATFORM_FAMILIES: readonly PlatformFamily[] = [
     platform: "Other",
     variants: ["Sega", "Atari", "3DO", "Ouya", "Neo Geo", "Commodore", "Stadia"],
     variantChildren: {
-      Sega: ["Master System", "Genesis", "Mega Drive", "Sega CD", "32X", "Saturn", "Dreamcast", "Game Gear", "SG-1000"],
-      Atari: ["Atari 2600", "Atari 5200", "Atari 7800", "Atari 8-bit", "Atari ST", "Atari XEGS", "Atari Lynx", "Atari Jaguar", "Atari VCS"],
+      Sega: [
+        "Master System",
+        "Genesis",
+        "Mega Drive",
+        "Sega CD",
+        "32X",
+        "Saturn",
+        "Dreamcast",
+        "Game Gear",
+        "SG-1000",
+      ],
+      Atari: [
+        "Atari 2600",
+        "Atari 5200",
+        "Atari 7800",
+        "Atari 8-bit",
+        "Atari ST",
+        "Atari XEGS",
+        "Atari Lynx",
+        "Atari Jaguar",
+        "Atari VCS",
+      ],
     },
   },
 ];
@@ -70,7 +102,11 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   { names: ["PlayStation", "PlayStation 1", "PS1"], family: "PS5", variant: "PS1" },
   { names: ["PlayStation Portable", "PSP"], family: "PS5", variant: "PSP" },
   { names: ["PlayStation Vita", "PS Vita", "Vita"], family: "PS5", variant: "Vita" },
-  { names: ["Xbox Series X|S", "Xbox Series X/S", "Xbox Series"], family: "Xbox", variant: "Xbox Series" },
+  {
+    names: ["Xbox Series X|S", "Xbox Series X/S", "Xbox Series"],
+    family: "Xbox",
+    variant: "Xbox Series",
+  },
   { names: ["Xbox One"], family: "Xbox", variant: "Xbox One" },
   { names: ["Xbox 360"], family: "Xbox", variant: "Xbox 360" },
   { names: ["Xbox", "Original Xbox"], family: "Xbox", variant: "Original Xbox" },
@@ -80,13 +116,29 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   { names: ["Wii"], family: "Switch", variant: "Wii" },
   { names: ["Nintendo GameCube", "GameCube", "NGC"], family: "Switch", variant: "GameCube" },
   { names: ["Nintendo 64", "N64"], family: "Switch", variant: "N64" },
-  { names: ["Super Nintendo Entertainment System", "SNES", "Super Nintendo"], family: "Switch", variant: "SNES" },
-  { names: ["Nintendo Entertainment System", "NES", "Family Computer", "Famicom"], family: "Switch", variant: "NES" },
+  {
+    names: ["Super Nintendo Entertainment System", "SNES", "Super Nintendo"],
+    family: "Switch",
+    variant: "SNES",
+  },
+  {
+    names: ["Nintendo Entertainment System", "NES", "Family Computer", "Famicom"],
+    family: "Switch",
+    variant: "NES",
+  },
   { names: ["Nintendo 3DS", "New Nintendo 3DS", "3DS"], family: "Switch", variant: "3DS" },
   { names: ["Nintendo DS", "Nintendo DSi", "DS"], family: "Switch", variant: "DS" },
-  { names: ["Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Game Boy"], family: "Switch", variant: "Game Boy" },
+  {
+    names: ["Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Game Boy"],
+    family: "Switch",
+    variant: "Game Boy",
+  },
   { names: ["Sega Master System", "Master System"], family: "Other", variant: "Master System" },
-  { names: ["Sega Mega Drive/Genesis", "Sega Genesis", "Genesis", "Mega Drive"], family: "Other", variant: "Genesis" },
+  {
+    names: ["Sega Mega Drive/Genesis", "Sega Genesis", "Genesis", "Mega Drive"],
+    family: "Other",
+    variant: "Genesis",
+  },
   { names: ["Sega CD", "Mega-CD"], family: "Other", variant: "Sega CD" },
   { names: ["Sega 32X", "32X"], family: "Other", variant: "32X" },
   { names: ["Sega Saturn", "Saturn"], family: "Other", variant: "Saturn" },
@@ -104,8 +156,23 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   { names: ["Atari VCS"], family: "Other", variant: "Atari VCS" },
   { names: ["3DO Interactive Multiplayer", "3DO"], family: "Other", variant: "3DO" },
   { names: ["Ouya"], family: "Other", variant: "Ouya" },
-  { names: ["Neo Geo AES", "Neo Geo CD", "Neo Geo", "Neo Geo Pocket", "Neo Geo Pocket Color"], family: "Other", variant: "Neo Geo" },
-  { names: ["Commodore C64/128", "Commodore VIC-20", "Commodore 16", "Commodore Plus/4", "Amiga", "Commodore"], family: "Other", variant: "Commodore" },
+  {
+    names: ["Neo Geo AES", "Neo Geo CD", "Neo Geo", "Neo Geo Pocket", "Neo Geo Pocket Color"],
+    family: "Other",
+    variant: "Neo Geo",
+  },
+  {
+    names: [
+      "Commodore C64/128",
+      "Commodore VIC-20",
+      "Commodore 16",
+      "Commodore Plus/4",
+      "Amiga",
+      "Commodore",
+    ],
+    family: "Other",
+    variant: "Commodore",
+  },
   { names: ["Google Stadia", "Stadia"], family: "Other", variant: "Stadia" },
 ];
 
@@ -166,10 +233,7 @@ export function variantMatchLabels(variant: string): string[] {
   return Array.from(labels);
 }
 
-export function gameMatchesPlatformVariant(
-  game: { platformVariants?: string[] },
-  variant: string,
-) {
+export function gameMatchesPlatformVariant(game: { platformVariants?: string[] }, variant: string) {
   const expected = new Set(variantMatchLabels(variant));
   return (game.platformVariants ?? []).some((value) => expected.has(normalizePlatformLabel(value)));
 }
@@ -191,6 +255,25 @@ export function listedSystemNames(game: {
   const labels: string[] = [];
   for (const name of variants) {
     const label = canonicalPlatformVariant(name);
+    const key = normalizePlatformLabel(label);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    labels.push(label);
+  }
+  return labels;
+}
+
+/** Cover-card platform chips: alias-deduped names in stable order. */
+export function cardPlatformLabels(game: {
+  platforms?: readonly string[];
+  platformVariants?: readonly string[];
+}): string[] {
+  const variants = game.platformVariants ?? [];
+  const source = variants.length > 0 ? variants : [...(game.platforms ?? [])];
+  const seen = new Set<string>();
+  const labels: string[] = [];
+  for (const name of source) {
+    const label = variants.length > 0 ? canonicalPlatformVariant(name) : name;
     const key = normalizePlatformLabel(label);
     if (!key || seen.has(key)) continue;
     seen.add(key);

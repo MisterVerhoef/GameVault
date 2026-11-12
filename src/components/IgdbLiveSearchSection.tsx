@@ -7,30 +7,41 @@ import type { CatalogueCard } from "@/data/catalogue-card";
 interface IgdbLiveSearchSectionProps {
   loading: boolean;
   games: CatalogueCard[];
+  showSkeletons: boolean;
 }
 
-export default function IgdbLiveSearchSection({ loading, games }: IgdbLiveSearchSectionProps) {
+export default function IgdbLiveSearchSection({
+  loading,
+  games,
+  showSkeletons,
+}: IgdbLiveSearchSectionProps) {
   if (!loading && games.length === 0) return null;
 
   return (
-    <section aria-labelledby="igdb-live-search" className="border-t border-white/10 pt-8">
-      <div className="mb-4 px-4 sm:px-6 lg:px-8">
+    <section aria-labelledby="igdb-live-search" className="border-t border-white/10 pt-6">
+      <div className="mb-3 px-4 sm:px-6 lg:px-8">
         <h2 id="igdb-live-search" className="text-lg font-bold tracking-tight text-foreground">
-          Meer op IGDB
+          More on IGDB
         </h2>
         {loading ? (
-          <p className="mt-2 flex items-center gap-2 text-sm text-muted" role="status" aria-live="polite">
+          <p
+            className="mt-1 flex min-h-5 items-center gap-2 text-sm text-muted"
+            role="status"
+            aria-live="polite"
+          >
             <span
               className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-transparent"
               aria-hidden="true"
             />
-            Zoeken…
+            Searching…
           </p>
         ) : (
-          <p className="mt-1 text-sm text-muted">{games.length === 1 ? "1 resultaat" : `${games.length} resultaten`}</p>
+          <p className="mt-1 text-sm text-muted">
+            {games.length === 1 ? "1 result" : `${games.length} results`}
+          </p>
         )}
       </div>
-      {loading && games.length === 0 ? (
+      {loading && games.length === 0 && showSkeletons ? (
         <div className="px-4 sm:px-6 lg:px-8">
           <ul className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-4 sm:gap-x-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -41,7 +52,7 @@ export default function IgdbLiveSearchSection({ loading, games }: IgdbLiveSearch
             ))}
           </ul>
         </div>
-      ) : (
+      ) : games.length > 0 ? (
         <div className="px-4 sm:px-6 lg:px-8">
           <ul className="grid grid-cols-3 gap-x-2 gap-y-3 sm:grid-cols-4 sm:gap-x-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12">
             {games.map((game) => (
@@ -76,7 +87,7 @@ export default function IgdbLiveSearchSection({ loading, games }: IgdbLiveSearch
             ))}
           </ul>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
