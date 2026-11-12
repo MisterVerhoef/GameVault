@@ -136,7 +136,7 @@ export default function GameRow({
   };
 
   return (
-    <section aria-labelledby={headingId} aria-describedby={hintId} className="relative mb-8">
+    <section aria-labelledby={headingId} aria-describedby={hintId} className="cv-section relative mb-8">
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
         <h2 id={headingId} className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
           {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
