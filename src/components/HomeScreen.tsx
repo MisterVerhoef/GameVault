@@ -9,7 +9,12 @@ import GameWall from "@/components/GameWall";
 import { useLibrary } from "@/context/LibraryContext";
 import { browseQuery, type GenreSort } from "@/data/browse";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
-import { buildLibraryView, readHomeQuery, sameHomeQuery, type LibraryView } from "@/data/library-view";
+import {
+  buildLibraryView,
+  readHomeQuery,
+  sameHomeQuery,
+  type LibraryView,
+} from "@/data/library-view";
 import { useIgdbLiveSearch } from "@/data/use-igdb-live-search";
 import IgdbLiveSearchSection from "@/components/IgdbLiveSearchSection";
 
@@ -35,7 +40,10 @@ function HomeMainBody({
   return (
     <main id="main-content" tabIndex={-1} className="flex-1 scroll-mt-20 focus:outline-none">
       {queryDirty && !catalogueReady ? (
-        <p className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8" role="status">
+        <p
+          className="mx-auto max-w-[1920px] px-4 pt-4 text-sm text-muted sm:px-6 lg:px-8"
+          role="status"
+        >
           {catalogueFailed
             ? "The catalogue could not be loaded. This page is showing the last results."
             : "Searching the catalogue."}
@@ -57,7 +65,11 @@ function HomeMainBody({
             onSortChange={genreSort ? onSortChange : undefined}
           />
           {view.searching && igdbLive.visible ? (
-            <IgdbLiveSearchSection loading={igdbLive.loading} games={igdbLive.games} />
+            <IgdbLiveSearchSection
+              loading={igdbLive.loading}
+              games={igdbLive.games}
+              showSkeletons={igdbLive.showSkeletons}
+            />
           ) : null}
         </>
       ) : (
@@ -69,15 +81,18 @@ function HomeMainBody({
               selectedPlatform={view.query.platform}
             />
           ) : null}
-          {view.place && (
-            view.topGames.length > 0 ? (
-              <GameRow title={`${view.place} Top Games`} platformLabel={view.place} games={view.topGames} />
+          {view.place &&
+            (view.topGames.length > 0 ? (
+              <GameRow
+                title={`${view.place} Top Games`}
+                platformLabel={view.place}
+                games={view.topGames}
+              />
             ) : (
               <p className="mx-auto mb-10 max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
                 No games in the catalogue match {view.place}.
               </p>
-            )
-          )}
+            ))}
           {view.exclusivePreview.length > 0 && view.place ? (
             <GameRow
               title={`${view.place} Exclusives`}
@@ -88,12 +103,7 @@ function HomeMainBody({
           ) : null}
           <GameRow title="Featured Games" games={view.continueGames} size="lg" />
           {view.genreRows.map((row) => (
-            <GameRow
-              key={row.key}
-              title={row.label}
-              games={row.games}
-              titleHref={row.href}
-            />
+            <GameRow key={row.key} title={row.label} games={row.games} titleHref={row.href} />
           ))}
         </>
       )}
@@ -106,11 +116,13 @@ function HomeMain({
   draftSearch,
   setDraftSearch,
   prepareSearch,
+  igdbLiveEnabled,
 }: {
   initialView: LibraryView;
   draftSearch: string;
   setDraftSearch: (search: string) => void;
   prepareSearch: boolean;
+  igdbLiveEnabled: boolean;
 }) {
   const router = useRouter();
   const params = useSearchParams();
@@ -122,7 +134,10 @@ function HomeMain({
 
   const { entries, ready } = useLibrary();
   const playingIds = useMemo(
-    () => Object.entries(entries).filter(([, entry]) => entry.status === "playing").map(([gameId]) => gameId),
+    () =>
+      Object.entries(entries)
+        .filter(([, entry]) => entry.status === "playing")
+        .map(([gameId]) => gameId),
     [entries],
   );
   const liveQuery = readHomeQuery({
@@ -139,23 +154,30 @@ function HomeMain({
   const loadSearch = prepareSearch || queryDirty;
   const { catalogue, failed } = useBrowseCatalogue(loadSearch, loadSearch || libraryDirty);
   const searchReady = !queryDirty || catalogue?.termsById != null;
-  const view = catalogue && searchReady && (queryDirty || libraryDirty)
-    ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
-    : initialView;
+  const view =
+    catalogue && searchReady && (queryDirty || libraryDirty)
+      ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
+      : initialView;
 
   const catalogueSearchCount = view.wall?.games.length ?? 0;
-  const igdbLive = useIgdbLiveSearch(view.trimmedSearch, catalogueSearchCount, Boolean(view.wall && view.searching));
+  const igdbLive = useIgdbLiveSearch(
+    view.trimmedSearch,
+    catalogueSearchCount,
+    igdbLiveEnabled && Boolean(view.wall && view.searching),
+  );
   const genreSort = Boolean(view.query.genre) && !view.searching && view.wall != null;
   const onSortChange = (sort: GenreSort) => {
-    router.push(browseQuery({
-      search: view.query.search,
-      family: view.query.family,
-      platform: view.query.platform,
-      variant: view.query.variant,
-      genre: view.query.genre,
-      exclusives: view.query.exclusives,
-      sort,
-    }));
+    router.push(
+      browseQuery({
+        search: view.query.search,
+        family: view.query.family,
+        platform: view.query.platform,
+        variant: view.query.variant,
+        genre: view.query.genre,
+        exclusives: view.query.exclusives,
+        sort,
+      }),
+    );
   };
 
   return (
@@ -171,7 +193,13 @@ function HomeMain({
   );
 }
 
-export default function HomeScreen({ initialView }: { initialView: LibraryView }) {
+export default function HomeScreen({
+  initialView,
+  igdbLiveEnabled,
+}: {
+  initialView: LibraryView;
+  igdbLiveEnabled: boolean;
+}) {
   const [draftSearch, setDraftSearch] = useState(initialView.query.search);
   const [prepareSearch, setPrepareSearch] = useState(false);
 
@@ -184,10 +212,14 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
         Skip to content
       </a>
 
-      <Navbar searchQuery={draftSearch} onSearch={setDraftSearch} onSearchPrepare={() => setPrepareSearch(true)} />
+      <Navbar
+        searchQuery={draftSearch}
+        onSearch={setDraftSearch}
+        onSearchPrepare={() => setPrepareSearch(true)}
+      />
 
       <Suspense
-        fallback={(
+        fallback={
           <HomeMainBody
             view={initialView}
             queryDirty={false}
@@ -195,22 +227,21 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
             catalogueReady
             genreSort={false}
             onSortChange={() => {}}
-            igdbLive={{ loading: false, games: [], visible: false }}
+            igdbLive={{ loading: false, games: [], visible: false, showSkeletons: false }}
           />
-        )}
+        }
       >
         <HomeMain
           initialView={initialView}
           draftSearch={draftSearch}
           setDraftSearch={setDraftSearch}
           prepareSearch={prepareSearch}
+          igdbLiveEnabled={igdbLiveEnabled}
         />
       </Suspense>
 
       <footer className="mt-12 border-t border-white/5 px-4 py-6 text-center text-sm text-muted sm:mt-16 sm:py-8">
-        <p className="px-2 text-xs opacity-60 sm:text-sm">
-          Built with Next.js + Tailwind CSS
-        </p>
+        <p className="px-2 text-xs opacity-60 sm:text-sm">Built with Next.js + Tailwind CSS</p>
       </footer>
     </div>
   );

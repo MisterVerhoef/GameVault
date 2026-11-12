@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   formatEuro,
   formatLowestRecorded,
@@ -42,9 +43,10 @@ export function StoreOfferPriceLink({
 }) {
   const priceLabel = formatOfferPrice(offer.price);
   const lowestNow = isLowestCurrentPrice(offers, offer);
-  const saleLabel = offer.discountLabel && offer.regularPrice != null
-    ? `, ${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
-    : "";
+  const saleLabel =
+    offer.discountLabel && offer.regularPrice != null
+      ? `, ${offer.discountLabel} off, was ${formatEuro(offer.regularPrice)}, on sale`
+      : "";
   const lowestLabel = offer.lowestRecorded
     ? ` Lowest price GameVault has recorded: ${formatEuro(offer.lowestRecorded.price)} on ${formatHistoryDate(offer.lowestRecorded.date)}.`
     : "";
@@ -62,11 +64,26 @@ export function StoreOfferPriceLink({
       target="_blank"
       rel="noreferrer"
       aria-label={`${gameTitle} on the ${storeName(offer.store)}, ${priceLabel}${saleLabel}.${lowestLabel}${currentLabel} Opens in a new tab.`}
-      className={`${variant === "detail" ? detailClass : wishlistClass} ${storePriceLinkClass(lowestNow, variant)}`}
-      style={variant === "detail" && !lowestNow && themeColor ? { borderColor: `${themeColor}66`, color: themeColor } : undefined}
+      className={`${variant === "detail" ? detailClass : wishlistClass} ${storePriceLinkClass(lowestNow, variant)} text-foreground`}
+      style={
+        variant === "detail" && !lowestNow && themeColor
+          ? ({ borderColor: `${themeColor}66`, "--store-theme": themeColor } as CSSProperties)
+          : undefined
+      }
     >
       <span className={`flex flex-wrap items-center gap-1${variant === "detail" ? " gap-2" : ""}`}>
-        <span className={variant === "wishlist" ? "font-semibold" : undefined}>{storeLabel}</span>
+        <span
+          className={[
+            variant === "wishlist" ? "font-semibold" : undefined,
+            variant === "detail" && themeColor && !lowestNow
+              ? "dark:text-[color:var(--store-theme)]"
+              : undefined,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+        >
+          {storeLabel}
+        </span>
         {lowestNow && (
           <span className="rounded-full bg-foreground px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-background">
             Lowest
@@ -77,9 +94,14 @@ export function StoreOfferPriceLink({
             {offer.discountLabel}
           </span>
         )}
-        {variant === "detail" && offer.regularPrice != null && offer.price != null && offer.regularPrice > offer.price && (
-          <span className="text-xs text-muted line-through">{formatEuro(offer.regularPrice)}</span>
-        )}
+        {variant === "detail" &&
+          offer.regularPrice != null &&
+          offer.price != null &&
+          offer.regularPrice > offer.price && (
+            <span className="text-xs text-muted line-through">
+              {formatEuro(offer.regularPrice)}
+            </span>
+          )}
         {variant === "detail" ? (
           offer.price != null ? (
             <span className="font-semibold text-foreground tabular-nums">{priceLabel}</span>
@@ -94,7 +116,9 @@ export function StoreOfferPriceLink({
               <span className="text-[color:var(--muted-strong)]">Price unavailable</span>
             )}
             {offer.deal && offer.regularPrice != null && (
-              <span className="text-[color:var(--muted-strong)] line-through tabular-nums">{formatEuro(offer.regularPrice)}</span>
+              <span className="text-[color:var(--muted-strong)] line-through tabular-nums">
+                {formatEuro(offer.regularPrice)}
+              </span>
             )}
           </span>
         )}

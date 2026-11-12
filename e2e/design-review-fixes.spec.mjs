@@ -1,7 +1,9 @@
 import { test, expect } from "@playwright/test";
 
 async function pageOverflow(page) {
-  return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  return page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
 }
 
 const HERO_WIDTHS = [1024, 1090, 1280, 1366, 1440, 1525, 1600];
@@ -15,7 +17,9 @@ test("homepage hero stays within the viewport", async ({ page }) => {
     const metrics = await page.evaluate(() => {
       const doc = document.documentElement;
       const h1 = document.querySelector("section h1");
-      const next = [...document.querySelectorAll("button")].find((button) => button.getAttribute("aria-label") === "Next featured title");
+      const next = [...document.querySelectorAll("button")].find(
+        (button) => button.getAttribute("aria-label") === "Next featured title",
+      );
       const h1Box = h1?.getBoundingClientRect();
       const nextBox = next?.getBoundingClientRect();
       return {
@@ -27,13 +31,48 @@ test("homepage hero stays within the viewport", async ({ page }) => {
     });
 
     expect(metrics.overflow, `horizontal overflow at ${width}px`).toBeLessThanOrEqual(1);
-  if (metrics.h1Right > 0) {
-      expect(metrics.h1Right, `hero title clipped at ${width}px`).toBeLessThanOrEqual(metrics.viewport + 0.5);
+    if (metrics.h1Right > 0) {
+      expect(metrics.h1Right, `hero title clipped at ${width}px`).toBeLessThanOrEqual(
+        metrics.viewport + 0.5,
+      );
     }
     if (metrics.nextRight > 0) {
-      expect(metrics.nextRight, `hero next control clipped at ${width}px`).toBeLessThanOrEqual(metrics.viewport + 0.5);
+      expect(metrics.nextRight, `hero next control clipped at ${width}px`).toBeLessThanOrEqual(
+        metrics.viewport + 0.5,
+      );
     }
   }
+});
+
+test("genre carousel keeps card alignment after scrolling to the end", async ({ page }) => {
+  await page.goto("/");
+  await page.setViewportSize({ width: 1280, height: 900 });
+  const action = page.locator("section", {
+    has: page.getByRole("heading", { name: "Action", exact: true }),
+  });
+  await expect(action).toBeVisible();
+  const right = action.getByRole("button", { name: "Scroll Action right" });
+  await expect(right).toBeEnabled({ timeout: 10_000 });
+  for (let step = 0; step < 30; step += 1) {
+    if (await right.isDisabled()) break;
+    await right.click();
+    await page.waitForTimeout(400);
+  }
+  await expect(right).toBeDisabled();
+  const metrics = await action.evaluate((section) => {
+    const heading = section.querySelector("h2")?.getBoundingClientRect();
+    const cards = [...section.querySelectorAll("button[data-roving-card]")].map((card) =>
+      card.getBoundingClientRect(),
+    );
+    const leading = cards
+      .filter((box) => box.right > (heading?.left ?? 0) + 2)
+      .sort((left, right) => left.left - right.left)[0];
+    return {
+      headingX: heading?.x ?? 0,
+      cardX: leading?.left ?? 0,
+    };
+  });
+  expect(Math.abs(metrics.cardX - metrics.headingX)).toBeLessThanOrEqual(2);
 });
 
 test("genre carousel cards align with row headings", async ({ page }) => {

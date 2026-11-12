@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import type { CatalogueCard } from "@/data/catalogue-card";
-import { familyForVariantLabel, listedSystemNames, PLATFORM_COLORS, resolveIgdbPlatform, type Platform } from "@/data/platforms";
+import {
+  cardPlatformLabels,
+  familyForVariantLabel,
+  PLATFORM_COLORS,
+  resolveIgdbPlatform,
+  type Platform,
+} from "@/data/platforms";
 import { useRouter } from "next/navigation";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
@@ -26,12 +32,7 @@ function badgeBackground(name: string) {
   return "#3f3f46";
 }
 
-export default function GameCard({
-  game,
-  personalRating,
-  progress,
-  size = "md",
-}: GameCardProps) {
+export default function GameCard({ game, personalRating, progress, size = "md" }: GameCardProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -51,12 +52,18 @@ export default function GameCard({
     lg: "w-40 h-56 lg:w-56 lg:h-80",
   };
 
+  const platformLabels = cardPlatformLabels(game);
+  const platformPreview = platformLabels.slice(0, 2);
+  const hiddenPlatformCount = Math.max(0, platformLabels.length - platformPreview.length);
+
   return (
     <button
       type="button"
       data-roving-card=""
       data-card-id={game.id}
-      aria-label={details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`}
+      aria-label={
+        details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`
+      }
       onClick={handleClick}
       className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 text-left focus:outline-none focus-visible:z-10 ${sizes[size]}`}
     >
@@ -88,43 +95,72 @@ export default function GameCard({
             title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
             aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
             </svg>
           </span>
         ) : null}
 
         {personalRating ? (
-          <span className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm" aria-hidden="true">
+          <span
+            className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm"
+            aria-hidden="true"
+          >
             <StarRating value={personalRating} readOnly />
           </span>
         ) : null}
 
         {typeof progress === "number" && progress > 0 && (
           <span className="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/50" aria-hidden="true">
-            <span className="block h-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
+            <span
+              className="block h-full bg-accent"
+              style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
+            />
           </span>
         )}
 
-        {/* Title */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 p-2 lg:p-3">
-          <h3 className="line-clamp-2 text-xs font-semibold leading-tight text-white drop-shadow-md sm:text-sm lg:text-sm">
+        <div className="absolute inset-x-0 bottom-0 z-10 flex max-h-[58%] flex-col justify-end p-2 lg:p-3">
+          <div className="mb-1 flex max-h-9 flex-wrap items-center gap-1 overflow-hidden">
+            {platformPreview.map((name) => {
+              const iconKind = platformIconKind(name);
+              return (
+                <span
+                  key={name}
+                  className="inline-flex max-w-[5.25rem] items-center gap-0.5 truncate rounded px-1 py-0.5 text-[9px] font-medium text-white sm:max-w-none sm:px-1.5 sm:text-[10px]"
+                  style={{ backgroundColor: badgeBackground(name) }}
+                  aria-label={name}
+                  title={name}
+                >
+                  <PlatformIcon
+                    name={name}
+                    className={iconKind === "logo" ? "h-4 w-4" : "h-3 w-3"}
+                  />
+                  {iconKind === "logo" ? (
+                    <span className="sr-only">{name}</span>
+                  ) : (
+                    <span className="truncate">{name}</span>
+                  )}
+                </span>
+              );
+            })}
+            {hiddenPlatformCount > 0 ? (
+              <span className="rounded bg-black/50 px-1 py-0.5 text-[9px] font-semibold text-white sm:text-[10px]">
+                +{hiddenPlatformCount}
+              </span>
+            ) : null}
+          </div>
+          <h3 className="relative z-10 line-clamp-2 text-xs font-semibold leading-tight text-white drop-shadow-md sm:text-sm lg:text-sm">
             {game.title}
           </h3>
-
-          {/* Platforms */}
-          <div className="mt-1 flex flex-wrap gap-1">
-            {listedSystemNames(game).slice(0, 3).map((name) => (
-              <span
-                key={name}
-                className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px]"
-                style={{ backgroundColor: badgeBackground(name) }}
-              >
-                <PlatformIcon name={name} className={platformIconKind(name) === "logo" ? "h-4 w-4" : "h-3 w-3"} />
-                {name}
-              </span>
-            ))}
-          </div>
         </div>
       </div>
     </button>
