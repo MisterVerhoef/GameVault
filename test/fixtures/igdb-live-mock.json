@@ -1,0 +1,33 @@
+{
+  "search": [
+    {
+      "id": "999999001",
+      "title": "Vault Mock Exclusief Spel",
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    }
+  ],
+  "games": {
+    "999999001": {
+      "id": "999999001",
+      "slug": "vault-mock-exclusief-spel",
+      "title": "Vault Mock Exclusief Spel",
+      "summary": "Een mock IGDB-titel voor e2e-tests. Staat niet in de catalogue.",
+      "description": "Een mock IGDB-titel voor e2e-tests. Staat niet in de catalogue.",
+      "releaseYear": 2026,
+      "genres": ["Adventure"],
+      "themes": ["Science fiction"],
+      "platforms": ["PC"],
+      "platformVariants": ["Windows"],
+      "developers": [{ "id": "500001", "name": "Mock Studio" }],
+      "publishers": [{ "id": "500002", "name": "Mock Publisher" }],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "rating": 82.5,
+      "ratingCount": 120,
+      "releases": [{ "platform": "Windows", "date": "2026-03-01" }]
+    }
+  }
+}

@@ -10,6 +10,8 @@ import { useLibrary } from "@/context/LibraryContext";
 import { browseQuery, type GenreSort } from "@/data/browse";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { buildLibraryView, readHomeQuery, sameHomeQuery, type LibraryView } from "@/data/library-view";
+import { useIgdbLiveSearch } from "@/data/use-igdb-live-search";
+import IgdbLiveSearchSection from "@/components/IgdbLiveSearchSection";
 
 function HomeMainBody({
   view,
@@ -18,6 +20,7 @@ function HomeMainBody({
   catalogueReady,
   genreSort,
   onSortChange,
+  igdbLive,
 }: {
   view: LibraryView;
   queryDirty: boolean;
@@ -25,6 +28,7 @@ function HomeMainBody({
   catalogueReady: boolean;
   genreSort: boolean;
   onSortChange: (sort: GenreSort) => void;
+  igdbLive: ReturnType<typeof useIgdbLiveSearch>;
 }) {
   const featured = view.heroGames[0] ?? view.featuredGame;
 
@@ -38,19 +42,24 @@ function HomeMainBody({
         </p>
       ) : null}
       {view.wall ? (
-        <GameWall
-          key={view.wall.key}
-          title={view.wall.title}
-          platformLabel={view.place}
-          games={view.wall.games}
-          resetKey={view.wall.key}
-          backHref={view.wall.backHref}
-          backLabel={view.wall.backLabel}
-          emptyLabel={view.wall.emptyLabel}
-          sections={view.wall.sections}
-          sortValue={genreSort ? view.query.sort : undefined}
-          onSortChange={genreSort ? onSortChange : undefined}
-        />
+        <>
+          <GameWall
+            key={view.wall.key}
+            title={view.wall.title}
+            platformLabel={view.place}
+            games={view.wall.games}
+            resetKey={view.wall.key}
+            backHref={view.wall.backHref}
+            backLabel={view.wall.backLabel}
+            emptyLabel={view.wall.emptyLabel}
+            sections={view.wall.sections}
+            sortValue={genreSort ? view.query.sort : undefined}
+            onSortChange={genreSort ? onSortChange : undefined}
+          />
+          {view.searching && igdbLive.visible ? (
+            <IgdbLiveSearchSection loading={igdbLive.loading} games={igdbLive.games} />
+          ) : null}
+        </>
       ) : (
         <>
           {featured ? (
@@ -134,6 +143,8 @@ function HomeMain({
     ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
     : initialView;
 
+  const catalogueSearchCount = view.wall?.games.length ?? 0;
+  const igdbLive = useIgdbLiveSearch(view.trimmedSearch, catalogueSearchCount, Boolean(view.wall && view.searching));
   const genreSort = Boolean(view.query.genre) && !view.searching && view.wall != null;
   const onSortChange = (sort: GenreSort) => {
     router.push(browseQuery({
@@ -155,6 +166,7 @@ function HomeMain({
       catalogueReady={Boolean(catalogue?.termsById)}
       genreSort={genreSort}
       onSortChange={onSortChange}
+      igdbLive={igdbLive}
     />
   );
 }
@@ -183,6 +195,7 @@ export default function HomeScreen({ initialView }: { initialView: LibraryView }
             catalogueReady
             genreSort={false}
             onSortChange={() => {}}
+            igdbLive={{ loading: false, games: [], visible: false }}
           />
         )}
       >

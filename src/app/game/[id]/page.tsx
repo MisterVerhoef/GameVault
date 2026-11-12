@@ -19,6 +19,8 @@ import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
 import CardScroller from "@/components/CardScroller";
 import Navbar from "@/components/Navbar";
+import IgdbOnlyGameDetail from "@/components/IgdbOnlyGameDetail";
+import { fetchIgdbGameById } from "@/lib/igdb/client";
 
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
@@ -29,9 +31,12 @@ interface GameDetailPageProps {
 export async function generateMetadata({ params }: GameDetailPageProps): Promise<Metadata> {
   const { id } = await params;
   const game = allGames.find((entry) => entry.id === id);
-
+  if (game) {
+    return { title: `${game.title} · GameVault` };
+  }
+  const live = await fetchIgdbGameById(id);
   return {
-    title: game ? `${game.title} · GameVault` : "Game not found · GameVault",
+    title: live ? `${live.title} · GameVault` : "Game not found · GameVault",
   };
 }
 
@@ -211,6 +216,9 @@ function SimilarGameCard({ item }: { item: ContentRef }) {
   );
 }
 
+export const dynamicParams = true;
+export const revalidate = 86400;
+
 export function generateStaticParams() {
   return allGames.map((game) => ({ id: game.id }));
 }
@@ -219,9 +227,11 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   // Resolve params promise for SSR compatibility
   const resolvedParams = await params;
   const game = allGames.find(g => g.id === resolvedParams.id);
-  
+
   if (!game) {
-    notFound();
+    const live = await fetchIgdbGameById(resolvedParams.id);
+    if (!live) notFound();
+    return <IgdbOnlyGameDetail game={live} />;
   }
 
   const { game: display, offers, captions } = presentCatalogueGame(game);
