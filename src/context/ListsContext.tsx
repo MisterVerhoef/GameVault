@@ -41,7 +41,6 @@ export function ListsProvider({ children }: { children: React.ReactNode }) {
       }
     } catch {
       try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be unavailable in private browsing. */ }
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState({ schemaVersion: 1, lists: [] });
     }
     setReady(true);
