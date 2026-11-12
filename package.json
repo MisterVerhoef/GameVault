@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "test": "npm run test:catalogue",
     "test:e2e": "npx -y @playwright/test@1.56.0 test",
     "catalogue:generate": "node scripts/generate-catalogue.mjs",
@@ -31,6 +33,7 @@
     "eslint": "^10",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "prettier": "^3"
   }
 }
