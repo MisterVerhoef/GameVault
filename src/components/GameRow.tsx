@@ -27,7 +27,11 @@ interface RowWindow {
   innerWidth: number;
 }
 
-function measureRow(node: HTMLDivElement, size: "sm" | "md" | "lg", count: number): RowWindow {
+function measureRow(
+  node: HTMLDivElement,
+  size: "sm" | "md" | "lg",
+  count: number,
+): RowWindow {
   const large = window.matchMedia("(min-width: 1024px)").matches;
   const small = window.matchMedia("(min-width: 640px)").matches;
   const dims = CARD_SIZE[size];
@@ -36,8 +40,14 @@ function measureRow(node: HTMLDivElement, size: "sm" | "md" | "lg", count: numbe
   const gap = small ? 16 : 12;
   const padLeft = large ? 32 : small ? 24 : 16;
   const stride = cardWidth + gap;
-  const start = Math.max(0, Math.floor((node.scrollLeft - padLeft) / stride) - 3);
-  const end = Math.min(count, Math.ceil((node.scrollLeft + node.clientWidth - padLeft) / stride) + 4);
+  const start = Math.max(
+    0,
+    Math.floor((node.scrollLeft - padLeft) / stride) - 3,
+  );
+  const end = Math.min(
+    count,
+    Math.ceil((node.scrollLeft + node.clientWidth - padLeft) / stride) + 4,
+  );
   return {
     start,
     end,
@@ -68,7 +78,11 @@ export default function GameRow({
   titleHref,
   platformLabel,
 }: GameRowProps) {
-  const { ref: scrollRef, onKeyDown, onFocus } = useRovingCards<HTMLDivElement>();
+  const {
+    ref: scrollRef,
+    onKeyDown,
+    onFocus,
+  } = useRovingCards<HTMLDivElement>();
   const headingId = useId();
   const hintId = useId();
   const virtualize = games.length > VIRTUALIZE_AFTER;
@@ -81,16 +95,16 @@ export default function GameRow({
     let frame = 0;
     const measure = () => {
       const next = measureRow(node, size, games.length);
-      setRowWindow((current) => (
-        current
-        && current.start === next.start
-        && current.end === next.end
-        && current.cardWidth === next.cardWidth
-        && current.innerWidth === next.innerWidth
-        && current.padLeft === next.padLeft
+      setRowWindow((current) =>
+        current &&
+        current.start === next.start &&
+        current.end === next.end &&
+        current.cardWidth === next.cardWidth &&
+        current.innerWidth === next.innerWidth &&
+        current.padLeft === next.padLeft
           ? current
-          : next
-      ));
+          : next,
+      );
     };
     const schedule = () => {
       if (frame) return;
@@ -120,13 +134,15 @@ export default function GameRow({
     return null;
   }
 
-  const visibleGames = rowWindow ? games.slice(rowWindow.start, rowWindow.end) : games.slice(0, virtualize ? 8 : games.length);
+  const visibleGames = rowWindow
+    ? games.slice(rowWindow.start, rowWindow.end)
+    : games.slice(0, virtualize ? 8 : games.length);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
       const amount = direction === "left" ? -600 : 600;
       const reduceMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
+        "(prefers-reduced-motion: reduce)",
       ).matches;
       scrollRef.current.scrollBy({
         left: amount,
@@ -136,10 +152,19 @@ export default function GameRow({
   };
 
   return (
-    <section aria-labelledby={headingId} aria-describedby={hintId} className="relative mb-8">
+    <section
+      aria-labelledby={headingId}
+      aria-describedby={hintId}
+      className="relative mb-8"
+    >
       <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
-        <h2 id={headingId} className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl">
-          {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
+        <h2
+          id={headingId}
+          className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl"
+        >
+          {platformLabel ? (
+            <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" />
+          ) : null}
           {titleHref ? (
             <Link
               href={titleHref}
@@ -152,7 +177,8 @@ export default function GameRow({
           )}
         </h2>
         <p id={hintId} className="sr-only">
-          Arrow keys move between games. Home and End jump to the first and last.
+          Arrow keys move between games. Home and End jump to the first and
+          last.
         </p>
         <div className="hidden gap-2 lg:flex">
           <button
@@ -206,18 +232,30 @@ export default function GameRow({
         ref={scrollRef}
         onKeyDown={onKeyDown}
         onFocus={onFocus}
-        className={virtualize && rowWindow
-          ? "scrollbar-hide overflow-x-auto pb-4 scroll-pl-4 scroll-pr-4 sm:scroll-pl-6 sm:scroll-pr-6 lg:scroll-pl-8 lg:scroll-pr-8"
-          : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 scroll-pl-4 scroll-pr-4 sm:px-6 sm:scroll-pl-6 sm:scroll-pr-6 lg:px-8 lg:scroll-pl-8 lg:scroll-pr-8"}
+        className={
+          virtualize && rowWindow
+            ? "scrollbar-hide overflow-x-auto pb-4 scroll-pl-4 scroll-pr-4 sm:scroll-pl-6 sm:scroll-pr-6 lg:scroll-pl-8 lg:scroll-pr-8"
+            : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 scroll-pl-4 scroll-pr-4 sm:px-6 sm:scroll-pl-6 sm:scroll-pr-6 lg:px-8 lg:scroll-pl-8 lg:scroll-pr-8"
+        }
         style={virtualize && rowWindow ? { overflowAnchor: "none" } : undefined}
       >
         {rowWindow ? (
-          <div className="relative" style={{ width: rowWindow.innerWidth, height: rowWindow.cardHeight }}>
+          <div
+            className="relative"
+            style={{
+              width: rowWindow.innerWidth,
+              height: rowWindow.cardHeight,
+            }}
+          >
             {visibleGames.map((game, index) => (
               <div
                 key={game.id}
                 className="absolute top-0"
-                style={{ left: rowWindow.padLeft + (rowWindow.start + index) * rowWindow.stride }}
+                style={{
+                  left:
+                    rowWindow.padLeft +
+                    (rowWindow.start + index) * rowWindow.stride,
+                }}
               >
                 <GameCard game={game} showProgress={showProgress} size={size} />
               </div>

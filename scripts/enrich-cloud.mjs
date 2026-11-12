@@ -20,7 +20,10 @@ const psPlusUrl = "https://www.playstation.com/nl-nl/ps-plus/";
 
 async function fetchText(url) {
   const response = await fetch(url, {
-    headers: { "user-agent": "GameVault catalogue enrichment (+https://github.com/MisterVerhoef/GameVault)" },
+    headers: {
+      "user-agent":
+        "GameVault catalogue enrichment (+https://github.com/MisterVerhoef/GameVault)",
+    },
     signal: AbortSignal.timeout(45_000),
   });
   if (!response.ok) throw new Error(`HTTP ${response.status} for ${url}`);
@@ -33,7 +36,8 @@ async function fetchJson(url) {
 
 function collectStrings(value, output = []) {
   if (typeof value === "string") output.push(value);
-  else if (Array.isArray(value)) for (const item of value) collectStrings(item, output);
+  else if (Array.isArray(value))
+    for (const item of value) collectStrings(item, output);
   else if (value && typeof value === "object") {
     for (const item of Object.values(value)) collectStrings(item, output);
   }
@@ -54,20 +58,49 @@ function portalRecords(payload, output = []) {
   }
   if (!payload || typeof payload !== "object") return output;
   const record = payload;
-  const title = record.title ?? record.name ?? record.gameTitle ?? record.productName ?? record.Title ?? record.n;
+  const title =
+    record.title ??
+    record.name ??
+    record.gameTitle ??
+    record.productName ??
+    record.Title ??
+    record.n;
   if (typeof title === "string" && title.trim()) {
-    const yearValue = record.releaseYear ?? record.release_year ?? record.year ?? record.y ?? record.releaseDate ?? record.release_date ?? record.d;
-    const parsedYear = typeof yearValue === "number"
-      ? yearValue
-      : typeof yearValue === "string" ? Number.parseInt(yearValue.slice(0, 4), 10) : NaN;
+    const yearValue =
+      record.releaseYear ??
+      record.release_year ??
+      record.year ??
+      record.y ??
+      record.releaseDate ??
+      record.release_date ??
+      record.d;
+    const parsedYear =
+      typeof yearValue === "number"
+        ? yearValue
+        : typeof yearValue === "string"
+          ? Number.parseInt(yearValue.slice(0, 4), 10)
+          : NaN;
     const urlValue = record.url ?? record.u;
-    const urlConcept = typeof urlValue === "string" ? parsePlayStationConceptId(urlValue) : undefined;
-    const idValue = record.conceptId ?? record.concept_id ?? record.psStoreId ?? record.ps_store_id ?? urlConcept ?? record.id;
+    const urlConcept =
+      typeof urlValue === "string"
+        ? parsePlayStationConceptId(urlValue)
+        : undefined;
+    const idValue =
+      record.conceptId ??
+      record.concept_id ??
+      record.psStoreId ??
+      record.ps_store_id ??
+      urlConcept ??
+      record.id;
     const id = idValue == null ? undefined : String(idValue).trim();
     output.push({
       id: id && /^\d+$/.test(id) ? id : undefined,
       title: title.trim(),
-      ...(Number.isInteger(parsedYear) && parsedYear >= 1970 && parsedYear <= 2100 ? { year: parsedYear } : {}),
+      ...(Number.isInteger(parsedYear) &&
+      parsedYear >= 1970 &&
+      parsedYear <= 2100
+        ? { year: parsedYear }
+        : {}),
     });
   }
   for (const value of Object.values(record)) {
@@ -90,7 +123,11 @@ function playStationIds(game) {
   for (const entry of game.externalIds ?? []) {
     if (entry.store === "playstation") {
       const id = String(entry.id);
-      if (id.startsWith("concept:") && /^\d+$/.test(id.slice("concept:".length))) ids.add(id.slice("concept:".length));
+      if (
+        id.startsWith("concept:") &&
+        /^\d+$/.test(id.slice("concept:".length))
+      )
+        ids.add(id.slice("concept:".length));
     }
   }
   for (const site of game.websites ?? []) {
@@ -101,9 +138,11 @@ function playStationIds(game) {
 }
 
 function xboxIds(game) {
-  return new Set((game.externalIds ?? [])
-    .filter((entry) => entry.store === "xbox")
-    .map((entry) => String(entry.id).toUpperCase()));
+  return new Set(
+    (game.externalIds ?? [])
+      .filter((entry) => entry.store === "xbox")
+      .map((entry) => String(entry.id).toUpperCase()),
+  );
 }
 
 function service(id, name, match, url, details = {}) {
@@ -118,9 +157,13 @@ function service(id, name, match, url, details = {}) {
 }
 
 async function loadXboxCloudIds() {
-  const url = "https://catalog.gamepass.com/sigls/v2?id=29a81209-df6f-41fd-a528-2ae6b91f719c&market=NL&language=nl-NL";
+  const url =
+    "https://catalog.gamepass.com/sigls/v2?id=29a81209-df6f-41fd-a528-2ae6b91f719c&market=NL&language=nl-NL";
   const ids = xboxIdsFromSigl(await fetchJson(url));
-  if (ids.size === 0) throw new Error("The Xbox Cloud Gaming SIGL feed contained no product ids.");
+  if (ids.size === 0)
+    throw new Error(
+      "The Xbox Cloud Gaming SIGL feed contained no product ids.",
+    );
   return ids;
 }
 
@@ -135,15 +178,23 @@ async function loadBoosteroidSteamIds() {
     try {
       const body = await fetchText(url);
       const ids = new Set();
-      for (const match of body.matchAll(/(?:data-ds-appid|data-appid|\/app\/)(?:\s*=\s*\\?["']?)?(\d{2,10})/g)) ids.add(match[1]);
-      for (const match of body.matchAll(/"appid"\s*:\s*(\d{2,10})/g)) ids.add(match[1]);
+      for (const match of body.matchAll(
+        /(?:data-ds-appid|data-appid|\/app\/)(?:\s*=\s*\\?["']?)?(\d{2,10})/g,
+      ))
+        ids.add(match[1]);
+      for (const match of body.matchAll(/"appid"\s*:\s*(\d{2,10})/g))
+        ids.add(match[1]);
       if (ids.size > 0) return ids;
-      lastError = new Error("The Boosteroid Steam curator page contained no Steam app ids.");
+      lastError = new Error(
+        "The Boosteroid Steam curator page contained no Steam app ids.",
+      );
     } catch (error) {
       lastError = error;
     }
   }
-  throw lastError ?? new Error("Unable to load the Boosteroid Steam curator list.");
+  throw (
+    lastError ?? new Error("Unable to load the Boosteroid Steam curator list.")
+  );
 }
 
 async function loadPlayStationPlusGames() {
@@ -155,7 +206,10 @@ async function loadPlayStationPlusGames() {
     if (!deduped.has(key)) deduped.set(key, record);
   }
   const candidates = [...deduped.values()];
-  if (candidates.length === 0) throw new Error("The PortalDB feed contained no recognizable game records.");
+  if (candidates.length === 0)
+    throw new Error(
+      "The PortalDB feed contained no recognizable game records.",
+    );
   return candidates;
 }
 
@@ -198,9 +252,13 @@ for (const [key, loader] of [
   try {
     feeds[key].value = await loader();
     feeds[key].ok = true;
-    console.log(`${key}: loaded ${feeds[key].value.size ?? feeds[key].value.length} source records`);
+    console.log(
+      `${key}: loaded ${feeds[key].value.size ?? feeds[key].value.length} source records`,
+    );
   } catch (error) {
-    console.warn(`Warning: ${key} feed failed; retaining its previous matches: ${error instanceof Error ? error.message : String(error)}`);
+    console.warn(
+      `Warning: ${key} feed failed; retaining its previous matches: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -227,7 +285,9 @@ if (feeds.xbox.ok) {
     xboxDetails = await loadXboxProductDetails([...feeds.xbox.value]);
     console.log(`xbox: loaded ${xboxDetails.size} product detail records`);
   } catch (error) {
-    console.warn(`Warning: Xbox product details unavailable; using the generic Xbox Cloud Gaming link: ${error instanceof Error ? error.message : String(error)}`);
+    console.warn(
+      `Warning: Xbox product details unavailable; using the generic Xbox Cloud Gaming link: ${error instanceof Error ? error.message : String(error)}`,
+    );
   }
 }
 
@@ -243,7 +303,9 @@ const usedPlayStationConceptIds = new Set();
 const usedPlayStationTitleCandidates = new Set();
 
 function retainPrevious(gameId, serviceId, target) {
-  const prior = previousGames[gameId]?.services?.find((item) => item.id === serviceId);
+  const prior = previousGames[gameId]?.services?.find(
+    (item) => item.id === serviceId,
+  );
   if (prior) target.push(prior);
 }
 
@@ -254,28 +316,35 @@ for (const game of games) {
     if (id) {
       usedXboxIds.add(id);
       const detail = xboxDetails.get(id);
-      const targetUrl = typeof detail?.url === "string" && detail.url.startsWith("https://") ? detail.url : xboxUrl;
-      services.push(service(
-        "xbox-cloud",
-        "Xbox Cloud Gaming",
-        "external-id",
-        targetUrl,
-        { tier: "Game Pass Ultimate", requiresOwnership: false, storeRequirement: "Game Pass Ultimate; ownership may apply to eligible stream-your-own-game titles" },
-      ));
+      const targetUrl =
+        typeof detail?.url === "string" && detail.url.startsWith("https://")
+          ? detail.url
+          : xboxUrl;
+      services.push(
+        service("xbox-cloud", "Xbox Cloud Gaming", "external-id", targetUrl, {
+          tier: "Game Pass Ultimate",
+          requiresOwnership: false,
+          storeRequirement:
+            "Game Pass Ultimate; ownership may apply to eligible stream-your-own-game titles",
+        }),
+      );
     }
   } else retainPrevious(game.id, "xbox-cloud", services);
 
   if (feeds.boosteroid.ok) {
-    const id = [...steamIds(game)].find((value) => feeds.boosteroid.value.has(value));
+    const id = [...steamIds(game)].find((value) =>
+      feeds.boosteroid.value.has(value),
+    );
     if (id) {
       usedBoosteroidIds.add(id);
-      services.push(service(
-        "boosteroid",
-        "Boosteroid",
-        "external-id",
-        boosteroidUrl,
-        { tier: "Boosteroid subscription", requiresOwnership: true, storeRequirement: "Boosteroid subscription and ownership of the game on a supported store" },
-      ));
+      services.push(
+        service("boosteroid", "Boosteroid", "external-id", boosteroidUrl, {
+          tier: "Boosteroid subscription",
+          requiresOwnership: true,
+          storeRequirement:
+            "Boosteroid subscription and ownership of the game on a supported store",
+        }),
+      );
     }
   } else retainPrevious(game.id, "boosteroid", services);
 
@@ -293,23 +362,35 @@ for (const game of games) {
       matched = true;
     } else {
       const title = normalizeCloudTitle(game.title);
-      const bucket = title ? psByTitle.get(title) ?? [] : [];
-      matched = matchCloudTitle({ title: game.title, releaseYear: game.releaseYear }, bucket);
+      const bucket = title ? (psByTitle.get(title) ?? []) : [];
+      matched = matchCloudTitle(
+        { title: game.title, releaseYear: game.releaseYear },
+        bucket,
+      );
       match = "exact-title";
       if (matched) usedPlayStationTitleCandidates.add(matched);
     }
     if (matched) {
-      services.push(service(
-        "ps-plus",
-        "PlayStation Plus cloud streaming",
-        match,
-        psPlusUrl,
-        { tier: "PlayStation Plus Premium", requiresOwnership: false, storeRequirement: "PlayStation Plus Premium subscription; availability varies by title and region" },
-      ));
+      services.push(
+        service(
+          "ps-plus",
+          "PlayStation Plus cloud streaming",
+          match,
+          psPlusUrl,
+          {
+            tier: "PlayStation Plus Premium",
+            requiresOwnership: false,
+            storeRequirement:
+              "PlayStation Plus Premium subscription; availability varies by title and region",
+          },
+        ),
+      );
     }
   } else retainPrevious(game.id, "ps-plus", services);
 
-  const unique = [...new Map(services.map((entry) => [entry.id, entry])).values()];
+  const unique = [
+    ...new Map(services.map((entry) => [entry.id, entry])).values(),
+  ];
   if (unique.length > 0) {
     gamesOutput[game.id] = { services: unique };
     for (const entry of unique) {
@@ -319,7 +400,11 @@ for (const game of games) {
   }
 }
 
-const ordered = Object.fromEntries(Object.keys(gamesOutput).sort().map((id) => [id, gamesOutput[id]]));
+const ordered = Object.fromEntries(
+  Object.keys(gamesOutput)
+    .sort()
+    .map((id) => [id, gamesOutput[id]]),
+);
 const document = {
   schemaVersion: 1,
   region: "NL",
@@ -331,7 +416,12 @@ fs.writeFileSync(temporary, `${JSON.stringify(document)}\n`);
 fs.renameSync(temporary, outputPath);
 
 function idFeedStats(feed, used) {
-  if (!feed.ok) return { sourceRecords: null, matchedSourceRecords: null, missedSourceRecords: null };
+  if (!feed.ok)
+    return {
+      sourceRecords: null,
+      matchedSourceRecords: null,
+      missedSourceRecords: null,
+    };
   let missedSourceRecords = 0;
   for (const id of feed.value) if (!used.has(id)) missedSourceRecords += 1;
   return {
@@ -345,7 +435,9 @@ let psPlusMissed = null;
 if (feeds.psPlus.ok) {
   psPlusMissed = 0;
   for (const candidate of feeds.psPlus.value) {
-    const byId = Boolean(candidate.id && usedPlayStationConceptIds.has(candidate.id));
+    const byId = Boolean(
+      candidate.id && usedPlayStationConceptIds.has(candidate.id),
+    );
     const byTitle = usedPlayStationTitleCandidates.has(candidate);
     if (!byId && !byTitle) psPlusMissed += 1;
   }
@@ -356,17 +448,29 @@ const sources = {
   boosteroid: idFeedStats(feeds.boosteroid, usedBoosteroidIds),
   "ps-plus": feeds.psPlus.ok
     ? {
-      sourceRecords: feeds.psPlus.value.length,
-      matchedSourceRecords: feeds.psPlus.value.length - psPlusMissed,
-      missedSourceRecords: psPlusMissed,
-    }
-    : { sourceRecords: null, matchedSourceRecords: null, missedSourceRecords: null },
+        sourceRecords: feeds.psPlus.value.length,
+        matchedSourceRecords: feeds.psPlus.value.length - psPlusMissed,
+        missedSourceRecords: psPlusMissed,
+      }
+    : {
+        sourceRecords: null,
+        matchedSourceRecords: null,
+        missedSourceRecords: null,
+      },
 };
 
-console.log(JSON.stringify({
-  coverage: counts,
-  sources,
-  gamesWithCloudStreaming: Object.keys(ordered).length,
-  failedFeeds: Object.entries(feeds).filter(([, feed]) => !feed.ok).map(([name]) => name),
-  bytes: fs.statSync(outputPath).size,
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      coverage: counts,
+      sources,
+      gamesWithCloudStreaming: Object.keys(ordered).length,
+      failedFeeds: Object.entries(feeds)
+        .filter(([, feed]) => !feed.ok)
+        .map(([name]) => name),
+      bytes: fs.statSync(outputPath).size,
+    },
+    null,
+    2,
+  ),
+);

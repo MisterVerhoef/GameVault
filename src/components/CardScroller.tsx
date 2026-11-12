@@ -22,7 +22,9 @@ export default function CardScroller({
   const scroll = (direction: "left" | "right") => {
     const node = ref.current;
     if (!node) return;
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduceMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     node.scrollBy({
       left: direction === "left" ? -400 : 400,
       behavior: reduceMotion ? "auto" : "smooth",
@@ -59,7 +61,11 @@ export default function CardScroller({
           aria-hidden="true"
           className="h-4 w-4"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="M15.75 19.5 8.25 12l7.5-7.5"
+          />
         </svg>
       </button>
       <button
@@ -77,7 +83,11 @@ export default function CardScroller({
           aria-hidden="true"
           className="h-4 w-4"
         >
-          <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            d="m8.25 4.5 7.5 7.5-7.5 7.5"
+          />
         </svg>
       </button>
     </div>

@@ -12,8 +12,14 @@ const ps5: BrandMark = { src: "/platforms/ps5.svg", aspect: 102.41 / 66 };
 const xboxOrb: BrandMark = { src: "/platforms/xbox.svg", aspect: 1 };
 const xboxOne: BrandMark = { src: "/platforms/xbox-one.svg", aspect: 1 };
 const xboxSeries: BrandMark = { src: "/platforms/xbox-series.svg", aspect: 1 };
-const originalXbox: BrandMark = { src: "/platforms/xbox-original.svg", aspect: 106 / 78 };
-const nintendo: BrandMark = { src: "/platforms/nintendo.svg", aspect: 149.57 / 52 };
+const originalXbox: BrandMark = {
+  src: "/platforms/xbox-original.svg",
+  aspect: 106 / 78,
+};
+const nintendo: BrandMark = {
+  src: "/platforms/nintendo.svg",
+  aspect: 149.57 / 52,
+};
 const snes: BrandMark = { src: "/platforms/snes.svg", aspect: 122 / 48 };
 const n64: BrandMark = { src: "/platforms/n64.svg", aspect: 1 };
 const gamecube: BrandMark = { src: "/platforms/gamecube.svg", aspect: 1 };

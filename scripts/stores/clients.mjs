@@ -1,11 +1,16 @@
 import { loadTsModule } from "../load-ts-module.mjs";
 import { fetchJson, httpsUrl, isMiss } from "./http.mjs";
 
-const { selectMicrosoftPrice, selectNintendoPrice, selectPlayStationPrice } = loadTsModule("src/data/store-match.ts");
+const { selectMicrosoftPrice, selectNintendoPrice, selectPlayStationPrice } =
+  loadTsModule("src/data/store-match.ts");
 const NINTENDO_GAME_NSUID = /^700100\d{8}$/;
 
-const CONCEPT_HASH = process.env.PS_CONCEPT_HASH ?? "cc90404ac049d935afbd9968aef523da2b6723abfb9d586e5f77ebf7c5289006";
-const PRICING_HASH = process.env.PS_PRICING_HASH ?? "abcb311ea830e679fe2b697a27f755764535d825b24510ab1239a4ca3092bd09";
+const CONCEPT_HASH =
+  process.env.PS_CONCEPT_HASH ??
+  "cc90404ac049d935afbd9968aef523da2b6723abfb9d586e5f77ebf7c5289006";
+const PRICING_HASH =
+  process.env.PS_PRICING_HASH ??
+  "abcb311ea830e679fe2b697a27f755764535d825b24510ab1239a4ca3092bd09";
 
 function unique(urls) {
   return [...new Set(urls.filter(Boolean))];
@@ -15,22 +20,27 @@ export function microsoftProduct(product) {
   const localized = product?.LocalizedProperties?.[0] ?? {};
   const images = localized.Images ?? [];
   const uri = (image) => httpsUrl(image?.Uri ?? image?.Url);
-  const cover = images.find((image) => image.ImagePurpose === "BoxArt")
-    ?? images.find((image) => image.ImagePurpose === "Poster");
-  const screenshots = unique(images.filter((image) => image.ImagePurpose === "Screenshot").map(uri)).slice(0, 4);
-  const priced = selectMicrosoftPrice((product.DisplaySkuAvailabilities ?? []).flatMap((sku) => (
-    (sku.Availabilities ?? []).map((availability) => {
-      const price = availability?.OrderManagementData?.Price;
-      return {
-        skuType: sku?.Sku?.SkuType,
-        actions: availability?.Actions ?? [],
-        remediationRequired: availability?.RemediationRequired === true,
-        currency: price?.CurrencyCode,
-        listPrice: price?.ListPrice,
-        msrp: price?.MSRP,
-      };
-    })
-  )));
+  const cover =
+    images.find((image) => image.ImagePurpose === "BoxArt") ??
+    images.find((image) => image.ImagePurpose === "Poster");
+  const screenshots = unique(
+    images.filter((image) => image.ImagePurpose === "Screenshot").map(uri),
+  ).slice(0, 4);
+  const priced = selectMicrosoftPrice(
+    (product.DisplaySkuAvailabilities ?? []).flatMap((sku) =>
+      (sku.Availabilities ?? []).map((availability) => {
+        const price = availability?.OrderManagementData?.Price;
+        return {
+          skuType: sku?.Sku?.SkuType,
+          actions: availability?.Actions ?? [],
+          remediationRequired: availability?.RemediationRequired === true,
+          currency: price?.CurrencyCode,
+          listPrice: price?.ListPrice,
+          msrp: price?.MSRP,
+        };
+      }),
+    ),
+  );
   const game = product.ProductKind === "Game" || product.ProductType === "Game";
   return {
     id: product.ProductId,
@@ -39,7 +49,8 @@ export function microsoftProduct(product) {
     price: priced ? priced.price : null,
     regularPrice: priced ? priced.regularPrice : null,
     currency: priced ? "EUR" : undefined,
-    description: localized.ProductDescription || localized.ShortDescription || undefined,
+    description:
+      localized.ProductDescription || localized.ShortDescription || undefined,
     cover: cover ? uri(cover) : undefined,
     screenshots,
     url: `https://www.xbox.com/nl-nl/games/store/game/${product.ProductId}`,
@@ -57,7 +68,8 @@ export async function lookupMicrosoft(ids, wait) {
   const body = await fetchJson(url);
   const found = new Map();
   for (const product of body.Products ?? []) {
-    if (product?.ProductId) found.set(product.ProductId.toUpperCase(), microsoftProduct(product));
+    if (product?.ProductId)
+      found.set(product.ProductId.toUpperCase(), microsoftProduct(product));
   }
   return found;
 }
@@ -67,7 +79,10 @@ async function playstationGraphql(operationName, hash, variables, wait) {
   const url = new URL("https://web.np.playstation.com/api/graphql/v1/op");
   url.searchParams.set("operationName", operationName);
   url.searchParams.set("variables", JSON.stringify(variables));
-  url.searchParams.set("extensions", JSON.stringify({ persistedQuery: { version: 1, sha256Hash: hash } }));
+  url.searchParams.set(
+    "extensions",
+    JSON.stringify({ persistedQuery: { version: 1, sha256Hash: hash } }),
+  );
   try {
     return await fetchJson(url, {
       "Content-Type": "application/json",
@@ -88,28 +103,55 @@ async function playstationGraphql(operationName, hash, variables, wait) {
 export function playstationMedia(concept) {
   const product = concept?.defaultProduct ?? {};
   const media = [...(product.media ?? []), ...(concept?.media ?? [])];
-  const image = (role) => media.find((item) => item?.role === role && item.type === "IMAGE" && item.url)?.url;
-  const screenshots = unique(media.filter((item) => item?.role === "SCREENSHOT" && item.url).map((item) => item.url)).slice(0, 4);
-  const trailer = media.find((item) => item?.role === "PREVIEW" && item.type === "VIDEO" && item.url)?.url;
-  const description = (product.descriptions ?? []).find((entry) => entry?.type === "LONG")?.value
-    ?? (concept?.descriptions ?? []).find((entry) => entry?.type === "LONG")?.value;
+  const image = (role) =>
+    media.find(
+      (item) => item?.role === role && item.type === "IMAGE" && item.url,
+    )?.url;
+  const screenshots = unique(
+    media
+      .filter((item) => item?.role === "SCREENSHOT" && item.url)
+      .map((item) => item.url),
+  ).slice(0, 4);
+  const trailer = media.find(
+    (item) => item?.role === "PREVIEW" && item.type === "VIDEO" && item.url,
+  )?.url;
+  const description =
+    (product.descriptions ?? []).find((entry) => entry?.type === "LONG")
+      ?.value ??
+    (concept?.descriptions ?? []).find((entry) => entry?.type === "LONG")
+      ?.value;
   return {
     title: product.name || concept?.name || "",
     description,
-    cover: image("GAMEHUB_COVER_ART") || image("MASTER") || image("EDITION_KEY_ART"),
+    cover:
+      image("GAMEHUB_COVER_ART") || image("MASTER") || image("EDITION_KEY_ART"),
     screenshots,
     trailer,
   };
 }
 
-export async function lookupPlayStationConcept(conceptId, wait, { media = false } = {}) {
-  const priced = await playstationGraphql("metGetPricingDataByConceptId", PRICING_HASH, { conceptId }, wait);
+export async function lookupPlayStationConcept(
+  conceptId,
+  wait,
+  { media = false } = {},
+) {
+  const priced = await playstationGraphql(
+    "metGetPricingDataByConceptId",
+    PRICING_HASH,
+    { conceptId },
+    wait,
+  );
   const product = priced?.data?.conceptRetrieve?.defaultProduct;
   if (!product?.id) return undefined;
   const outright = selectPlayStationPrice(product.mobilectas ?? []);
   let details = {};
   if (media) {
-    const concept = await playstationGraphql("metGetConceptById", CONCEPT_HASH, { conceptId }, wait);
+    const concept = await playstationGraphql(
+      "metGetConceptById",
+      CONCEPT_HASH,
+      { conceptId },
+      wait,
+    );
     details = playstationMedia(concept?.data?.conceptRetrieve);
   }
   return {
@@ -140,7 +182,9 @@ export async function lookupPlayStationProduct(productId, wait) {
   if (!body?.name) return undefined;
   const sku = body.default_sku ?? {};
   const cover = (body.images ?? []).find((image) => image.type === 10)?.url;
-  const trailer = (body.promomedia ?? []).find((media) => media.key === "preview")?.url;
+  const trailer = (body.promomedia ?? []).find(
+    (media) => media.key === "preview",
+  )?.url;
   const cents = typeof sku.price === "number" ? sku.price : null;
   return {
     id: productId,
@@ -149,7 +193,8 @@ export async function lookupPlayStationProduct(productId, wait) {
     price: cents === null ? null : cents / 100,
     regularPrice: cents === null ? null : cents / 100,
     currency: cents === null ? undefined : "EUR",
-    description: typeof body.long_desc === "string" ? body.long_desc : undefined,
+    description:
+      typeof body.long_desc === "string" ? body.long_desc : undefined,
     cover: httpsUrl(cover),
     screenshots: [],
     trailer: httpsUrl(trailer),
@@ -163,18 +208,37 @@ export async function searchPlayStation(title, wait) {
   const body = await fetchJson(url);
   return (body.links ?? []).flatMap((link) => {
     if (!link?.id || !link.name) return [];
-    const category = String(link.top_category ?? link.game_contentType ?? "").toLowerCase();
-    const year = typeof link.release_date === "string" ? Number(link.release_date.slice(0, 4)) : undefined;
-    return [{
-      id: link.id,
-      title: link.name,
-      kind: category.includes("add") || category.includes("avatar") || category.includes("theme") ? "other" : "game",
-      year: Number.isInteger(year) ? year : undefined,
-      price: typeof link.default_sku?.price === "number" ? link.default_sku.price / 100 : null,
-      regularPrice: typeof link.default_sku?.price === "number" ? link.default_sku.price / 100 : null,
-      currency: typeof link.default_sku?.price === "number" ? "EUR" : undefined,
-      url: `https://store.playstation.com/nl-nl/product/${link.id}`,
-    }];
+    const category = String(
+      link.top_category ?? link.game_contentType ?? "",
+    ).toLowerCase();
+    const year =
+      typeof link.release_date === "string"
+        ? Number(link.release_date.slice(0, 4))
+        : undefined;
+    return [
+      {
+        id: link.id,
+        title: link.name,
+        kind:
+          category.includes("add") ||
+          category.includes("avatar") ||
+          category.includes("theme")
+            ? "other"
+            : "game",
+        year: Number.isInteger(year) ? year : undefined,
+        price:
+          typeof link.default_sku?.price === "number"
+            ? link.default_sku.price / 100
+            : null,
+        regularPrice:
+          typeof link.default_sku?.price === "number"
+            ? link.default_sku.price / 100
+            : null,
+        currency:
+          typeof link.default_sku?.price === "number" ? "EUR" : undefined,
+        url: `https://store.playstation.com/nl-nl/product/${link.id}`,
+      },
+    ];
   });
 }
 
@@ -182,7 +246,10 @@ export function nintendoCandidate(doc) {
   const ids = (doc.nsuid_txt ?? []).map(String);
   const nsuid = ids.find((id) => NINTENDO_GAME_NSUID.test(id));
   if (!nsuid || !doc.title) return undefined;
-  const year = typeof doc.date_from === "string" ? Number(doc.date_from.slice(0, 4)) : undefined;
+  const year =
+    typeof doc.date_from === "string"
+      ? Number(doc.date_from.slice(0, 4))
+      : undefined;
   return {
     id: nsuid,
     title: doc.title,
@@ -191,15 +258,29 @@ export function nintendoCandidate(doc) {
     description: doc.product_catalog_description_s,
     cover: httpsUrl(doc.image_url_sq_s || doc.image_url),
     screenshots: [],
-    url: typeof doc.url === "string" && doc.url.startsWith("/") ? `https://www.nintendo.com${doc.url}` : undefined,
+    url:
+      typeof doc.url === "string" && doc.url.startsWith("/")
+        ? `https://www.nintendo.com${doc.url}`
+        : undefined,
   };
 }
 
 export function applyNintendoPrice(candidate, entry) {
   if (!candidate) return undefined;
   const selected = selectNintendoPrice(entry);
-  if (!selected) return { ...candidate, price: null, regularPrice: null, currency: undefined };
-  return { ...candidate, price: selected.price, regularPrice: selected.regularPrice, currency: "EUR" };
+  if (!selected)
+    return {
+      ...candidate,
+      price: null,
+      regularPrice: null,
+      currency: undefined,
+    };
+  return {
+    ...candidate,
+    price: selected.price,
+    regularPrice: selected.regularPrice,
+    currency: "EUR",
+  };
 }
 
 async function fetchNintendoPrices(ids, wait) {
@@ -209,7 +290,9 @@ async function fetchNintendoPrices(ids, wait) {
   url.searchParams.set("lang", "nl");
   url.searchParams.set("ids", ids.join(","));
   const body = await fetchJson(url);
-  return new Map((body?.prices ?? []).map((price) => [String(price.title_id), price]));
+  return new Map(
+    (body?.prices ?? []).map((price) => [String(price.title_id), price]),
+  );
 }
 
 export async function priceNintendoCandidate(candidate, wait) {
@@ -220,27 +303,38 @@ export async function priceNintendoCandidate(candidate, wait) {
 export async function priceNintendoCandidates(candidates, wait) {
   const found = new Map();
   if (candidates.length === 0) return found;
-  const prices = await fetchNintendoPrices(candidates.map((candidate) => candidate.id), wait);
-  for (const candidate of candidates) found.set(String(candidate.id), applyNintendoPrice(candidate, prices.get(String(candidate.id))));
+  const prices = await fetchNintendoPrices(
+    candidates.map((candidate) => candidate.id),
+    wait,
+  );
+  for (const candidate of candidates)
+    found.set(
+      String(candidate.id),
+      applyNintendoPrice(candidate, prices.get(String(candidate.id))),
+    );
   return found;
 }
 
 async function nintendoSelect(params, wait) {
   await wait();
   const url = new URL("https://search.nintendo-europe.com/nl/select");
-  for (const [key, value] of Object.entries(params)) url.searchParams.set(key, value);
+  for (const [key, value] of Object.entries(params))
+    url.searchParams.set(key, value);
   const body = await fetchJson(url);
   return (body?.response?.docs ?? []).map(nintendoCandidate).filter(Boolean);
 }
 
 export async function lookupNintendo(nsuid, wait) {
   if (!NINTENDO_GAME_NSUID.test(String(nsuid))) return undefined;
-  const docs = await nintendoSelect({
-    q: "*:*",
-    fq: `type:GAME AND nsuid_txt:${nsuid}`,
-    rows: "1",
-    wt: "json",
-  }, wait);
+  const docs = await nintendoSelect(
+    {
+      q: "*:*",
+      fq: `type:GAME AND nsuid_txt:${nsuid}`,
+      rows: "1",
+      wt: "json",
+    },
+    wait,
+  );
   const doc = docs[0];
   if (!doc) return undefined;
   const priced = await priceNintendoCandidates([doc], wait);
@@ -248,15 +342,27 @@ export async function lookupNintendo(nsuid, wait) {
 }
 
 export async function searchNintendo(title, wait) {
-  return nintendoSelect({
-    q: `title:"${title.replace(/"/g, "")}"`,
-    fq: "type:GAME",
-    rows: "8",
-    wt: "json",
-  }, wait);
+  return nintendoSelect(
+    {
+      q: `title:"${title.replace(/"/g, "")}"`,
+      fq: "type:GAME",
+      rows: "8",
+      wt: "json",
+    },
+    wait,
+  );
 }
 
-const STEAM_OTHER = new Set(["dlc", "music", "software", "video", "demo", "mod", "advertising", "hardware"]);
+const STEAM_OTHER = new Set([
+  "dlc",
+  "music",
+  "software",
+  "video",
+  "demo",
+  "mod",
+  "advertising",
+  "hardware",
+]);
 
 function releaseYear(value) {
   const match = String(value ?? "").match(/\b(19|20)\d{2}\b/);
@@ -264,7 +370,9 @@ function releaseYear(value) {
 }
 
 function cents(value) {
-  return typeof value === "number" && Number.isFinite(value) ? Math.round(value) / 100 : null;
+  return typeof value === "number" && Number.isFinite(value)
+    ? Math.round(value) / 100
+    : null;
 }
 
 export function steamCandidate(appId, data) {
@@ -272,8 +380,14 @@ export function steamCandidate(appId, data) {
   const overview = data.price_overview;
   const free = data.is_free === true;
   const priced = overview?.currency === "EUR";
-  const screenshots = unique((data.screenshots ?? []).slice(0, 4).map((shot) => httpsUrl(shot?.path_full)));
-  const movie = (data.movies ?? []).find((entry) => entry?.mp4?.max || entry?.webm?.max);
+  const screenshots = unique(
+    (data.screenshots ?? [])
+      .slice(0, 4)
+      .map((shot) => httpsUrl(shot?.path_full)),
+  );
+  const movie = (data.movies ?? []).find(
+    (entry) => entry?.mp4?.max || entry?.webm?.max,
+  );
   let price = null;
   let regularPrice = null;
   let currency;
@@ -294,7 +408,10 @@ export function steamCandidate(appId, data) {
     price,
     regularPrice,
     currency,
-    description: typeof data.short_description === "string" ? data.short_description : undefined,
+    description:
+      typeof data.short_description === "string"
+        ? data.short_description
+        : undefined,
     cover: httpsUrl(data.header_image),
     screenshots,
     trailer: httpsUrl(movie?.mp4?.max || movie?.webm?.max),
@@ -336,15 +453,20 @@ export async function searchSteam(title, wait) {
     const type = String(item.type ?? "").toLowerCase();
     const price = item.price;
     const priced = price?.currency === "EUR" && typeof price.final === "number";
-    return [{
-      id: String(item.id),
-      title: item.name,
-      kind: STEAM_OTHER.has(type) ? "other" : "game",
-      price: priced ? price.final / 100 : null,
-      regularPrice: priced && typeof price.initial === "number" ? price.initial / 100 : null,
-      currency: priced ? "EUR" : undefined,
-      url: `https://store.steampowered.com/app/${item.id}`,
-    }];
+    return [
+      {
+        id: String(item.id),
+        title: item.name,
+        kind: STEAM_OTHER.has(type) ? "other" : "game",
+        price: priced ? price.final / 100 : null,
+        regularPrice:
+          priced && typeof price.initial === "number"
+            ? price.initial / 100
+            : null,
+        currency: priced ? "EUR" : undefined,
+        url: `https://store.steampowered.com/app/${item.id}`,
+      },
+    ];
   });
 }
 
@@ -356,7 +478,8 @@ function gogYear(value) {
 }
 
 function gogAmount(value) {
-  if (typeof value === "number" && Number.isFinite(value)) return Math.round(value * 100) / 100;
+  if (typeof value === "number" && Number.isFinite(value))
+    return Math.round(value * 100) / 100;
   if (typeof value !== "string" || value.trim() === "") return null;
   const amount = Number(value);
   return Number.isFinite(amount) ? Math.round(amount * 100) / 100 : null;
@@ -370,7 +493,8 @@ function gogApiPrice(value) {
 
 export function gogCandidate(product) {
   if (!product?.title) return undefined;
-  const slug = typeof product.slug === "string" && product.slug ? product.slug : undefined;
+  const slug =
+    typeof product.slug === "string" && product.slug ? product.slug : undefined;
   const id = slug || (product.id != null ? String(product.id) : "");
   if (!id) return undefined;
   const finalMoney = product.price?.finalMoney;
@@ -383,14 +507,19 @@ export function gogCandidate(product) {
     kind: type === "game" || type === "pack" ? "game" : "other",
     year: gogYear(product.releaseDate ?? product.release_date),
     price: currency ? gogAmount(finalMoney.amount) : null,
-    regularPrice: currency ? gogAmount(baseMoney?.amount ?? finalMoney.amount) : null,
+    regularPrice: currency
+      ? gogAmount(baseMoney?.amount ?? finalMoney.amount)
+      : null,
     currency,
-    description: typeof product.description === "string" ? product.description : undefined,
+    description:
+      typeof product.description === "string" ? product.description : undefined,
     cover: httpsUrl(product.coverVertical || product.coverHorizontal),
     screenshots: [],
-    url: typeof product.storeLink === "string" && product.storeLink.startsWith("https://")
-      ? product.storeLink
-      : `https://www.gog.com/en/game/${slug || id}`,
+    url:
+      typeof product.storeLink === "string" &&
+      product.storeLink.startsWith("https://")
+        ? product.storeLink
+        : `https://www.gog.com/en/game/${slug || id}`,
   };
 }
 
@@ -419,7 +548,9 @@ export async function lookupGog(id, wait) {
     await wait();
     let product;
     try {
-      product = await fetchJson(`https://api.gog.com/products/${key}?locale=en-US`);
+      product = await fetchJson(
+        `https://api.gog.com/products/${key}?locale=en-US`,
+      );
     } catch (error) {
       if (isMiss(error)) return undefined;
       throw error;
@@ -428,13 +559,17 @@ export async function lookupGog(id, wait) {
     await wait();
     let prices;
     try {
-      prices = await fetchJson(`https://api.gog.com/products/${key}/prices?countryCode=NL`);
+      prices = await fetchJson(
+        `https://api.gog.com/products/${key}/prices?countryCode=NL`,
+      );
     } catch (error) {
       // 400 PRICES_NOT_FOUND means the product exists but has no Netherlands price.
       if (isMiss(error) || error.status === 400) prices = undefined;
       else throw error;
     }
-    const listed = (prices?._embedded?.prices ?? []).find((entry) => entry?.currency?.code === "EUR");
+    const listed = (prices?._embedded?.prices ?? []).find(
+      (entry) => entry?.currency?.code === "EUR",
+    );
     const finalPrice = gogApiPrice(listed?.finalPrice);
     const basePrice = gogApiPrice(listed?.basePrice);
     const slug = typeof product.slug === "string" ? product.slug : "";
@@ -444,9 +579,15 @@ export async function lookupGog(id, wait) {
       kind: product.game_type === "game" ? "game" : "other",
       year: gogYear(product.release_date),
       price: finalPrice?.currency === "EUR" ? finalPrice.amount : null,
-      regularPrice: basePrice?.currency === "EUR" ? basePrice.amount : finalPrice?.amount ?? null,
+      regularPrice:
+        basePrice?.currency === "EUR"
+          ? basePrice.amount
+          : (finalPrice?.amount ?? null),
       currency: finalPrice?.currency === "EUR" ? "EUR" : undefined,
-      description: typeof product.description === "string" ? product.description : undefined,
+      description:
+        typeof product.description === "string"
+          ? product.description
+          : undefined,
       cover: undefined,
       screenshots: [],
       url: `https://www.gog.com/en/game/${slug || key}`,
@@ -494,19 +635,38 @@ function epicSlug(element) {
     ...(element?.catalogNs?.mappings ?? []),
     ...(element?.offerMappings ?? []),
   ];
-  const home = mappings.find((mapping) => mapping?.pageType === "productHome" && mapping.pageSlug);
+  const home = mappings.find(
+    (mapping) => mapping?.pageType === "productHome" && mapping.pageSlug,
+  );
   return home?.pageSlug || element?.productSlug || element?.urlSlug || "";
 }
 
 function epicKind(element) {
-  const paths = (element?.categories ?? []).map((category) => String(category?.path ?? ""));
-  if (paths.some((path) => path.startsWith("addons") || path.includes("dlc") || path.includes("soundtrack"))) return "other";
-  if (paths.includes("games/edition/base") || paths.includes("bundles/games") || paths.includes("games")) return "game";
+  const paths = (element?.categories ?? []).map((category) =>
+    String(category?.path ?? ""),
+  );
+  if (
+    paths.some(
+      (path) =>
+        path.startsWith("addons") ||
+        path.includes("dlc") ||
+        path.includes("soundtrack"),
+    )
+  )
+    return "other";
+  if (
+    paths.includes("games/edition/base") ||
+    paths.includes("bundles/games") ||
+    paths.includes("games")
+  )
+    return "game";
   return "other";
 }
 
 function epicUrl(slug, element) {
-  const paths = (element?.categories ?? []).map((category) => String(category?.path ?? ""));
+  const paths = (element?.categories ?? []).map((category) =>
+    String(category?.path ?? ""),
+  );
   const bundle = paths.includes("bundles/games") || paths.includes("bundles");
   return `https://store.epicgames.com/en-US/${bundle ? "bundles" : "p"}/${slug}`;
 }
@@ -524,7 +684,8 @@ export function epicCandidate(element) {
     price: priced ? cents(total.discountPrice) : null,
     regularPrice: priced ? cents(total.originalPrice) : null,
     currency: "EUR",
-    description: typeof element.description === "string" ? element.description : undefined,
+    description:
+      typeof element.description === "string" ? element.description : undefined,
     cover: undefined,
     screenshots: [],
     url: epicUrl(slug, element),
@@ -537,26 +698,33 @@ function epicFatal(error) {
 }
 
 async function epicQuery(keywords, category, count) {
-  const body = await fetchJson(EPIC_GRAPHQL, {
-    "Content-Type": "application/json",
-    Origin: "https://store.epicgames.com",
-    Referer: "https://store.epicgames.com/",
-  }, {
-    method: "POST",
-    body: JSON.stringify({
-      query: EPIC_SEARCH,
-      variables: {
-        keywords,
-        country: "NL",
-        locale: "en-US",
-        count,
-        category,
-      },
-    }),
-  });
+  const body = await fetchJson(
+    EPIC_GRAPHQL,
+    {
+      "Content-Type": "application/json",
+      Origin: "https://store.epicgames.com",
+      Referer: "https://store.epicgames.com/",
+    },
+    {
+      method: "POST",
+      body: JSON.stringify({
+        query: EPIC_SEARCH,
+        variables: {
+          keywords,
+          country: "NL",
+          locale: "en-US",
+          count,
+          category,
+        },
+      }),
+    },
+  );
   const elements = body?.data?.Catalog?.searchStore?.elements;
   if (!Array.isArray(elements)) {
-    const rejected = new Error(body?.errors?.[0]?.message || "Epic Games Store rejected the catalogue query");
+    const rejected = new Error(
+      body?.errors?.[0]?.message ||
+        "Epic Games Store rejected the catalogue query",
+    );
     rejected.status = 400;
     rejected.fatal = true;
     throw rejected;
@@ -589,16 +757,30 @@ function epicKeywords(slug) {
 
 /** Exact Epic page slug, or the one product that shares the URL's 6-character id suffix. */
 export function matchEpicSlug(candidates, slug) {
-  const list = candidates.filter((candidate) => candidate?.id && candidate.kind !== "other");
-  const exact = [...new Map(list.filter((candidate) => candidate.id === slug).map((candidate) => [candidate.id, candidate])).values()];
+  const list = candidates.filter(
+    (candidate) => candidate?.id && candidate.kind !== "other",
+  );
+  const exact = [
+    ...new Map(
+      list
+        .filter((candidate) => candidate.id === slug)
+        .map((candidate) => [candidate.id, candidate]),
+    ).values(),
+  ];
   if (exact.length === 1) return exact[0];
-  const suffix = String(slug).match(/-([0-9a-f]{6})$/i)?.[1].toLowerCase();
+  const suffix = String(slug)
+    .match(/-([0-9a-f]{6})$/i)?.[1]
+    .toLowerCase();
   if (!suffix) return undefined;
-  const suffixed = [...new Map(
-    list
-      .filter((candidate) => String(candidate.id).toLowerCase().endsWith(`-${suffix}`))
-      .map((candidate) => [candidate.id, candidate]),
-  ).values()];
+  const suffixed = [
+    ...new Map(
+      list
+        .filter((candidate) =>
+          String(candidate.id).toLowerCase().endsWith(`-${suffix}`),
+        )
+        .map((candidate) => [candidate.id, candidate]),
+    ).values(),
+  ];
   return suffixed.length === 1 ? suffixed[0] : undefined;
 }
 
@@ -607,7 +789,10 @@ export async function lookupEpic(slug, wait) {
   for (const category of ["games/edition/base", "bundles/games"]) {
     for (const keyword of keywords) {
       const elements = await epicSearch(keyword, wait, { category, count: 12 });
-      const found = matchEpicSlug(elements.map(epicCandidate).filter(Boolean), slug);
+      const found = matchEpicSlug(
+        elements.map(epicCandidate).filter(Boolean),
+        slug,
+      );
       if (found) return found;
     }
   }
@@ -615,6 +800,9 @@ export async function lookupEpic(slug, wait) {
 }
 
 export async function searchEpic(title, wait) {
-  const elements = await epicSearch(title, wait, { category: "games/edition/base", count: 8 });
+  const elements = await epicSearch(title, wait, {
+    category: "games/edition/base",
+    count: 8,
+  });
   return elements.map(epicCandidate).filter(Boolean);
 }

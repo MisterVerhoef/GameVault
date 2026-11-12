@@ -29,10 +29,10 @@ export function formatReleaseDay(iso?: string) {
   const [year, month, day] = iso.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day));
   if (
-    Number.isNaN(date.getTime())
-    || date.getUTCFullYear() !== year
-    || date.getUTCMonth() !== month - 1
-    || date.getUTCDate() !== day
+    Number.isNaN(date.getTime()) ||
+    date.getUTCFullYear() !== year ||
+    date.getUTCMonth() !== month - 1 ||
+    date.getUTCDate() !== day
   ) {
     return "";
   }
@@ -59,10 +59,14 @@ export function multiplayerPhrases(info?: MultiplayerInfo) {
     info.dropIn ? "Drop-in" : "",
     info.splitscreen ? "Split screen" : "",
     info.splitscreenOnline ? "Online split screen" : "",
-    info.offlineMax && info.offlineMax > 1 && info.offlineMax !== info.offlineCoopMax
+    info.offlineMax &&
+    info.offlineMax > 1 &&
+    info.offlineMax !== info.offlineCoopMax
       ? `Up to ${info.offlineMax} players offline`
       : "",
-    info.onlineMax && info.onlineMax > 1 && info.onlineMax !== info.onlineCoopMax
+    info.onlineMax &&
+    info.onlineMax > 1 &&
+    info.onlineMax !== info.onlineCoopMax
       ? `Up to ${info.onlineMax} players online`
       : "",
   ];

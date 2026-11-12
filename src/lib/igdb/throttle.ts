@@ -17,7 +17,9 @@ export class RequestThrottle {
       }
       if (this.timestamps.length >= this.maxPerSecond) {
         const waitMs = this.timestamps[0] + 1000 - now + 1;
-        await new Promise((resolve) => setTimeout(resolve, Math.max(1, waitMs)));
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.max(1, waitMs)),
+        );
         return run();
       }
       this.timestamps.push(Date.now());

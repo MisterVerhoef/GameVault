@@ -18,12 +18,23 @@ const {
 } = loadTsModule("src/data/release-calendar.ts");
 
 const games = [
-  { id: "soon", title: "Soon Game", releaseYear: 2026, platforms: ["PC"], cover: "https://example.com/soon.jpg" },
+  {
+    id: "soon",
+    title: "Soon Game",
+    releaseYear: 2026,
+    platforms: ["PC"],
+    cover: "https://example.com/soon.jpg",
+  },
   { id: "later", title: "Later Game", releaseYear: 2026, platforms: ["PS5"] },
   { id: "year", title: "Year Only", releaseYear: 2026, platforms: ["PC"] },
   { id: "old", title: "Old Game", releaseYear: 2020, platforms: ["PC"] },
   { id: "blank", title: "No Date" },
-  { id: "labeled", title: "Quarter Game", releaseYear: 2027, platforms: ["Xbox"] },
+  {
+    id: "labeled",
+    title: "Quarter Game",
+    releaseYear: 2027,
+    platforms: ["Xbox"],
+  },
 ];
 
 const dates = [
@@ -35,7 +46,11 @@ const dates = [
       { platform: "PS5", date: "2026-11-04" },
     ],
   },
-  { id: "later", date: "2026-11-02", releases: [{ platform: "PS5", date: "2026-11-02" }] },
+  {
+    id: "later",
+    date: "2026-11-02",
+    releases: [{ platform: "PS5", date: "2026-11-02" }],
+  },
   { id: "labeled", label: "Q1 2027" },
 ];
 
@@ -65,10 +80,17 @@ test("rejects impossible calendar days and keeps the earliest platform date", ()
         { platform: "Xbox", date: "2026-02-31" },
       ],
     }),
-    { id: "1", date: "2026-11-01", releases: [{ platform: "pc", date: "2026-11-01" }] },
+    {
+      id: "1",
+      date: "2026-11-01",
+      releases: [{ platform: "pc", date: "2026-11-01" }],
+    },
   );
   assert.deepEqual(
-    toReleaseDateRecord({ id: "2", releases: [{ platform: "Linux", label: "Q4 2026" }] }),
+    toReleaseDateRecord({
+      id: "2",
+      releases: [{ platform: "Linux", label: "Q4 2026" }],
+    }),
     { id: "2", label: "Q4 2026" },
   );
   assert.equal(toReleaseDateRecord({ id: "3", releases: [] }), null);
@@ -78,13 +100,20 @@ test("reads a release date index and drops invalid rows", () => {
   const records = readReleaseDateIndex({
     schemaVersion: 1,
     games: [
-      { id: "ok", date: "2026-10-28", releases: [{ platform: "PC", date: "2026-10-28" }] },
+      {
+        id: "ok",
+        date: "2026-10-28",
+        releases: [{ platform: "PC", date: "2026-10-28" }],
+      },
       { id: "label-only", label: "TBD" },
       { id: "", date: "2026-10-28" },
       { date: "2026-10-28" },
     ],
   });
-  assert.deepEqual(records.map((record) => record.id), ["ok", "label-only"]);
+  assert.deepEqual(
+    records.map((record) => record.id),
+    ["ok", "label-only"],
+  );
   assert.equal(readReleaseDateIndex({ schemaVersion: 2, games: [] }).length, 0);
 });
 
@@ -103,15 +132,18 @@ test("month and week grids start on Monday", () => {
   assert.equal(february.filter((day) => day.inMonth).length, 29);
 
   const week = weekGrid("2026-10-28");
-  assert.deepEqual(week.map((day) => day.date), [
-    "2026-10-26",
-    "2026-10-27",
-    "2026-10-28",
-    "2026-10-29",
-    "2026-10-30",
-    "2026-10-31",
-    "2026-11-01",
-  ]);
+  assert.deepEqual(
+    week.map((day) => day.date),
+    [
+      "2026-10-26",
+      "2026-10-27",
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-30",
+      "2026-10-31",
+      "2026-11-01",
+    ],
+  );
 });
 
 test("shifts months to the first day and weeks to the neighbouring Monday", () => {
@@ -133,9 +165,17 @@ test("plots dated games, keeps year-only titles off the grid, and keeps wishlist
   assert.equal(october.entries[0].title, "Soon Game");
   assert.equal(october.entries[0].wishlist, true);
   assert.equal(october.entries[0].href, "/game/soon");
-  assert.deepEqual(october.entries[0].later, [{ platform: "PS5", date: "2026-11-04" }]);
-  assert.equal(model.days.find((day) => day.date === "2026-09-28").entries.length, 0);
-  assert.equal(model.days.some((day) => day.entries.some((entry) => entry.id === "year")), false);
+  assert.deepEqual(october.entries[0].later, [
+    { platform: "PS5", date: "2026-11-04" },
+  ]);
+  assert.equal(
+    model.days.find((day) => day.date === "2026-09-28").entries.length,
+    0,
+  );
+  assert.equal(
+    model.days.some((day) => day.entries.some((entry) => entry.id === "year")),
+    false,
+  );
   assert.equal(model.datedGameCount, 2);
   assert.equal(model.yearOnlyCount, 3);
   assert.equal(model.missingDateCount, 1);
@@ -147,9 +187,17 @@ test("plots dated games, keeps year-only titles off the grid, and keeps wishlist
 
   const years = model.undatedGroups.map((group) => group.year);
   assert.deepEqual(years, [2026, 2027]);
-  assert.deepEqual(model.undatedGroups[0].entries.map((entry) => entry.id), ["year"]);
+  assert.deepEqual(
+    model.undatedGroups[0].entries.map((entry) => entry.id),
+    ["year"],
+  );
   const wishlistedYear = calendar({ wishlistIds: new Set(["year"]) });
-  assert.equal(wishlistedYear.undatedGroups.some((group) => group.entries.some((entry) => entry.id === "year")), false);
+  assert.equal(
+    wishlistedYear.undatedGroups.some((group) =>
+      group.entries.some((entry) => entry.id === "year"),
+    ),
+    false,
+  );
   assert.equal(wishlistedYear.wishlistOutside[0].id, "year");
   assert.equal(wishlistedYear.wishlistOutside[0].date, undefined);
   assert.equal(model.undatedGroups[1].entries[0].id, "labeled");
@@ -161,37 +209,66 @@ test("plots dated games, keeps year-only titles off the grid, and keeps wishlist
 test("wishlist scope hides catalogue games that are not wishlisted", () => {
   const model = calendar({ scope: "wishlist", view: "week" });
   assert.equal(model.periodLabel, "26 Oct 2026 – 1 Nov 2026");
-  const titles = model.days.flatMap((day) => day.entries.map((entry) => entry.title));
+  const titles = model.days.flatMap((day) =>
+    day.entries.map((entry) => entry.title),
+  );
   assert.deepEqual(titles, ["Soon Game"]);
   assert.equal(model.undatedGroups.length, 0);
-  assert.deepEqual(model.wishlistOutside.map((entry) => entry.id), ["missing"]);
+  assert.deepEqual(
+    model.wishlistOutside.map((entry) => entry.id),
+    ["missing"],
+  );
 });
 
 test("a wishlisted game on another month stays out of the grid and can link back", () => {
   const model = calendar({ wishlistIds: new Set(["later"]) });
-  assert.equal(model.days.some((day) => day.entries.some((entry) => entry.id === "later")), false);
+  assert.equal(
+    model.days.some((day) => day.entries.some((entry) => entry.id === "later")),
+    false,
+  );
   assert.equal(model.wishlistOutside[0].id, "later");
   assert.equal(model.wishlistOutside[0].date, "2026-11-02");
-  const november = calendar({ cursor: "2026-11-02", wishlistIds: new Set(["later"]) });
-  assert.equal(november.days.find((day) => day.date === "2026-11-02").entries[0].title, "Later Game");
+  const november = calendar({
+    cursor: "2026-11-02",
+    wishlistIds: new Set(["later"]),
+  });
+  assert.equal(
+    november.days.find((day) => day.date === "2026-11-02").entries[0].title,
+    "Later Game",
+  );
   assert.equal(november.wishlistOutside.length, 0);
 });
 
 test("calendar links omit default month and catalogue scope", () => {
   assert.equal(calendarHref({}), "/calendar");
-  assert.equal(calendarHref({ view: "week", date: "2026-10-26", scope: "wishlist" }), "/calendar?view=week&date=2026-10-26&scope=wishlist");
-  assert.deepEqual(parseCalendarQuery({ view: "week", date: "2026-02-31", scope: "wishlist" }), {
-    view: "week",
-    scope: "wishlist",
-    date: null,
-  });
-  assert.equal(parseCalendarQuery({ view: "nope", date: "2026-10-28" }).view, "month");
+  assert.equal(
+    calendarHref({ view: "week", date: "2026-10-26", scope: "wishlist" }),
+    "/calendar?view=week&date=2026-10-26&scope=wishlist",
+  );
+  assert.deepEqual(
+    parseCalendarQuery({ view: "week", date: "2026-02-31", scope: "wishlist" }),
+    {
+      view: "week",
+      scope: "wishlist",
+      date: null,
+    },
+  );
+  assert.equal(
+    parseCalendarQuery({ view: "nope", date: "2026-10-28" }).view,
+    "month",
+  );
 });
 
 test("year-only groups wait until today is known and skip past years", () => {
   const waiting = calendar({ today: "" });
   assert.equal(waiting.undatedGroups.length, 0);
-  assert.equal(waiting.days.find((day) => day.date === "2026-10-28").isToday, false);
+  assert.equal(
+    waiting.days.find((day) => day.date === "2026-10-28").isToday,
+    false,
+  );
   const future = calendar({ today: "2027-01-01" });
-  assert.deepEqual(future.undatedGroups.map((group) => group.year), [2027]);
+  assert.deepEqual(
+    future.undatedGroups.map((group) => group.year),
+    [2027],
+  );
 });

@@ -23,8 +23,9 @@ export default async function StudioPage({ params }: StudioPageProps) {
   const { id } = await params;
   const studio = getStudio(id);
   if (!studio) notFound();
-  const heroUrl = studio.backgroundUrl
-    ?? studio.games.find((game) => game.cover?.url)?.cover?.url;
+  const heroUrl =
+    studio.backgroundUrl ??
+    studio.games.find((game) => game.cover?.url)?.cover?.url;
 
   const metadata = studioMetadata({
     developedCount: studio.developedIds.length,
@@ -59,7 +60,11 @@ export default async function StudioPage({ params }: StudioPageProps) {
                 stroke="currentColor"
                 className="h-5 w-5"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
               </svg>
             </Link>
             <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
@@ -69,7 +74,10 @@ export default async function StudioPage({ params }: StudioPageProps) {
         </div>
       </div>
 
-      <section className="relative h-44 overflow-hidden sm:h-60" aria-hidden="true">
+      <section
+        className="relative h-44 overflow-hidden sm:h-60"
+        aria-hidden="true"
+      >
         {heroUrl ? (
           <Image
             src={heroUrl}
@@ -86,44 +94,50 @@ export default async function StudioPage({ params }: StudioPageProps) {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/75 to-black/25" />
       </section>
 
-      <main id="studio-content" tabIndex={-1} className="scroll-mt-20 focus:outline-none">
-      <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
-        <div className="flex items-end gap-4">
-          <StudioLogo name={studio.name} logo={studio.logo} variant="badge" />
-          <div className="min-w-0 pb-1">
-            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
-              {studio.name}
-            </h2>
-            <p className="mt-1 text-sm text-muted">{metadata}</p>
+      <main
+        id="studio-content"
+        tabIndex={-1}
+        className="scroll-mt-20 focus:outline-none"
+      >
+        <div className="relative mx-auto -mt-12 max-w-[1920px] px-4 sm:-mt-14 sm:px-6 lg:px-8">
+          <div className="flex items-end gap-4">
+            <StudioLogo name={studio.name} logo={studio.logo} variant="badge" />
+            <div className="min-w-0 pb-1">
+              <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
+                {studio.name}
+              </h2>
+              <p className="mt-1 text-sm text-muted">{metadata}</p>
+            </div>
           </div>
+
+          <GameDescription
+            text={studio.summary}
+            showHeading={false}
+            inset="quarter"
+            collapseDesktop={false}
+          />
+          <p className="mt-2 text-xs text-muted">
+            Summary from the GameVault catalogue.
+          </p>
         </div>
 
-        <GameDescription
-          text={studio.summary}
-          showHeading={false}
-          inset="quarter"
-          collapseDesktop={false}
-        />
-        <p className="mt-2 text-xs text-muted">Summary from the GameVault catalogue.</p>
-      </div>
-
-      <div className="mt-10">
-        <GameWall
-          title="Games"
-          games={studio.games.map((game): CatalogueCard => ({
-            id: game.id,
-            title: game.title,
-            cover: game.cover ? { url: game.cover.url } : undefined,
-            platforms: game.platforms,
-            platformVariants: game.platformVariants,
-            releaseYear: game.releaseYear,
-            rating: game.rating,
-          }))}
-          resetKey={`studio:${studio.id}`}
-          titleLevel="h2"
-          focusTitle={false}
-        />
-      </div>
+        <div className="mt-10">
+          <GameWall
+            title="Games"
+            games={studio.games.map((game): CatalogueCard => ({
+              id: game.id,
+              title: game.title,
+              cover: game.cover ? { url: game.cover.url } : undefined,
+              platforms: game.platforms,
+              platformVariants: game.platformVariants,
+              releaseYear: game.releaseYear,
+              rating: game.rating,
+            }))}
+            resetKey={`studio:${studio.id}`}
+            titleLevel="h2"
+            focusTitle={false}
+          />
+        </div>
       </main>
     </div>
   );

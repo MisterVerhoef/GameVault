@@ -14,15 +14,11 @@
       "summary": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
       "description": "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
       "releaseYear": 2023,
-      "genres": [
-        "RPG"
-      ],
+      "genres": ["RPG"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC"
-      ],
+      "platforms": ["PC"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1086940/library_600x900_2x.jpg"
       },
@@ -56,15 +52,11 @@
       "summary": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
       "description": "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
       "releaseYear": 2020,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC"
-      ],
+      "platforms": ["PC"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1091500/library_600x900_2x.jpg"
       },
@@ -98,15 +90,11 @@
       "summary": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
       "description": "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
       "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC"
-      ],
+      "platforms": ["PC"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1245620/library_600x900_2x.jpg"
       },
@@ -140,16 +128,11 @@
       "summary": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
       "description": "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
       "releaseYear": 2023,
-      "genres": [
-        "RPG"
-      ],
+      "genres": ["RPG"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Xbox"
-      ],
+      "platforms": ["PC", "Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1716740/library_600x900_2x.jpg"
       },
@@ -183,15 +166,11 @@
       "summary": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
       "description": "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
       "releaseYear": 2024,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC"
-      ],
+      "platforms": ["PC"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2358720/library_600x900_2x.jpg"
       },
@@ -225,15 +204,11 @@
       "summary": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
       "description": "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
       "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
+      "platforms": ["PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1593500/library_600x900_2x.jpg"
       },
@@ -267,15 +242,11 @@
       "summary": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
       "description": "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
       "releaseYear": 2023,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
+      "platforms": ["PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1817070/library_600x900_2x.jpg"
       },
@@ -309,15 +280,11 @@
       "summary": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
       "description": "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
       "releaseYear": 2023,
-      "genres": [
-        "RPG"
-      ],
+      "genres": ["RPG"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
+      "platforms": ["PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2515020/library_600x900_2x.jpg"
       },
@@ -351,15 +318,11 @@
       "summary": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
       "description": "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
       "releaseYear": 2022,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
+      "platforms": ["PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2420110/library_600x900_2x.jpg"
       },
@@ -393,15 +356,11 @@
       "summary": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
       "description": "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
       "releaseYear": 2020,
-      "genres": [
-        "Action"
-      ],
+      "genres": ["Action"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PS5"
-      ],
+      "platforms": ["PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/2215430/library_600x900_2x.jpg"
       },
@@ -435,15 +394,11 @@
       "summary": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
       "description": "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
       "releaseYear": 2021,
-      "genres": [
-        "Racing"
-      ],
+      "genres": ["Racing"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Xbox"
-      ],
+      "platforms": ["Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1551360/library_600x900_2x.jpg"
       },
@@ -477,15 +432,11 @@
       "summary": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
       "description": "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
       "releaseYear": 2021,
-      "genres": [
-        "Shooter"
-      ],
+      "genres": ["Shooter"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Xbox"
-      ],
+      "platforms": ["Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1240440/library_600x900_2x.jpg"
       },
@@ -519,15 +470,11 @@
       "summary": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
       "description": "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
       "releaseYear": 2019,
-      "genres": [
-        "Shooter"
-      ],
+      "genres": ["Shooter"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Xbox"
-      ],
+      "platforms": ["Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1097840/library_600x900_2x.jpg"
       },
@@ -561,15 +508,11 @@
       "summary": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
       "description": "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
       "releaseYear": 2018,
-      "genres": [
-        "Adventure"
-      ],
+      "genres": ["Adventure"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Xbox"
-      ],
+      "platforms": ["Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1172620/library_600x900_2x.jpg"
       },
@@ -603,15 +546,11 @@
       "summary": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
       "description": "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
       "releaseYear": 2023,
-      "genres": [
-        "Adventure"
-      ],
+      "genres": ["Adventure"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
+      "platforms": ["Switch"],
       "cover": {
         "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Zelda%20TotK&font=roboto"
       },
@@ -645,15 +584,11 @@
       "summary": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
       "description": "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
       "releaseYear": 2023,
-      "genres": [
-        "Platformer"
-      ],
+      "genres": ["Platformer"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
+      "platforms": ["Switch"],
       "cover": {
         "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Wonder&font=roboto"
       },
@@ -683,15 +618,11 @@
       "summary": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
       "description": "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
       "releaseYear": 2025,
-      "genres": [
-        "Adventure"
-      ],
+      "genres": ["Adventure"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
+      "platforms": ["Switch"],
       "cover": {
         "url": "https://placehold.co/400x600/1a0a2a/ffffff?text=Metroid%20Prime%204&font=roboto"
       },
@@ -721,15 +652,11 @@
       "summary": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
       "description": "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
       "releaseYear": 2017,
-      "genres": [
-        "Racing"
-      ],
+      "genres": ["Racing"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
+      "platforms": ["Switch"],
       "cover": {
         "url": "https://placehold.co/400x600/e60012/ffffff?text=Mario%20Kart%208&font=roboto"
       },
@@ -759,15 +686,11 @@
       "summary": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
       "description": "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
       "releaseYear": 2020,
-      "genres": [
-        "Simulation"
-      ],
+      "genres": ["Simulation"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "Switch"
-      ],
+      "platforms": ["Switch"],
       "cover": {
         "url": "https://placehold.co/400x600/0a2a1a/ffffff?text=Animal%20Crossing&font=roboto"
       },
@@ -797,16 +720,11 @@
       "summary": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
       "description": "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
       "releaseYear": 2020,
-      "genres": [
-        "Roguelike"
-      ],
+      "genres": ["Roguelike"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
+      "platforms": ["PC", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1145360/library_600x900_2x.jpg"
       },
@@ -836,16 +754,11 @@
       "summary": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
       "description": "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
       "releaseYear": 2018,
-      "genres": [
-        "Platformer"
-      ],
+      "genres": ["Platformer"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
+      "platforms": ["PC", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/504230/library_600x900_2x.jpg"
       },
@@ -875,16 +788,11 @@
       "summary": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
       "description": "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
       "releaseYear": 2016,
-      "genres": [
-        "Simulation"
-      ],
+      "genres": ["Simulation"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
+      "platforms": ["PC", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/413150/library_600x900_2x.jpg"
       },
@@ -914,16 +822,11 @@
       "summary": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
       "description": "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
       "releaseYear": 2017,
-      "genres": [
-        "Metroidvania"
-      ],
+      "genres": ["Metroidvania"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Switch"
-      ],
+      "platforms": ["PC", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/367520/library_600x900_2x.jpg"
       },
@@ -953,18 +856,11 @@
       "summary": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
       "description": "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
       "releaseYear": 2019,
-      "genres": [
-        "RPG"
-      ],
+      "genres": ["RPG"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "PS5",
-        "Xbox",
-        "Switch"
-      ],
+      "platforms": ["PC", "PS5", "Xbox", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/632470/library_600x900_2x.jpg"
       },
@@ -994,16 +890,11 @@
       "summary": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
       "description": "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
       "releaseYear": 2024,
-      "genres": [
-        "Shooter"
-      ],
+      "genres": ["Shooter"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "PS5"
-      ],
+      "platforms": ["PC", "PS5"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/553850/library_600x900_2x.jpg"
       },
@@ -1033,16 +924,11 @@
       "summary": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
       "description": "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
       "releaseYear": 2024,
-      "genres": [
-        "Survival"
-      ],
+      "genres": ["Survival"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "Xbox"
-      ],
+      "platforms": ["PC", "Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1623730/library_600x900_2x.jpg"
       },
@@ -1072,17 +958,11 @@
       "summary": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
       "description": "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
       "releaseYear": 2020,
-      "genres": [
-        "Shooter"
-      ],
+      "genres": ["Shooter"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "PS5",
-        "Xbox"
-      ],
+      "platforms": ["PC", "PS5", "Xbox"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/548430/library_600x900_2x.jpg"
       },
@@ -1112,18 +992,11 @@
       "summary": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
       "description": "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
       "releaseYear": 2021,
-      "genres": [
-        "Adventure"
-      ],
+      "genres": ["Adventure"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "PS5",
-        "Xbox",
-        "Switch"
-      ],
+      "platforms": ["PC", "PS5", "Xbox", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/1426210/library_600x900_2x.jpg"
       },
@@ -1153,18 +1026,11 @@
       "summary": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
       "description": "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
       "releaseYear": 2018,
-      "genres": [
-        "Party"
-      ],
+      "genres": ["Party"],
       "themes": [],
       "developers": [],
       "publishers": [],
-      "platforms": [
-        "PC",
-        "PS5",
-        "Xbox",
-        "Switch"
-      ],
+      "platforms": ["PC", "PS5", "Xbox", "Switch"],
       "cover": {
         "url": "https://cdn.cloudflare.steamstatic.com/steam/apps/728880/library_600x900_2x.jpg"
       },

@@ -45,7 +45,8 @@ export default function GameDetailError({
             Something went wrong
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base leading-7 text-muted">
-            We couldn&apos;t load this game right now. Try again, or return to your vault.
+            We couldn&apos;t load this game right now. Try again, or return to
+            your vault.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <button

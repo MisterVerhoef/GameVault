@@ -2,7 +2,10 @@
 
 import { useState } from "react";
 import { studioInitials } from "@/data/studio-profile";
-import { resolveStudioLogo, type CatalogueCompanyLogo } from "@/data/studio-logo";
+import {
+  resolveStudioLogo,
+  type CatalogueCompanyLogo,
+} from "@/data/studio-logo";
 
 /** Game-page mark. Inline px so the chip stays 24px even if a utility class is missed. */
 const CHIP_PX = 24;
@@ -46,9 +49,10 @@ function StudioLogoView({
   variant: "inline" | "badge";
 }) {
   const [stage, setStage] = useState(0);
-  const resolved = stage >= 2
-    ? null
-    : resolveStudioLogo({ name, logo: stage === 0 ? logo : undefined });
+  const resolved =
+    stage >= 2
+      ? null
+      : resolveStudioLogo({ name, logo: stage === 0 ? logo : undefined });
 
   function handleError() {
     setStage((current) => {
@@ -60,11 +64,19 @@ function StudioLogoView({
 
   if (variant === "badge") {
     return (
-      <div className={resolved ? `${PORTRAIT} p-3 sm:p-4` : PORTRAIT} aria-hidden="true">
+      <div
+        className={resolved ? `${PORTRAIT} p-3 sm:p-4` : PORTRAIT}
+        aria-hidden="true"
+      >
         {resolved ? (
           // Catalogue files use the IGDB host; local SVG stays an img.
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={resolved.src} alt="" className="h-full w-full object-contain" onError={handleError} />
+          <img
+            src={resolved.src}
+            alt=""
+            className="h-full w-full object-contain"
+            onError={handleError}
+          />
         ) : (
           <span className="text-xl font-bold tracking-wide text-zinc-900 sm:text-3xl">
             {studioInitials(name)}
@@ -90,7 +102,11 @@ function StudioLogoView({
   return (
     <span
       className="inline-flex shrink-0 items-center justify-center overflow-hidden rounded bg-white ring-1 ring-black/15"
-      style={{ height: CHIP_PX, width: Math.round(CHIP_PX * aspect), minWidth: CHIP_PX }}
+      style={{
+        height: CHIP_PX,
+        width: Math.round(CHIP_PX * aspect),
+        minWidth: CHIP_PX,
+      }}
       aria-hidden="true"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}

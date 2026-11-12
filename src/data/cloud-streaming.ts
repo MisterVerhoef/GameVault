@@ -29,7 +29,9 @@ const SERVICE_ORDER: Record<CloudServiceId, number> = {
 };
 
 function isServiceId(value: unknown): value is CloudServiceId {
-  return value === "xbox-cloud" || value === "boosteroid" || value === "ps-plus";
+  return (
+    value === "xbox-cloud" || value === "boosteroid" || value === "ps-plus"
+  );
 }
 
 export function normalizeCloudTitle(value: string): string {
@@ -61,7 +63,12 @@ export function matchCloudTitle(
   if (!title) return undefined;
   const matches = candidates.filter((candidate) => {
     if (normalizeCloudTitle(candidate.title) !== title) return false;
-    if (game.releaseYear != null && candidate.year != null && Math.abs(game.releaseYear - candidate.year) > 2) return false;
+    if (
+      game.releaseYear != null &&
+      candidate.year != null &&
+      Math.abs(game.releaseYear - candidate.year) > 2
+    )
+      return false;
     return true;
   });
   return matches.length === 1 ? matches[0] : undefined;
@@ -78,18 +85,28 @@ function safeUrl(value: unknown): string | undefined {
 }
 
 function parseService(value: unknown): CloudStreamingService | undefined {
-  if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+  if (!value || typeof value !== "object" || Array.isArray(value))
+    return undefined;
   const item = value as Record<string, unknown>;
   if (!isServiceId(item.id) || typeof item.name !== "string") return undefined;
   const url = safeUrl(item.url);
-  if (!url || (item.match !== "external-id" && item.match !== "exact-title")) return undefined;
-  if (typeof item.checkedAt !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(item.checkedAt)) return undefined;
+  if (!url || (item.match !== "external-id" && item.match !== "exact-title"))
+    return undefined;
+  if (
+    typeof item.checkedAt !== "string" ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(item.checkedAt)
+  )
+    return undefined;
   return {
     id: item.id,
     name: item.name,
     ...(typeof item.tier === "string" ? { tier: item.tier } : {}),
-    ...(typeof item.requiresOwnership === "boolean" ? { requiresOwnership: item.requiresOwnership } : {}),
-    ...(typeof item.storeRequirement === "string" ? { storeRequirement: item.storeRequirement } : {}),
+    ...(typeof item.requiresOwnership === "boolean"
+      ? { requiresOwnership: item.requiresOwnership }
+      : {}),
+    ...(typeof item.storeRequirement === "string"
+      ? { storeRequirement: item.storeRequirement }
+      : {}),
     url,
     match: item.match,
     checkedAt: item.checkedAt,
@@ -97,14 +114,33 @@ function parseService(value: unknown): CloudStreamingService | undefined {
 }
 
 export function indexCloudStreaming(raw: unknown): CloudStreamingIndex {
-  const empty: CloudStreamingIndex = { region: "", generatedAt: "", byGameId: new Map() };
+  const empty: CloudStreamingIndex = {
+    region: "",
+    generatedAt: "",
+    byGameId: new Map(),
+  };
   if (!raw || typeof raw !== "object" || Array.isArray(raw)) return empty;
-  const file = raw as { schemaVersion?: unknown; region?: unknown; generatedAt?: unknown; games?: unknown };
-  if (file.schemaVersion !== 1 || file.region !== "NL" || !file.games || typeof file.games !== "object" || Array.isArray(file.games)) return empty;
+  const file = raw as {
+    schemaVersion?: unknown;
+    region?: unknown;
+    generatedAt?: unknown;
+    games?: unknown;
+  };
+  if (
+    file.schemaVersion !== 1 ||
+    file.region !== "NL" ||
+    !file.games ||
+    typeof file.games !== "object" ||
+    Array.isArray(file.games)
+  )
+    return empty;
 
   const byGameId = new Map<string, readonly CloudStreamingService[]>();
-  for (const [gameId, entry] of Object.entries(file.games as Record<string, unknown>)) {
-    if (!gameId || !entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+  for (const [gameId, entry] of Object.entries(
+    file.games as Record<string, unknown>,
+  )) {
+    if (!gameId || !entry || typeof entry !== "object" || Array.isArray(entry))
+      continue;
     const rawServices = (entry as { services?: unknown }).services;
     if (!Array.isArray(rawServices)) continue;
     const seen = new Set<CloudServiceId>();
@@ -116,7 +152,9 @@ export function indexCloudStreaming(raw: unknown): CloudStreamingIndex {
       services.push(service);
     }
     if (services.length > 0) {
-      services.sort((left, right) => SERVICE_ORDER[left.id] - SERVICE_ORDER[right.id]);
+      services.sort(
+        (left, right) => SERVICE_ORDER[left.id] - SERVICE_ORDER[right.id],
+      );
       byGameId.set(gameId, services);
     }
   }
@@ -127,11 +165,15 @@ export function indexCloudStreaming(raw: unknown): CloudStreamingIndex {
   };
 }
 
-export function cloudServicesForGame(index: CloudStreamingIndex, gameId: string): readonly CloudStreamingService[] {
+export function cloudServicesForGame(
+  index: CloudStreamingIndex,
+  gameId: string,
+): readonly CloudStreamingService[] {
   return index.byGameId.get(gameId) ?? [];
 }
 
-export function cloudServiceNames(services: readonly CloudStreamingService[]): string[] {
+export function cloudServiceNames(
+  services: readonly CloudStreamingService[],
+): string[] {
   return services.map((service) => service.name);
 }
-

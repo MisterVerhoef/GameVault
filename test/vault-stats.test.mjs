@@ -97,11 +97,23 @@ test("draws completion as an empty disc, a slice, or a full disc", () => {
 
 test("formats recent updates in the requested locale", () => {
   const now = Date.parse("2026-10-28T12:00:00.000Z");
-  assert.equal(formatVaultUpdated("2026-10-28T12:00:00.000Z", now, "en"), "now");
-  assert.equal(formatVaultUpdated("2026-10-28T11:00:00.000Z", now, "en"), "1 hour ago");
-  assert.equal(formatVaultUpdated("2026-10-25T12:00:00.000Z", now, "en"), "3 days ago");
+  assert.equal(
+    formatVaultUpdated("2026-10-28T12:00:00.000Z", now, "en"),
+    "now",
+  );
+  assert.equal(
+    formatVaultUpdated("2026-10-28T11:00:00.000Z", now, "en"),
+    "1 hour ago",
+  );
+  assert.equal(
+    formatVaultUpdated("2026-10-25T12:00:00.000Z", now, "en"),
+    "3 days ago",
+  );
   assert.equal(formatVaultUpdated("not-a-date", now, "en"), "Unknown date");
-  assert.match(formatVaultUpdated("2026-08-01T12:00:00.000Z", now, "en"), /2026/);
+  assert.match(
+    formatVaultUpdated("2026-08-01T12:00:00.000Z", now, "en"),
+    /2026/,
+  );
 });
 
 test("returns an empty dashboard for an empty vault", () => {
@@ -119,9 +131,12 @@ test("returns an empty dashboard for an empty vault", () => {
 });
 
 test("keeps wishlist out of the completion rate and still counts it in the mixes", () => {
-  const stats = buildVaultStats({
-    wish: entry("wishlist", "2026-10-01T00:00:00.000Z"),
-  }, lookup);
+  const stats = buildVaultStats(
+    {
+      wish: entry("wishlist", "2026-10-01T00:00:00.000Z"),
+    },
+    lookup,
+  );
 
   assert.equal(stats.completionRate, null);
   assert.equal(stats.owned, 0);
@@ -132,16 +147,24 @@ test("keeps wishlist out of the completion rate and still counts it in the mixes
 });
 
 test("joins vault entries to catalogue genres and platforms", () => {
-  const stats = buildVaultStats({
-    hades: entry("completed", "2026-10-01T00:00:00.000Z"),
-    celeste: entry("playing", "2026-10-20T00:00:00.000Z"),
-    portal: entry("paused", "2026-10-20T00:00:00.000Z"),
-    mario: entry("backlog", "2026-09-01T00:00:00.000Z"),
-    wish: entry("wishlist", "2026-10-28T00:00:00.000Z"),
-    missing: entry("completed", "2026-10-15T00:00:00.000Z"),
-    blankGenre: entry("playing", "2026-08-01T00:00:00.000Z"),
-    dropped: { status: "dropped", progress: 0, updatedAt: "2026-10-27T00:00:00.000Z" },
-  }, lookup, 3);
+  const stats = buildVaultStats(
+    {
+      hades: entry("completed", "2026-10-01T00:00:00.000Z"),
+      celeste: entry("playing", "2026-10-20T00:00:00.000Z"),
+      portal: entry("paused", "2026-10-20T00:00:00.000Z"),
+      mario: entry("backlog", "2026-09-01T00:00:00.000Z"),
+      wish: entry("wishlist", "2026-10-28T00:00:00.000Z"),
+      missing: entry("completed", "2026-10-15T00:00:00.000Z"),
+      blankGenre: entry("playing", "2026-08-01T00:00:00.000Z"),
+      dropped: {
+        status: "dropped",
+        progress: 0,
+        updatedAt: "2026-10-27T00:00:00.000Z",
+      },
+    },
+    lookup,
+    3,
+  );
 
   assert.equal(stats.total, 7);
   assert.equal(stats.owned, 6);
@@ -160,7 +183,10 @@ test("joins vault entries to catalogue genres and platforms", () => {
   assert.equal(rpg.count, 1);
   assert.equal(rpg.share, 1 / 5);
   const labels = stats.genres.map((slice) => slice.label);
-  assert.deepEqual(labels, [...labels].sort((left, right) => left.localeCompare(right)));
+  assert.deepEqual(
+    labels,
+    [...labels].sort((left, right) => left.localeCompare(right)),
+  );
 
   assert.deepEqual(
     stats.platforms.map((slice) => [slice.label, slice.count]),
@@ -183,47 +209,74 @@ test("joins vault entries to catalogue genres and platforms", () => {
 });
 
 test("lists real platforms before Other even when Other is larger", () => {
-  const stats = buildVaultStats({
-    a: entry("playing", "2026-10-01T00:00:00.000Z"),
-    b: entry("playing", "2026-10-02T00:00:00.000Z"),
-    c: entry("completed", "2026-10-03T00:00:00.000Z"),
-  }, (gameId) => ({
-    id: gameId,
-    title: gameId,
-    genres: [],
-    platforms: gameId === "c" ? ["PC"] : ["Other"],
-  }));
+  const stats = buildVaultStats(
+    {
+      a: entry("playing", "2026-10-01T00:00:00.000Z"),
+      b: entry("playing", "2026-10-02T00:00:00.000Z"),
+      c: entry("completed", "2026-10-03T00:00:00.000Z"),
+    },
+    (gameId) => ({
+      id: gameId,
+      title: gameId,
+      genres: [],
+      platforms: gameId === "c" ? ["PC"] : ["Other"],
+    }),
+  );
 
-  assert.deepEqual(stats.platforms.map((slice) => [slice.label, slice.count]), [
-    ["PC", 1],
-    ["Other", 2],
-  ]);
+  assert.deepEqual(
+    stats.platforms.map((slice) => [slice.label, slice.count]),
+    [
+      ["PC", 1],
+      ["Other", 2],
+    ],
+  );
 });
 
 test("sorts a catalogue miss by date and leaves it out of the mixes", () => {
-  const stats = buildVaultStats({
-    known: entry("playing", "2026-10-01T00:00:00.000Z"),
-    missing: entry("completed", "2026-10-02T00:00:00.000Z"),
-  }, lookup);
+  const stats = buildVaultStats(
+    {
+      known: entry("playing", "2026-10-01T00:00:00.000Z"),
+      missing: entry("completed", "2026-10-02T00:00:00.000Z"),
+    },
+    lookup,
+  );
 
   assert.equal(stats.recent[0].gameId, "missing");
   assert.equal(stats.recent[0].title, "missing");
   assert.equal(stats.recent[0].href, null);
   assert.equal(stats.recent[0].inCatalogue, false);
-  assert.equal(stats.genres.some((slice) => slice.label === "missing"), false);
+  assert.equal(
+    stats.genres.some((slice) => slice.label === "missing"),
+    false,
+  );
   assert.equal(stats.completionRate, 1 / 2);
 });
 
 test("breaks recent ties by title, then id", () => {
-  const stats = buildVaultStats({
-    b: entry("playing", "2026-10-01T00:00:00.000Z"),
-    a: entry("backlog", "2026-10-01T00:00:00.000Z"),
-    c: entry("paused", "2026-10-01T00:00:00.000Z"),
-  }, (gameId) => {
-    if (gameId === "c") return { id: "c", title: "Alpha", genres: [], platforms: ["PC"] };
-    return { id: gameId, title: "Same", genres: ["Adventure"], platforms: ["PC"] };
-  });
+  const stats = buildVaultStats(
+    {
+      b: entry("playing", "2026-10-01T00:00:00.000Z"),
+      a: entry("backlog", "2026-10-01T00:00:00.000Z"),
+      c: entry("paused", "2026-10-01T00:00:00.000Z"),
+    },
+    (gameId) => {
+      if (gameId === "c")
+        return { id: "c", title: "Alpha", genres: [], platforms: ["PC"] };
+      return {
+        id: gameId,
+        title: "Same",
+        genres: ["Adventure"],
+        platforms: ["PC"],
+      };
+    },
+  );
 
-  assert.deepEqual(stats.recent.map((item) => item.gameId), ["c", "a", "b"]);
-  assert.equal(stats.genres.find((slice) => slice.label === "Adventure").count, 2);
+  assert.deepEqual(
+    stats.recent.map((item) => item.gameId),
+    ["c", "a", "b"],
+  );
+  assert.equal(
+    stats.genres.find((slice) => slice.label === "Adventure").count,
+    2,
+  );
 });

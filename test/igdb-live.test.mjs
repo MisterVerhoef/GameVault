@@ -39,7 +39,9 @@ test("LruCache evicts oldest entries", () => {
 test("RequestThrottle limits burst rate", async () => {
   const throttle = new RequestThrottle(4);
   const started = [];
-  const tasks = Array.from({ length: 6 }, () => throttle.acquire().then(() => started.push(Date.now())));
+  const tasks = Array.from({ length: 6 }, () =>
+    throttle.acquire().then(() => started.push(Date.now())),
+  );
   await Promise.all(tasks);
   assert.equal(started.length, 6);
   const span = started[5] - started[0];

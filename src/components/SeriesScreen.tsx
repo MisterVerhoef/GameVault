@@ -40,7 +40,11 @@ export default function SeriesScreen({ series }: { series: Series }) {
                 stroke="currentColor"
                 className="h-5 w-5"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M15.75 19.5 8.25 12l7.5-7.5"
+                />
               </svg>
             </Link>
             <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
@@ -51,7 +55,10 @@ export default function SeriesScreen({ series }: { series: Series }) {
       </div>
 
       <main id="series-content" tabIndex={-1} className="focus:outline-none">
-        <section className="relative h-44 overflow-hidden sm:h-60" aria-hidden="true">
+        <section
+          className="relative h-44 overflow-hidden sm:h-60"
+          aria-hidden="true"
+        >
           {series.backgroundUrl ? (
             <Image
               src={series.backgroundUrl}
@@ -91,7 +98,9 @@ export default function SeriesScreen({ series }: { series: Series }) {
             inset="quarter"
             collapseDesktop={false}
           />
-          <p className="mt-2 text-xs text-muted">Summary from the GameVault catalogue.</p>
+          <p className="mt-2 text-xs text-muted">
+            Summary from the GameVault catalogue.
+          </p>
         </div>
 
         <div className="mt-10">

@@ -13,10 +13,7 @@ test("home, game detail, and vault render", async ({ page }) => {
   await expect(card).toBeVisible();
 
   // 2. Game detail: wait for the client-side navigation to /game/<id>
-  await Promise.all([
-    page.waitForURL(/\/game\//),
-    card.click(),
-  ]);
+  await Promise.all([page.waitForURL(/\/game\//), card.click()]);
   await expect(page.getByRole("main")).toBeVisible();
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
 

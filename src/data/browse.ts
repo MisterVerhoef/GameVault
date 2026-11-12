@@ -42,7 +42,8 @@ function patternFor(term: string) {
 export function genreDefinition(key: string): GenreDefinition | undefined {
   const normalized = key.trim().toLowerCase();
   return GENRE_DEFINITIONS.find(
-    (genre) => genre.key === normalized || genre.label.toLowerCase() === normalized,
+    (genre) =>
+      genre.key === normalized || genre.label.toLowerCase() === normalized,
   );
 }
 
@@ -66,16 +67,23 @@ export function gameMatchesGenre(game: GenreGame, genreKey: string): boolean {
   return defined.terms.some((term) => patternFor(term).test(haystack));
 }
 
-export function byRatingThenTitle<T extends { rating?: number; title: string }>(left: T, right: T) {
+export function byRatingThenTitle<T extends { rating?: number; title: string }>(
+  left: T,
+  right: T,
+) {
   const rating = (right.rating ?? -1) - (left.rating ?? -1);
   if (rating !== 0) return rating;
   return left.title.localeCompare(right.title);
 }
 
 /** Genre-results order. `default` keeps the existing rating-then-title order. */
-export type GenreSort = "default" | "critic-desc" | "critic-asc" | "released-desc" | "released-asc";
+export type GenreSort =
+  "default" | "critic-desc" | "critic-asc" | "released-desc" | "released-asc";
 
-export const GENRE_SORT_OPTIONS: readonly { value: GenreSort; label: string }[] = [
+export const GENRE_SORT_OPTIONS: readonly {
+  value: GenreSort;
+  label: string;
+}[] = [
   { value: "default", label: "Default order" },
   { value: "critic-desc", label: "Critic score (IGDB), highest first" },
   { value: "critic-asc", label: "Critic score (IGDB), lowest first" },
@@ -83,11 +91,14 @@ export const GENRE_SORT_OPTIONS: readonly { value: GenreSort; label: string }[] 
   { value: "released-asc", label: "Release date, oldest first" },
 ];
 
-const GENRE_SORT_VALUES = new Set<string>(GENRE_SORT_OPTIONS.map((option) => option.value));
+const GENRE_SORT_VALUES = new Set<string>(
+  GENRE_SORT_OPTIONS.map((option) => option.value),
+);
 
 export function parseGenreSort(value: string | null | undefined): GenreSort {
   const normalized = (value ?? "").trim().toLowerCase();
-  if (normalized === "default" || !GENRE_SORT_VALUES.has(normalized)) return "default";
+  if (normalized === "default" || !GENRE_SORT_VALUES.has(normalized))
+    return "default";
   return normalized as GenreSort;
 }
 
@@ -96,11 +107,13 @@ export function parseGenreSort(value: string | null | undefined): GenreSort {
  * non-finite values are not scores. The separate IGDB `rating` is never used.
  */
 export function criticScore(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isFinite(value) || value < 0) return null;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
+    return null;
   return value;
 }
 
-const MONTH_LABEL = /^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{4})$/i;
+const MONTH_LABEL =
+  /^(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sep(?:t|tember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\s+(\d{4})$/i;
 const QUARTER_LABEL = /^q([1-4])\s+(\d{4})$/i;
 const QUARTER_YEAR_LABEL = /^(\d{4})\s+q([1-4])$/i;
 const YEAR_TOKEN = /^(\d{4})$/;
@@ -135,7 +148,13 @@ const MONTH_NUMBER: Record<string, number> = {
 };
 
 function validYear(value: unknown): number | null {
-  if (typeof value !== "number" || !Number.isInteger(value) || value < 1 || value > 9999) return null;
+  if (
+    typeof value !== "number" ||
+    !Number.isInteger(value) ||
+    value < 1 ||
+    value > 9999
+  )
+    return null;
   return value;
 }
 
@@ -157,7 +176,8 @@ function monthOrQuarterToken(label: string): string | undefined {
   if (quarter) {
     const year = Number(quarter[1].length === 4 ? quarter[1] : quarter[2]);
     const quarterNumber = quarter[1].length === 4 ? quarter[2] : quarter[1];
-    if (year >= 1 && year <= 9999) return `${yearToken(year)}-Q${quarterNumber}`;
+    if (year >= 1 && year <= 9999)
+      return `${yearToken(year)}-Q${quarterNumber}`;
   }
   return undefined;
 }
@@ -186,7 +206,10 @@ export function releaseOnForGame(game: {
   const year = validYear(game.releaseYear);
   const id = game.id || "release";
   if (year != null) {
-    const inYear = releases.filter((release) => isIsoDay(release.date) && Number(release.date.slice(0, 4)) === year);
+    const inYear = releases.filter(
+      (release) =>
+        isIsoDay(release.date) && Number(release.date.slice(0, 4)) === year,
+    );
     const day = toReleaseDateRecord({ id, releases: inYear })?.date;
     if (day) return day;
   } else {
@@ -240,22 +263,30 @@ export function releaseOrder(value: unknown): ReleaseOrder | null {
     return { year, slot: firstMonth * 2 - 1, day: 0 };
   }
   const year = YEAR_TOKEN.exec(value);
-  if (year && year[1] !== "0000") return { year: Number(year[1]), slot: 0, day: 0 };
+  if (year && year[1] !== "0000")
+    return { year: Number(year[1]), slot: 0, day: 0 };
   return null;
 }
 
-function titleThenId(left: { id: string; title: string }, right: { id: string; title: string }) {
-  return left.title.localeCompare(right.title) || left.id.localeCompare(right.id);
+function titleThenId(
+  left: { id: string; title: string },
+  right: { id: string; title: string },
+) {
+  return (
+    left.title.localeCompare(right.title) || left.id.localeCompare(right.id)
+  );
 }
 
 /** Genre-results comparator. Missing and invalid scores or dates sort last in both directions. */
-export function compareGenreBrowse<T extends {
-  id: string;
-  title: string;
-  rating?: number;
-  aggregatedRating?: number;
-  releaseOn?: string;
-}>(sort: GenreSort, left: T, right: T) {
+export function compareGenreBrowse<
+  T extends {
+    id: string;
+    title: string;
+    rating?: number;
+    aggregatedRating?: number;
+    releaseOn?: string;
+  },
+>(sort: GenreSort, left: T, right: T) {
   if (sort === "default") return byRatingThenTitle(left, right);
   const tie = titleThenId(left, right);
   if (sort === "critic-desc" || sort === "critic-asc") {
@@ -265,7 +296,10 @@ export function compareGenreBrowse<T extends {
       if (leftScore == null && rightScore == null) return tie;
       return leftScore == null ? 1 : -1;
     }
-    if (leftScore !== rightScore) return sort === "critic-desc" ? rightScore - leftScore : leftScore - rightScore;
+    if (leftScore !== rightScore)
+      return sort === "critic-desc"
+        ? rightScore - leftScore
+        : leftScore - rightScore;
     return tie;
   }
   const leftRelease = releaseOrder(left.releaseOn);
@@ -274,10 +308,12 @@ export function compareGenreBrowse<T extends {
     if (leftRelease == null && rightRelease == null) return tie;
     return leftRelease == null ? 1 : -1;
   }
-  const chronological = leftRelease.year - rightRelease.year
-    || leftRelease.slot - rightRelease.slot
-    || leftRelease.day - rightRelease.day;
-  if (chronological !== 0) return sort === "released-desc" ? -chronological : chronological;
+  const chronological =
+    leftRelease.year - rightRelease.year ||
+    leftRelease.slot - rightRelease.slot ||
+    leftRelease.day - rightRelease.day;
+  if (chronological !== 0)
+    return sort === "released-desc" ? -chronological : chronological;
   return tie;
 }
 

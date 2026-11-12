@@ -7,7 +7,13 @@
  * are classified from the stored URL until the next sync writes the type.
  */
 
-export const EXTERNAL_LINK_CATEGORIES = ["store", "website", "community", "wiki", "guide"] as const;
+export const EXTERNAL_LINK_CATEGORIES = [
+  "store",
+  "website",
+  "community",
+  "wiki",
+  "guide",
+] as const;
 
 export type ExternalLinkCategory = (typeof EXTERNAL_LINK_CATEGORIES)[number];
 
@@ -108,7 +114,12 @@ function cleanLabel(value: unknown): string | undefined {
 
 function isGenericLabel(label: string): boolean {
   const key = label.toLowerCase();
-  return key === "official website" || key === "official site" || key === "website" || key === "link";
+  return (
+    key === "official website" ||
+    key === "official site" ||
+    key === "website" ||
+    key === "link"
+  );
 }
 
 export function normalizeLinkUrl(value: unknown): string | undefined {
@@ -122,7 +133,8 @@ export function normalizeLinkUrl(value: unknown): string | undefined {
   } catch {
     return undefined;
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") return undefined;
+  if (parsed.protocol !== "http:" && parsed.protocol !== "https:")
+    return undefined;
   if (!parsed.hostname) return undefined;
   return parsed.href;
 }
@@ -137,16 +149,26 @@ function dedupeKey(url: string): string {
   return `${parsed.hostname.toLowerCase()}${path}${parsed.search}`;
 }
 
-function categoryFromToken(token: string | undefined): ExternalLinkCategory | undefined {
+function categoryFromToken(
+  token: string | undefined,
+): ExternalLinkCategory | undefined {
   if (!token) return undefined;
   const known = CATEGORY_BY_TOKEN[token];
   if (known) return known;
   if (token.includes("wiki")) return "wiki";
-  if (token.includes("guide") || token.includes("walkthrough") || token.includes("gamefaq")) return "guide";
+  if (
+    token.includes("guide") ||
+    token.includes("walkthrough") ||
+    token.includes("gamefaq")
+  )
+    return "guide";
   return undefined;
 }
 
-function labelForToken(token: string | undefined, typeName?: string): string | undefined {
+function labelForToken(
+  token: string | undefined,
+  typeName?: string,
+): string | undefined {
   if (!token) return undefined;
   if (LABEL_BY_TOKEN[token]) return LABEL_BY_TOKEN[token];
   const category = categoryFromToken(token);
@@ -158,7 +180,9 @@ function labelForToken(token: string | undefined, typeName?: string): string | u
   return undefined;
 }
 
-function referenceFromHost(host: string): { category: ExternalLinkCategory; label: string } | undefined {
+function referenceFromHost(
+  host: string,
+): { category: ExternalLinkCategory; label: string } | undefined {
   if (host === "wikipedia.org" || host.endsWith(".wikipedia.org")) {
     return { category: "wiki", label: "Wikipedia" };
   }
@@ -190,7 +214,11 @@ function referenceFromHost(host: string): { category: ExternalLinkCategory; labe
   ) {
     return { category: "community", label: "Discord" };
   }
-  if (host === "store.steampowered.com" || host === "steampowered.com" || host.endsWith(".steampowered.com")) {
+  if (
+    host === "store.steampowered.com" ||
+    host === "steampowered.com" ||
+    host.endsWith(".steampowered.com")
+  ) {
     return { category: "store", label: "Steam" };
   }
   if (host === "gog.com" || host.endsWith(".gog.com")) {
@@ -214,13 +242,22 @@ function referenceFromHost(host: string): { category: ExternalLinkCategory; labe
   return undefined;
 }
 
-function classifyUrl(url: string): { category: ExternalLinkCategory; label: string } {
-  return referenceFromHost(hostname(url)) ?? { category: "website", label: "Official website" };
+function classifyUrl(url: string): {
+  category: ExternalLinkCategory;
+  label: string;
+} {
+  return (
+    referenceFromHost(hostname(url)) ?? {
+      category: "website",
+      label: "Official website",
+    }
+  );
 }
 
 function knownCategory(value: unknown): ExternalLinkCategory | undefined {
-  return typeof value === "string" && EXTERNAL_LINK_CATEGORIES.includes(value as ExternalLinkCategory)
-    ? value as ExternalLinkCategory
+  return typeof value === "string" &&
+    EXTERNAL_LINK_CATEGORIES.includes(value as ExternalLinkCategory)
+    ? (value as ExternalLinkCategory)
     : undefined;
 }
 
@@ -234,24 +271,36 @@ function readTypeName(site: Record<string, unknown>): string | undefined {
 function readTypeId(site: Record<string, unknown>): number | undefined {
   const type = site.type;
   if (typeof type === "number" && Number.isInteger(type)) return type;
-  if (isRecord(type) && typeof type.id === "number" && Number.isInteger(type.id)) return type.id;
+  if (
+    isRecord(type) &&
+    typeof type.id === "number" &&
+    Number.isInteger(type.id)
+  )
+    return type.id;
   return undefined;
 }
 
 function readCategoryId(site: Record<string, unknown>): number | undefined {
-  return typeof site.category === "number" && Number.isInteger(site.category) ? site.category : undefined;
+  return typeof site.category === "number" && Number.isInteger(site.category)
+    ? site.category
+    : undefined;
 }
 
-function igdbToken(site: Record<string, unknown>): { token?: string; typeName?: string } {
+function igdbToken(site: Record<string, unknown>): {
+  token?: string;
+  typeName?: string;
+} {
   const typeName = readTypeName(site);
   if (typeName) {
     const token = normalizeToken(typeName);
     if (categoryFromToken(token)) return { token, typeName };
   }
   const typeId = readTypeId(site);
-  if (typeId != null && TOKEN_BY_ID[typeId]) return { token: TOKEN_BY_ID[typeId], typeName };
+  if (typeId != null && TOKEN_BY_ID[typeId])
+    return { token: TOKEN_BY_ID[typeId], typeName };
   const categoryId = readCategoryId(site);
-  if (categoryId != null && TOKEN_BY_ID[categoryId]) return { token: TOKEN_BY_ID[categoryId], typeName };
+  if (categoryId != null && TOKEN_BY_ID[categoryId])
+    return { token: TOKEN_BY_ID[categoryId], typeName };
   return { typeName };
 }
 
@@ -261,7 +310,11 @@ function chooseLabel(provided: string | undefined, generated: string): string {
 }
 
 function isReference(link: ClassifiedLink): boolean {
-  return link.category === "wiki" || link.category === "guide" || link.category === "community";
+  return (
+    link.category === "wiki" ||
+    link.category === "guide" ||
+    link.category === "community"
+  );
 }
 
 function preferWithinCap(links: ClassifiedLink[]): ClassifiedLink[] {
@@ -276,7 +329,9 @@ function preferWithinCap(links: ClassifiedLink[]): ClassifiedLink[] {
   for (const link of links) if (isReference(link)) take(link);
   for (const link of links) take(link);
   const order = new Map(links.map((link, index) => [link.url, index]));
-  return chosen.sort((left, right) => (order.get(left.url) ?? 0) - (order.get(right.url) ?? 0));
+  return chosen.sort(
+    (left, right) => (order.get(left.url) ?? 0) - (order.get(right.url) ?? 0),
+  );
 }
 
 function collect(links: ClassifiedLink[]): ClassifiedLink[] {
@@ -307,10 +362,12 @@ export function mapIgdbWebsite(site: unknown): ClassifiedLink | undefined {
 
 export function mapIgdbWebsites(sites: unknown): ClassifiedLink[] {
   if (!Array.isArray(sites)) return [];
-  return collect(sites.flatMap((site) => {
-    const link = mapIgdbWebsite(site);
-    return link ? [link] : [];
-  }));
+  return collect(
+    sites.flatMap((site) => {
+      const link = mapIgdbWebsite(site);
+      return link ? [link] : [];
+    }),
+  );
 }
 
 /**
@@ -326,20 +383,25 @@ export function sanitizeWebsites(value: unknown): ClassifiedLink[] {
     if (!url) continue;
     const explicit = knownCategory(entry.category);
     const inferred = classifyUrl(url);
-    const category = explicit === "wiki" || explicit === "guide" || explicit === "community" || explicit === "store"
-      ? explicit
-      : inferred.category;
-    const generated = category === inferred.category
-      ? inferred.label
-      : category === "wiki"
-        ? "Wiki"
-        : category === "guide"
-          ? "Guide"
-          : category === "community"
-            ? "Community"
-            : category === "store"
-              ? "Store"
-              : "Official website";
+    const category =
+      explicit === "wiki" ||
+      explicit === "guide" ||
+      explicit === "community" ||
+      explicit === "store"
+        ? explicit
+        : inferred.category;
+    const generated =
+      category === inferred.category
+        ? inferred.label
+        : category === "wiki"
+          ? "Wiki"
+          : category === "guide"
+            ? "Guide"
+            : category === "community"
+              ? "Community"
+              : category === "store"
+                ? "Store"
+                : "Official website";
     links.push({
       label: chooseLabel(cleanLabel(entry.label ?? entry.name), generated),
       url,
@@ -349,17 +411,26 @@ export function sanitizeWebsites(value: unknown): ClassifiedLink[] {
   return collect(links);
 }
 
-export function guideLinks(links: readonly { label: string; url: string; category?: string }[] | undefined): ClassifiedLink[] {
+export function guideLinks(
+  links:
+    readonly { label: string; url: string; category?: string }[] | undefined,
+): ClassifiedLink[] {
   const guides: ClassifiedLink[] = [];
   for (const link of links ?? []) {
-    if (link.category !== "wiki" && link.category !== "guide" && link.category !== "community") continue;
+    if (
+      link.category !== "wiki" &&
+      link.category !== "guide" &&
+      link.category !== "community"
+    )
+      continue;
     const url = normalizeLinkUrl(link.url);
     const label = cleanLabel(link.label);
     if (!url || !label) continue;
     guides.push({ label, url, category: link.category });
   }
   return guides.sort((left, right) => {
-    const order = (GUIDE_ORDER[left.category] ?? 9) - (GUIDE_ORDER[right.category] ?? 9);
+    const order =
+      (GUIDE_ORDER[left.category] ?? 9) - (GUIDE_ORDER[right.category] ?? 9);
     if (order !== 0) return order;
     const label = left.label.localeCompare(right.label);
     if (label !== 0) return label;

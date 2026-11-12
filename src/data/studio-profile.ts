@@ -54,23 +54,30 @@ export function describeStudio(input: {
     input.developedCount > 0 ? "developer" : "",
     input.publishedCount > 0 ? "publisher" : "",
   ].filter(Boolean);
-  const roleText = roles.length === 2
-    ? "a developer and publisher"
-    : roles.length === 1
-      ? `a ${roles[0]}`
-      : "a studio";
+  const roleText =
+    roles.length === 2
+      ? "a developer and publisher"
+      : roles.length === 1
+        ? `a ${roles[0]}`
+        : "a studio";
   const counts = [
-    input.developedCount > 0 ? countLabel(input.developedCount, "developed") : "",
-    input.publishedCount > 0 ? countLabel(input.publishedCount, "published") : "",
+    input.developedCount > 0
+      ? countLabel(input.developedCount, "developed")
+      : "",
+    input.publishedCount > 0
+      ? countLabel(input.publishedCount, "published")
+      : "",
   ].filter(Boolean);
-  const years = input.yearStart != null && input.yearEnd != null
-    ? input.yearStart === input.yearEnd
-      ? ` Catalogue releases are from ${input.yearStart}.`
-      : ` Catalogue releases run from ${input.yearStart} to ${input.yearEnd}.`
-    : "";
-  const notable = input.notableTitles.length > 0
-    ? ` Notable titles include ${joinList(input.notableTitles)}.`
-    : "";
+  const years =
+    input.yearStart != null && input.yearEnd != null
+      ? input.yearStart === input.yearEnd
+        ? ` Catalogue releases are from ${input.yearStart}.`
+        : ` Catalogue releases run from ${input.yearStart} to ${input.yearEnd}.`
+      : "";
+  const notable =
+    input.notableTitles.length > 0
+      ? ` Notable titles include ${joinList(input.notableTitles)}.`
+      : "";
   const library = counts.length > 0 ? `, with ${joinList(counts)}` : "";
   return `${input.name} is ${roleText} in the GameVault catalogue${library}.${years}${notable}`;
 }
@@ -87,14 +94,19 @@ export function studioMetadata(input: {
   if (input.publishedCount > 0) parts.push("Publisher");
   parts.push(input.gameCount === 1 ? "1 game" : `${input.gameCount} games`);
   if (input.yearStart != null && input.yearEnd != null) {
-    parts.push(input.yearStart === input.yearEnd ? String(input.yearStart) : `${input.yearStart}–${input.yearEnd}`);
+    parts.push(
+      input.yearStart === input.yearEnd
+        ? String(input.yearStart)
+        : `${input.yearStart}–${input.yearEnd}`,
+    );
   }
   return parts.join(" · ");
 }
 
 export function studioInitials(name: string) {
   const words = name.split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
+  if (words.length >= 2)
+    return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
@@ -104,14 +116,19 @@ function byRatingThenTitle(left: StudioSourceGame, right: StudioSourceGame) {
   return left.title.localeCompare(right.title);
 }
 
-export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord[] {
-  const buckets = new Map<string, {
-    id: string;
-    name: string;
-    developed: Set<string>;
-    published: Set<string>;
-    logo?: CatalogueCompanyLogo;
-  }>();
+export function collectStudios(
+  games: readonly StudioSourceGame[],
+): StudioRecord[] {
+  const buckets = new Map<
+    string,
+    {
+      id: string;
+      name: string;
+      developed: Set<string>;
+      published: Set<string>;
+      logo?: CatalogueCompanyLogo;
+    }
+  >();
 
   function bucket(company: StudioCompany) {
     const id = company.id.trim();
@@ -136,15 +153,19 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
   }
 
   for (const game of games) {
-    for (const company of game.developers ?? []) bucket(company)?.developed.add(game.id);
-    for (const company of game.publishers ?? []) bucket(company)?.published.add(game.id);
+    for (const company of game.developers ?? [])
+      bucket(company)?.developed.add(game.id);
+    for (const company of game.publishers ?? [])
+      bucket(company)?.published.add(game.id);
   }
 
   const byGameId = new Map(games.map((game) => [game.id, game]));
   const studios: StudioRecord[] = [];
 
   for (const bucketRecord of buckets.values()) {
-    const gameIds = [...new Set([...bucketRecord.developed, ...bucketRecord.published])];
+    const gameIds = [
+      ...new Set([...bucketRecord.developed, ...bucketRecord.published]),
+    ];
     const studioGames = gameIds
       .map((id) => byGameId.get(id))
       .filter((game): game is StudioSourceGame => Boolean(game))
@@ -152,10 +173,14 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
     const years = studioGames
       .map((game) => game.releaseYear)
       .filter((year): year is number => typeof year === "number");
-    const developedGames = studioGames.filter((game) => bucketRecord.developed.has(game.id));
-    const notableSource = developedGames.length > 0 ? developedGames : studioGames;
+    const developedGames = studioGames.filter((game) =>
+      bucketRecord.developed.has(game.id),
+    );
+    const notableSource =
+      developedGames.length > 0 ? developedGames : studioGames;
     const notableTitles = notableSource.slice(0, 3).map((game) => game.title);
-    const backgroundUrl = studioGames.find((game) => game.background?.url)?.background?.url;
+    const backgroundUrl = studioGames.find((game) => game.background?.url)
+      ?.background?.url;
     const yearStart = years.length > 0 ? Math.min(...years) : undefined;
     const yearEnd = years.length > 0 ? Math.max(...years) : undefined;
     studios.push({
@@ -180,5 +205,8 @@ export function collectStudios(games: readonly StudioSourceGame[]): StudioRecord
     });
   }
 
-  return studios.sort((left, right) => left.name.localeCompare(right.name) || left.id.localeCompare(right.id));
+  return studios.sort(
+    (left, right) =>
+      left.name.localeCompare(right.name) || left.id.localeCompare(right.id),
+  );
 }

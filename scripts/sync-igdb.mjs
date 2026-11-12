@@ -7,7 +7,8 @@ import { spawnSync } from "node:child_process";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clientId = process.env.IGDB_CLIENT_ID;
 const clientSecret = process.env.IGDB_CLIENT_SECRET;
-const sourceVersion = process.env.IGDB_SOURCE_VERSION ?? new Date().toISOString().slice(0, 10);
+const sourceVersion =
+  process.env.IGDB_SOURCE_VERSION ?? new Date().toISOString().slice(0, 10);
 const limit = Number.parseInt(process.env.IGDB_LIMIT ?? "500", 10);
 const pages = Number.parseInt(process.env.IGDB_PAGES ?? "10", 10);
 const minimumGames = Number.parseInt(process.env.IGDB_MIN_GAMES ?? "5", 10);
@@ -17,7 +18,9 @@ const searchTerms = (process.env.IGDB_SEARCH_TERMS ?? "halo,the witcher")
   .filter(Boolean);
 
 if (!clientId || !clientSecret) {
-  throw new Error("IGDB_CLIENT_ID and IGDB_CLIENT_SECRET are required for an IGDB sync.");
+  throw new Error(
+    "IGDB_CLIENT_ID and IGDB_CLIENT_SECRET are required for an IGDB sync.",
+  );
 }
 if (!Number.isInteger(limit) || limit < 1 || limit > 500) {
   throw new Error("IGDB_LIMIT must be an integer between 1 and 500.");
@@ -55,10 +58,13 @@ async function requestToken() {
     { method: "POST" },
   );
   if (!response.ok) {
-    throw new Error(`IGDB OAuth token request failed with HTTP ${response.status}.`);
+    throw new Error(
+      `IGDB OAuth token request failed with HTTP ${response.status}.`,
+    );
   }
   const body = await response.json();
-  if (!body.access_token) throw new Error("IGDB OAuth response did not include an access token.");
+  if (!body.access_token)
+    throw new Error("IGDB OAuth response did not include an access token.");
   return body.access_token;
 }
 
@@ -90,12 +96,16 @@ async function attachBatched(games, token, endpoint, queryFor, apply) {
     const response = await igdbQuery(token, endpoint, queryFor(batch));
     if (!response.ok) {
       const detail = await response.text();
-      console.warn(`IGDB ${endpoint} request failed with HTTP ${response.status}: ${detail.slice(0, 180)}. Continuing without the rest of that enrichment.`);
+      console.warn(
+        `IGDB ${endpoint} request failed with HTTP ${response.status}: ${detail.slice(0, 180)}. Continuing without the rest of that enrichment.`,
+      );
       return;
     }
     const rows = await response.json();
     if (!Array.isArray(rows)) {
-      console.warn(`IGDB ${endpoint} returned an unexpected payload. Continuing without the rest of that enrichment.`);
+      console.warn(
+        `IGDB ${endpoint} returned an unexpected payload. Continuing without the rest of that enrichment.`,
+      );
       return;
     }
     for (const row of rows) apply(byId, row);
@@ -108,7 +118,8 @@ async function attachDetailFields(games, token) {
     games,
     token,
     "games",
-    (batch) => `fields id,keywords.name; where id = (${batch.join(",")}); limit ${batch.length};`,
+    (batch) =>
+      `fields id,keywords.name; where id = (${batch.join(",")}); limit ${batch.length};`,
     (byId, row) => {
       const game = byId.get(row?.id);
       if (game && Array.isArray(row.keywords)) game.keywords = row.keywords;
@@ -119,9 +130,11 @@ async function attachDetailFields(games, token) {
     games,
     token,
     "game_time_to_beats",
-    (batch) => `fields game_id,hastily,normally,completely,count; where game_id = (${batch.join(",")}); limit ${batch.length};`,
+    (batch) =>
+      `fields game_id,hastily,normally,completely,count; where game_id = (${batch.join(",")}); limit ${batch.length};`,
     (byId, row) => {
-      const gameId = typeof row?.game_id === "number" ? row.game_id : row?.game_id?.id;
+      const gameId =
+        typeof row?.game_id === "number" ? row.game_id : row?.game_id?.id;
       const game = byId.get(gameId);
       if (game) game.game_time_to_beat = row;
     },
@@ -134,77 +147,122 @@ async function requestGames(token) {
     const response = await igdbQuery(token, "games", pageQuery);
     if (!response.ok) {
       const detail = await response.text();
-      throw new Error(`IGDB games request failed with HTTP ${response.status}: ${detail.slice(0, 300)}`);
+      throw new Error(
+        `IGDB games request failed with HTTP ${response.status}: ${detail.slice(0, 300)}`,
+      );
     }
     const pageGames = await response.json();
-    if (!Array.isArray(pageGames)) throw new Error("IGDB returned an invalid games response.");
+    if (!Array.isArray(pageGames))
+      throw new Error("IGDB returned an invalid games response.");
     games.push(...pageGames);
     return pageGames.length;
   }
 
   for (let page = 0; page < pages; page += 1) {
-    const pageQuery = query.replace(/\blimit\s+\d+\s*;/i, `limit ${limit}; offset ${page * limit};`);
+    const pageQuery = query.replace(
+      /\blimit\s+\d+\s*;/i,
+      `limit ${limit}; offset ${page * limit};`,
+    );
     const count = await requestPage(pageQuery);
     if (count < limit) break;
   }
   for (const term of searchTerms) {
     const searchQuery = defaultQuery
-      .replace(/\blimit\s+\d+\s*;/i, `search "${term.replace(/"/g, '\\"')}"; limit 100;`)
+      .replace(
+        /\blimit\s+\d+\s*;/i,
+        `search "${term.replace(/"/g, '\\"')}"; limit 100;`,
+      )
       .replace(/sort rating desc;\s*$/i, "");
     await requestPage(searchQuery);
   }
   if (!Array.isArray(games) || games.length === 0) {
-    throw new Error("IGDB returned no games; refusing to replace the checked-in catalogue.");
+    throw new Error(
+      "IGDB returned no games; refusing to replace the checked-in catalogue.",
+    );
   }
-  const unique = Array.from(new Map(games.map((game) => [game.id, game])).values());
+  const unique = Array.from(
+    new Map(games.map((game) => [game.id, game])).values(),
+  );
   await attachDetailFields(unique, token);
   return unique;
 }
 
-const temporaryInput = path.join(os.tmpdir(), `gamevault-igdb-${process.pid}.json`);
-const temporaryOutput = path.join(os.tmpdir(), `gamevault-catalogue-${process.pid}.json`);
-const temporaryReport = path.join(os.tmpdir(), `gamevault-quality-${process.pid}.json`);
+const temporaryInput = path.join(
+  os.tmpdir(),
+  `gamevault-igdb-${process.pid}.json`,
+);
+const temporaryOutput = path.join(
+  os.tmpdir(),
+  `gamevault-catalogue-${process.pid}.json`,
+);
+const temporaryReport = path.join(
+  os.tmpdir(),
+  `gamevault-quality-${process.pid}.json`,
+);
 try {
   const games = await requestGames(await requestToken());
   fs.writeFileSync(temporaryInput, `${JSON.stringify(games)}\n`);
-  const result = spawnSync(process.execPath, [
-    "scripts/import-catalogue.mjs",
-    "--input",
-    temporaryInput,
-    "--provider",
-    "igdb",
-    "--source-version",
-    sourceVersion,
-    "--output",
-    temporaryOutput,
-    "--report",
-    temporaryReport,
-  ], { cwd: root, encoding: "utf8", stdio: "inherit" });
+  const result = spawnSync(
+    process.execPath,
+    [
+      "scripts/import-catalogue.mjs",
+      "--input",
+      temporaryInput,
+      "--provider",
+      "igdb",
+      "--source-version",
+      sourceVersion,
+      "--output",
+      temporaryOutput,
+      "--report",
+      temporaryReport,
+    ],
+    { cwd: root, encoding: "utf8", stdio: "inherit" },
+  );
   if (result.status !== 0) {
-    throw new Error(`Catalogue import exited with status ${result.status ?? "unknown"}.`);
+    throw new Error(
+      `Catalogue import exited with status ${result.status ?? "unknown"}.`,
+    );
   }
   const imported = JSON.parse(fs.readFileSync(temporaryOutput, "utf8"));
   if (!Array.isArray(imported.games) || imported.games.length < minimumGames) {
-    throw new Error(`IGDB sync produced ${imported.games?.length ?? 0} games; refusing to publish fewer than ${minimumGames}.`);
+    throw new Error(
+      `IGDB sync produced ${imported.games?.length ?? 0} games; refusing to publish fewer than ${minimumGames}.`,
+    );
   }
-  fs.copyFileSync(temporaryOutput, path.join(root, "public", "catalog", "games-index.json"));
-  const indexBuilder = spawnSync(process.execPath, ["scripts/build-search-index.mjs"], {
-    cwd: root,
-    encoding: "utf8",
-    stdio: "inherit",
-  });
-  if (indexBuilder.status !== 0) {
-    throw new Error(`Search index generation exited with status ${indexBuilder.status ?? "unknown"}.`);
-  }
-  if (process.env.STORE_ENRICHMENT !== "0") {
-    const enrichment = spawnSync(process.execPath, ["scripts/enrich-stores.mjs"], {
+  fs.copyFileSync(
+    temporaryOutput,
+    path.join(root, "public", "catalog", "games-index.json"),
+  );
+  const indexBuilder = spawnSync(
+    process.execPath,
+    ["scripts/build-search-index.mjs"],
+    {
       cwd: root,
       encoding: "utf8",
       stdio: "inherit",
-      env: process.env,
-    });
+    },
+  );
+  if (indexBuilder.status !== 0) {
+    throw new Error(
+      `Search index generation exited with status ${indexBuilder.status ?? "unknown"}.`,
+    );
+  }
+  if (process.env.STORE_ENRICHMENT !== "0") {
+    const enrichment = spawnSync(
+      process.execPath,
+      ["scripts/enrich-stores.mjs"],
+      {
+        cwd: root,
+        encoding: "utf8",
+        stdio: "inherit",
+        env: process.env,
+      },
+    );
     if (enrichment.status !== 0) {
-      console.warn(`Store enrichment exited with status ${enrichment.status ?? "unknown"}. The IGDB catalogue was still published.`);
+      console.warn(
+        `Store enrichment exited with status ${enrichment.status ?? "unknown"}. The IGDB catalogue was still published.`,
+      );
     }
   }
 } finally {

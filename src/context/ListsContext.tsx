@@ -28,7 +28,10 @@ const STORAGE_KEY = "gamevault.lists.v1";
 const ListsContext = createContext<ListsContextValue | null>(null);
 
 export function ListsProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<ListsState>({ schemaVersion: 1, lists: [] });
+  const [state, setState] = useState<ListsState>({
+    schemaVersion: 1,
+    lists: [],
+  });
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -40,7 +43,11 @@ export function ListsProvider({ children }: { children: React.ReactNode }) {
         setState(normalizeListsState(JSON.parse(saved)));
       }
     } catch {
-      try { window.localStorage.removeItem(STORAGE_KEY); } catch { /* Storage may be unavailable in private browsing. */ }
+      try {
+        window.localStorage.removeItem(STORAGE_KEY);
+      } catch {
+        /* Storage may be unavailable in private browsing. */
+      }
       setState({ schemaVersion: 1, lists: [] });
     }
     setReady(true);
@@ -51,29 +58,48 @@ export function ListsProvider({ children }: { children: React.ReactNode }) {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }, [ready, state]);
 
-  const value = useMemo<ListsContextValue>(() => ({
-    state,
-    ready,
-    create: (name) => {
-      const result = createList(state, name, {
-        id: crypto.randomUUID(),
-        now: new Date().toISOString(),
-      });
-      if ("list" in result) setState(result.state);
-      return result;
-    },
-    rename: (listId, name) => {
-      const result = renameList(state, listId, name, new Date().toISOString());
-      if ("list" in result && result.state !== state) setState(result.state);
-      return result;
-    },
-    remove: (listId) => setState((current) => deleteList(current, listId)),
-    addGame: (listId, gameId) => setState((current) => addGameToList(current, listId, gameId, new Date().toISOString())),
-    removeGame: (listId, gameId) => setState((current) => removeGameFromList(current, listId, gameId, new Date().toISOString())),
-    toggleGame: (listId, gameId) => setState((current) => toggleGameInList(current, listId, gameId, new Date().toISOString())),
-  }), [ready, state]);
+  const value = useMemo<ListsContextValue>(
+    () => ({
+      state,
+      ready,
+      create: (name) => {
+        const result = createList(state, name, {
+          id: crypto.randomUUID(),
+          now: new Date().toISOString(),
+        });
+        if ("list" in result) setState(result.state);
+        return result;
+      },
+      rename: (listId, name) => {
+        const result = renameList(
+          state,
+          listId,
+          name,
+          new Date().toISOString(),
+        );
+        if ("list" in result && result.state !== state) setState(result.state);
+        return result;
+      },
+      remove: (listId) => setState((current) => deleteList(current, listId)),
+      addGame: (listId, gameId) =>
+        setState((current) =>
+          addGameToList(current, listId, gameId, new Date().toISOString()),
+        ),
+      removeGame: (listId, gameId) =>
+        setState((current) =>
+          removeGameFromList(current, listId, gameId, new Date().toISOString()),
+        ),
+      toggleGame: (listId, gameId) =>
+        setState((current) =>
+          toggleGameInList(current, listId, gameId, new Date().toISOString()),
+        ),
+    }),
+    [ready, state],
+  );
 
-  return <ListsContext.Provider value={value}>{children}</ListsContext.Provider>;
+  return (
+    <ListsContext.Provider value={value}>{children}</ListsContext.Provider>
+  );
 }
 
 export function useLists() {

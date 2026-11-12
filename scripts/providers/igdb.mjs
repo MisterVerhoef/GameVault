@@ -29,12 +29,18 @@ function companyLogo(logo) {
   const height = positiveInt(logo.height);
   let url;
   if (/^[A-Za-z0-9_-]{2,80}$/.test(imageId)) {
-    const extension = logo.animated === true ? "gif" : logo.alpha_channel === true ? "png" : "jpg";
+    const extension =
+      logo.animated === true
+        ? "gif"
+        : logo.alpha_channel === true
+          ? "png"
+          : "jpg";
     url = `https://images.igdb.com/igdb/image/upload/t_logo_med/${imageId}.${extension}`;
   } else {
     url = imageUrl(logo, "t_logo_med");
   }
-  if (!url || !url.startsWith("https://images.igdb.com/igdb/image/upload/")) return undefined;
+  if (!url || !url.startsWith("https://images.igdb.com/igdb/image/upload/"))
+    return undefined;
   return {
     url,
     ...(width ? { width } : {}),
@@ -46,7 +52,8 @@ function companies(involvedCompanies = [], role) {
   const seen = new Set();
   const result = [];
   for (const entry of involvedCompanies) {
-    if (!entry?.company?.id || !entry.company.name || entry[role] !== true) continue;
+    if (!entry?.company?.id || !entry.company.name || entry[role] !== true)
+      continue;
     const id = String(entry.company.id);
     if (seen.has(id)) continue;
     seen.add(id);
@@ -137,11 +144,14 @@ const REGION_BY_ID = {
 };
 
 function finiteNumber(value) {
-  return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+  return typeof value === "number" && Number.isFinite(value)
+    ? value
+    : undefined;
 }
 
 function positiveInt(value) {
-  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+    return undefined;
   return Math.round(value);
 }
 
@@ -162,8 +172,9 @@ function namedList(records, limit) {
 }
 
 function boardName(entry) {
-  const organization = entry?.organization?.name
-    ?? (typeof entry?.organization === "string" ? entry.organization : "");
+  const organization =
+    entry?.organization?.name ??
+    (typeof entry?.organization === "string" ? entry.organization : "");
   if (organization) {
     const aliases = [
       [/pegi/i, "PEGI"],
@@ -184,7 +195,10 @@ function boardName(entry) {
 }
 
 function cleanRatingLabel(board, raw) {
-  let label = String(raw).trim().replace(new RegExp(`^${board}\\s*[-:]?\\s*`, "i"), "").trim();
+  let label = String(raw)
+    .trim()
+    .replace(new RegExp(`^${board}\\s*[-:]?\\s*`, "i"), "")
+    .trim();
   const word = RATING_WORDS[label.toLowerCase()];
   if (word) label = word;
   if (label.toLowerCase() === "e10") label = "E10+";
@@ -218,7 +232,10 @@ function ageRatings(records = []) {
       const index = BOARD_ORDER.indexOf(board);
       return index === -1 ? BOARD_ORDER.length : index;
     };
-    return rank(left.board) - rank(right.board) || left.label.localeCompare(right.label);
+    return (
+      rank(left.board) - rank(right.board) ||
+      left.label.localeCompare(right.label)
+    );
   });
   const seen = new Set();
   const result = [];
@@ -263,8 +280,10 @@ function summarizeMultiplayer(modes = []) {
 
 function regionName(entry) {
   const named = entry?.release_region?.region;
-  if (typeof named === "string" && named.trim()) return named.trim().toLowerCase();
-  if (typeof entry?.region === "number") return REGION_BY_ID[entry.region] ?? "";
+  if (typeof named === "string" && named.trim())
+    return named.trim().toLowerCase();
+  if (typeof entry?.region === "number")
+    return REGION_BY_ID[entry.region] ?? "";
   return "";
 }
 
@@ -294,7 +313,11 @@ function platformReleases(dates = []) {
     const rank = regionRank(regionName(entry));
     const current = best.get(platform);
     const betterRank = !current || rank < current.rank;
-    const sameRankEarlier = Boolean(current) && rank === current.rank && Boolean(date) && (!current.date || date < current.date);
+    const sameRankEarlier =
+      Boolean(current) &&
+      rank === current.rank &&
+      Boolean(date) &&
+      (!current.date || date < current.date);
     if (betterRank || sameRankEarlier) {
       best.set(platform, {
         platform,
@@ -305,7 +328,11 @@ function platformReleases(dates = []) {
     }
   }
   return [...best.values()]
-    .sort((left, right) => (left.date ?? "9999-99-99").localeCompare(right.date ?? "9999-99-99") || left.platform.localeCompare(right.platform))
+    .sort(
+      (left, right) =>
+        (left.date ?? "9999-99-99").localeCompare(right.date ?? "9999-99-99") ||
+        left.platform.localeCompare(right.platform),
+    )
     .slice(0, 12)
     .map(({ platform, date, label }) => ({
       platform,
@@ -315,8 +342,11 @@ function platformReleases(dates = []) {
 }
 
 function timeToBeat(record) {
-  const row = record?.game_time_to_beat
-    ?? (Array.isArray(record?.game_time_to_beats) ? record.game_time_to_beats[0] : undefined);
+  const row =
+    record?.game_time_to_beat ??
+    (Array.isArray(record?.game_time_to_beats)
+      ? record.game_time_to_beats[0]
+      : undefined);
   if (!row || typeof row !== "object") return undefined;
   const hastily = positiveInt(row.hastily);
   const normally = positiveInt(row.normally);
@@ -339,8 +369,12 @@ export function normalizeIgdbRecord(record) {
   const unsupportedPlatforms = resolvedPlatforms
     .filter((entry) => entry.unmapped)
     .map((entry) => entry.name);
-  const platforms = [...new Set(resolvedPlatforms.map((entry) => entry.family))];
-  const platformVariants = [...new Set(resolvedPlatforms.map((entry) => entry.variant))];
+  const platforms = [
+    ...new Set(resolvedPlatforms.map((entry) => entry.family)),
+  ];
+  const platformVariants = [
+    ...new Set(resolvedPlatforms.map((entry) => entry.variant)),
+  ];
   const year = record.first_release_date
     ? new Date(record.first_release_date * 1000).getUTCFullYear()
     : undefined;
@@ -370,32 +404,44 @@ export function normalizeIgdbRecord(record) {
     platformVariants,
     cover: imageUrl(record.cover, "t_cover_big"),
     background: imageUrl(record.artworks?.[0], "t_1080p"),
-    screenshots: (record.screenshots ?? []).map((image) => ({
-      url: imageUrl(image, "t_screenshot_huge"),
-      width: image.width,
-      height: image.height,
-    })).filter((image) => image.url),
-    videos: (record.videos ?? []).filter((video) => video.video_id).map((video) => ({
-      id: String(video.id),
-      name: video.name,
-      url: `https://www.youtube.com/watch?v=${video.video_id}`,
-    })),
+    screenshots: (record.screenshots ?? [])
+      .map((image) => ({
+        url: imageUrl(image, "t_screenshot_huge"),
+        width: image.width,
+        height: image.height,
+      }))
+      .filter((image) => image.url),
+    videos: (record.videos ?? [])
+      .filter((video) => video.video_id)
+      .map((video) => ({
+        id: String(video.id),
+        name: video.name,
+        url: `https://www.youtube.com/watch?v=${video.video_id}`,
+      })),
     websites: mapIgdbWebsites(record.websites),
     dlc: contentRefs(record.dlcs),
     expansions: contentRefs(record.expansions),
     editions: contentRefs(record.editions),
-    relatedGames: (record.remakes ?? []).map((game) => ({
-      id: String(game.id),
-      title: game.name,
-      relation: "remake",
-    })).concat((record.remasters ?? []).map((game) => ({
-      id: String(game.id),
-      title: game.name,
-      relation: "sequel",
-    }))),
+    relatedGames: (record.remakes ?? [])
+      .map((game) => ({
+        id: String(game.id),
+        title: game.name,
+        relation: "remake",
+      }))
+      .concat(
+        (record.remasters ?? []).map((game) => ({
+          id: String(game.id),
+          title: game.name,
+          relation: "sequel",
+        })),
+      ),
     similarGames: contentRefs(record.similar_games),
-    franchises: (record.franchises ?? []).map((franchise) => franchise.name).filter(Boolean),
-    collections: (record.collections ?? []).map((collection) => collection.name).filter(Boolean),
+    franchises: (record.franchises ?? [])
+      .map((franchise) => franchise.name)
+      .filter(Boolean),
+    collections: (record.collections ?? [])
+      .map((collection) => collection.name)
+      .filter(Boolean),
     rating: record.rating,
     ratingCount: record.rating_count,
     sourceId: String(record.id ?? ""),
@@ -409,14 +455,18 @@ export function normalizeIgdbRecord(record) {
     ...(multiplayer ? { multiplayer } : {}),
     ...(releases.length > 0 ? { releases } : {}),
     ...(playTime ? { timeToBeat: playTime } : {}),
-    warnings: unsupportedPlatforms.map((platform) => `Unsupported IGDB platform omitted: ${platform}`),
+    warnings: unsupportedPlatforms.map(
+      (platform) => `Unsupported IGDB platform omitted: ${platform}`,
+    ),
   };
 }
 
 export function normalizeIgdbExport(input) {
   const records = Array.isArray(input) ? input : input?.games;
   if (!Array.isArray(records)) {
-    throw new Error("IGDB input must be an array or an object containing a games array.");
+    throw new Error(
+      "IGDB input must be an array or an object containing a games array.",
+    );
   }
   return records
     .map(normalizeIgdbRecord)

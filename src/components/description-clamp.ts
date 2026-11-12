@@ -9,7 +9,11 @@ export function collapsedLineCount(totalLines: number, desktop: boolean) {
 }
 
 /** Studio bios stay full on desktop and collapse to about half on a phone. */
-export function visibleLineCount(totalLines: number, desktop: boolean, collapseDesktop = true) {
+export function visibleLineCount(
+  totalLines: number,
+  desktop: boolean,
+  collapseDesktop = true,
+) {
   const lines = Math.max(1, totalLines);
   if (desktop && !collapseDesktop) return lines;
   return collapsedLineCount(lines, desktop);

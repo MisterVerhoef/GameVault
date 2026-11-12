@@ -6,12 +6,19 @@ import {
 import { PLATFORM_FAMILIES, type Platform } from "./platforms";
 
 /** Owned games are everything except the wishlist. Completion is completed / owned. */
-export const OWNED_STATUSES: readonly LibraryStatus[] = ["playing", "backlog", "completed", "paused"];
+export const OWNED_STATUSES: readonly LibraryStatus[] = [
+  "playing",
+  "backlog",
+  "completed",
+  "paused",
+];
 
 export const RECENT_VAULT_LIMIT = 8;
 
 const PLATFORM_LABELS = new Map<Platform, string>(
-  PLATFORM_FAMILIES.flatMap((family) => (family.platform ? [[family.platform, family.label] as const] : [])),
+  PLATFORM_FAMILIES.flatMap((family) =>
+    family.platform ? [[family.platform, family.label] as const] : [],
+  ),
 );
 
 export interface VaultCatalogueFacts {
@@ -67,7 +74,9 @@ export function vaultPlatformLabel(platform: string): string {
   return PLATFORM_LABELS.get(platform as Platform) ?? platform;
 }
 
-export function vaultCatalogueFacts(game: CatalogueLookupGame | null | undefined): VaultCatalogueFacts | null {
+export function vaultCatalogueFacts(
+  game: CatalogueLookupGame | null | undefined,
+): VaultCatalogueFacts | null {
   const title = game?.title?.trim();
   if (!game?.id || !title) return null;
   return {
@@ -84,9 +93,7 @@ export function formatCompletion(rate: number | null): string {
 }
 
 export type CompletionPie =
-  | { kind: "empty" }
-  | { kind: "full" }
-  | { kind: "slice"; d: string };
+  { kind: "empty" } | { kind: "full" } | { kind: "slice"; d: string };
 
 /**
  * Pie geometry for the completion mark. 0% is an empty disc and 100% is a
@@ -125,17 +132,26 @@ function roundAwayFromZero(value: number) {
 }
 
 /** Relative time in the viewer’s locale. Pass `locales` in tests. */
-export function formatVaultUpdated(iso: string, now = Date.now(), locales?: Intl.LocalesArgument): string {
+export function formatVaultUpdated(
+  iso: string,
+  now = Date.now(),
+  locales?: Intl.LocalesArgument,
+): string {
   const time = Date.parse(iso);
   if (Number.isNaN(time)) return "Unknown date";
   const deltaSeconds = (time - now) / 1000;
   const abs = Math.abs(deltaSeconds);
   const rtf = new Intl.RelativeTimeFormat(locales, { numeric: "auto" });
   if (abs < 45) return rtf.format(0, "second");
-  if (abs < 3600) return rtf.format(roundAwayFromZero(deltaSeconds / 60), "minute");
-  if (abs < 86400) return rtf.format(roundAwayFromZero(deltaSeconds / 3600), "hour");
-  if (abs < 86400 * 30) return rtf.format(roundAwayFromZero(deltaSeconds / 86400), "day");
-  return new Intl.DateTimeFormat(locales, { dateStyle: "medium" }).format(new Date(time));
+  if (abs < 3600)
+    return rtf.format(roundAwayFromZero(deltaSeconds / 60), "minute");
+  if (abs < 86400)
+    return rtf.format(roundAwayFromZero(deltaSeconds / 3600), "hour");
+  if (abs < 86400 * 30)
+    return rtf.format(roundAwayFromZero(deltaSeconds / 86400), "day");
+  return new Intl.DateTimeFormat(locales, { dateStyle: "medium" }).format(
+    new Date(time),
+  );
 }
 
 function emptyStatusCounts(): Record<LibraryStatus, number> {
@@ -148,7 +164,10 @@ function emptyStatusCounts(): Record<LibraryStatus, number> {
   };
 }
 
-function tally(values: readonly string[], counts: Map<string, { label: string; count: number }>) {
+function tally(
+  values: readonly string[],
+  counts: Map<string, { label: string; count: number }>,
+) {
   const seen = new Set<string>();
   let matched = false;
   for (const raw of values) {
@@ -180,10 +199,15 @@ function toMix(
   }
   slices.sort((left, right) => {
     if (pinLast) {
-      const pinned = Number(left.key === pinLast) - Number(right.key === pinLast);
+      const pinned =
+        Number(left.key === pinLast) - Number(right.key === pinLast);
       if (pinned !== 0) return pinned;
     }
-    return right.count - left.count || left.label.localeCompare(right.label) || left.key.localeCompare(right.key);
+    return (
+      right.count - left.count ||
+      left.label.localeCompare(right.label) ||
+      left.key.localeCompare(right.key)
+    );
   });
   return slices;
 }
@@ -228,12 +252,20 @@ export function buildVaultStats(
   recent.sort((left, right) => {
     const byDate = updatedTime(right.updatedAt) - updatedTime(left.updatedAt);
     if (byDate !== 0) return byDate;
-    return left.title.localeCompare(right.title) || left.gameId.localeCompare(right.gameId);
+    return (
+      left.title.localeCompare(right.title) ||
+      left.gameId.localeCompare(right.gameId)
+    );
   });
 
-  const limit = Number.isFinite(recentLimit) ? Math.max(0, Math.floor(recentLimit)) : RECENT_VAULT_LIMIT;
+  const limit = Number.isFinite(recentLimit)
+    ? Math.max(0, Math.floor(recentLimit))
+    : RECENT_VAULT_LIMIT;
   const completed = statusCounts.completed;
-  const owned = OWNED_STATUSES.reduce((sum, status) => sum + statusCounts[status], 0);
+  const owned = OWNED_STATUSES.reduce(
+    (sum, status) => sum + statusCounts[status],
+    0,
+  );
 
   return {
     total: owned + statusCounts.wishlist,

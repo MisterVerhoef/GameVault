@@ -1,4 +1,5 @@
-export type LibraryStatus = "backlog" | "playing" | "completed" | "paused" | "wishlist";
+export type LibraryStatus =
+  "backlog" | "playing" | "completed" | "paused" | "wishlist";
 
 /** Same order as the library menu counts. */
 export const LIBRARY_STATUSES: readonly LibraryStatus[] = [
@@ -33,7 +34,10 @@ export interface LibraryEntry {
 export type LibraryState = Record<string, LibraryEntry>;
 
 export function isLibraryStatus(value: unknown): value is LibraryStatus {
-  return typeof value === "string" && (LIBRARY_STATUSES as readonly string[]).includes(value);
+  return (
+    typeof value === "string" &&
+    (LIBRARY_STATUSES as readonly string[]).includes(value)
+  );
 }
 
 function finiteNumber(value: unknown): number | undefined {
@@ -68,9 +72,10 @@ export function normalizeLibraryEntry(raw: unknown): LibraryEntry | null {
   const entry: LibraryEntry = {
     status: value.status,
     progress: clampProgress(value.progress),
-    updatedAt: typeof value.updatedAt === "string" && value.updatedAt
-      ? value.updatedAt
-      : new Date().toISOString(),
+    updatedAt:
+      typeof value.updatedAt === "string" && value.updatedAt
+        ? value.updatedAt
+        : new Date().toISOString(),
   };
 
   const rating = clampPersonalRating(value.rating);
@@ -106,15 +111,24 @@ export function updateLibraryEntry(
   },
   updatedAt = new Date().toISOString(),
 ): LibraryEntry | null {
-  const hasEdit = patch.status != null || patch.progress != null || patch.rating != null || (patch.notes != null && patch.notes.trim() !== "");
+  const hasEdit =
+    patch.status != null ||
+    patch.progress != null ||
+    patch.rating != null ||
+    (patch.notes != null && patch.notes.trim() !== "");
   if (!previous && !hasEdit) return null;
 
-  const base: LibraryEntry = previous ?? { status: "backlog", progress: 0, updatedAt };
-  const rating = patch.rating === undefined
-    ? base.rating
-    : patch.rating === null
-      ? undefined
-      : clampPersonalRating(patch.rating) ?? base.rating;
+  const base: LibraryEntry = previous ?? {
+    status: "backlog",
+    progress: 0,
+    updatedAt,
+  };
+  const rating =
+    patch.rating === undefined
+      ? base.rating
+      : patch.rating === null
+        ? undefined
+        : (clampPersonalRating(patch.rating) ?? base.rating);
 
   return normalizeLibraryEntry({
     status: patch.status ?? base.status,

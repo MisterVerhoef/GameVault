@@ -3,7 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
+import {
+  GENRE_SORT_OPTIONS,
+  parseGenreSort,
+  type GenreSort,
+} from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { PlatformIcon } from "./platform-icons";
 
@@ -36,7 +40,13 @@ interface GameWallProps {
   onSortChange?: (sort: GenreSort) => void;
 }
 
-function GenreSortControl({ value, onChange }: { value: GenreSort; onChange: (sort: GenreSort) => void }) {
+function GenreSortControl({
+  value,
+  onChange,
+}: {
+  value: GenreSort;
+  onChange: (sort: GenreSort) => void;
+}) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-1 sm:w-auto">
       <label htmlFor="genre-sort" className="text-sm font-medium text-muted">
@@ -93,15 +103,23 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
     const measure = () => {
       const columns = columnCount();
       const style = window.getComputedStyle(host);
-      const horizontalPad = Number.parseFloat(style.paddingLeft) + Number.parseFloat(style.paddingRight);
+      const horizontalPad =
+        Number.parseFloat(style.paddingLeft) +
+        Number.parseFloat(style.paddingRight);
       const gap = window.matchMedia("(min-width: 640px)").matches ? 12 : 8;
       const contentWidth = Math.max(0, host.clientWidth - horizontalPad);
-      const cellWidth = columns > 0 ? (contentWidth - gap * (columns - 1)) / columns : contentWidth;
+      const cellWidth =
+        columns > 0
+          ? (contentWidth - gap * (columns - 1)) / columns
+          : contentWidth;
       const rowStride = cellWidth * (4 / 3) + CELL_EXTRA;
       const rowCount = Math.ceil(games.length / columns);
       const top = host.getBoundingClientRect().top;
       const startRow = Math.max(0, Math.floor(-top / rowStride) - 2);
-      const endRow = Math.min(rowCount, Math.ceil((-top + window.innerHeight) / rowStride) + 2);
+      const endRow = Math.min(
+        rowCount,
+        Math.ceil((-top + window.innerHeight) / rowStride) + 2,
+      );
       const next: GridWindow = {
         columns,
         start: startRow * columns,
@@ -109,16 +127,16 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
         padTop: startRow * rowStride,
         padBottom: Math.max(0, (rowCount - endRow) * rowStride),
       };
-      setGridWindow((current) => (
-        current
-        && current.columns === next.columns
-        && current.start === next.start
-        && current.end === next.end
-        && Math.abs(current.padTop - next.padTop) < 1
-        && Math.abs(current.padBottom - next.padBottom) < 1
+      setGridWindow((current) =>
+        current &&
+        current.columns === next.columns &&
+        current.start === next.start &&
+        current.end === next.end &&
+        Math.abs(current.padTop - next.padTop) < 1 &&
+        Math.abs(current.padBottom - next.padBottom) < 1
           ? current
-          : next
-      ));
+          : next,
+      );
     };
     const schedule = () => {
       if (frame) return;
@@ -140,15 +158,31 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
     };
   }, [games.length]);
 
-  const shown = gridWindow ? games.slice(gridWindow.start, gridWindow.end) : fallback;
-  const columnsClass = gridWindow ? undefined : "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12";
+  const shown = gridWindow
+    ? games.slice(gridWindow.start, gridWindow.end)
+    : fallback;
+  const columnsClass = gridWindow
+    ? undefined
+    : "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12";
 
   return (
-    <div ref={hostRef} className="px-4 sm:px-6 lg:px-8" style={{ overflowAnchor: "none" }}>
-      {gridWindow && gridWindow.padTop > 0 ? <div style={{ height: gridWindow.padTop }} /> : null}
+    <div
+      ref={hostRef}
+      className="px-4 sm:px-6 lg:px-8"
+      style={{ overflowAnchor: "none" }}
+    >
+      {gridWindow && gridWindow.padTop > 0 ? (
+        <div style={{ height: gridWindow.padTop }} />
+      ) : null}
       <ul
         className={`grid gap-x-2 gap-y-3 sm:gap-x-3 ${columnsClass ?? ""}`}
-        style={gridWindow ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
+        style={
+          gridWindow
+            ? {
+                gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))`,
+              }
+            : undefined
+        }
       >
         {shown.map((game) => (
           <li key={game.id} className="min-w-0">
@@ -159,8 +193,21 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
               <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
                 <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
                 {game.cloudServices && game.cloudServices.length > 0 ? (
-                  <span className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm" title={`Cloud streaming: ${game.cloudServices.join(", ")}`} aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}>
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <span
+                    className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"
+                    title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
+                    aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
+                  >
+                    <svg
+                      viewBox="0 0 24 24"
+                      className="h-4 w-4"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="1.8"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
                       <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
                     </svg>
                   </span>
@@ -184,7 +231,9 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
           </li>
         ))}
       </ul>
-      {gridWindow && gridWindow.padBottom > 0 ? <div style={{ height: gridWindow.padBottom }} /> : null}
+      {gridWindow && gridWindow.padBottom > 0 ? (
+        <div style={{ height: gridWindow.padBottom }} />
+      ) : null}
     </div>
   );
 }
@@ -205,7 +254,9 @@ export default function GameWall({
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const split = sections && sections.length > 0 ? sections : null;
-  const total = split ? split.reduce((count, section) => count + section.games.length, 0) : games.length;
+  const total = split
+    ? split.reduce((count, section) => count + section.games.length, 0)
+    : games.length;
   const HeadingTag = titleLevel === "h2" ? "h2" : "h1";
 
   useEffect(() => {
@@ -223,7 +274,9 @@ export default function GameWall({
             tabIndex={-1}
             className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
           >
-            {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
+            {platformLabel ? (
+              <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" />
+            ) : null}
             {title}
           </HeadingTag>
           <p className="mt-1 text-sm text-muted">
@@ -232,13 +285,23 @@ export default function GameWall({
         </div>
         {onSortChange || (backHref && backLabel) ? (
           <div className="flex w-full min-w-0 flex-col items-start gap-2 sm:w-auto sm:items-end">
-            {onSortChange ? <GenreSortControl value={sortValue ?? "default"} onChange={onSortChange} /> : null}
+            {onSortChange ? (
+              <GenreSortControl
+                value={sortValue ?? "default"}
+                onChange={onSortChange}
+              />
+            ) : null}
             {backHref && backLabel ? (
               <Link
                 href={backHref}
                 className="inline-flex min-h-11 items-center gap-1.5 self-start rounded-full px-3 text-sm font-medium text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:self-end"
               >
-                {platformLabel ? <PlatformIcon name={platformLabel} className="h-4 w-4 shrink-0" /> : null}
+                {platformLabel ? (
+                  <PlatformIcon
+                    name={platformLabel}
+                    className="h-4 w-4 shrink-0"
+                  />
+                ) : null}
                 {backLabel}
               </Link>
             ) : null}
@@ -253,12 +316,21 @@ export default function GameWall({
       ) : split ? (
         <div className="flex flex-col gap-10">
           {split.map((section) => (
-            <section key={section.id} aria-labelledby={`game-wall-${section.id}`} className="border-t border-white/10 pt-8 first:border-t-0 first:pt-0">
+            <section
+              key={section.id}
+              aria-labelledby={`game-wall-${section.id}`}
+              className="border-t border-white/10 pt-8 first:border-t-0 first:pt-0"
+            >
               <div className="mb-4 px-4 sm:px-6 lg:px-8">
-                <h2 id={`game-wall-${section.id}`} className="text-lg font-bold tracking-tight text-foreground">
+                <h2
+                  id={`game-wall-${section.id}`}
+                  className="text-lg font-bold tracking-tight text-foreground"
+                >
                   {section.title}
                 </h2>
-                <p className="mt-1 text-sm text-muted">{countLabel(section.games.length, section.kind)}</p>
+                <p className="mt-1 text-sm text-muted">
+                  {countLabel(section.games.length, section.kind)}
+                </p>
               </div>
               <CoverGrid games={section.games} />
             </section>

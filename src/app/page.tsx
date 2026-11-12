@@ -8,7 +8,11 @@ export default async function Home({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const initialView = buildLibraryView(getBrowseCatalogue(), readHomeQuery(params), []);
+  const initialView = buildLibraryView(
+    getBrowseCatalogue(),
+    readHomeQuery(params),
+    [],
+  );
 
   return <HomeScreen initialView={initialView} />;
 }

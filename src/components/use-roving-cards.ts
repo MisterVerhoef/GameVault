@@ -44,8 +44,13 @@ export function useRovingCards<T extends HTMLElement>() {
     if (!root) return;
     const cards = cardsIn(root);
     if (cards.length === 0) return;
-    const remembered = cards.find((card) => card.dataset.cardId === activeId.current);
-    const current = (preferred && cards.includes(preferred) ? preferred : null) ?? remembered ?? cards[0];
+    const remembered = cards.find(
+      (card) => card.dataset.cardId === activeId.current,
+    );
+    const current =
+      (preferred && cards.includes(preferred) ? preferred : null) ??
+      remembered ??
+      cards[0];
     activeId.current = current.dataset.cardId ?? null;
     for (const card of cards) card.tabIndex = card === current ? 0 : -1;
   }, []);
@@ -60,10 +65,19 @@ export function useRovingCards<T extends HTMLElement>() {
     if (!root) return;
     const cards = cardsIn(root);
     if (cards.length === 0) return;
-    const active = cards.find((card) => card === document.activeElement || card.contains(document.activeElement));
+    const active = cards.find(
+      (card) =>
+        card === document.activeElement ||
+        card.contains(document.activeElement),
+    );
     if (!active) return;
     const current = cards.indexOf(active);
-    const next = nextRovingIndex(current, cards.length, columnsOf(cards), event.key);
+    const next = nextRovingIndex(
+      current,
+      cards.length,
+      columnsOf(cards),
+      event.key,
+    );
     if (next == null) return;
     if (next === current) {
       event.preventDefault();
@@ -77,11 +91,17 @@ export function useRovingCards<T extends HTMLElement>() {
     reveal(card);
   }, []);
 
-  const onFocus = useCallback((event: FocusEvent<T>) => {
-    const card = event.target instanceof HTMLElement ? event.target.closest<HTMLElement>(CARD) : null;
-    if (!card || !ref.current?.contains(card)) return;
-    restore(card);
-  }, [restore]);
+  const onFocus = useCallback(
+    (event: FocusEvent<T>) => {
+      const card =
+        event.target instanceof HTMLElement
+          ? event.target.closest<HTMLElement>(CARD)
+          : null;
+      if (!card || !ref.current?.contains(card)) return;
+      restore(card);
+    },
+    [restore],
+  );
 
   return { ref, onKeyDown, onFocus };
 }

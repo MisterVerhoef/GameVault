@@ -10,7 +10,8 @@ export function loadStoreOfferIndex(): Promise<StoreOfferIndex> {
   if (!request) {
     request = fetch("/catalog/store-offers.json")
       .then(async (response) => {
-        if (!response.ok) throw new Error(`Store offer request failed (${response.status}).`);
+        if (!response.ok)
+          throw new Error(`Store offer request failed (${response.status}).`);
         return indexStoreOffers(await response.json());
       })
       .catch((error: unknown) => {

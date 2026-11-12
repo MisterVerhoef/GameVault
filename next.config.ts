@@ -5,9 +5,18 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   // List pages read these at runtime instead of bundling games-index.json.
   outputFileTracingIncludes: {
-    "/api/igdb/search": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
-    "/game/[id]": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
-    "/": ["./public/catalog/browse-index.json", "./public/catalog/search-index.json"],
+    "/api/igdb/search": [
+      "./public/catalog/search-index.json",
+      "./test/fixtures/igdb-live-mock.json",
+    ],
+    "/game/[id]": [
+      "./public/catalog/search-index.json",
+      "./test/fixtures/igdb-live-mock.json",
+    ],
+    "/": [
+      "./public/catalog/browse-index.json",
+      "./public/catalog/search-index.json",
+    ],
     "/vault": ["./public/catalog/browse-index.json"],
     "/lists": ["./public/catalog/browse-index.json"],
     "/stats": ["./public/catalog/browse-index.json"],

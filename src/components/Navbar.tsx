@@ -4,7 +4,11 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { browseQuery, platformFilterHref } from "@/data/browse";
-import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
+import {
+  PLATFORM_COLORS,
+  PLATFORM_FAMILIES,
+  type Platform,
+} from "@/data/platforms";
 import LibraryToolbar from "./LibraryToolbar";
 import { PlatformName } from "./platform-icons";
 import ThemeToggle from "./ThemeToggle";
@@ -22,7 +26,14 @@ interface NavbarProps {
 
 const platformFamilies = PLATFORM_FAMILIES;
 
-export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery }: NavbarProps) {
+export default function Navbar({
+  onPlatformSelect,
+  onPlatformFamilySelect,
+  onPlatformVariantSelect,
+  onSearch,
+  onSearchPrepare,
+  searchQuery,
+}: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [search, setSearch] = useState("");
@@ -42,15 +53,24 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const [libraryMenuOpen, setLibraryMenuOpen] = useState(false);
   const [storesOpen, setStoresOpen] = useState(false);
   const storesToggleRef = useRef<HTMLButtonElement>(null);
-  const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
+  const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(
+    null,
+  );
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
+  const selectedFamily = platformFamilies.find(
+    (family) => family.key === selectedFamilyKey,
+  );
   const selectedVariantParent =
     selectedFamily && selectedVariant
-      ? Object.entries(selectedFamily.variantChildren ?? {}).find(([, children]) => children.includes(selectedVariant))?.[0] ?? null
+      ? (Object.entries(selectedFamily.variantChildren ?? {}).find(
+          ([, children]) => children.includes(selectedVariant),
+        )?.[0] ?? null)
       : null;
   const selectedVariantRoot =
-    selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
+    selectedVariantParent ??
+    (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant]
+      ? selectedVariant
+      : null);
 
   /* The address bar is the source of truth after Back, and after a genre link clears search. */
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -58,11 +78,15 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const applyLocation = () => {
       const params = new URLSearchParams(window.location.search);
       const familyLabel = params.get("family");
-      const family = platformFamilies.find((item) => item.label === familyLabel);
+      const family = platformFamilies.find(
+        (item) => item.label === familyLabel,
+      );
       setSelectedFamilyKey(family?.key ?? null);
       setSelectedVariant(params.get("variant"));
       const active = document.activeElement;
-      const editingSearch = active instanceof HTMLInputElement && active.id.startsWith("navbar-search");
+      const editingSearch =
+        active instanceof HTMLInputElement &&
+        active.id.startsWith("navbar-search");
       if (!editingSearch) setSearch(params.get("search") ?? "");
     };
     applyLocation();
@@ -73,7 +97,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   useEffect(() => {
     if (searchQuery !== "") return;
     const active = document.activeElement;
-    const editingSearch = active instanceof HTMLInputElement && active.id.startsWith("navbar-search");
+    const editingSearch =
+      active instanceof HTMLInputElement &&
+      active.id.startsWith("navbar-search");
     if (editingSearch) return;
     setSearch("");
   }, [searchQuery]);
@@ -145,14 +171,22 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     platform?: string | null;
     variant?: string | null;
   }) => {
-    router.push(platformFilterHref(pathname === "/" ? window.location.search : "", {
-      search: pathname === "/" ? search.trim() : "",
-      ...selection,
-    }));
+    router.push(
+      platformFilterHref(pathname === "/" ? window.location.search : "", {
+        search: pathname === "/" ? search.trim() : "",
+        ...selection,
+      }),
+    );
   };
 
-  const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
-    const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
+  const handlePlatformSelect = (
+    platform: Platform | null,
+    familyKey: string,
+  ) => {
+    const nextFamily =
+      selectedFamilyKey === familyKey
+        ? null
+        : (platformFamilies.find((family) => family.key === familyKey) ?? null);
     setSelectedFamilyKey(nextFamily?.key ?? null);
     setSelectedVariant(null);
     onPlatformFamilySelect?.(nextFamily?.label ?? null);
@@ -170,7 +204,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const nextVariant = selectedVariant === variant ? null : variant;
     setSelectedVariant(nextVariant);
     onPlatformVariantSelect?.(nextVariant);
-    const opensNestedMenu = Boolean(nextVariant && selectedFamily?.variantChildren?.[nextVariant]?.length);
+    const opensNestedMenu = Boolean(
+      nextVariant && selectedFamily?.variantChildren?.[nextVariant]?.length,
+    );
     // Sega and Atari only reveal their nested list. Every finished pick dismisses
     // the phone menu; the desktop breakdown is not tied to that menu.
     if (!opensNestedMenu) setMenuOpen(false);
@@ -221,214 +257,340 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   };
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
-      <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
-      <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:gap-2 lg:px-4">
-        <Link
-          href="/"
-          aria-label="GameVault home"
-          onClick={goHome}
-          className="flex min-h-11 min-w-11 shrink-0 items-center gap-3 whitespace-nowrap rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:min-h-0"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent font-bold text-white" aria-hidden="true">
-            GV
-          </span>
-          <span className="hidden text-xl font-bold tracking-tight sm:block">
-            GameVault
-          </span>
-        </Link>
-
-        {/* Nav links (desktop). These routes preload the catalogue, and Next
-            would apply that preload while prefetching them from here. */}
-        <nav className="hidden shrink-0 items-center gap-3 whitespace-nowrap lg:flex xl:gap-4" aria-label="Main">
+    <header
+      ref={headerRef}
+      className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl"
+    >
+      <div
+        className={
+          searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"
+        }
+      >
+        <div className="mx-auto flex h-16 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:gap-2 lg:px-4">
           <Link
             href="/"
-            aria-current={pathname === "/" ? "page" : undefined}
-            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-              pathname === "/" ? "text-foreground" : "text-muted hover:text-foreground"
-            }`}
+            aria-label="GameVault home"
+            onClick={goHome}
+            className="flex min-h-11 min-w-11 shrink-0 items-center gap-3 whitespace-nowrap rounded-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:min-h-0"
           >
-            Discover
-          </Link>
-          <Link
-            href="/vault"
-            prefetch={false}
-            aria-current={pathname === "/vault" ? "page" : undefined}
-            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-              pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
-            }`}
-          >
-            My vault
-          </Link>
-          <Link
-            href="/lists"
-            prefetch={false}
-            aria-current={pathname === "/lists" ? "page" : undefined}
-            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-              pathname === "/lists" ? "text-foreground" : "text-muted hover:text-foreground"
-            }`}
-          >
-            Lists
-          </Link>
-          <Link
-            href="/calendar"
-            prefetch={false}
-            aria-current={pathname === "/calendar" ? "page" : undefined}
-            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-              pathname === "/calendar" ? "text-foreground" : "text-muted hover:text-foreground"
-            }`}
-          >
-            Calendar
-          </Link>
-          <Link
-            href="/stats"
-            prefetch={false}
-            aria-current={pathname === "/stats" ? "page" : undefined}
-            className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-              pathname === "/stats" ? "text-foreground" : "text-muted hover:text-foreground"
-            }`}
-          >
-            Stats
-          </Link>
-        </nav>
-
-        {/* Store filters. One menu until the row can hold a chip per store. */}
-        <div className="relative hidden shrink-0 lg:block xl:hidden">
-          <button
-            ref={storesToggleRef}
-            type="button"
-            onClick={() => setStoresOpen((open) => !open)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && storesOpen) {
-                event.preventDefault();
-                setStoresOpen(false);
-              }
-            }}
-            aria-label="Stores"
-            aria-expanded={storesOpen}
-            aria-controls="stores-menu"
-            className={`flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamily ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-            style={selectedFamily?.platform ? { backgroundColor: PLATFORM_COLORS[selectedFamily.platform] } : {}}
-          >
-            <span>{selectedFamily ? selectedFamily.label : "Stores"}</span>
-          </button>
-          {storesOpen && (
-            <div
-              id="stores-menu"
-              className="absolute left-0 top-10 z-50 w-44 rounded-xl border border-white/10 bg-card p-1 shadow-xl shadow-black/20"
-            >
-              {platformFamilies.map((family) => (
-                <button
-                  key={family.key}
-                  type="button"
-                  onClick={() => handlePlatformSelect(family.platform, family.key)}
-                  aria-label={`Filter by ${family.label}`}
-                  aria-pressed={selectedFamilyKey === family.key}
-                  className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
-                  style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
-                >
-                  <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-        <div className="hidden shrink-0 items-center gap-1 xl:flex">
-          {platformFamilies.map((family) => (
-            <button
-              key={family.key}
-              type="button"
-              onClick={() => handlePlatformSelect(family.platform, family.key)}
-              aria-label={`Filter by ${family.label}`}
-              aria-pressed={selectedFamilyKey === family.key}
-              className={`flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-              style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
-            >
-              <PlatformName name={family.label} iconClassName="h-3.5 w-3.5" className="gap-1" />
-            </button>
-          ))}
-        </div>
-
-        {/* Theme toggle + Search + Profile + Hamburger */}
-        <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-2">
-          <ThemeToggle />
-          {/* Search icon (mobile toggle). The field is the next DOM node so
-              screen readers and Tab reach it before the library and menu. */}
-          <button
-            ref={searchToggleRef}
-            type="button"
-            onClick={() => setSearchOpen((open) => !open)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && searchOpen) {
-                event.preventDefault();
-                closeSearch();
-              }
-            }}
-            aria-label="Search games"
-            aria-expanded={searchOpen}
-            aria-controls="mobile-search"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
+            <span
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent font-bold text-white"
               aria-hidden="true"
-              className="h-4 w-4"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
-              />
-            </svg>
-          </button>
+              GV
+            </span>
+            <span className="hidden text-xl font-bold tracking-tight sm:block">
+              GameVault
+            </span>
+          </Link>
 
-          <form
-            id="mobile-search"
-            role="search"
-            hidden={!searchOpen}
-            onSubmit={submitSearch}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") {
-                event.preventDefault();
-                closeSearch();
+          {/* Nav links (desktop). These routes preload the catalogue, and Next
+            would apply that preload while prefetching them from here. */}
+          <nav
+            className="hidden shrink-0 items-center gap-3 whitespace-nowrap lg:flex xl:gap-4"
+            aria-label="Main"
+          >
+            <Link
+              href="/"
+              aria-current={pathname === "/" ? "page" : undefined}
+              className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Discover
+            </Link>
+            <Link
+              href="/vault"
+              prefetch={false}
+              aria-current={pathname === "/vault" ? "page" : undefined}
+              className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/vault"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              My vault
+            </Link>
+            <Link
+              href="/lists"
+              prefetch={false}
+              aria-current={pathname === "/lists" ? "page" : undefined}
+              className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/lists"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Lists
+            </Link>
+            <Link
+              href="/calendar"
+              prefetch={false}
+              aria-current={pathname === "/calendar" ? "page" : undefined}
+              className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/calendar"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Calendar
+            </Link>
+            <Link
+              href="/stats"
+              prefetch={false}
+              aria-current={pathname === "/stats" ? "page" : undefined}
+              className={`rounded text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                pathname === "/stats"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
+              }`}
+            >
+              Stats
+            </Link>
+          </nav>
+
+          {/* Store filters. One menu until the row can hold a chip per store. */}
+          <div className="relative hidden shrink-0 lg:block xl:hidden">
+            <button
+              ref={storesToggleRef}
+              type="button"
+              onClick={() => setStoresOpen((open) => !open)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && storesOpen) {
+                  event.preventDefault();
+                  setStoresOpen(false);
+                }
+              }}
+              aria-label="Stores"
+              aria-expanded={storesOpen}
+              aria-controls="stores-menu"
+              className={`flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamily ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              style={
+                selectedFamily?.platform
+                  ? {
+                      backgroundColor: PLATFORM_COLORS[selectedFamily.platform],
+                    }
+                  : {}
               }
-            }}
-            className="absolute inset-x-0 top-16 z-30 border-t border-white/5 bg-background/80 px-4 py-2 backdrop-blur-xl sm:hidden"
-          >
-            <label htmlFor="navbar-search-mobile" className="sr-only">
-              Search games
-            </label>
-            <input
-              ref={mobileSearchRef}
-              id="navbar-search-mobile"
-              type="search"
-              enterKeyHint="search"
-              placeholder="Search games..."
-              value={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              onFocus={() => onSearchPrepare?.()}
-              onBlur={(e) => rememberSearch(e.target.value)}
-              className="h-11 w-full rounded-full border border-white/10 bg-card px-4 text-base text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-            />
-          </form>
-
-          {/* Search input (desktop). Collapses to an icon when the header is too narrow. */}
-          <div
-            className={`relative hidden h-9 sm:block ${
-              desktopSearchCompact && !desktopSearchExpanded ? "w-9" : "w-44"
-            }`}
-          >
-            {desktopSearchCompact && !desktopSearchExpanded ? (
+            >
+              <span>{selectedFamily ? selectedFamily.label : "Stores"}</span>
+            </button>
+            {storesOpen && (
+              <div
+                id="stores-menu"
+                className="absolute left-0 top-10 z-50 w-44 rounded-xl border border-white/10 bg-card p-1 shadow-xl shadow-black/20"
+              >
+                {platformFamilies.map((family) => (
+                  <button
+                    key={family.key}
+                    type="button"
+                    onClick={() =>
+                      handlePlatformSelect(family.platform, family.key)
+                    }
+                    aria-label={`Filter by ${family.label}`}
+                    aria-pressed={selectedFamilyKey === family.key}
+                    className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
+                    style={
+                      selectedFamilyKey === family.key && family.platform
+                        ? { backgroundColor: PLATFORM_COLORS[family.platform] }
+                        : {}
+                    }
+                  >
+                    <PlatformName
+                      name={family.label}
+                      iconClassName="h-4 w-4"
+                      className="gap-1.5"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="hidden shrink-0 items-center gap-1 xl:flex">
+            {platformFamilies.map((family) => (
               <button
-                ref={desktopSearchIconRef}
+                key={family.key}
                 type="button"
-                onClick={() => setDesktopSearchExpanded(true)}
-                aria-label="Search games"
-                className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                onClick={() =>
+                  handlePlatformSelect(family.platform, family.key)
+                }
+                aria-label={`Filter by ${family.label}`}
+                aria-pressed={selectedFamilyKey === family.key}
+                className={`flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+                style={
+                  selectedFamilyKey === family.key && family.platform
+                    ? { backgroundColor: PLATFORM_COLORS[family.platform] }
+                    : {}
+                }
+              >
+                <PlatformName
+                  name={family.label}
+                  iconClassName="h-3.5 w-3.5"
+                  className="gap-1"
+                />
+              </button>
+            ))}
+          </div>
+
+          {/* Theme toggle + Search + Profile + Hamburger */}
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3 lg:gap-2">
+            <ThemeToggle />
+            {/* Search icon (mobile toggle). The field is the next DOM node so
+              screen readers and Tab reach it before the library and menu. */}
+            <button
+              ref={searchToggleRef}
+              type="button"
+              onClick={() => setSearchOpen((open) => !open)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && searchOpen) {
+                  event.preventDefault();
+                  closeSearch();
+                }
+              }}
+              aria-label="Search games"
+              aria-expanded={searchOpen}
+              aria-controls="mobile-search"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:hidden"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                aria-hidden="true"
+                className="h-4 w-4"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                />
+              </svg>
+            </button>
+
+            <form
+              id="mobile-search"
+              role="search"
+              hidden={!searchOpen}
+              onSubmit={submitSearch}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.preventDefault();
+                  closeSearch();
+                }
+              }}
+              className="absolute inset-x-0 top-16 z-30 border-t border-white/5 bg-background/80 px-4 py-2 backdrop-blur-xl sm:hidden"
+            >
+              <label htmlFor="navbar-search-mobile" className="sr-only">
+                Search games
+              </label>
+              <input
+                ref={mobileSearchRef}
+                id="navbar-search-mobile"
+                type="search"
+                enterKeyHint="search"
+                placeholder="Search games..."
+                value={search}
+                onChange={(e) => handleSearch(e.target.value)}
+                onFocus={() => onSearchPrepare?.()}
+                onBlur={(e) => rememberSearch(e.target.value)}
+                className="h-11 w-full rounded-full border border-white/10 bg-card px-4 text-base text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+              />
+            </form>
+
+            {/* Search input (desktop). Collapses to an icon when the header is too narrow. */}
+            <div
+              className={`relative hidden h-9 sm:block ${
+                desktopSearchCompact && !desktopSearchExpanded ? "w-9" : "w-44"
+              }`}
+            >
+              {desktopSearchCompact && !desktopSearchExpanded ? (
+                <button
+                  ref={desktopSearchIconRef}
+                  type="button"
+                  onClick={() => setDesktopSearchExpanded(true)}
+                  aria-label="Search games"
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    aria-hidden="true"
+                    className="h-4 w-4"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                </button>
+              ) : (
+                <form
+                  role="search"
+                  onSubmit={submitSearch}
+                  className={`relative h-9 ${desktopSearchCompact ? "absolute right-0 top-0 z-20 w-[min(11rem,calc(100vw-8rem))]" : "w-full"}`}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth={1.5}
+                    stroke="currentColor"
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    />
+                  </svg>
+                  <label htmlFor="navbar-search" className="sr-only">
+                    Search games
+                  </label>
+                  <input
+                    ref={desktopSearchRef}
+                    id="navbar-search"
+                    type="search"
+                    placeholder="Search games..."
+                    value={search}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    onFocus={() => onSearchPrepare?.()}
+                    onBlur={(e) => {
+                      rememberSearch(e.target.value);
+                      if (desktopSearchCompact && !e.target.value.trim()) {
+                        setDesktopSearchExpanded(false);
+                      }
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === "Escape" && desktopSearchCompact) {
+                        event.preventDefault();
+                        restoreDesktopSearchIconFocusRef.current = true;
+                        setDesktopSearchExpanded(false);
+                      }
+                    }}
+                    className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
+                  />
+                </form>
+              )}
+            </div>
+
+            {/* Library menu */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLibraryMenuOpen((v) => !v)}
+                aria-label="Open library menu"
+                aria-expanded={libraryMenuOpen}
+                aria-controls="library-menu"
+                className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:h-9 lg:w-9"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -442,16 +604,39 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 10.25 11h-3.5A2.25 2.25 0 0 1 4.5 8.75v-3.5ZM11.5 15.25A2.25 2.25 0 0 1 13.75 13h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 17.25 21h-3.5a2.25 2.25 0 0 1-2.25-2.25v-3.5ZM4.5 15.25A2.25 2.25 0 0 1 6.75 13h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 8.25 21h-1.5A2.25 2.25 0 0 1 4.5 18.75v-3.5ZM14.5 5.25A2.25 2.25 0 0 1 16.75 3h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 18.25 11h-1.5a2.25 2.25 0 0 1-2.25-2.25v-3.5Z"
                   />
                 </svg>
               </button>
-            ) : (
-              <form
-                role="search"
-                onSubmit={submitSearch}
-                className={`relative h-9 ${desktopSearchCompact ? "absolute right-0 top-0 z-20 w-[min(11rem,calc(100vw-8rem))]" : "w-full"}`}
-              >
+              {libraryMenuOpen && (
+                <div
+                  id="library-menu"
+                  className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/10 bg-card shadow-xl shadow-black/20"
+                >
+                  <LibraryToolbar
+                    onNavigate={() => setLibraryMenuOpen(false)}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Hamburger (mobile) */}
+            <button
+              ref={menuToggleRef}
+              type="button"
+              onClick={() => setMenuOpen((v) => !v)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape" && menuOpen) {
+                  event.preventDefault();
+                  closeMenu();
+                }
+              }}
+              aria-label="Menu"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-nav"
+              className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
+            >
+              {menuOpen ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -459,167 +644,105 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   strokeWidth={1.5}
                   stroke="currentColor"
                   aria-hidden="true"
-                  className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+                  className="h-4 w-4"
                 >
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
-                    d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"
+                    d="M6 18 18 6M6 6l12 12"
                   />
                 </svg>
-                <label htmlFor="navbar-search" className="sr-only">
-                  Search games
-                </label>
-                <input
-                  ref={desktopSearchRef}
-                  id="navbar-search"
-                  type="search"
-                  placeholder="Search games..."
-                  value={search}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  onFocus={() => onSearchPrepare?.()}
-                  onBlur={(e) => {
-                    rememberSearch(e.target.value);
-                    if (desktopSearchCompact && !e.target.value.trim()) {
-                      setDesktopSearchExpanded(false);
-                    }
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Escape" && desktopSearchCompact) {
-                      event.preventDefault();
-                      restoreDesktopSearchIconFocusRef.current = true;
-                      setDesktopSearchExpanded(false);
-                    }
-                  }}
-                  className="h-9 w-full min-w-0 rounded-full border border-white/10 bg-card pl-9 pr-4 text-sm text-foreground placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-                />
-              </form>
-            )}
-          </div>
-
-          {/* Library menu */}
-          <div className="relative">
-            <button
-              type="button"
-              onClick={() => setLibraryMenuOpen((v) => !v)}
-              aria-label="Open library menu"
-              aria-expanded={libraryMenuOpen}
-              aria-controls="library-menu"
-              className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-full bg-card ring-1 ring-white/10 transition hover:ring-accent/50 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:h-9 lg:w-9"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                aria-hidden="true"
-                className="h-4 w-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 10.25 11h-3.5A2.25 2.25 0 0 1 4.5 8.75v-3.5ZM11.5 15.25A2.25 2.25 0 0 1 13.75 13h3.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 17.25 21h-3.5a2.25 2.25 0 0 1-2.25-2.25v-3.5ZM4.5 15.25A2.25 2.25 0 0 1 6.75 13h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 8.25 21h-1.5A2.25 2.25 0 0 1 4.5 18.75v-3.5ZM14.5 5.25A2.25 2.25 0 0 1 16.75 3h1.5a2.25 2.25 0 0 1 2.25 2.25v3.5A2.25 2.25 0 0 1 18.25 11h-1.5a2.25 2.25 0 0 1-2.25-2.25v-3.5Z" />
-              </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  aria-hidden="true"
+                  className="h-4 w-4"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                  />
+                </svg>
+              )}
             </button>
-            {libraryMenuOpen && (
-              <div
-                id="library-menu"
-                className="absolute right-0 top-12 z-50 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-white/10 bg-card shadow-xl shadow-black/20"
-              >
-                <LibraryToolbar onNavigate={() => setLibraryMenuOpen(false)} />
-              </div>
-            )}
           </div>
-
-          {/* Hamburger (mobile) */}
-          <button
-            ref={menuToggleRef}
-            type="button"
-            onClick={() => setMenuOpen((v) => !v)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape" && menuOpen) {
-                event.preventDefault();
-                closeMenu();
-              }
-            }}
-            aria-label="Menu"
-            aria-expanded={menuOpen}
-            aria-controls="mobile-nav"
-            className="flex h-11 w-11 items-center justify-center rounded-full bg-card text-muted transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent lg:hidden"
-          >
-            {menuOpen ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                aria-hidden="true"
-                className="h-4 w-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                aria-hidden="true"
-                className="h-4 w-4"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-              </svg>
-            )}
-          </button>
         </div>
-      </div>
       </div>
 
       {selectedFamily && (
         <div className="hidden border-t border-white/5 lg:block">
           <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
             <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
-              <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
+              <PlatformName
+                name={selectedFamily.label}
+                iconClassName="h-3.5 w-3.5"
+                className="gap-1.5"
+              />
               <span>platforms</span>
             </span>
-            <span className="h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
-            <div className="flex min-w-0 flex-col gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
+            <span
+              className="h-4 w-px flex-shrink-0 bg-white/10"
+              aria-hidden="true"
+            />
+            <div
+              className="flex min-w-0 flex-col gap-1"
+              aria-label={`${selectedFamily.label} platform breakdown`}
+            >
               <div className="flex items-center gap-1">
                 {selectedFamily.variants.map((variant) => (
                   <button
                     key={variant}
                     type="button"
                     onClick={() => handleVariantSelect(variant)}
-                    aria-pressed={selectedVariant === variant || selectedVariantRoot === variant}
+                    aria-pressed={
+                      selectedVariant === variant ||
+                      selectedVariantRoot === variant
+                    }
                     className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                       selectedVariant === variant
                         ? "bg-white/10 text-foreground"
                         : "text-muted hover:bg-white/5 hover:text-foreground"
                     }`}
                   >
-                    <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
+                    <PlatformName
+                      name={variant}
+                      iconClassName="h-[18px] w-[18px]"
+                      className="gap-1"
+                    />
                   </button>
                 ))}
               </div>
-              {selectedVariantRoot && selectedFamily.variantChildren?.[selectedVariantRoot] && (
-                <div className="flex items-center gap-1 pl-2">
-                  {selectedFamily.variantChildren[selectedVariantRoot].map((variant) => (
-                    <button
-                      key={variant}
-                      type="button"
-                      onClick={() => handleVariantSelect(variant)}
-                      aria-pressed={selectedVariant === variant}
-                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                        selectedVariant === variant
-                          ? "bg-white/10 text-foreground"
-                          : "text-muted hover:bg-white/5 hover:text-foreground"
-                      }`}
-                    >
-                      <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
-                    </button>
-                  ))}
-                </div>
-              )}
+              {selectedVariantRoot &&
+                selectedFamily.variantChildren?.[selectedVariantRoot] && (
+                  <div className="flex items-center gap-1 pl-2">
+                    {selectedFamily.variantChildren[selectedVariantRoot].map(
+                      (variant) => (
+                        <button
+                          key={variant}
+                          type="button"
+                          onClick={() => handleVariantSelect(variant)}
+                          aria-pressed={selectedVariant === variant}
+                          className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                            selectedVariant === variant
+                              ? "bg-white/10 text-foreground"
+                              : "text-muted hover:bg-white/5 hover:text-foreground"
+                          }`}
+                        >
+                          <PlatformName
+                            name={variant}
+                            iconClassName="h-[18px] w-[18px]"
+                            className="gap-1"
+                          />
+                        </button>
+                      ),
+                    )}
+                  </div>
+                )}
             </div>
           </div>
         </div>
@@ -643,7 +766,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                pathname === "/" ? "text-foreground" : "text-muted hover:text-foreground"
+                pathname === "/"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Discover
@@ -654,7 +779,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/vault" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                pathname === "/vault" ? "text-foreground" : "text-muted hover:text-foreground"
+                pathname === "/vault"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               My vault
@@ -665,7 +792,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/lists" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                pathname === "/lists" ? "text-foreground" : "text-muted hover:text-foreground"
+                pathname === "/lists"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Lists
@@ -676,7 +805,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/calendar" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                pathname === "/calendar" ? "text-foreground" : "text-muted hover:text-foreground"
+                pathname === "/calendar"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Calendar
@@ -687,24 +818,38 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               onClick={() => setMenuOpen(false)}
               aria-current={pathname === "/stats" ? "page" : undefined}
               className={`flex min-h-11 items-center rounded-lg px-3 py-2.5 text-sm font-medium transition hover:bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                pathname === "/stats" ? "text-foreground" : "text-muted hover:text-foreground"
+                pathname === "/stats"
+                  ? "text-foreground"
+                  : "text-muted hover:text-foreground"
               }`}
             >
               Stats
             </Link>
             {/* Platform filters in mobile menu */}
             <div className="mt-2 border-t border-white/5 pt-2">
-              <p className="px-3 py-1 text-xs font-medium text-muted">Filter by Platform</p>
+              <p className="px-3 py-1 text-xs font-medium text-muted">
+                Filter by Platform
+              </p>
               {platformFamilies.map((family) => (
                 <div key={family.key}>
                   <button
                     type="button"
-                    onClick={() => handlePlatformSelect(family.platform, family.key)}
+                    onClick={() =>
+                      handlePlatformSelect(family.platform, family.key)
+                    }
                     className={`flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
-                    style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
+                    style={
+                      selectedFamilyKey === family.key && family.platform
+                        ? { color: PLATFORM_COLORS[family.platform] }
+                        : {}
+                    }
                     aria-pressed={selectedFamilyKey === family.key}
                   >
-                    <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
+                    <PlatformName
+                      name={family.label}
+                      iconClassName="h-4 w-4"
+                      className="gap-1.5"
+                    />
                   </button>
                   {selectedFamilyKey === family.key && (
                     <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
@@ -720,30 +865,41 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                               : "text-muted hover:bg-white/5 hover:text-foreground"
                           }`}
                         >
-                          <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
+                          <PlatformName
+                            name={variant}
+                            iconClassName="h-[18px] w-[18px]"
+                            className="gap-1"
+                          />
                         </button>
                       ))}
-                      {selectedVariantRoot && family.variantChildren?.[selectedVariantRoot] && (
-                        <div className="basis-full border-t border-white/5 pt-1">
-                          <div className="flex flex-wrap gap-1 pl-2">
-                            {family.variantChildren[selectedVariantRoot].map((variant) => (
-                              <button
-                                key={variant}
-                                type="button"
-                                onClick={() => handleVariantSelect(variant)}
-                                aria-pressed={selectedVariant === variant}
-                                className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                                  selectedVariant === variant
-                                    ? "bg-white/10 text-foreground"
-                                    : "text-muted hover:bg-white/5 hover:text-foreground"
-                                }`}
-                              >
-                                <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
-                              </button>
-                            ))}
+                      {selectedVariantRoot &&
+                        family.variantChildren?.[selectedVariantRoot] && (
+                          <div className="basis-full border-t border-white/5 pt-1">
+                            <div className="flex flex-wrap gap-1 pl-2">
+                              {family.variantChildren[selectedVariantRoot].map(
+                                (variant) => (
+                                  <button
+                                    key={variant}
+                                    type="button"
+                                    onClick={() => handleVariantSelect(variant)}
+                                    aria-pressed={selectedVariant === variant}
+                                    className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                                      selectedVariant === variant
+                                        ? "bg-white/10 text-foreground"
+                                        : "text-muted hover:bg-white/5 hover:text-foreground"
+                                    }`}
+                                  >
+                                    <PlatformName
+                                      name={variant}
+                                      iconClassName="h-[18px] w-[18px]"
+                                      className="gap-1"
+                                    />
+                                  </button>
+                                ),
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
                   )}
                 </div>

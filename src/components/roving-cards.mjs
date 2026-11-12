@@ -10,7 +10,13 @@
  * @returns {number | null} null when this key should not move focus
  */
 export function nextRovingIndex(current, count, columns, key) {
-  if (!Number.isInteger(count) || count <= 0 || !Number.isInteger(current) || current < 0 || current >= count) {
+  if (
+    !Number.isInteger(count) ||
+    count <= 0 ||
+    !Number.isInteger(current) ||
+    current < 0 ||
+    current >= count
+  ) {
     return null;
   }
   const width = Math.max(1, columns);

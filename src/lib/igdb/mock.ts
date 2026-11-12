@@ -16,9 +16,12 @@ let mockFile: MockFile | null = null;
 
 function loadMockFile(): MockFile {
   if (mockFile) return mockFile;
-  const path = process.env.IGDB_MOCK_FIXTURE
-    ?? join(process.cwd(), "test/fixtures/igdb-live-mock.json");
-  mockFile = JSON.parse(readFileSync(/* turbopackIgnore: true */ path, "utf8")) as MockFile;
+  const path =
+    process.env.IGDB_MOCK_FIXTURE ??
+    join(process.cwd(), "test/fixtures/igdb-live-mock.json");
+  mockFile = JSON.parse(
+    readFileSync(/* turbopackIgnore: true */ path, "utf8"),
+  ) as MockFile;
   return mockFile;
 }
 

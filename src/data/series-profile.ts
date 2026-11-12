@@ -60,14 +60,16 @@ export function describeSeries(input: {
 }) {
   const kindLabel = input.kind === "franchise" ? "franchise" : "collection";
   const count = input.gameCount === 1 ? "1 game" : `${input.gameCount} games`;
-  const years = input.yearStart != null && input.yearEnd != null
-    ? input.yearStart === input.yearEnd
-      ? ` Catalogue releases are from ${input.yearStart}.`
-      : ` Catalogue releases run from ${input.yearStart} to ${input.yearEnd}.`
-    : "";
-  const notable = input.notableTitles.length > 0
-    ? ` Notable titles include ${joinList(input.notableTitles)}.`
-    : "";
+  const years =
+    input.yearStart != null && input.yearEnd != null
+      ? input.yearStart === input.yearEnd
+        ? ` Catalogue releases are from ${input.yearStart}.`
+        : ` Catalogue releases run from ${input.yearStart} to ${input.yearEnd}.`
+      : "";
+  const notable =
+    input.notableTitles.length > 0
+      ? ` Notable titles include ${joinList(input.notableTitles)}.`
+      : "";
   return `${input.name} is a ${kindLabel} in the GameVault catalogue, with ${count}.${years}${notable}`;
 }
 
@@ -82,14 +84,19 @@ export function seriesMetadata(input: {
     input.gameCount === 1 ? "1 game" : `${input.gameCount} games`,
   ];
   if (input.yearStart != null && input.yearEnd != null) {
-    parts.push(input.yearStart === input.yearEnd ? String(input.yearStart) : `${input.yearStart}–${input.yearEnd}`);
+    parts.push(
+      input.yearStart === input.yearEnd
+        ? String(input.yearStart)
+        : `${input.yearStart}–${input.yearEnd}`,
+    );
   }
   return parts.join(" · ");
 }
 
 export function seriesInitials(name: string) {
   const words = name.split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
+  if (words.length >= 2)
+    return `${words[0][0] ?? ""}${words[1][0] ?? ""}`.toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
 
@@ -111,7 +118,10 @@ function uniqueSlug(name: string, used: Set<string>) {
   return id;
 }
 
-export function collectSeries(games: readonly SeriesSourceGame[], kind: SeriesKind): SeriesRecord[] {
+export function collectSeries(
+  games: readonly SeriesSourceGame[],
+  kind: SeriesKind,
+): SeriesRecord[] {
   const field = kindField[kind];
   const buckets = new Map<string, { name: string; ids: Set<string> }>();
 
@@ -127,7 +137,9 @@ export function collectSeries(games: readonly SeriesSourceGame[], kind: SeriesKi
 
   const used = new Set<string>();
   const idByName = new Map<string, string>();
-  for (const name of [...buckets.keys()].sort((left, right) => left.localeCompare(right))) {
+  for (const name of [...buckets.keys()].sort((left, right) =>
+    left.localeCompare(right),
+  )) {
     idByName.set(name, uniqueSlug(name, used));
   }
 
@@ -143,7 +155,8 @@ export function collectSeries(games: readonly SeriesSourceGame[], kind: SeriesKi
       .map((game) => game.releaseYear)
       .filter((year): year is number => typeof year === "number");
     const notableTitles = seriesGames.slice(0, 3).map((game) => game.title);
-    const backgroundUrl = seriesGames.find((game) => game.background?.url)?.background?.url;
+    const backgroundUrl = seriesGames.find((game) => game.background?.url)
+      ?.background?.url;
     const yearStart = years.length > 0 ? Math.min(...years) : undefined;
     const yearEnd = years.length > 0 ? Math.max(...years) : undefined;
     series.push({
@@ -166,5 +179,8 @@ export function collectSeries(games: readonly SeriesSourceGame[], kind: SeriesKi
     });
   }
 
-  return series.sort((left, right) => left.name.localeCompare(right.name) || left.id.localeCompare(right.id));
+  return series.sort(
+    (left, right) =>
+      left.name.localeCompare(right.name) || left.id.localeCompare(right.id),
+  );
 }

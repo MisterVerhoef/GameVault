@@ -1,8 +1,19 @@
 import { allGames, type Game } from "./games";
-import { collectSeries, seriesPath, type SeriesKind, type SeriesRecord } from "./series-profile";
+import {
+  collectSeries,
+  seriesPath,
+  type SeriesKind,
+  type SeriesRecord,
+} from "./series-profile";
 
 export type { SeriesKind, SeriesRecord } from "./series-profile";
-export { describeSeries, seriesInitials, seriesMetadata, seriesPath, seriesSlug } from "./series-profile";
+export {
+  describeSeries,
+  seriesInitials,
+  seriesMetadata,
+  seriesPath,
+  seriesSlug,
+} from "./series-profile";
 
 export interface Series extends SeriesRecord {
   games: Game[];

@@ -24,12 +24,25 @@ interface StoreCatalogueFile {
 const catalogue = rawCatalogue as StoreCatalogueFile;
 const offerIndex = indexStoreOffers(rawCatalogue);
 
-export function storeOffersFor(game: Pick<Game, "id" | "platforms">): CachedStoreOffer[] {
+export function storeOffersFor(
+  game: Pick<Game, "id" | "platforms">,
+): CachedStoreOffer[] {
   return [...offersForGame(offerIndex, game.id, game.platforms)];
 }
 
-export function presentCatalogueGame(game: Game): { game: Game; offers: CachedStoreOffer[]; captions: string[] } {
-  const fills = catalogue.schemaVersion === 1 ? catalogue.games?.[game.id]?.fills : undefined;
+export function presentCatalogueGame(game: Game): {
+  game: Game;
+  offers: CachedStoreOffer[];
+  captions: string[];
+} {
+  const fills =
+    catalogue.schemaVersion === 1
+      ? catalogue.games?.[game.id]?.fills
+      : undefined;
   const applied = applyFills(game, fills);
-  return { game: applied.game, offers: storeOffersFor(game), captions: applied.captions };
+  return {
+    game: applied.game,
+    offers: storeOffersFor(game),
+    captions: applied.captions,
+  };
 }

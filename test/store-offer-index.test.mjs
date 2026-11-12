@@ -47,63 +47,102 @@ test("formats Netherlands euros", () => {
 });
 
 test("matches cached offers by catalogue game id and platform", () => {
-  const index = indexStoreOffers(catalogue({
-    "148": { offers: [republic] },
-    "83": {
-      offers: [
-        {
-          ...republic,
-          store: "xbox",
-          platform: "Xbox",
-          url: "https://www.xbox.com/nl-nl/games/store/dark-alliance/9N1234567890",
-          price: 29.99,
-          regularPrice: 29.99,
-        },
-        {
-          ...republic,
-          price: 35.99,
-          regularPrice: 35.99,
-        },
-      ],
-    },
-  }));
+  const index = indexStoreOffers(
+    catalogue({
+      148: { offers: [republic] },
+      83: {
+        offers: [
+          {
+            ...republic,
+            store: "xbox",
+            platform: "Xbox",
+            url: "https://www.xbox.com/nl-nl/games/store/dark-alliance/9N1234567890",
+            price: 29.99,
+            regularPrice: 29.99,
+          },
+          {
+            ...republic,
+            price: 35.99,
+            regularPrice: 35.99,
+          },
+        ],
+      },
+    }),
+  );
 
   const deal = offersForGame(index, "148", ["PS5", "PC"]);
   assert.equal(deal.length, 1);
   assert.equal(deal[0].price, 5.99);
   assert.equal(deal[0].deal, true);
-  assert.equal(deal[0].url, "https://store.playstation.com/nl-nl/concept/10000469");
+  assert.equal(
+    deal[0].url,
+    "https://store.playstation.com/nl-nl/concept/10000469",
+  );
 
   assert.equal(offersForGame(index, "148", ["Switch"]).length, 0);
   assert.equal(offersForGame(index, "339152", ["PC"]).length, 0);
 
   const both = offersForGame(index, "83", ["Xbox", "PS5"]);
-  assert.deepEqual(both.map((offer) => offer.store), ["xbox", "playstation"]);
-  assert.equal(both.every((offer) => offer.deal), false);
+  assert.deepEqual(
+    both.map((offer) => offer.store),
+    ["xbox", "playstation"],
+  );
+  assert.equal(
+    both.every((offer) => offer.deal),
+    false,
+  );
 });
 
 test("leaves a game unpriced when the offer is missing or not a real euro amount", () => {
-  const index = indexStoreOffers(catalogue({
-    "85614": {
-      offers: [{
-        store: "nintendo",
-        platform: "Switch",
-        url: "https://www.nintendo.com/nl-nl/Games/Nintendo-Switch-games/Minecraft.html",
-        title: "Minecraft",
-        price: -1,
-        regularPrice: -1,
-        currency: "EUR",
-      }],
-    },
-    "1": {
-      offers: [
-        { store: "xbox", platform: "Xbox", url: "http://example.com/game", title: "Insecure", price: 10, regularPrice: 10, currency: "EUR" },
-        { store: "playstation", platform: "PS5", url: "https://store.playstation.com/nl-nl/concept/1", title: "Valid", price: null, regularPrice: null, currency: "EUR" },
-        { store: "nintendo", platform: "Switch", url: "https://www.nintendo.com/game", title: "Wrong money", price: 9, regularPrice: 9, currency: "USD" },
-      ],
-    },
-    "2": { offers: "not-a-list" },
-  }));
+  const index = indexStoreOffers(
+    catalogue({
+      85614: {
+        offers: [
+          {
+            store: "nintendo",
+            platform: "Switch",
+            url: "https://www.nintendo.com/nl-nl/Games/Nintendo-Switch-games/Minecraft.html",
+            title: "Minecraft",
+            price: -1,
+            regularPrice: -1,
+            currency: "EUR",
+          },
+        ],
+      },
+      1: {
+        offers: [
+          {
+            store: "xbox",
+            platform: "Xbox",
+            url: "http://example.com/game",
+            title: "Insecure",
+            price: 10,
+            regularPrice: 10,
+            currency: "EUR",
+          },
+          {
+            store: "playstation",
+            platform: "PS5",
+            url: "https://store.playstation.com/nl-nl/concept/1",
+            title: "Valid",
+            price: null,
+            regularPrice: null,
+            currency: "EUR",
+          },
+          {
+            store: "nintendo",
+            platform: "Switch",
+            url: "https://www.nintendo.com/game",
+            title: "Wrong money",
+            price: 9,
+            regularPrice: 9,
+            currency: "USD",
+          },
+        ],
+      },
+      2: { offers: "not-a-list" },
+    }),
+  );
 
   const minecraft = offersForGame(index, "85614", ["Switch"]);
   assert.equal(minecraft.length, 1);
@@ -130,57 +169,70 @@ test("indexes PC store offers and hides them from other platforms", () => {
     regularPrice: 24.5,
     currency: "EUR",
   };
-  const index = indexStoreOffers(catalogue({
-    "113112": {
-      offers: [
-        hades,
-        {
-          ...hades,
-          store: "epic",
-          url: "https://store.epicgames.com/en-US/p/hades",
-          price: 12.25,
-          regularPrice: 24.5,
-        },
-        {
-          ...hades,
-          store: "gog",
-          url: "https://www.gog.com/en/game/hades",
-          price: 0,
-          regularPrice: 0,
-        },
-        {
-          ...hades,
-          store: "xbox",
-          platform: "Xbox",
-          url: "https://www.xbox.com/nl-nl/games/store/hades/9P8DL6W0JBB8",
-          price: 24.99,
-          regularPrice: 24.99,
-        },
-        {
-          store: "steam",
-          platform: "Xbox",
-          url: "https://store.steampowered.com/app/1",
-          title: "Wrong platform",
-          price: 1,
-          regularPrice: 1,
-          currency: "EUR",
-        },
-      ],
-    },
-  }));
+  const index = indexStoreOffers(
+    catalogue({
+      113112: {
+        offers: [
+          hades,
+          {
+            ...hades,
+            store: "epic",
+            url: "https://store.epicgames.com/en-US/p/hades",
+            price: 12.25,
+            regularPrice: 24.5,
+          },
+          {
+            ...hades,
+            store: "gog",
+            url: "https://www.gog.com/en/game/hades",
+            price: 0,
+            regularPrice: 0,
+          },
+          {
+            ...hades,
+            store: "xbox",
+            platform: "Xbox",
+            url: "https://www.xbox.com/nl-nl/games/store/hades/9P8DL6W0JBB8",
+            price: 24.99,
+            regularPrice: 24.99,
+          },
+          {
+            store: "steam",
+            platform: "Xbox",
+            url: "https://store.steampowered.com/app/1",
+            title: "Wrong platform",
+            price: 1,
+            regularPrice: 1,
+            currency: "EUR",
+          },
+        ],
+      },
+    }),
+  );
 
   const pc = offersForGame(index, "113112", ["PC"]);
-  assert.deepEqual(pc.map((offer) => offer.store), ["steam", "epic", "gog"]);
+  assert.deepEqual(
+    pc.map((offer) => offer.store),
+    ["steam", "epic", "gog"],
+  );
   assert.equal(pc[0].platform, "PC");
   assert.equal(pc[1].deal, true);
   assert.equal(pc[2].price, 0);
   assert.equal(pc[2].deal, false);
 
   const withConsole = offersForGame(index, "113112", ["PC", "Xbox"]);
-  assert.deepEqual(withConsole.map((offer) => offer.store), ["xbox", "steam", "epic", "gog"]);
+  assert.deepEqual(
+    withConsole.map((offer) => offer.store),
+    ["xbox", "steam", "epic", "gog"],
+  );
 
   assert.equal(offersForGame(index, "113112", ["Switch", "PS5"]).length, 0);
-  assert.equal(offersForGame(index, "113112", ["Xbox"]).map((offer) => offer.store).join(), "xbox");
+  assert.equal(
+    offersForGame(index, "113112", ["Xbox"])
+      .map((offer) => offer.store)
+      .join(),
+    "xbox",
+  );
 });
 
 test("marks only a strictly lower current price as the lowest", () => {
@@ -202,12 +254,39 @@ test("marks only a strictly lower current price as the lowest", () => {
 
   const flat = [{ price: 59.99 }, { price: 59.99 }];
   assert.equal(isLowestCurrentPrice(flat, flat[0]), false);
-  assert.equal(isLowestCurrentPrice([{ price: 49.99 }, { price: null }], { price: 49.99 }), false);
+  assert.equal(
+    isLowestCurrentPrice([{ price: 49.99 }, { price: null }], { price: 49.99 }),
+    false,
+  );
 });
 
 test("returns no prices for an unsupported catalogue file", () => {
   assert.equal(indexStoreOffers(null).byGameId.size, 0);
-  assert.equal(indexStoreOffers({ schemaVersion: 2, region: "NL", currency: "EUR", games: { "1": { offers: [republic] } } }).byGameId.size, 0);
-  assert.equal(indexStoreOffers({ schemaVersion: 1, region: "US", currency: "EUR", games: { "1": { offers: [republic] } } }).byGameId.size, 0);
-  assert.equal(indexStoreOffers({ schemaVersion: 1, region: "NL", currency: "USD", games: { "1": { offers: [republic] } } }).byGameId.size, 0);
+  assert.equal(
+    indexStoreOffers({
+      schemaVersion: 2,
+      region: "NL",
+      currency: "EUR",
+      games: { 1: { offers: [republic] } },
+    }).byGameId.size,
+    0,
+  );
+  assert.equal(
+    indexStoreOffers({
+      schemaVersion: 1,
+      region: "US",
+      currency: "EUR",
+      games: { 1: { offers: [republic] } },
+    }).byGameId.size,
+    0,
+  );
+  assert.equal(
+    indexStoreOffers({
+      schemaVersion: 1,
+      region: "NL",
+      currency: "USD",
+      games: { 1: { offers: [republic] } },
+    }).byGameId.size,
+    0,
+  );
 });

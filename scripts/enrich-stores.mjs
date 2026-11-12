@@ -41,11 +41,18 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
 const offersPath = path.join(root, "public", "catalog", "store-offers.json");
 const stores = ["xbox", "playstation", "nintendo", "steam", "epic", "gog"];
-const requestedStores = (process.env.STORE_STORES ?? "").split(",").map((store) => store.trim()).filter(Boolean);
+const requestedStores = (process.env.STORE_STORES ?? "")
+  .split(",")
+  .map((store) => store.trim())
+  .filter(Boolean);
 for (const store of requestedStores) {
-  if (!stores.includes(store)) throw new Error(`Unknown STORE_STORES entry: ${store}`);
+  if (!stores.includes(store))
+    throw new Error(`Unknown STORE_STORES entry: ${store}`);
 }
-const activeStores = requestedStores.length > 0 ? stores.filter((store) => requestedStores.includes(store)) : stores;
+const activeStores =
+  requestedStores.length > 0
+    ? stores.filter((store) => requestedStores.includes(store))
+    : stores;
 const platformFor = {
   xbox: "Xbox",
   playstation: "PS5",
@@ -55,18 +62,31 @@ const platformFor = {
   gog: "PC",
 };
 const onlyIds = new Set(
-  (process.env.STORE_GAME_IDS ?? "").split(",").map((id) => id.trim()).filter(Boolean),
+  (process.env.STORE_GAME_IDS ?? "")
+    .split(",")
+    .map((id) => id.trim())
+    .filter(Boolean),
 );
-const maxSearches = Number.parseInt(process.env.STORE_MAX_SEARCHES ?? "800", 10);
+const maxSearches = Number.parseInt(
+  process.env.STORE_MAX_SEARCHES ?? "800",
+  10,
+);
 const maxAge = Number.parseInt(process.env.STORE_PRICE_MAX_AGE_DAYS ?? "6", 10);
-const intervalMs = Number.parseInt(process.env.STORE_REQUEST_INTERVAL_MS ?? "150", 10);
-const steamIntervalMs = Number.parseInt(process.env.STORE_STEAM_INTERVAL_MS ?? "350", 10);
+const intervalMs = Number.parseInt(
+  process.env.STORE_REQUEST_INTERVAL_MS ?? "150",
+  10,
+);
+const steamIntervalMs = Number.parseInt(
+  process.env.STORE_STEAM_INTERVAL_MS ?? "350",
+  10,
+);
 const refresh = process.env.STORE_REFRESH === "1";
 const retryMisses = process.env.STORE_RETRY_MISSES === "1";
 const today = new Date().toISOString().slice(0, 10);
 
 function nonNegativeInteger(name, value) {
-  if (!Number.isInteger(value) || value < 0) throw new Error(`${name} must be a non-negative integer.`);
+  if (!Number.isInteger(value) || value < 0)
+    throw new Error(`${name} must be a non-negative integer.`);
 }
 
 nonNegativeInteger("STORE_MAX_SEARCHES", maxSearches);
@@ -76,12 +96,16 @@ nonNegativeInteger("STORE_STEAM_INTERVAL_MS", steamIntervalMs);
 
 const catalogue = JSON.parse(fs.readFileSync(cataloguePath, "utf8"));
 const games = Array.isArray(catalogue.games) ? catalogue.games : [];
-const previous = fs.existsSync(offersPath) ? JSON.parse(fs.readFileSync(offersPath, "utf8")) : { games: {} };
+const previous = fs.existsSync(offersPath)
+  ? JSON.parse(fs.readFileSync(offersPath, "utf8"))
+  : { games: {} };
 const previousGames = previous.games ?? {};
-const limiters = Object.fromEntries(stores.map((store) => [
-  store,
-  createLimiter(store === "steam" ? steamIntervalMs : intervalMs),
-]));
+const limiters = Object.fromEntries(
+  stores.map((store) => [
+    store,
+    createLimiter(store === "steam" ? steamIntervalMs : intervalMs),
+  ]),
+);
 const circuits = {
   xbox: createCircuit("Microsoft Store"),
   playstation: createCircuit("PlayStation Store"),
@@ -151,21 +175,29 @@ function stale(game, store) {
     const retryOlder = retryMisses && matchesStoreIdOnly(store) && miss < today;
     if (!retryOlder) return false;
   }
-  if (!offer || refresh || ageInDays(offer.checkedAt, today) > maxAge) return true;
+  if (!offer || refresh || ageInDays(offer.checkedAt, today) > maxAge)
+    return true;
   const fills = entry?.fills;
   if (!game.cover?.url && !fills?.cover) return true;
   if (!game.description && !fills?.description) return true;
-  if ((game.screenshots ?? []).length === 0 && !(fills?.screenshots?.length)) return true;
+  if ((game.screenshots ?? []).length === 0 && !fills?.screenshots?.length)
+    return true;
   return false;
 }
 
 function needsMedia(game) {
-  return !game.cover?.url || !game.description || (game.screenshots ?? []).length === 0;
+  return (
+    !game.cover?.url ||
+    !game.description ||
+    (game.screenshots ?? []).length === 0
+  );
 }
 
 function playstationIdentity(id) {
-  if (id.startsWith("concept:")) return { kind: "concept", id: id.slice("concept:".length) };
-  if (id.startsWith("product:")) return { kind: "product", id: id.slice("product:".length) };
+  if (id.startsWith("concept:"))
+    return { kind: "concept", id: id.slice("concept:".length) };
+  if (id.startsWith("product:"))
+    return { kind: "product", id: id.slice("product:".length) };
   if (/^\d+$/.test(id)) return { kind: "concept", id };
   return { kind: "product", id };
 }
@@ -190,7 +222,9 @@ async function guard(store, fn) {
 }
 
 function accept(game, store, candidate, match, score) {
-  const titled = candidate?.title ? candidate : { ...candidate, title: game.title };
+  const titled = candidate?.title
+    ? candidate
+    : { ...candidate, title: game.title };
   const offer = offerFor(store, titled, match, score);
   if (!offer) {
     setAttempt(game.id, store, { status: "miss" });
@@ -203,34 +237,48 @@ function accept(game, store, candidate, match, score) {
 async function lookupIdentity(game, store, identity) {
   try {
     if (store === "xbox") {
-      const found = await guard(store, () => lookupMicrosoft([identity.id], limiters.xbox));
+      const found = await guard(store, () =>
+        lookupMicrosoft([identity.id], limiters.xbox),
+      );
       const product = found.get(identity.id.toUpperCase());
-      if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      if (!product || product.kind === "other")
+        setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
     if (store === "playstation") {
       const parsed = playstationIdentity(identity.id);
-      const product = parsed.kind === "concept"
-        ? await guard(store, () => lookupPlayStationConcept(parsed.id, limiters.playstation, { media: needsMedia(game) }))
-        : await guard(store, () => lookupPlayStationProduct(parsed.id, limiters.playstation));
+      const product =
+        parsed.kind === "concept"
+          ? await guard(store, () =>
+              lookupPlayStationConcept(parsed.id, limiters.playstation, {
+                media: needsMedia(game),
+              }),
+            )
+          : await guard(store, () =>
+              lookupPlayStationProduct(parsed.id, limiters.playstation),
+            );
       if (!product) setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
     if (store === "steam") {
-      const ids = [...new Set(
-        identitiesFromGame(game)
-          .filter((item) => item.store === "steam")
-          .flatMap((item) => steamAppIds(item.id)),
-      )];
+      const ids = [
+        ...new Set(
+          identitiesFromGame(game)
+            .filter((item) => item.store === "steam")
+            .flatMap((item) => steamAppIds(item.id)),
+        ),
+      ];
       if (ids.length === 0) {
         setAttempt(game.id, store, { status: "miss" });
         return;
       }
       let fallback;
       for (const id of ids) {
-        const product = await guard(store, () => lookupSteam(id, limiters.steam));
+        const product = await guard(store, () =>
+          lookupSteam(id, limiters.steam),
+        );
         if (!product?.title) continue;
         if (product.kind !== "other" || ids.length === 1) {
           accept(game, store, product, "external-id", 1);
@@ -247,19 +295,27 @@ async function lookupIdentity(game, store, identity) {
         setAttempt(game.id, store, { status: "miss" });
         return;
       }
-      const product = await guard(store, () => lookupEpic(identity.id, limiters.epic));
-      if (!product?.title || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      const product = await guard(store, () =>
+        lookupEpic(identity.id, limiters.epic),
+      );
+      if (!product?.title || product.kind === "other")
+        setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
     if (store === "gog") {
-      const product = await guard(store, () => lookupGog(identity.id, limiters.gog));
+      const product = await guard(store, () =>
+        lookupGog(identity.id, limiters.gog),
+      );
       if (!product?.title) setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, "external-id", 1);
       return;
     }
-    const product = await guard(store, () => lookupNintendo(identity.id, limiters.nintendo));
-    if (!product || product.kind === "other") setAttempt(game.id, store, { status: "miss" });
+    const product = await guard(store, () =>
+      lookupNintendo(identity.id, limiters.nintendo),
+    );
+    if (!product || product.kind === "other")
+      setAttempt(game.id, store, { status: "miss" });
     else accept(game, store, product, "external-id", 1);
   } catch (error) {
     if (isMiss(error)) setAttempt(game.id, store, { status: "miss" });
@@ -275,35 +331,51 @@ async function searchIdentity(game, store) {
       return;
     }
     if (store === "steam") {
-      const candidates = await guard(store, () => searchSteam(game.title, limiters.steam));
+      const candidates = await guard(store, () =>
+        searchSteam(game.title, limiters.steam),
+      );
       const chosen = chooseCandidate(query, candidates);
       if (!chosen) {
         setAttempt(game.id, store, { status: "miss" });
         return;
       }
-      const product = await guard(store, () => lookupSteam(chosen.candidate.id, limiters.steam));
-      const confirmed = product && product.kind !== "other" ? chooseCandidate(query, [product]) : undefined;
-      if (!product || !confirmed) setAttempt(game.id, store, { status: "miss" });
+      const product = await guard(store, () =>
+        lookupSteam(chosen.candidate.id, limiters.steam),
+      );
+      const confirmed =
+        product && product.kind !== "other"
+          ? chooseCandidate(query, [product])
+          : undefined;
+      if (!product || !confirmed)
+        setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, product, confirmed.match, confirmed.score);
       return;
     }
     if (store === "nintendo") {
-      const candidates = await guard(store, () => searchNintendo(game.title, limiters.nintendo));
+      const candidates = await guard(store, () =>
+        searchNintendo(game.title, limiters.nintendo),
+      );
       const chosen = chooseCandidate(query, candidates);
       if (!chosen) {
         setAttempt(game.id, store, { status: "miss" });
         return;
       }
-      const priced = await guard(store, () => priceNintendoCandidate(chosen.candidate, limiters.nintendo));
-      if (!priced?.title || priced.kind === "other") setAttempt(game.id, store, { status: "miss" });
+      const priced = await guard(store, () =>
+        priceNintendoCandidate(chosen.candidate, limiters.nintendo),
+      );
+      if (!priced?.title || priced.kind === "other")
+        setAttempt(game.id, store, { status: "miss" });
       else accept(game, store, priced, chosen.match, chosen.score);
       return;
     }
-    const candidates = store === "playstation"
-      ? await guard(store, () => searchPlayStation(game.title, limiters.playstation))
-      : store === "epic"
-        ? await guard(store, () => searchEpic(game.title, limiters.epic))
-        : await guard(store, () => searchGog(game.title, limiters.gog));
+    const candidates =
+      store === "playstation"
+        ? await guard(store, () =>
+            searchPlayStation(game.title, limiters.playstation),
+          )
+        : store === "epic"
+          ? await guard(store, () => searchEpic(game.title, limiters.epic))
+          : await guard(store, () => searchGog(game.title, limiters.gog));
     const chosen = chooseCandidate(query, candidates);
     if (!chosen) setAttempt(game.id, store, { status: "miss" });
     else accept(game, store, chosen.candidate, chosen.match, chosen.score);
@@ -322,7 +394,9 @@ async function mapPool(items, worker) {
       await worker(items[index], index);
     }
   }
-  await Promise.all(Array.from({ length: Math.min(4, items.length) }, () => run()));
+  await Promise.all(
+    Array.from({ length: Math.min(4, items.length) }, () => run()),
+  );
 }
 
 const idJobs = [];
@@ -339,10 +413,16 @@ const xboxJobs = idJobs.filter((job) => job.store === "xbox");
 for (let offset = 0; offset < xboxJobs.length; offset += 20) {
   const chunk = xboxJobs.slice(offset, offset + 20);
   try {
-    const found = await guard("xbox", () => lookupMicrosoft(chunk.map((job) => job.identity.id), limiters.xbox));
+    const found = await guard("xbox", () =>
+      lookupMicrosoft(
+        chunk.map((job) => job.identity.id),
+        limiters.xbox,
+      ),
+    );
     for (const job of chunk) {
       const product = found.get(job.identity.id.toUpperCase());
-      if (!product || product.kind === "other") setAttempt(job.game.id, "xbox", { status: "miss" });
+      if (!product || product.kind === "other")
+        setAttempt(job.game.id, "xbox", { status: "miss" });
       else accept(job.game, "xbox", product, "external-id", 1);
     }
   } catch (error) {
@@ -350,13 +430,19 @@ for (let offset = 0; offset < xboxJobs.length; offset += 20) {
     for (const job of chunk) setAttempt(job.game.id, "xbox", { status });
   }
   if ((offset + chunk.length) % 200 < 20) {
-    console.log(`Microsoft id lookups ${Math.min(offset + chunk.length, xboxJobs.length)}/${xboxJobs.length}`);
+    console.log(
+      `Microsoft id lookups ${Math.min(offset + chunk.length, xboxJobs.length)}/${xboxJobs.length}`,
+    );
   }
 }
 
 const otherIdJobs = idJobs.filter((job) => job.store !== "xbox");
-const idOnlyJobs = otherIdJobs.filter((job) => matchesStoreIdOnly(job.store)).length;
-console.log(`Id lookups ${otherIdJobs.length} (${idOnlyJobs} Steam, Epic, or GOG by store id).`);
+const idOnlyJobs = otherIdJobs.filter((job) =>
+  matchesStoreIdOnly(job.store),
+).length;
+console.log(
+  `Id lookups ${otherIdJobs.length} (${idOnlyJobs} Steam, Epic, or GOG by store id).`,
+);
 let finished = 0;
 await mapPool(otherIdJobs, async (job) => {
   await lookupIdentity(job.game, job.store, job.identity);
@@ -374,24 +460,44 @@ const nintendoReprice = [];
 for (const game of games) {
   if (!stale(game, "nintendo") || attempts.get(game.id)?.nintendo) continue;
   if (preferIdentity(identitiesFromGame(game), "nintendo")) continue;
-  const prior = previousGames[game.id]?.offers?.find((offer) => offer.store === "nintendo");
-  if (!prior || !isAllowedStoreMatch("nintendo", prior.match) || !isNintendoGameNsuid(prior.productId)) continue;
+  const prior = previousGames[game.id]?.offers?.find(
+    (offer) => offer.store === "nintendo",
+  );
+  if (
+    !prior ||
+    !isAllowedStoreMatch("nintendo", prior.match) ||
+    !isNintendoGameNsuid(prior.productId)
+  )
+    continue;
   nintendoReprice.push({ game, prior });
 }
 console.log(`Nintendo price refreshes ${nintendoReprice.length}.`);
 for (let offset = 0; offset < nintendoReprice.length; offset += 50) {
   const chunk = nintendoReprice.slice(offset, offset + 50);
   try {
-    const priced = await guard("nintendo", () => priceNintendoCandidates(chunk.map((job) => ({
-      id: job.prior.productId,
-      title: job.prior.title,
-      url: job.prior.url,
-      kind: "game",
-    })), limiters.nintendo));
+    const priced = await guard("nintendo", () =>
+      priceNintendoCandidates(
+        chunk.map((job) => ({
+          id: job.prior.productId,
+          title: job.prior.title,
+          url: job.prior.url,
+          kind: "game",
+        })),
+        limiters.nintendo,
+      ),
+    );
     for (const job of chunk) {
       const product = priced.get(job.prior.productId);
-      if (!product?.title || !product.url) setAttempt(job.game.id, "nintendo", { status: "miss" });
-      else accept(job.game, "nintendo", product, job.prior.match, job.prior.score ?? 0.95);
+      if (!product?.title || !product.url)
+        setAttempt(job.game.id, "nintendo", { status: "miss" });
+      else
+        accept(
+          job.game,
+          "nintendo",
+          product,
+          job.prior.match,
+          job.prior.score ?? 0.95,
+        );
     }
   } catch (error) {
     const status = isMiss(error) ? "miss" : "failed";
@@ -405,19 +511,32 @@ for (const game of games) {
   const identities = identitiesFromGame(game);
   for (const store of stores) {
     if (matchesStoreIdOnly(store)) continue;
-    if (!stale(game, store) || preferIdentity(identities, store) || attempts.get(game.id)?.[store]) continue;
+    if (
+      !stale(game, store) ||
+      preferIdentity(identities, store) ||
+      attempts.get(game.id)?.[store]
+    )
+      continue;
     searchJobs.push({ game, store });
   }
 }
-searchJobs.sort((left, right) => left.game.id.localeCompare(right.game.id) || left.store.localeCompare(right.store));
+searchJobs.sort(
+  (left, right) =>
+    left.game.id.localeCompare(right.game.id) ||
+    left.store.localeCompare(right.store),
+);
 const selectedSearches = searchJobs.slice(0, maxSearches);
-console.log(`Title searches ${selectedSearches.length} of ${searchJobs.length} unmatched games (cap ${maxSearches}).`);
+console.log(
+  `Title searches ${selectedSearches.length} of ${searchJobs.length} unmatched games (cap ${maxSearches}).`,
+);
 let searched = 0;
 await mapPool(selectedSearches, async (job) => {
   await searchIdentity(job.game, job.store);
   searched += 1;
   if (searched % 100 === 0) {
-    console.log(`Title searches finished ${searched}/${selectedSearches.length}`);
+    console.log(
+      `Title searches finished ${searched}/${selectedSearches.length}`,
+    );
     writeOffers();
   }
 });
@@ -425,30 +544,43 @@ await mapPool(selectedSearches, async (job) => {
 function writeOffers() {
   const outputGames = {};
   for (const game of games) {
-  const prior = previousGames[game.id];
-  if (!included(game)) {
-    if (prior) outputGames[game.id] = prior;
-    continue;
-  }
-  const gameAttempts = attempts.get(game.id) ?? {};
-  const offers = mergeStoreOffers(prior?.offers, recordAttemptPrices(prior?.offers, gameAttempts, today));
-  const misses = { ...(prior?.misses ?? {}) };
-  for (const store of stores) {
-    const attempt = gameAttempts[store];
-    if (attempt?.status === "miss") misses[store] = today;
-    if (attempt?.status === "matched") delete misses[store];
-  }
-  const freshMisses = Object.fromEntries(
-    Object.entries(misses).filter(([, date]) => ageInDays(date, today) <= maxAge),
-  );
-  const fills = reconcileFills(game, prior?.fills, freshMedia.get(game.id) ?? []);
-  const entry = {};
-  if (offers.length > 0) entry.offers = offers;
-  if (Object.keys(fills).length > 0) entry.fills = fills;
-  if (Object.keys(freshMisses).length > 0) entry.misses = freshMisses;
+    const prior = previousGames[game.id];
+    if (!included(game)) {
+      if (prior) outputGames[game.id] = prior;
+      continue;
+    }
+    const gameAttempts = attempts.get(game.id) ?? {};
+    const offers = mergeStoreOffers(
+      prior?.offers,
+      recordAttemptPrices(prior?.offers, gameAttempts, today),
+    );
+    const misses = { ...(prior?.misses ?? {}) };
+    for (const store of stores) {
+      const attempt = gameAttempts[store];
+      if (attempt?.status === "miss") misses[store] = today;
+      if (attempt?.status === "matched") delete misses[store];
+    }
+    const freshMisses = Object.fromEntries(
+      Object.entries(misses).filter(
+        ([, date]) => ageInDays(date, today) <= maxAge,
+      ),
+    );
+    const fills = reconcileFills(
+      game,
+      prior?.fills,
+      freshMedia.get(game.id) ?? [],
+    );
+    const entry = {};
+    if (offers.length > 0) entry.offers = offers;
+    if (Object.keys(fills).length > 0) entry.fills = fills;
+    if (Object.keys(freshMisses).length > 0) entry.misses = freshMisses;
     if (Object.keys(entry).length > 0) outputGames[game.id] = entry;
   }
-  const ordered = Object.fromEntries(Object.keys(outputGames).sort().map((id) => [id, outputGames[id]]));
+  const ordered = Object.fromEntries(
+    Object.keys(outputGames)
+      .sort()
+      .map((id) => [id, outputGames[id]]),
+  );
   const document = {
     schemaVersion: 1,
     region: "NL",
@@ -466,17 +598,32 @@ const ordered = writeOffers();
 
 const summary = {};
 for (const store of stores) {
-  summary[store] = { eligible: 0, withId: 0, matched: 0, withPrice: 0, "external-id": 0, "exact-title": 0, edition: 0 };
+  summary[store] = {
+    eligible: 0,
+    withId: 0,
+    matched: 0,
+    withPrice: 0,
+    "external-id": 0,
+    "exact-title": 0,
+    edition: 0,
+  };
 }
 for (const game of games) {
   const identities = identitiesFromGame(game);
   for (const store of stores) {
     if (!game.platforms.includes(platformFor[store])) continue;
     summary[store].eligible += 1;
-    if (identities.some((identity) => identity.store === store && isUsableStoreId(store, identity.id))) {
+    if (
+      identities.some(
+        (identity) =>
+          identity.store === store && isUsableStoreId(store, identity.id),
+      )
+    ) {
       summary[store].withId += 1;
     }
-    const offer = ordered[game.id]?.offers?.find((item) => item.store === store);
+    const offer = ordered[game.id]?.offers?.find(
+      (item) => item.store === store,
+    );
     if (!offer) continue;
     summary[store].matched += 1;
     if (offer.price != null) summary[store].withPrice += 1;
@@ -485,12 +632,28 @@ for (const game of games) {
 }
 for (const store of stores) {
   const row = summary[store];
-  console.log(`Coverage ${store}: ${row.matched} matched / ${row.withId} with a store id, ${row.withPrice} with an NL price (${row["external-id"]} by id, ${row["exact-title"]} by exact title)`);
+  console.log(
+    `Coverage ${store}: ${row.matched} matched / ${row.withId} with a store id, ${row.withPrice} with an NL price (${row["external-id"]} by id, ${row["exact-title"]} by exact title)`,
+  );
 }
 const bytes = fs.statSync(offersPath).size;
-console.log(JSON.stringify({
-  summary,
-  bytes,
-  searches: { ran: selectedSearches.length, waiting: searchJobs.length - selectedSearches.length },
-  endpoints: Object.fromEntries(stores.map((store) => [store, circuits[store].open ? circuits[store].reason : "ok"])),
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      summary,
+      bytes,
+      searches: {
+        ran: selectedSearches.length,
+        waiting: searchJobs.length - selectedSearches.length,
+      },
+      endpoints: Object.fromEntries(
+        stores.map((store) => [
+          store,
+          circuits[store].open ? circuits[store].reason : "ok",
+        ]),
+      ),
+    },
+    null,
+    2,
+  ),
+);

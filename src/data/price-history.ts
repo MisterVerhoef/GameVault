@@ -61,18 +61,28 @@ export function normalizePriceHistory(history: unknown): PriceHistoryPoint[] {
     if (!Array.isArray(point) || point.length < 2) continue;
     const [date, cents] = point;
     if (typeof date !== "string" || !isIsoDate(date)) continue;
-    if (typeof cents !== "number" || !Number.isInteger(cents) || cents < 0) continue;
+    if (typeof cents !== "number" || !Number.isInteger(cents) || cents < 0)
+      continue;
     byDate.set(date, cents);
   }
   return [...byDate.entries()]
-    .sort((left, right) => (left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0))
+    .sort((left, right) =>
+      left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0,
+    )
     .map((entry) => [entry[0], entry[1]]);
 }
 
-function lowestPoint(points: readonly PriceHistoryPoint[]): PriceHistoryPoint | undefined {
+function lowestPoint(
+  points: readonly PriceHistoryPoint[],
+): PriceHistoryPoint | undefined {
   let best: PriceHistoryPoint | undefined;
   for (const point of points) {
-    if (!best || point[1] < best[1] || (point[1] === best[1] && point[0] < best[0])) best = point;
+    if (
+      !best ||
+      point[1] < best[1] ||
+      (point[1] === best[1] && point[0] < best[0])
+    )
+      best = point;
   }
   return best;
 }
@@ -125,35 +135,47 @@ export function prunePriceHistory(
   for (const point of older) {
     const month = point[0].slice(0, 7);
     const current = months.get(month);
-    if (!current || point[1] < current[1] || (point[1] === current[1] && point[0] < current[0])) {
+    if (
+      !current ||
+      point[1] < current[1] ||
+      (point[1] === current[1] && point[0] < current[0])
+    ) {
       months.set(month, point);
     }
   }
 
-  const combined = [...months.values(), ...recent]
-    .sort((left, right) => (left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0));
+  const combined = [...months.values(), ...recent].sort((left, right) =>
+    left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0,
+  );
   const seen = new Set(combined.map((point) => point[0]));
   for (const anchor of [earliest, lowest, latest]) {
     if (seen.has(anchor[0])) continue;
     combined.push(anchor);
     seen.add(anchor[0]);
   }
-  combined.sort((left, right) => (left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0));
+  combined.sort((left, right) =>
+    left[0] < right[0] ? -1 : left[0] > right[0] ? 1 : 0,
+  );
 
-  if (combined.length <= PRICE_HISTORY_MAX_POINTS) return combined.map(copyPoint);
+  if (combined.length <= PRICE_HISTORY_MAX_POINTS)
+    return combined.map(copyPoint);
 
   const anchorDates = new Set([earliest[0], lowest[0], latest[0]]);
   const recentDates = new Set(recent.map((point) => point[0]));
   const drop = new Set<string>();
   let overflow = combined.length - PRICE_HISTORY_MAX_POINTS;
-  const droppableMonthly = combined.filter((point) => !anchorDates.has(point[0]) && !recentDates.has(point[0]));
+  const droppableMonthly = combined.filter(
+    (point) => !anchorDates.has(point[0]) && !recentDates.has(point[0]),
+  );
   for (const point of droppableMonthly) {
     if (overflow <= 0) break;
     drop.add(point[0]);
     overflow -= 1;
   }
   if (overflow > 0) {
-    const droppableRecent = combined.filter((point) => !anchorDates.has(point[0]) && recentDates.has(point[0]));
+    const droppableRecent = combined.filter(
+      (point) => !anchorDates.has(point[0]) && recentDates.has(point[0]),
+    );
     for (const point of droppableRecent) {
       if (overflow <= 0) break;
       drop.add(point[0]);
@@ -171,8 +193,12 @@ export function lowestRecorded(
 }
 
 /** Percent off the regular price. Any real discount is at least 1%. */
-export function discountBadge(price: number | null, regularPrice: number | null): string | null {
-  if (typeof price !== "number" || typeof regularPrice !== "number") return null;
+export function discountBadge(
+  price: number | null,
+  regularPrice: number | null,
+): string | null {
+  if (typeof price !== "number" || typeof regularPrice !== "number")
+    return null;
   if (!Number.isFinite(price) || !Number.isFinite(regularPrice)) return null;
   if (!(regularPrice > price) || regularPrice <= 0 || price < 0) return null;
   const percent = Math.round(((regularPrice - price) / regularPrice) * 100);
@@ -192,7 +218,9 @@ export function recordOfferPrices<T extends PricedOfferSnapshot>(
   return offers.map((offer) => {
     const prior = previous?.find((item) => item.store === offer.store);
     const sameProduct = prior != null && prior.productId === offer.productId;
-    let history = normalizePriceHistory(sameProduct ? prior?.history : undefined);
+    let history = normalizePriceHistory(
+      sameProduct ? prior?.history : undefined,
+    );
     if (typeof offer.price === "number" && isIsoDate(offer.checkedAt)) {
       history = appendDailyPrice(history, offer.checkedAt, offer.price);
     }
@@ -211,7 +239,10 @@ export function recordOfferPrices<T extends PricedOfferSnapshot>(
  * Records a price only for a matched attempt. A failed or missed attempt is
  * returned unchanged, so a feed failure cannot replace the stored history.
  */
-export function recordAttemptPrices<T extends PricedOfferSnapshot, A extends { status: string; offer?: T }>(
+export function recordAttemptPrices<
+  T extends PricedOfferSnapshot,
+  A extends { status: string; offer?: T },
+>(
   previous: readonly T[] | undefined,
   attempts: Partial<Record<string, A>>,
   today: string,

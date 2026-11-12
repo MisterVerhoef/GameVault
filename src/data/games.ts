@@ -1,6 +1,9 @@
 import generatedCatalogue from "../../public/catalog/games-index.json";
 import { normalizeCatalogue } from "./catalogue";
-import { collectDownloadableIds, partitionDownloadableContent } from "./downloadable";
+import {
+  collectDownloadableIds,
+  partitionDownloadableContent,
+} from "./downloadable";
 import type { CatalogueCompanyLogo } from "./studio-logo";
 import type { ExternalLinkCategory } from "./websites";
 
@@ -88,7 +91,8 @@ export interface SourceRef {
   id: string;
 }
 
-export type StoreId = "xbox" | "playstation" | "nintendo" | "steam" | "epic" | "gog";
+export type StoreId =
+  "xbox" | "playstation" | "nintendo" | "steam" | "epic" | "gog";
 
 /** Store product id captured from IGDB external_games or a store URL. */
 export interface ExternalStoreId {
@@ -241,7 +245,8 @@ const getCover = (title: string) => {
 
 // Local catalogue entries without a Steam release retain a deterministic placeholder.
 const cover = (title: string, color = "1a1a2e") =>
-  getCover(title) ?? `https://placehold.co/400x600/${color}/ffffff?text=${encodeURIComponent(title)}&font=roboto`;
+  getCover(title) ??
+  `https://placehold.co/400x600/${color}/ffffff?text=${encodeURIComponent(title)}&font=roboto`;
 
 // ============================================
 // TOP 5 GAMES PER PLATFORM (2023-2025)
@@ -257,7 +262,8 @@ const pcGamesSource: LegacyGame[] = [
     genre: "RPG",
     year: 2023,
     rating: 9.7,
-    description: "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
+    description:
+      "A deep, narrative-driven RPG with unparalleled player choice and turn-based combat. Create your own character and explore the vast world of the Forgotten Realms.",
     achievements: { total: 80, earned: 35 },
   },
   {
@@ -268,7 +274,8 @@ const pcGamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2020,
     rating: 8.8,
-    description: "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
+    description:
+      "An open-world RPG set in Night City, with deep customization and immersive storytelling. Play as V, a mercenary with a powerful cyberware implant.",
     achievements: { total: 75, earned: 66 },
   },
   {
@@ -279,7 +286,8 @@ const pcGamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2022,
     rating: 9.5,
-    description: "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
+    description:
+      "An open-world Soulslike with challenging combat and deep lore. Explore the Lands Between and face powerful foes in this masterpiece from FromSoftware.",
     achievements: { total: 60, earned: 40 },
   },
   {
@@ -290,7 +298,8 @@ const pcGamesSource: LegacyGame[] = [
     genre: "RPG",
     year: 2023,
     rating: 7.8,
-    description: "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
+    description:
+      "Bethesda's space-faring RPG with planet exploration and deep character customization. Join Constellation and explore the settled systems.",
     achievements: { total: 50, earned: 15 },
   },
   {
@@ -301,7 +310,8 @@ const pcGamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2024,
     rating: 8.9,
-    description: "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
+    description:
+      "A visually stunning action-adventure game inspired by Chinese mythology. Play as the Destined One and uncover the truth behind the Black Myth.",
     achievements: { total: 45, earned: 7 },
   },
 ];
@@ -316,7 +326,8 @@ const ps5GamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2022,
     rating: 9.4,
-    description: "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
+    description:
+      "Kratos and Atreus embark on a mythic journey through the Nine Realms. Face the gods of Norse mythology in this epic conclusion to the Norse saga.",
     achievements: { total: 50, earned: 45 },
   },
   {
@@ -327,7 +338,8 @@ const ps5GamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2023,
     rating: 9.1,
-    description: "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
+    description:
+      "Swing through New York as Peter Parker and Miles Morales in this open-world adventure. Face new threats and discover the power of friendship.",
     achievements: { total: 60, earned: 0 },
   },
   {
@@ -338,7 +350,8 @@ const ps5GamesSource: LegacyGame[] = [
     genre: "RPG",
     year: 2023,
     rating: 8.7,
-    description: "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
+    description:
+      "A dark fantasy epic with real-time combat and a gripping political narrative. Step into the world of Valisthea and witness the clash of Eikons.",
     achievements: { total: 55, earned: 17 },
   },
   {
@@ -349,7 +362,8 @@ const ps5GamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2022,
     rating: 8.9,
-    description: "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
+    description:
+      "Aloy's journey continues in a beautiful, post-apocalyptic America. Explore the mysterious Forbidden West and uncover its secrets.",
     achievements: { total: 50, earned: 25 },
   },
   {
@@ -360,7 +374,8 @@ const ps5GamesSource: LegacyGame[] = [
     genre: "Action",
     year: 2020,
     rating: 9.2,
-    description: "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
+    description:
+      "A samurai epic set on Tsushima Island during the Mongol invasion. Choose between honorable samurai combat and the way of the Ghost.",
     achievements: { total: 45, earned: 40 },
   },
 ];
@@ -375,7 +390,8 @@ const xboxGamesSource: LegacyGame[] = [
     genre: "RPG",
     year: 2023,
     rating: 7.8,
-    description: "Explore the settled systems and uncover the mysteries of the universe. Build your own ship, join a crew, and chart your own destiny among the stars.",
+    description:
+      "Explore the settled systems and uncover the mysteries of the universe. Build your own ship, join a crew, and chart your own destiny among the stars.",
     achievements: { total: 50, earned: 10 },
   },
   {
@@ -386,7 +402,8 @@ const xboxGamesSource: LegacyGame[] = [
     genre: "Racing",
     year: 2021,
     rating: 9.0,
-    description: "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
+    description:
+      "The ultimate open-world racing experience in Mexico. Drive over 500 cars across beautiful and diverse landscapes in this critically acclaimed racing game.",
     achievements: { total: 70, earned: 53 },
   },
   {
@@ -397,7 +414,8 @@ const xboxGamesSource: LegacyGame[] = [
     genre: "Shooter",
     year: 2021,
     rating: 8.5,
-    description: "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
+    description:
+      "Master Chief returns in a new chapter of the legendary Halo franchise. Experience the next generation of Halo's iconic multiplayer and campaign.",
     achievements: { total: 60, earned: 36 },
   },
   {
@@ -408,7 +426,8 @@ const xboxGamesSource: LegacyGame[] = [
     genre: "Shooter",
     year: 2019,
     rating: 8.8,
-    description: "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
+    description:
+      "A cinematic third-person shooter with a gripping campaign and multiplayer. Join Kait Diaz on her journey to uncover the truth about her past and the Locust threat.",
     achievements: { total: 55, earned: 45 },
   },
   {
@@ -419,7 +438,8 @@ const xboxGamesSource: LegacyGame[] = [
     genre: "Adventure",
     year: 2018,
     rating: 8.2,
-    description: "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
+    description:
+      "A shared-world adventure game with piracy, exploration, and treasure hunting. Sail with friends, battle skeletons, and discover the legends of the Sea of Thieves.",
     achievements: { total: 40, earned: 16 },
   },
 ];
@@ -434,7 +454,8 @@ const switchGamesSource: LegacyGame[] = [
     genre: "Adventure",
     year: 2023,
     rating: 9.6,
-    description: "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
+    description:
+      "Link's greatest adventure yet, with new abilities and a vast open world. Explore the skies and depths of Hyrule in this groundbreaking sequel to Breath of the Wild.",
     achievements: { total: 0, earned: 0 },
   },
   {
@@ -445,7 +466,8 @@ const switchGamesSource: LegacyGame[] = [
     genre: "Platformer",
     year: 2023,
     rating: 9.3,
-    description: "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
+    description:
+      "A vibrant 2D platformer with new power-ups and creative level design. Join Mario, Luigi, and friends in the Flower Kingdom for a wonderful new adventure.",
   },
   {
     id: "metroid-prime-4",
@@ -455,7 +477,8 @@ const switchGamesSource: LegacyGame[] = [
     genre: "Adventure",
     year: 2025,
     rating: 9.0,
-    description: "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
+    description:
+      "Samus Aran returns in a first-person adventure with exploration and combat. Discover the mysteries of a new planet in this long-awaited sequel.",
   },
   {
     id: "mario-kart-8",
@@ -465,7 +488,8 @@ const switchGamesSource: LegacyGame[] = [
     genre: "Racing",
     year: 2017,
     rating: 9.1,
-    description: "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
+    description:
+      "The definitive kart racing experience with all DLC included. Race as your favorite Mario characters across 48 tracks in this beloved multiplayer classic.",
   },
   {
     id: "animal-crossing",
@@ -475,7 +499,8 @@ const switchGamesSource: LegacyGame[] = [
     genre: "Simulation",
     year: 2020,
     rating: 8.9,
-    description: "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
+    description:
+      "Build your own island paradise in this relaxing life simulation game. Collect, craft, and make friends with charming animal villagers.",
   },
 ];
 
@@ -492,7 +517,8 @@ const indieGamesSource: LegacyGame[] = [
     genre: "Roguelike",
     year: 2020,
     rating: 9.3,
-    description: "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
+    description:
+      "A critically acclaimed roguelike with fast-paced combat and rich narrative. Escape the Underworld as Zagreus, son of Hades, in this award-winning indie masterpiece.",
   },
   {
     id: "celeste",
@@ -502,7 +528,8 @@ const indieGamesSource: LegacyGame[] = [
     genre: "Platformer",
     year: 2018,
     rating: 9.1,
-    description: "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
+    description:
+      "A challenging platformer with a heartfelt story about mental health. Help Madeline climb Celeste Mountain in this touching and difficult indie game.",
   },
   {
     id: "stardew",
@@ -512,7 +539,8 @@ const indieGamesSource: LegacyGame[] = [
     genre: "Simulation",
     year: 2016,
     rating: 9.2,
-    description: "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
+    description:
+      "Escape to the countryside and build the farm of your dreams. Grow crops, raise animals, make friends, and find love in this beloved farming simulation.",
   },
   {
     id: "hollow-knight",
@@ -522,7 +550,8 @@ const indieGamesSource: LegacyGame[] = [
     genre: "Metroidvania",
     year: 2017,
     rating: 9.0,
-    description: "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
+    description:
+      "Explore the ruined kingdom of Hallownest in this beautiful Metroidvania. Battle challenging foes, discover hidden secrets, and uncover the mysteries of this atmospheric world.",
   },
   {
     id: "disco-elysium",
@@ -532,7 +561,8 @@ const indieGamesSource: LegacyGame[] = [
     genre: "RPG",
     year: 2019,
     rating: 9.4,
-    description: "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
+    description:
+      "A unique RPG with deep dialogue, skill systems, and political intrigue. Play as a detective with a terrible hangover trying to solve a murder in this narrative masterpiece.",
   },
 ];
 
@@ -545,7 +575,8 @@ const multiplayerGamesSource: LegacyGame[] = [
     genre: "Shooter",
     year: 2024,
     rating: 8.6,
-    description: "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
+    description:
+      "A cooperative third-person shooter with strategic teamwork and friendly fire. Fight for Super Earth in this chaotic and challenging multiplayer experience.",
   },
   {
     id: "palworld",
@@ -555,7 +586,8 @@ const multiplayerGamesSource: LegacyGame[] = [
     genre: "Survival",
     year: 2024,
     rating: 8.0,
-    description: "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
+    description:
+      "An open-world survival game with creature collection and base building. Capture Pals, build your base, and survive in this unique multiplayer adventure.",
   },
   {
     id: "deep-rock",
@@ -565,7 +597,8 @@ const multiplayerGamesSource: LegacyGame[] = [
     genre: "Shooter",
     year: 2020,
     rating: 9.0,
-    description: "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
+    description:
+      "Cooperative mining and shooting with dwarves in procedurally generated caves. Dig, shoot, and drink beer with your fellow dwarves in this fantastic co-op experience.",
   },
   {
     id: "it-takes-two",
@@ -575,7 +608,8 @@ const multiplayerGamesSource: LegacyGame[] = [
     genre: "Adventure",
     year: 2021,
     rating: 9.1,
-    description: "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
+    description:
+      "A co-op only adventure game with creative gameplay and emotional storytelling. Work together with a friend in this award-winning cooperative experience.",
   },
   {
     id: "overcooked-2",
@@ -585,7 +619,8 @@ const multiplayerGamesSource: LegacyGame[] = [
     genre: "Party",
     year: 2018,
     rating: 8.5,
-    description: "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
+    description:
+      "Chaotic cooking fun for up to four players in local or online multiplayer. Work together (or scream at each other) in this frantic cooking simulation.",
   },
 ];
 
@@ -601,18 +636,26 @@ const sourceGames = [
   ...multiplayerGamesSource,
 ];
 
-export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGame) => {
-  const existing = games.find((game) => game.id === sourceGame.id);
-  if (existing) {
-    existing.platforms = Array.from(new Set([...existing.platforms, ...sourceGame.platforms]));
+export const fallbackGames: Game[] = sourceGames.reduce<Game[]>(
+  (games, sourceGame) => {
+    const existing = games.find((game) => game.id === sourceGame.id);
+    if (existing) {
+      existing.platforms = Array.from(
+        new Set([...existing.platforms, ...sourceGame.platforms]),
+      );
+      return games;
+    }
+
+    games.push(toCanonicalGame(sourceGame));
     return games;
-  }
+  },
+  [],
+);
 
-  games.push(toCanonicalGame(sourceGame));
-  return games;
-}, []);
-
-export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
+export const allGames: Game[] = normalizeCatalogue(
+  generatedCatalogue,
+  fallbackGames,
+);
 
 const downloadableIds = collectDownloadableIds(allGames);
 
@@ -658,10 +701,15 @@ function resolveGameSeed(seed: string): Game | undefined {
   if (direct) return direct;
 
   const slugNeedle = seed.toLowerCase();
-  const bySlug = allGames.find((game) => game.slug.toLowerCase() === slugNeedle || game.slug.toLowerCase().includes(slugNeedle.replace(/-/g, "")));
+  const bySlug = allGames.find(
+    (game) =>
+      game.slug.toLowerCase() === slugNeedle ||
+      game.slug.toLowerCase().includes(slugNeedle.replace(/-/g, "")),
+  );
   if (bySlug) return bySlug;
 
-  const titleHint = SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
+  const titleHint =
+    SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
   return allGames.find((game) => game.title.toLowerCase().includes(titleHint));
 }
 
@@ -685,9 +733,16 @@ const getCategoryGames = (
   limit = 12,
 ) => {
   const selected = getGames(ids);
-  const matching = allGames.filter((game) => predicate(game) && !selected.includes(game));
-  return [...selected, ...matching, ...allGames.filter((game) => !selected.includes(game) && !matching.includes(game))]
-    .slice(0, limit);
+  const matching = allGames.filter(
+    (game) => predicate(game) && !selected.includes(game),
+  );
+  return [
+    ...selected,
+    ...matching,
+    ...allGames.filter(
+      (game) => !selected.includes(game) && !matching.includes(game),
+    ),
+  ].slice(0, limit);
 };
 const hasMetadata = (game: Game, value: string) => {
   const metadata = [
@@ -697,7 +752,9 @@ const hasMetadata = (game: Game, value: string) => {
     ...(game.gameModes ?? []),
     game.summary ?? "",
     game.description ?? "",
-  ].join(" ").toLowerCase();
+  ]
+    .join(" ")
+    .toLowerCase();
   return metadata.includes(value);
 };
 
@@ -705,12 +762,22 @@ export const pcGames = getGamesByPlatform("PC");
 export const ps5Games = getGamesByPlatform("PS5");
 export const xboxGames = getGamesByPlatform("Xbox");
 export const switchGames = getGamesByPlatform("Switch");
-const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
+const recentGameIds = [
+  "bg3",
+  "god-of-war",
+  "forza-horizon-5",
+  "zelda-totk",
+  "cyberpunk",
+];
 export const recentlyPlayed = getGames(recentGameIds);
 if (recentlyPlayed.length === 0) {
   recentlyPlayed.push(
     ...[...allGames]
-      .sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0) || (right.releaseYear ?? 0) - (left.releaseYear ?? 0))
+      .sort(
+        (left, right) =>
+          (right.rating ?? 0) - (left.rating ?? 0) ||
+          (right.releaseYear ?? 0) - (left.releaseYear ?? 0),
+      )
       .slice(0, 5),
   );
 }
@@ -728,7 +795,10 @@ export const indieGames = getCategoryGames(
 );
 export const multiplayerGames = getCategoryGames(
   multiplayerGamesSource.map((game) => game.id),
-  (game) => ["multiplayer", "co-op", "cooperative", "online"].some((value) => hasMetadata(game, value)),
+  (game) =>
+    ["multiplayer", "co-op", "cooperative", "online"].some((value) =>
+      hasMetadata(game, value),
+    ),
 );
 
 // ============================================
@@ -737,7 +807,7 @@ export const multiplayerGames = getCategoryGames(
 
 // Get games by platform
 export function getGamesByPlatform(platform: Platform): Game[] {
-  return allGames.filter(game => game.platforms.includes(platform));
+  return allGames.filter((game) => game.platforms.includes(platform));
 }
 
 /** Navbar labels mapped to the platform names stored on each game. */
@@ -793,7 +863,9 @@ const platformLabelNames: Record<string, readonly string[]> = {
 
 export function getGamesByPlatformLabel(label: string): Game[] {
   const names = platformLabelNames[label] ?? [label];
-  return allGames.filter((game) => names.some((name) => game.platformVariants?.includes(name)));
+  return allGames.filter((game) =>
+    names.some((name) => game.platformVariants?.includes(name)),
+  );
 }
 
 // Get featured game (first from recently played)
@@ -803,7 +875,9 @@ export function getFeaturedGame(): Game {
 
 // Get games by genre
 export function getGamesByGenre(genre: string): Game[] {
-  return allGames.filter(game => game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()));
+  return allGames.filter((game) =>
+    game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()),
+  );
 }
 
 function buildSearchText(game: Game) {

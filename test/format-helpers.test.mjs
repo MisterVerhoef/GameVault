@@ -81,17 +81,23 @@ test("formatCount rounds and formats counts using en-GB separators", () => {
 });
 
 test("game page shows Price unavailable when a matched store offer has no price", () => {
-  const html = renderToStaticMarkup(React.createElement(GameStorePrice, { price: null }));
+  const html = renderToStaticMarkup(
+    React.createElement(GameStorePrice, { price: null }),
+  );
   assert.match(html, /class="text-muted"/);
   assert.match(html, />Price unavailable</);
   assert.doesNotMatch(html, /font-semibold/);
 });
 
 test("game page still shows Free and euro amounts when a store offer has a price", () => {
-  const free = renderToStaticMarkup(React.createElement(GameStorePrice, { price: 0 }));
+  const free = renderToStaticMarkup(
+    React.createElement(GameStorePrice, { price: 0 }),
+  );
   assert.match(free, /class="font-semibold text-foreground"/);
   assert.match(free, />Free</);
-  const paid = renderToStaticMarkup(React.createElement(GameStorePrice, { price: 24.5 }));
+  const paid = renderToStaticMarkup(
+    React.createElement(GameStorePrice, { price: 24.5 }),
+  );
   assert.match(paid, />€\u00a024,50</);
   assert.doesNotMatch(paid, /Price unavailable/);
 });

@@ -43,7 +43,9 @@ function readServerToday() {
 
 function chipClass(selected: boolean) {
   return `inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
-    selected ? "bg-accent text-white" : "bg-card calendar-meta hover:text-foreground"
+    selected
+      ? "bg-accent text-white"
+      : "bg-card calendar-meta hover:text-foreground"
   }`;
 }
 
@@ -60,28 +62,46 @@ function WishlistBadge() {
 }
 
 function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
-  const dateText = entry.missing ? "Not in the catalogue" : entryDateLabel(entry);
+  const dateText = entry.missing
+    ? "Not in the catalogue"
+    : entryDateLabel(entry);
   const later = laterReleaseLabel(entry.later);
   const platforms = entry.platforms.slice(0, 4).join(" · ");
   const body = (
     <>
       <span className="relative h-12 w-9 shrink-0 overflow-hidden rounded bg-white/5">
         {entry.cover ? (
-          <Image src={entry.cover} alt="" fill sizes="36px" unoptimized className="object-cover" />
+          <Image
+            src={entry.cover}
+            alt=""
+            fill
+            sizes="36px"
+            unoptimized
+            className="object-cover"
+          />
         ) : null}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate font-medium text-foreground">{entry.title}</span>
+        <span className="block truncate font-medium text-foreground">
+          {entry.title}
+        </span>
         <span className="calendar-meta mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
-          {entry.date ? <time dateTime={entry.date}>{dateText}</time> : <span>{dateText}</span>}
+          {entry.date ? (
+            <time dateTime={entry.date}>{dateText}</time>
+          ) : (
+            <span>{dateText}</span>
+          )}
           {platforms ? <span>{platforms}</span> : null}
           {entry.wishlist ? <WishlistBadge /> : null}
         </span>
-        {later ? <span className="calendar-meta mt-0.5 block text-xs">{later}</span> : null}
+        {later ? (
+          <span className="calendar-meta mt-0.5 block text-xs">{later}</span>
+        ) : null}
       </span>
     </>
   );
-  const className = "flex min-h-11 items-center gap-3 rounded-xl bg-card px-3 py-2 ring-1 ring-white/10 transition hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent";
+  const className =
+    "flex min-h-11 items-center gap-3 rounded-xl bg-card px-3 py-2 ring-1 ring-white/10 transition hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent";
   if (!entry.href) return <div className={className}>{body}</div>;
   return (
     <Link href={entry.href} className={className}>
@@ -93,9 +113,14 @@ function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
 function MonthGrid({ days }: { days: CalendarDayModel[] }) {
   return (
     <div className="mt-4">
-      <div aria-hidden="true" className="calendar-meta grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide">
+      <div
+        aria-hidden="true"
+        className="calendar-meta grid grid-cols-7 gap-1 text-center text-[11px] font-medium uppercase tracking-wide"
+      >
         {WEEKDAY_LABELS.map((label) => (
-          <div key={label} className="py-1">{label}</div>
+          <div key={label} className="py-1">
+            {label}
+          </div>
         ))}
       </div>
       <div className="mt-1 grid grid-cols-7 gap-1">
@@ -108,9 +133,15 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
           } ${day.isToday ? "ring-2 ring-accent" : "ring-1 ring-white/5"}`;
           const inner = (
             <>
-              <span className={`text-xs tabular-nums ${day.inMonth ? "text-foreground" : "calendar-meta"}`}>{dayNumber}</span>
+              <span
+                className={`text-xs tabular-nums ${day.inMonth ? "text-foreground" : "calendar-meta"}`}
+              >
+                {dayNumber}
+              </span>
               {day.entries.length > 0 ? (
-                <span className="mt-1 text-[10px] font-medium text-accent md:hidden">{day.entries.length}</span>
+                <span className="mt-1 text-[10px] font-medium text-accent md:hidden">
+                  {day.entries.length}
+                </span>
               ) : null}
               {preview.length > 0 ? (
                 <span className="mt-1 hidden md:block">
@@ -122,7 +153,11 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
                       {entry.title}
                     </span>
                   ))}
-                  {extra > 0 ? <span className="calendar-meta block text-[11px]">+{extra}</span> : null}
+                  {extra > 0 ? (
+                    <span className="calendar-meta block text-[11px]">
+                      +{extra}
+                    </span>
+                  ) : null}
                 </span>
               ) : null}
             </>
@@ -154,10 +189,20 @@ function MonthGrid({ days }: { days: CalendarDayModel[] }) {
 function DayList({ day }: { day: CalendarDayModel }) {
   if (day.entries.length === 0) return null;
   return (
-    <section aria-labelledby={`releases-${day.date}`} className={day.isToday ? "rounded-2xl ring-2 ring-accent" : undefined}>
-      <h3 id={`releases-${day.date}`} className="scroll-mt-28 text-sm font-semibold text-foreground">
+    <section
+      aria-labelledby={`releases-${day.date}`}
+      className={day.isToday ? "rounded-2xl ring-2 ring-accent" : undefined}
+    >
+      <h3
+        id={`releases-${day.date}`}
+        className="scroll-mt-28 text-sm font-semibold text-foreground"
+      >
         <time dateTime={day.date}>{entryDateLabel({ date: day.date })}</time>
-        {day.isToday ? <span className="ml-2 text-xs font-medium uppercase tracking-wide text-accent">Today</span> : null}
+        {day.isToday ? (
+          <span className="ml-2 text-xs font-medium uppercase tracking-wide text-accent">
+            Today
+          </span>
+        ) : null}
       </h3>
       <ul className="mt-2 flex flex-col gap-2">
         {day.entries.map((entry) => (
@@ -170,7 +215,13 @@ function DayList({ day }: { day: CalendarDayModel }) {
   );
 }
 
-function UndatedGroups({ groups, todayYear }: { groups: UndatedGroup[]; todayYear: number | null }) {
+function UndatedGroups({
+  groups,
+  todayYear,
+}: {
+  groups: UndatedGroup[];
+  todayYear: number | null;
+}) {
   const [openYears, setOpenYears] = useState<ReadonlySet<number>>(
     () => new Set(todayYear == null ? [] : [todayYear]),
   );
@@ -181,7 +232,10 @@ function UndatedGroups({ groups, todayYear }: { groups: UndatedGroup[]; todayYea
         const open = openYears.has(group.year);
         const label = group.year === 0 ? "No year" : String(group.year);
         return (
-          <section key={group.year} className="rounded-2xl border border-white/10 bg-card/40">
+          <section
+            key={group.year}
+            className="rounded-2xl border border-white/10 bg-card/40"
+          >
             <h3>
               <button
                 type="button"
@@ -196,8 +250,13 @@ function UndatedGroups({ groups, todayYear }: { groups: UndatedGroup[]; todayYea
                 }}
                 className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
-                <span className="text-sm font-semibold text-foreground">{label}</span>
-                <span className="calendar-meta text-xs">{group.entries.length} {group.entries.length === 1 ? "game" : "games"}</span>
+                <span className="text-sm font-semibold text-foreground">
+                  {label}
+                </span>
+                <span className="calendar-meta text-xs">
+                  {group.entries.length}{" "}
+                  {group.entries.length === 1 ? "game" : "games"}
+                </span>
               </button>
             </h3>
             {open ? (
@@ -232,7 +291,11 @@ function ScopeControls({
   wishlistCount: number;
 }) {
   return (
-    <div className="flex flex-wrap gap-3" role="group" aria-label="Which games to show">
+    <div
+      className="flex flex-wrap gap-3"
+      role="group"
+      aria-label="Which games to show"
+    >
       <Link
         href={calendarHref({ view: query.view, date: cursor, scope: "all" })}
         aria-current={query.scope === "all" ? "page" : undefined}
@@ -242,13 +305,19 @@ function ScopeControls({
         All
       </Link>
       <Link
-        href={calendarHref({ view: query.view, date: cursor, scope: "wishlist" })}
+        href={calendarHref({
+          view: query.view,
+          date: cursor,
+          scope: "wishlist",
+        })}
         aria-current={query.scope === "wishlist" ? "page" : undefined}
         scroll={false}
         className={chipClass(query.scope === "wishlist")}
       >
         Wishlist
-        {ready ? <span className="ml-1.5 tabular-nums">{wishlistCount}</span> : null}
+        {ready ? (
+          <span className="ml-1.5 tabular-nums">{wishlistCount}</span>
+        ) : null}
       </Link>
     </div>
   );
@@ -278,9 +347,17 @@ function CalendarChrome({
   return (
     <div className="mt-6 flex flex-col gap-5">
       <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:justify-between">
-        <div className="flex flex-wrap gap-3" role="group" aria-label="Calendar view">
+        <div
+          className="flex flex-wrap gap-3"
+          role="group"
+          aria-label="Calendar view"
+        >
           <Link
-            href={calendarHref({ view: "month", date: cursor, scope: query.scope })}
+            href={calendarHref({
+              view: "month",
+              date: cursor,
+              scope: query.scope,
+            })}
             aria-current={query.view === "month" ? "page" : undefined}
             scroll={false}
             className={chipClass(query.view === "month")}
@@ -288,7 +365,11 @@ function CalendarChrome({
             Month
           </Link>
           <Link
-            href={calendarHref({ view: "week", date: cursor, scope: query.scope })}
+            href={calendarHref({
+              view: "week",
+              date: cursor,
+              scope: query.scope,
+            })}
             aria-current={query.view === "week" ? "page" : undefined}
             scroll={false}
             className={chipClass(query.view === "week")}
@@ -296,25 +377,56 @@ function CalendarChrome({
             Week
           </Link>
         </div>
-        <ScopeControls query={query} cursor={cursor} ready={ready} wishlistCount={wishlistCount} />
+        <ScopeControls
+          query={query}
+          cursor={cursor}
+          ready={ready}
+          wishlistCount={wishlistCount}
+        />
       </div>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex flex-wrap gap-3">
           {previous ? (
-            <Link href={calendarHref({ view: query.view, date: previous, scope: query.scope })} scroll={false} className={controlClass()}>
+            <Link
+              href={calendarHref({
+                view: query.view,
+                date: previous,
+                scope: query.scope,
+              })}
+              scroll={false}
+              className={controlClass()}
+            >
               Previous {periodNoun}
             </Link>
           ) : null}
-          <Link href={calendarHref({ view: query.view, date: today || null, scope: query.scope })} scroll={false} className={controlClass()}>
+          <Link
+            href={calendarHref({
+              view: query.view,
+              date: today || null,
+              scope: query.scope,
+            })}
+            scroll={false}
+            className={controlClass()}
+          >
             Today
           </Link>
           {next ? (
-            <Link href={calendarHref({ view: query.view, date: next, scope: query.scope })} scroll={false} className={controlClass()}>
+            <Link
+              href={calendarHref({
+                view: query.view,
+                date: next,
+                scope: query.scope,
+              })}
+              scroll={false}
+              className={controlClass()}
+            >
               Next {periodNoun}
             </Link>
           ) : null}
         </div>
-        <h2 className="text-lg font-semibold tracking-tight text-foreground">{periodLabel}</h2>
+        <h2 className="text-lg font-semibold tracking-tight text-foreground">
+          {periodLabel}
+        </h2>
       </div>
     </div>
   );
@@ -332,11 +444,16 @@ function PeriodReleases({
   count: number;
 }) {
   const periodNoun = view === "week" ? "week" : "month";
-  const days = model.days.filter((day) => (view === "week" || day.inMonth) && day.entries.length > 0);
+  const days = model.days.filter(
+    (day) => (view === "week" || day.inMonth) && day.entries.length > 0,
+  );
   return (
     <section aria-labelledby="calendar-period-releases" className="mt-8">
       {view === "month" ? <MonthGrid days={model.days} /> : null}
-      <h2 id="calendar-period-releases" className="text-lg font-bold tracking-tight text-foreground">
+      <h2
+        id="calendar-period-releases"
+        className="text-lg font-bold tracking-tight text-foreground"
+      >
         {view === "week" ? "This week" : `Releases in ${model.periodLabel}`}
         <span className="ml-2 text-sm font-medium calendar-meta">{count}</span>
       </h2>
@@ -373,18 +490,26 @@ function WishlistSection({
   const outside = model.wishlistOutside.length;
   return (
     <section aria-labelledby="calendar-wishlist" className="mt-10">
-      <h2 id="calendar-wishlist" className="text-lg font-bold tracking-tight text-foreground">
+      <h2
+        id="calendar-wishlist"
+        className="text-lg font-bold tracking-tight text-foreground"
+      >
         On your wishlist
       </h2>
       {!ready ? (
         <p className="mt-2 text-sm calendar-meta">Loading your wishlist…</p>
-      ) : outside === 0 && model.days.every((day) => !day.entries.some((entry) => entry.wishlist)) ? (
+      ) : outside === 0 &&
+        model.days.every(
+          (day) => !day.entries.some((entry) => entry.wishlist),
+        ) ? (
         <p className="mt-2 max-w-2xl text-sm calendar-meta">
-          Nothing on your wishlist in this browser. Open a game and choose Wishlist. It will be highlighted here.
+          Nothing on your wishlist in this browser. Open a game and choose
+          Wishlist. It will be highlighted here.
         </p>
       ) : outside === 0 ? (
         <p className="mt-2 text-sm calendar-meta">
-          Every wishlisted game with a known day is already in this {periodNoun}.
+          Every wishlisted game with a known day is already in this {periodNoun}
+          .
         </p>
       ) : (
         <>
@@ -395,13 +520,20 @@ function WishlistSection({
           </p>
           <ul className="mt-4 flex flex-col gap-2">
             {model.wishlistOutside.map((entry) => (
-              <li key={entry.id} className="flex flex-col gap-2 sm:flex-row sm:items-center">
+              <li
+                key={entry.id}
+                className="flex flex-col gap-2 sm:flex-row sm:items-center"
+              >
                 <div className="min-w-0 flex-1">
                   <CalendarEntryLink entry={entry} />
                 </div>
                 {entry.date ? (
                   <Link
-                    href={calendarHref({ view: "month", date: entry.date, scope })}
+                    href={calendarHref({
+                      view: "month",
+                      date: entry.date,
+                      scope,
+                    })}
                     scroll={false}
                     className={controlClass()}
                   >
@@ -431,12 +563,17 @@ function YearOnlySection({
   status?: string;
 }) {
   return (
-    <section aria-labelledby="calendar-year-only" className={primary ? "mt-6" : "mt-10"}>
+    <section
+      aria-labelledby="calendar-year-only"
+      className={primary ? "mt-6" : "mt-10"}
+    >
       <h2
         id="calendar-year-only"
-        className={primary
-          ? "text-xl font-bold tracking-tight text-foreground sm:text-2xl"
-          : "text-lg font-bold tracking-tight text-foreground"}
+        className={
+          primary
+            ? "text-xl font-bold tracking-tight text-foreground sm:text-2xl"
+            : "text-lg font-bold tracking-tight text-foreground"
+        }
       >
         Release year only
       </h2>
@@ -446,12 +583,18 @@ function YearOnlySection({
           : "A specific day is not known yet, so these stay off the calendar. Only this year and later years are shown."}
       </p>
       {status ? (
-        <p className="calendar-meta mt-2 text-sm" role="status">{status}</p>
+        <p className="calendar-meta mt-2 text-sm" role="status">
+          {status}
+        </p>
       ) : null}
       {!today ? (
-        <p className="mt-3 text-sm calendar-meta">Loading dates for this browser…</p>
+        <p className="mt-3 text-sm calendar-meta">
+          Loading dates for this browser…
+        </p>
       ) : model.undatedGroups.length === 0 ? (
-        <p className="mt-3 text-sm calendar-meta" role="status">No upcoming games are missing a release day.</p>
+        <p className="mt-3 text-sm calendar-meta" role="status">
+          No upcoming games are missing a release day.
+        </p>
       ) : (
         <UndatedGroups groups={model.undatedGroups} todayYear={todayYear} />
       )}
@@ -509,9 +652,15 @@ function CalendarBody({
       noDayDates={noDayDates}
     />
   );
-  const yearOnly = query.scope === "all" ? (
-    <YearOnlySection model={model} today={today} todayYear={todayYear} primary={false} />
-  ) : null;
+  const yearOnly =
+    query.scope === "all" ? (
+      <YearOnlySection
+        model={model}
+        today={today}
+        todayYear={todayYear}
+        primary={false}
+      />
+    ) : null;
   const emptyStatus = datesFailed
     ? "Release days could not be loaded."
     : query.view === "week"
@@ -521,12 +670,27 @@ function CalendarBody({
   if (noDayDates) {
     return (
       <>
-        <p className="calendar-meta max-w-2xl text-sm">Upcoming games, grouped by year.</p>
+        <p className="calendar-meta max-w-2xl text-sm">
+          Upcoming games, grouped by year.
+        </p>
         <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-          <ScopeControls query={query} cursor={cursor} ready={ready} wishlistCount={wishlistCount} />
-          <div className="flex flex-wrap gap-3" role="group" aria-label="Calendar view">
+          <ScopeControls
+            query={query}
+            cursor={cursor}
+            ready={ready}
+            wishlistCount={wishlistCount}
+          />
+          <div
+            className="flex flex-wrap gap-3"
+            role="group"
+            aria-label="Calendar view"
+          >
             <Link
-              href={calendarHref({ view: "month", date: cursor, scope: query.scope })}
+              href={calendarHref({
+                view: "month",
+                date: cursor,
+                scope: query.scope,
+              })}
               aria-current={query.view === "month" ? "page" : undefined}
               scroll={false}
               className={chipClass(query.view === "month")}
@@ -534,7 +698,11 @@ function CalendarBody({
               Month
             </Link>
             <Link
-              href={calendarHref({ view: "week", date: cursor, scope: query.scope })}
+              href={calendarHref({
+                view: "week",
+                date: cursor,
+                scope: query.scope,
+              })}
               aria-current={query.view === "week" ? "page" : undefined}
               scroll={false}
               className={chipClass(query.view === "week")}
@@ -544,9 +712,17 @@ function CalendarBody({
           </div>
         </div>
         {query.scope === "all" ? (
-          <YearOnlySection model={model} today={today} todayYear={todayYear} primary status={emptyStatus} />
+          <YearOnlySection
+            model={model}
+            today={today}
+            todayYear={todayYear}
+            primary
+            status={emptyStatus}
+          />
         ) : (
-          <p className="calendar-meta mt-6 text-sm" role="status">{emptyStatus}</p>
+          <p className="calendar-meta mt-6 text-sm" role="status">
+            {emptyStatus}
+          </p>
         )}
         {wishlist}
       </>
@@ -556,10 +732,16 @@ function CalendarBody({
   return (
     <>
       <p className="max-w-2xl text-sm calendar-meta">
-        Upcoming releases from the catalogue and your wishlist. A game appears on a day when its release date is known.
+        Upcoming releases from the catalogue and your wishlist. A game appears
+        on a day when its release date is known.
       </p>
       {chrome}
-      <PeriodReleases model={model} view={query.view} scope={query.scope} count={count} />
+      <PeriodReleases
+        model={model}
+        view={query.view}
+        scope={query.scope}
+        count={count}
+      />
       {wishlist}
       {yearOnly}
     </>
@@ -568,7 +750,11 @@ function CalendarBody({
 
 export default function ReleaseCalendarScreen() {
   const params = useSearchParams();
-  const today = useSyncExternalStore(subscribeToday, readLocalToday, readServerToday);
+  const today = useSyncExternalStore(
+    subscribeToday,
+    readLocalToday,
+    readServerToday,
+  );
   const query = parseCalendarQuery({
     view: params.get("view"),
     date: params.get("date"),
@@ -588,13 +774,14 @@ export default function ReleaseCalendarScreen() {
   }, [entries, ready]);
 
   const sources = useMemo(
-    () => (catalogue?.games ?? []).map((game) => ({
-      id: game.id,
-      title: game.title,
-      cover: game.cover,
-      releaseYear: game.releaseYear,
-      platforms: game.platforms,
-    })),
+    () =>
+      (catalogue?.games ?? []).map((game) => ({
+        id: game.id,
+        title: game.title,
+        cover: game.cover,
+        releaseYear: game.releaseYear,
+        platforms: game.platforms,
+      })),
     [catalogue],
   );
 
@@ -610,12 +797,21 @@ export default function ReleaseCalendarScreen() {
       scope: query.scope,
       today,
     });
-  }, [catalogue, cursor, dateRecords, query.scope, query.view, sources, today, wishlistIds]);
+  }, [
+    catalogue,
+    cursor,
+    dateRecords,
+    query.scope,
+    query.view,
+    sources,
+    today,
+    wishlistIds,
+  ]);
 
   const waiting = !model && !catalogueFailed;
   const previous = cursor ? shiftCursor(cursor, query.view, -1) : null;
   const next = cursor ? shiftCursor(cursor, query.view, 1) : null;
-  const todayYear = today ? parseIsoDay(today)?.year ?? null : null;
+  const todayYear = today ? (parseIsoDay(today)?.year ?? null) : null;
   const count = model ? periodCount(model) : 0;
   const periodNoun = query.view === "week" ? "week" : "month";
 
@@ -644,7 +840,11 @@ export default function ReleaseCalendarScreen() {
               className="h-5 w-5"
               aria-hidden="true"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
             </svg>
           </Link>
           <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
@@ -653,11 +853,19 @@ export default function ReleaseCalendarScreen() {
         </div>
       </div>
 
-      <main id="calendar-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
+      <main
+        id="calendar-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8"
+      >
         {catalogueFailed ? (
-          <p className="text-sm calendar-meta" role="status">The game catalogue could not be loaded.</p>
+          <p className="text-sm calendar-meta" role="status">
+            The game catalogue could not be loaded.
+          </p>
         ) : waiting || !model ? (
-          <p className="text-sm calendar-meta" role="status">Loading the release calendar…</p>
+          <p className="text-sm calendar-meta" role="status">
+            Loading the release calendar…
+          </p>
         ) : (
           <CalendarBody
             model={model}

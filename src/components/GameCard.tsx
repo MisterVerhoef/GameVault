@@ -2,7 +2,13 @@
 
 import Image from "next/image";
 import type { CatalogueCard } from "@/data/catalogue-card";
-import { familyForVariantLabel, listedSystemNames, PLATFORM_COLORS, resolveIgdbPlatform, type Platform } from "@/data/platforms";
+import {
+  familyForVariantLabel,
+  listedSystemNames,
+  PLATFORM_COLORS,
+  resolveIgdbPlatform,
+  type Platform,
+} from "@/data/platforms";
 import { useRouter } from "next/navigation";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
@@ -41,7 +47,9 @@ export default function GameCard({
   const details = [
     personalRating ? `your rating ${personalRating} out of 5` : "",
     typeof progress === "number" && progress > 0 ? `${progress}% progress` : "",
-    game.cloudServices?.length ? `cloud streaming via ${game.cloudServices.join(", ")}` : "",
+    game.cloudServices?.length
+      ? `cloud streaming via ${game.cloudServices.join(", ")}`
+      : "",
   ].filter(Boolean);
 
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
@@ -56,7 +64,11 @@ export default function GameCard({
       type="button"
       data-roving-card=""
       data-card-id={game.id}
-      aria-label={details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`}
+      aria-label={
+        details.length > 0
+          ? `Open ${game.title}, ${details.join(", ")}`
+          : `Open ${game.title}`
+      }
       onClick={handleClick}
       className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 text-left focus:outline-none focus-visible:z-10 ${sizes[size]}`}
     >
@@ -88,21 +100,39 @@ export default function GameCard({
             title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
             aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
           >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
               <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
             </svg>
           </span>
         ) : null}
 
         {personalRating ? (
-          <span className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm" aria-hidden="true">
+          <span
+            className="absolute left-1.5 top-1.5 z-20 rounded bg-black/70 px-1.5 py-1 shadow-sm"
+            aria-hidden="true"
+          >
             <StarRating value={personalRating} readOnly />
           </span>
         ) : null}
 
         {typeof progress === "number" && progress > 0 && (
-          <span className="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/50" aria-hidden="true">
-            <span className="block h-full bg-accent" style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
+          <span
+            className="absolute inset-x-0 bottom-0 z-20 h-1 bg-black/50"
+            aria-hidden="true"
+          >
+            <span
+              className="block h-full bg-accent"
+              style={{ width: `${Math.max(0, Math.min(100, progress))}%` }}
+            />
           </span>
         )}
 
@@ -114,16 +144,23 @@ export default function GameCard({
 
           {/* Platforms */}
           <div className="mt-1 flex flex-wrap gap-1">
-            {listedSystemNames(game).slice(0, 3).map((name) => (
-              <span
-                key={name}
-                className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px]"
-                style={{ backgroundColor: badgeBackground(name) }}
-              >
-                <PlatformIcon name={name} className={platformIconKind(name) === "logo" ? "h-4 w-4" : "h-3 w-3"} />
-                {name}
-              </span>
-            ))}
+            {listedSystemNames(game)
+              .slice(0, 3)
+              .map((name) => (
+                <span
+                  key={name}
+                  className="inline-flex items-center gap-0.5 rounded px-1 py-0.5 text-[9px] font-medium text-white sm:px-1.5 sm:text-[10px]"
+                  style={{ backgroundColor: badgeBackground(name) }}
+                >
+                  <PlatformIcon
+                    name={name}
+                    className={
+                      platformIconKind(name) === "logo" ? "h-4 w-4" : "h-3 w-3"
+                    }
+                  />
+                  {name}
+                </span>
+              ))}
           </div>
         </div>
       </div>

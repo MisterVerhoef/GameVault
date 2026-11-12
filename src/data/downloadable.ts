@@ -9,7 +9,9 @@ export interface DownloadableListing {
   expansions?: { id: string }[];
 }
 
-export function collectDownloadableIds(catalogue: readonly DownloadableListing[]): Set<string> {
+export function collectDownloadableIds(
+  catalogue: readonly DownloadableListing[],
+): Set<string> {
   const ids = new Set<string>();
   for (const game of catalogue) {
     for (const item of game.dlc ?? []) {

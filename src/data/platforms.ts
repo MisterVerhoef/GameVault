@@ -39,16 +39,56 @@ export const PLATFORM_FAMILIES: readonly PlatformFamily[] = [
     key: "nintendo",
     label: "Nintendo",
     platform: "Switch",
-    variants: ["Switch", "Switch 2", "Wii U", "Wii", "GameCube", "N64", "SNES", "NES", "3DS", "DS", "Game Boy"],
+    variants: [
+      "Switch",
+      "Switch 2",
+      "Wii U",
+      "Wii",
+      "GameCube",
+      "N64",
+      "SNES",
+      "NES",
+      "3DS",
+      "DS",
+      "Game Boy",
+    ],
   },
   {
     key: "other",
     label: "Other",
     platform: "Other",
-    variants: ["Sega", "Atari", "3DO", "Ouya", "Neo Geo", "Commodore", "Stadia"],
+    variants: [
+      "Sega",
+      "Atari",
+      "3DO",
+      "Ouya",
+      "Neo Geo",
+      "Commodore",
+      "Stadia",
+    ],
     variantChildren: {
-      Sega: ["Master System", "Genesis", "Mega Drive", "Sega CD", "32X", "Saturn", "Dreamcast", "Game Gear", "SG-1000"],
-      Atari: ["Atari 2600", "Atari 5200", "Atari 7800", "Atari 8-bit", "Atari ST", "Atari XEGS", "Atari Lynx", "Atari Jaguar", "Atari VCS"],
+      Sega: [
+        "Master System",
+        "Genesis",
+        "Mega Drive",
+        "Sega CD",
+        "32X",
+        "Saturn",
+        "Dreamcast",
+        "Game Gear",
+        "SG-1000",
+      ],
+      Atari: [
+        "Atari 2600",
+        "Atari 5200",
+        "Atari 7800",
+        "Atari 8-bit",
+        "Atari ST",
+        "Atari XEGS",
+        "Atari Lynx",
+        "Atari Jaguar",
+        "Atari VCS",
+      ],
     },
   },
 ];
@@ -60,52 +100,155 @@ export interface IgdbPlatformMapping {
 }
 
 export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
-  { names: ["PC", "PC (Microsoft Windows)", "Windows"], family: "PC", variant: "Windows" },
+  {
+    names: ["PC", "PC (Microsoft Windows)", "Windows"],
+    family: "PC",
+    variant: "Windows",
+  },
   { names: ["Mac", "Mac OS"], family: "PC", variant: "Mac" },
   { names: ["Linux"], family: "PC", variant: "Linux" },
   { names: ["PlayStation 5", "PS5"], family: "PS5", variant: "PS5" },
   { names: ["PlayStation 4", "PS4"], family: "PS5", variant: "PS4" },
   { names: ["PlayStation 3", "PS3"], family: "PS5", variant: "PS3" },
   { names: ["PlayStation 2", "PS2"], family: "PS5", variant: "PS2" },
-  { names: ["PlayStation", "PlayStation 1", "PS1"], family: "PS5", variant: "PS1" },
+  {
+    names: ["PlayStation", "PlayStation 1", "PS1"],
+    family: "PS5",
+    variant: "PS1",
+  },
   { names: ["PlayStation Portable", "PSP"], family: "PS5", variant: "PSP" },
-  { names: ["PlayStation Vita", "PS Vita", "Vita"], family: "PS5", variant: "Vita" },
-  { names: ["Xbox Series X|S", "Xbox Series X/S", "Xbox Series"], family: "Xbox", variant: "Xbox Series" },
+  {
+    names: ["PlayStation Vita", "PS Vita", "Vita"],
+    family: "PS5",
+    variant: "Vita",
+  },
+  {
+    names: ["Xbox Series X|S", "Xbox Series X/S", "Xbox Series"],
+    family: "Xbox",
+    variant: "Xbox Series",
+  },
   { names: ["Xbox One"], family: "Xbox", variant: "Xbox One" },
   { names: ["Xbox 360"], family: "Xbox", variant: "Xbox 360" },
-  { names: ["Xbox", "Original Xbox"], family: "Xbox", variant: "Original Xbox" },
+  {
+    names: ["Xbox", "Original Xbox"],
+    family: "Xbox",
+    variant: "Original Xbox",
+  },
   { names: ["Nintendo Switch", "Switch"], family: "Switch", variant: "Switch" },
-  { names: ["Nintendo Switch 2", "Switch 2"], family: "Switch", variant: "Switch 2" },
+  {
+    names: ["Nintendo Switch 2", "Switch 2"],
+    family: "Switch",
+    variant: "Switch 2",
+  },
   { names: ["Wii U"], family: "Switch", variant: "Wii U" },
   { names: ["Wii"], family: "Switch", variant: "Wii" },
-  { names: ["Nintendo GameCube", "GameCube", "NGC"], family: "Switch", variant: "GameCube" },
+  {
+    names: ["Nintendo GameCube", "GameCube", "NGC"],
+    family: "Switch",
+    variant: "GameCube",
+  },
   { names: ["Nintendo 64", "N64"], family: "Switch", variant: "N64" },
-  { names: ["Super Nintendo Entertainment System", "SNES", "Super Nintendo"], family: "Switch", variant: "SNES" },
-  { names: ["Nintendo Entertainment System", "NES", "Family Computer", "Famicom"], family: "Switch", variant: "NES" },
-  { names: ["Nintendo 3DS", "New Nintendo 3DS", "3DS"], family: "Switch", variant: "3DS" },
-  { names: ["Nintendo DS", "Nintendo DSi", "DS"], family: "Switch", variant: "DS" },
-  { names: ["Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Game Boy"], family: "Switch", variant: "Game Boy" },
-  { names: ["Sega Master System", "Master System"], family: "Other", variant: "Master System" },
-  { names: ["Sega Mega Drive/Genesis", "Sega Genesis", "Genesis", "Mega Drive"], family: "Other", variant: "Genesis" },
+  {
+    names: ["Super Nintendo Entertainment System", "SNES", "Super Nintendo"],
+    family: "Switch",
+    variant: "SNES",
+  },
+  {
+    names: [
+      "Nintendo Entertainment System",
+      "NES",
+      "Family Computer",
+      "Famicom",
+    ],
+    family: "Switch",
+    variant: "NES",
+  },
+  {
+    names: ["Nintendo 3DS", "New Nintendo 3DS", "3DS"],
+    family: "Switch",
+    variant: "3DS",
+  },
+  {
+    names: ["Nintendo DS", "Nintendo DSi", "DS"],
+    family: "Switch",
+    variant: "DS",
+  },
+  {
+    names: [
+      "Game Boy",
+      "Game Boy Color",
+      "Game Boy Advance",
+      "Nintendo Game Boy",
+    ],
+    family: "Switch",
+    variant: "Game Boy",
+  },
+  {
+    names: ["Sega Master System", "Master System"],
+    family: "Other",
+    variant: "Master System",
+  },
+  {
+    names: ["Sega Mega Drive/Genesis", "Sega Genesis", "Genesis", "Mega Drive"],
+    family: "Other",
+    variant: "Genesis",
+  },
   { names: ["Sega CD", "Mega-CD"], family: "Other", variant: "Sega CD" },
   { names: ["Sega 32X", "32X"], family: "Other", variant: "32X" },
   { names: ["Sega Saturn", "Saturn"], family: "Other", variant: "Saturn" },
-  { names: ["Dreamcast", "Sega Dreamcast"], family: "Other", variant: "Dreamcast" },
-  { names: ["Sega Game Gear", "Game Gear"], family: "Other", variant: "Game Gear" },
+  {
+    names: ["Dreamcast", "Sega Dreamcast"],
+    family: "Other",
+    variant: "Dreamcast",
+  },
+  {
+    names: ["Sega Game Gear", "Game Gear"],
+    family: "Other",
+    variant: "Game Gear",
+  },
   { names: ["SG-1000"], family: "Other", variant: "SG-1000" },
   { names: ["Atari 2600"], family: "Other", variant: "Atari 2600" },
   { names: ["Atari 5200"], family: "Other", variant: "Atari 5200" },
   { names: ["Atari 7800"], family: "Other", variant: "Atari 7800" },
-  { names: ["Atari 8-bit", "Atari 800"], family: "Other", variant: "Atari 8-bit" },
+  {
+    names: ["Atari 8-bit", "Atari 800"],
+    family: "Other",
+    variant: "Atari 8-bit",
+  },
   { names: ["Atari ST"], family: "Other", variant: "Atari ST" },
   { names: ["Atari XEGS"], family: "Other", variant: "Atari XEGS" },
   { names: ["Atari Lynx"], family: "Other", variant: "Atari Lynx" },
   { names: ["Atari Jaguar"], family: "Other", variant: "Atari Jaguar" },
   { names: ["Atari VCS"], family: "Other", variant: "Atari VCS" },
-  { names: ["3DO Interactive Multiplayer", "3DO"], family: "Other", variant: "3DO" },
+  {
+    names: ["3DO Interactive Multiplayer", "3DO"],
+    family: "Other",
+    variant: "3DO",
+  },
   { names: ["Ouya"], family: "Other", variant: "Ouya" },
-  { names: ["Neo Geo AES", "Neo Geo CD", "Neo Geo", "Neo Geo Pocket", "Neo Geo Pocket Color"], family: "Other", variant: "Neo Geo" },
-  { names: ["Commodore C64/128", "Commodore VIC-20", "Commodore 16", "Commodore Plus/4", "Amiga", "Commodore"], family: "Other", variant: "Commodore" },
+  {
+    names: [
+      "Neo Geo AES",
+      "Neo Geo CD",
+      "Neo Geo",
+      "Neo Geo Pocket",
+      "Neo Geo Pocket Color",
+    ],
+    family: "Other",
+    variant: "Neo Geo",
+  },
+  {
+    names: [
+      "Commodore C64/128",
+      "Commodore VIC-20",
+      "Commodore 16",
+      "Commodore Plus/4",
+      "Amiga",
+      "Commodore",
+    ],
+    family: "Other",
+    variant: "Commodore",
+  },
   { names: ["Google Stadia", "Stadia"], family: "Other", variant: "Stadia" },
 ];
 
@@ -118,7 +261,9 @@ for (const mapping of IGDB_PLATFORM_ALIASES) {
 
 const parentVariantChildren = new Map<string, readonly string[]>();
 for (const family of PLATFORM_FAMILIES) {
-  for (const [parent, children] of Object.entries(family.variantChildren ?? {})) {
+  for (const [parent, children] of Object.entries(
+    family.variantChildren ?? {},
+  )) {
     parentVariantChildren.set(parent, children);
   }
 }
@@ -135,7 +280,12 @@ export function resolveIgdbPlatform(name: string): {
 } {
   const mapping = normalizedNameIndex.get(normalizePlatformLabel(name));
   if (mapping) {
-    return { family: mapping.family, variant: mapping.variant, name, unmapped: false };
+    return {
+      family: mapping.family,
+      variant: mapping.variant,
+      name,
+      unmapped: false,
+    };
   }
   return { family: "Other", variant: name, name, unmapped: true };
 }
@@ -148,7 +298,9 @@ function labelsForVariant(variant: string): Set<string> {
     labels.add(normalizePlatformLabel(mapping.variant));
   }
   for (const alias of IGDB_PLATFORM_ALIASES) {
-    if (normalizePlatformLabel(alias.variant) === normalizePlatformLabel(variant)) {
+    if (
+      normalizePlatformLabel(alias.variant) === normalizePlatformLabel(variant)
+    ) {
       for (const name of alias.names) labels.add(normalizePlatformLabel(name));
     }
   }
@@ -171,7 +323,9 @@ export function gameMatchesPlatformVariant(
   variant: string,
 ) {
   const expected = new Set(variantMatchLabels(variant));
-  return (game.platformVariants ?? []).some((value) => expected.has(normalizePlatformLabel(value)));
+  return (game.platformVariants ?? []).some((value) =>
+    expected.has(normalizePlatformLabel(value)),
+  );
 }
 
 /** Navbar label for a stored IGDB platform, collapsing aliases such as Mega Drive and Genesis. */
@@ -199,7 +353,9 @@ export function listedSystemNames(game: {
   return labels;
 }
 
-export function familyForVariantLabel(variant: string): PlatformFamily | undefined {
+export function familyForVariantLabel(
+  variant: string,
+): PlatformFamily | undefined {
   return PLATFORM_FAMILIES.find((family) => {
     if (family.variants.includes(variant)) return true;
     return Object.entries(family.variantChildren ?? {}).some(
@@ -208,7 +364,10 @@ export function familyForVariantLabel(variant: string): PlatformFamily | undefin
   });
 }
 
-export function isPcPlatformBrowse(platform: Platform | null, variant: string | null): boolean {
+export function isPcPlatformBrowse(
+  platform: Platform | null,
+  variant: string | null,
+): boolean {
   if (platform === "PC") return true;
   if (!variant) return false;
   return familyForVariantLabel(variant)?.platform === "PC";
@@ -231,7 +390,11 @@ export function gameIsPlatformExclusive(
 ): boolean {
   if (isPcPlatformBrowse(selection.platform, selection.variant)) return false;
   const variants = [
-    ...new Set((game.platformVariants ?? []).map(canonicalPlatformVariant).filter(Boolean)),
+    ...new Set(
+      (game.platformVariants ?? [])
+        .map(canonicalPlatformVariant)
+        .filter(Boolean),
+    ),
   ];
 
   if (selection.variant) {
@@ -239,9 +402,14 @@ export function gameIsPlatformExclusive(
     if (children?.length) {
       const allowed = new Set(children.map(canonicalPlatformVariant));
       allowed.add(canonicalPlatformVariant(selection.variant));
-      return variants.length > 0 && variants.every((variant) => allowed.has(variant));
+      return (
+        variants.length > 0 && variants.every((variant) => allowed.has(variant))
+      );
     }
-    return variants.length === 1 && variants[0] === canonicalPlatformVariant(selection.variant);
+    return (
+      variants.length === 1 &&
+      variants[0] === canonicalPlatformVariant(selection.variant)
+    );
   }
 
   if (!selection.platform) return false;
@@ -249,5 +417,7 @@ export function gameIsPlatformExclusive(
     const families = game.platforms ?? [];
     return families.length === 1 && families[0] === selection.platform;
   }
-  return variants.every((variant) => resolveIgdbPlatform(variant).family === selection.platform);
+  return variants.every(
+    (variant) => resolveIgdbPlatform(variant).family === selection.platform,
+  );
 }

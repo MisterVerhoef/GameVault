@@ -5,7 +5,10 @@ import { useId, useMemo } from "react";
 import { useSearchParams } from "next/navigation";
 import GameCard from "@/components/GameCard";
 import Navbar from "@/components/Navbar";
-import WishlistPrices, { WishlistPriceNote, type WishlistOfferState } from "@/components/WishlistPrices";
+import WishlistPrices, {
+  WishlistPriceNote,
+  type WishlistOfferState,
+} from "@/components/WishlistPrices";
 import { useRovingCards } from "@/components/use-roving-cards";
 import {
   LIBRARY_STATUSES,
@@ -30,7 +33,9 @@ interface VaultItem {
 function compareVaultItems(left: VaultItem, right: VaultItem) {
   const byDate = right.entry.updatedAt.localeCompare(left.entry.updatedAt);
   if (byDate !== 0) return byDate;
-  return (left.game?.title ?? left.gameId).localeCompare(right.game?.title ?? right.gameId);
+  return (left.game?.title ?? left.gameId).localeCompare(
+    right.game?.title ?? right.gameId,
+  );
 }
 
 function VaultShelf({
@@ -51,15 +56,26 @@ function VaultShelf({
   const { ref, onKeyDown, onFocus } = useRovingCards<HTMLUListElement>();
 
   return (
-    <section aria-labelledby={`vault-${status}`} aria-describedby={hintId} className="mb-10">
-      <h2 id={`vault-${status}`} className="mb-3 text-lg font-bold tracking-tight text-foreground sm:text-xl">
+    <section
+      aria-labelledby={`vault-${status}`}
+      aria-describedby={hintId}
+      className="mb-10"
+    >
+      <h2
+        id={`vault-${status}`}
+        className="mb-3 text-lg font-bold tracking-tight text-foreground sm:text-xl"
+      >
         {label}
-        <span className="ml-2 text-sm font-medium text-muted">{items.length}</span>
+        <span className="ml-2 text-sm font-medium text-muted">
+          {items.length}
+        </span>
       </h2>
       <p id={hintId} className="sr-only">
         Arrow keys move between games in {label}.
       </p>
-      {status === "wishlist" && known.length > 0 && <WishlistPriceNote state={offerState} />}
+      {status === "wishlist" && known.length > 0 && (
+        <WishlistPriceNote state={offerState} />
+      )}
       {known.length > 0 && (
         <ul
           ref={ref}
@@ -70,24 +86,36 @@ function VaultShelf({
         >
           {known.map((item) => {
             const showPrices = status === "wishlist" && item.game;
-            const details = (item.entry.progress > 0 || item.entry.notes) ? (
-              <div className="mt-1.5 space-y-0.5">
-                {item.entry.progress > 0 && (
-                  <p className="text-[11px] font-medium text-muted" aria-hidden="true">{item.entry.progress}% played</p>
-                )}
-                {item.entry.notes && (
-                  <p className="line-clamp-2 text-xs leading-snug text-muted">{item.entry.notes}</p>
-                )}
-              </div>
-            ) : null;
+            const details =
+              item.entry.progress > 0 || item.entry.notes ? (
+                <div className="mt-1.5 space-y-0.5">
+                  {item.entry.progress > 0 && (
+                    <p
+                      className="text-[11px] font-medium text-muted"
+                      aria-hidden="true"
+                    >
+                      {item.entry.progress}% played
+                    </p>
+                  )}
+                  {item.entry.notes && (
+                    <p className="line-clamp-2 text-xs leading-snug text-muted">
+                      {item.entry.notes}
+                    </p>
+                  )}
+                </div>
+              ) : null;
             return (
               <li
                 key={item.gameId}
-                className={showPrices
-                  ? "flex w-full min-w-0 max-w-full flex-col gap-2 sm:w-[36rem] sm:max-w-full sm:flex-row sm:items-start sm:gap-3"
-                  : "w-32 flex-shrink-0 lg:w-44"}
+                className={
+                  showPrices
+                    ? "flex w-full min-w-0 max-w-full flex-col gap-2 sm:w-[36rem] sm:max-w-full sm:flex-row sm:items-start sm:gap-3"
+                    : "w-32 flex-shrink-0 lg:w-44"
+                }
               >
-                <div className={showPrices ? "w-32 shrink-0 lg:w-44" : undefined}>
+                <div
+                  className={showPrices ? "w-32 shrink-0 lg:w-44" : undefined}
+                >
                   <GameCard
                     game={item.game as CatalogueCard}
                     personalRating={item.entry.rating}
@@ -138,11 +166,16 @@ export default function VaultScreen() {
   const requested = params.get("status");
   const activeStatus = isLibraryStatus(requested) ? requested : null;
   const wishlistCount = useMemo(
-    () => Object.values(entries).filter((entry) => entry.status === "wishlist").length,
+    () =>
+      Object.values(entries).filter((entry) => entry.status === "wishlist")
+        .length,
     [entries],
   );
   const onSale = activeStatus === "wishlist" && params.get("sale") === "1";
-  const showWishlistPrices = ready && wishlistCount > 0 && (activeStatus == null || activeStatus === "wishlist");
+  const showWishlistPrices =
+    ready &&
+    wishlistCount > 0 &&
+    (activeStatus == null || activeStatus === "wishlist");
   const storeOffers = useStoreOfferIndex(showWishlistPrices);
   const offerState: WishlistOfferState = !showWishlistPrices
     ? { status: "hidden" }
@@ -160,10 +193,12 @@ export default function VaultScreen() {
         .map(([gameId, entry]) => ({
           gameId,
           entry,
-          game: catalogue ? (() => {
-            const match = findBrowseGame(catalogue, gameId);
-            return match ? toCard(match) : undefined;
-          })() : undefined,
+          game: catalogue
+            ? (() => {
+                const match = findBrowseGame(catalogue, gameId);
+                return match ? toCard(match) : undefined;
+              })()
+            : undefined,
         }))
         .sort(compareVaultItems),
     }));
@@ -171,21 +206,37 @@ export default function VaultScreen() {
 
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
   const wishlistGroup = groups.find((group) => group.status === "wishlist");
-  const onSaleCount = offerState.status === "ready" && wishlistGroup
-    ? wishlistGroup.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)).length
-    : null;
-  const selected = (activeStatus ? groups.filter((group) => group.status === activeStatus) : groups).map((group) => {
-    if (!onSale || group.status !== "wishlist" || offerState.status !== "ready") return group;
+  const onSaleCount =
+    offerState.status === "ready" && wishlistGroup
+      ? wishlistGroup.items.filter(
+          (item) =>
+            item.game &&
+            gameIsOnSale(offerState.index, item.game.id, item.game.platforms),
+        ).length
+      : null;
+  const selected = (
+    activeStatus
+      ? groups.filter((group) => group.status === activeStatus)
+      : groups
+  ).map((group) => {
+    if (!onSale || group.status !== "wishlist" || offerState.status !== "ready")
+      return group;
     return {
       ...group,
-      items: group.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)),
+      items: group.items.filter(
+        (item) =>
+          item.game &&
+          gameIsOnSale(offerState.index, item.game.id, item.game.platforms),
+      ),
     };
   });
   const visible = selected.filter((group) => group.items.length > 0);
 
   const chipClass = (selected: boolean) =>
     `inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent md:min-h-0 ${
-      selected ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
+      selected
+        ? "bg-accent text-white"
+        : "bg-card text-muted hover:text-foreground"
     }`;
 
   return (
@@ -213,7 +264,11 @@ export default function VaultScreen() {
               className="h-5 w-5"
               aria-hidden="true"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M15.75 19.5 8.25 12l7.5-7.5"
+              />
             </svg>
           </Link>
           <h1 className="min-w-0 truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">
@@ -228,12 +283,24 @@ export default function VaultScreen() {
         </div>
       </div>
 
-      <main id="vault-content" tabIndex={-1} className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8">
+      <main
+        id="vault-content"
+        tabIndex={-1}
+        className="mx-auto w-full max-w-[1920px] flex-1 scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8"
+      >
         <p className="max-w-2xl text-sm text-muted">
-          Your personal library, stored in this browser. Filter by status, then open a game to change progress, rating, or notes.
+          Your personal library, stored in this browser. Filter by status, then
+          open a game to change progress, rating, or notes.
         </p>
-        <nav className="mt-4 flex flex-wrap gap-2" aria-label="Filter by status">
-          <Link href="/vault" aria-current={activeStatus == null ? "page" : undefined} className={chipClass(activeStatus == null)}>
+        <nav
+          className="mt-4 flex flex-wrap gap-2"
+          aria-label="Filter by status"
+        >
+          <Link
+            href="/vault"
+            aria-current={activeStatus == null ? "page" : undefined}
+            className={chipClass(activeStatus == null)}
+          >
             All
             <span className="ml-1.5 tabular-nums">{ready ? total : "–"}</span>
           </Link>
@@ -245,19 +312,30 @@ export default function VaultScreen() {
               className={chipClass(activeStatus === group.status)}
             >
               {LIBRARY_STATUS_LABELS[group.status]}
-              <span className="ml-1.5 tabular-nums">{ready ? group.items.length : "–"}</span>
+              <span className="ml-1.5 tabular-nums">
+                {ready ? group.items.length : "–"}
+              </span>
             </Link>
           ))}
         </nav>
         {activeStatus === "wishlist" && wishlistCount > 0 && (
-          <nav className="mt-3 flex flex-wrap gap-2" aria-label="Filter wishlist">
+          <nav
+            className="mt-3 flex flex-wrap gap-2"
+            aria-label="Filter wishlist"
+          >
             <Link
-              href={onSale ? "/vault?status=wishlist" : "/vault?status=wishlist&sale=1"}
+              href={
+                onSale
+                  ? "/vault?status=wishlist"
+                  : "/vault?status=wishlist&sale=1"
+              }
               aria-current={onSale ? "page" : undefined}
               className={chipClass(onSale)}
             >
               On sale
-              <span className="ml-1.5 tabular-nums">{onSaleCount == null ? "–" : onSaleCount}</span>
+              <span className="ml-1.5 tabular-nums">
+                {onSaleCount == null ? "–" : onSaleCount}
+              </span>
             </Link>
           </nav>
         )}
@@ -266,11 +344,17 @@ export default function VaultScreen() {
           {!ready || (!catalogue && !failed) ? (
             <p className="text-sm text-muted">Loading your vault…</p>
           ) : failed ? (
-            <p className="text-sm text-muted">The game catalogue could not be loaded.</p>
+            <p className="text-sm text-muted">
+              The game catalogue could not be loaded.
+            </p>
           ) : total === 0 ? (
             <div className="rounded-2xl border border-white/10 bg-card px-5 py-8">
-              <p className="text-sm text-foreground">Nothing in your vault yet.</p>
-              <p className="mt-1 text-sm text-muted">Open a game and choose a library status. It will show up here.</p>
+              <p className="text-sm text-foreground">
+                Nothing in your vault yet.
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                Open a game and choose a library status. It will show up here.
+              </p>
               <Link
                 href="/"
                 className="mt-4 inline-flex rounded-full bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -279,14 +363,22 @@ export default function VaultScreen() {
               </Link>
             </div>
           ) : onSale && offerState.status === "loading" ? (
-            <p className="text-sm text-muted">Loading cached Netherlands store prices…</p>
+            <p className="text-sm text-muted">
+              Loading cached Netherlands store prices…
+            </p>
           ) : onSale && offerState.status === "error" ? (
-            <p className="text-sm text-muted">Cached store prices could not be loaded, so on-sale games cannot be filtered.</p>
+            <p className="text-sm text-muted">
+              Cached store prices could not be loaded, so on-sale games cannot
+              be filtered.
+            </p>
           ) : onSale && wishlistCount > 0 && visible.length === 0 ? (
-            <p className="text-sm text-muted">No wishlist games are on sale in the cached prices.</p>
+            <p className="text-sm text-muted">
+              No wishlist games are on sale in the cached prices.
+            </p>
           ) : visible.length === 0 && activeStatus ? (
             <p className="text-sm text-muted">
-              No games marked as {LIBRARY_STATUS_LABELS[activeStatus].toLowerCase()}.
+              No games marked as{" "}
+              {LIBRARY_STATUS_LABELS[activeStatus].toLowerCase()}.
             </p>
           ) : (
             visible.map((group) => (
@@ -294,7 +386,11 @@ export default function VaultScreen() {
                 key={group.status}
                 status={group.status}
                 items={group.items}
-                offerState={group.status === "wishlist" ? offerState : { status: "hidden" }}
+                offerState={
+                  group.status === "wishlist"
+                    ? offerState
+                    : { status: "hidden" }
+                }
                 onRemove={(gameId) => setStatus(gameId, null)}
               />
             ))

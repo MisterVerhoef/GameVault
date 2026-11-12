@@ -35,10 +35,22 @@ const telltale: StudioMark = { src: "/studios/telltale.svg", aspect: 72 / 64 };
 const sony: StudioMark = { src: "/studios/sony.svg", aspect: 1 };
 const atari: StudioMark = { src: "/studios/atari.svg", aspect: 1 };
 const thq: StudioMark = { src: "/studios/thq.svg", aspect: 100.5 / 56 };
-const blizzard: StudioMark = { src: "/studios/blizzard.svg", aspect: 176.9 / 48 };
-const insomniac: StudioMark = { src: "/studios/insomniac.svg", aspect: 193.2 / 58 };
-const microsoft: StudioMark = { src: "/studios/microsoft.svg", aspect: 171.7 / 52 };
-const nintendo: StudioMark = { src: "/platforms/nintendo.svg", aspect: 149.57 / 52 };
+const blizzard: StudioMark = {
+  src: "/studios/blizzard.svg",
+  aspect: 176.9 / 48,
+};
+const insomniac: StudioMark = {
+  src: "/studios/insomniac.svg",
+  aspect: 193.2 / 58,
+};
+const microsoft: StudioMark = {
+  src: "/studios/microsoft.svg",
+  aspect: 171.7 / 52,
+};
+const nintendo: StudioMark = {
+  src: "/platforms/nintendo.svg",
+  aspect: 149.57 / 52,
+};
 const capcom: StudioMark = { src: "/studios/capcom.svg", aspect: 3.64 };
 const square: StudioMark = { src: "/studios/square-enix.svg", aspect: 3.86 };
 const konami: StudioMark = { src: "/studios/konami.svg", aspect: 3.65 };
@@ -51,12 +63,18 @@ const takeTwo: StudioMark = { src: "/studios/take-two.svg", aspect: 4.02 };
 const twoK: StudioMark = { src: "/studios/2k.svg", aspect: 1.58 };
 const cdProjekt: StudioMark = { src: "/studios/cd-projekt.svg", aspect: 3.5 };
 const lucas: StudioMark = { src: "/studios/lucasarts.svg", aspect: 4.05 };
-const fromSoftware: StudioMark = { src: "/studios/fromsoftware.svg", aspect: 4.2 };
+const fromSoftware: StudioMark = {
+  src: "/studios/fromsoftware.svg",
+  aspect: 4.2,
+};
 const bioware: StudioMark = { src: "/studios/bioware.svg", aspect: 3.76 };
 const idSoftware: StudioMark = { src: "/studios/id.svg", aspect: 1.07 };
 const sierra: StudioMark = { src: "/studios/sierra.svg", aspect: 3.39 };
 const snk: StudioMark = { src: "/studios/snk.svg", aspect: 2.38 };
-const naughtyDog: StudioMark = { src: "/studios/naughty-dog.svg", aspect: 4.11 };
+const naughtyDog: StudioMark = {
+  src: "/studios/naughty-dog.svg",
+  aspect: 4.11,
+};
 const bungie: StudioMark = { src: "/studios/bungie.svg", aspect: 3.45 };
 const paradox: StudioMark = { src: "/studios/paradox.svg", aspect: 3.97 };
 const valve: StudioMark = { src: "/studios/valve.svg", aspect: 3.33 };
@@ -79,7 +97,10 @@ const RULES: readonly { test: RegExp; logo: StudioMark }[] = [
   { test: /^ubisoft\b/i, logo: ubisoft },
   { test: /^rockstar\b/i, logo: rockstar },
   { test: /^telltale\b/i, logo: telltale },
-  { test: /^sony (?:computer|interactive|online) entertainment\b/i, logo: sony },
+  {
+    test: /^sony (?:computer|interactive|online) entertainment\b/i,
+    logo: sony,
+  },
   { test: /^sony xdev\b/i, logo: sony },
   { test: /^atari\b/i, logo: atari },
   { test: /^thq\b/i, logo: thq },
@@ -123,14 +144,16 @@ const RULES: readonly { test: RegExp; logo: StudioMark }[] = [
 ];
 
 function positiveDimension(value: unknown): number | undefined {
-  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+    return undefined;
   return Math.round(value);
 }
 
 function logoAspect(width?: number, height?: number) {
   if (!width || !height) return LOGO_MED_ASPECT;
   const aspect = width / height;
-  if (!Number.isFinite(aspect) || aspect < 0.4 || aspect > 8) return LOGO_MED_ASPECT;
+  if (!Number.isFinite(aspect) || aspect < 0.4 || aspect > 8)
+    return LOGO_MED_ASPECT;
   return aspect;
 }
 
@@ -138,7 +161,9 @@ function logoAspect(width?: number, height?: number) {
  * Keep an IGDB company logo and rewrite it to `t_logo_med`.
  * Anything else is dropped so the UI can use the local mark or initials.
  */
-export function catalogueCompanyLogo(value: unknown): CatalogueCompanyLogo | undefined {
+export function catalogueCompanyLogo(
+  value: unknown,
+): CatalogueCompanyLogo | undefined {
   if (typeof value !== "object" || value === null) return undefined;
   const record = value as Record<string, unknown>;
   const raw = typeof record.url === "string" ? record.url.trim() : "";
@@ -150,7 +175,8 @@ export function catalogueCompanyLogo(value: unknown): CatalogueCompanyLogo | und
   } catch {
     return undefined;
   }
-  if (parsed.protocol !== "https:" || parsed.hostname !== "images.igdb.com") return undefined;
+  if (parsed.protocol !== "https:" || parsed.hostname !== "images.igdb.com")
+    return undefined;
   if (parsed.username || parsed.password) return undefined;
   if (!parsed.pathname.includes("/igdb/image/upload/")) return undefined;
   const pathname = parsed.pathname.replace(/\/t_[^/]+\//, "/t_logo_med/");

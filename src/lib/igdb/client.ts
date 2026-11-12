@@ -7,7 +7,8 @@ import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
 import type { IgdbLiveGame, IgdbSearchHit } from "./types";
 
-export const IGDB_SEARCH_CACHE_CONTROL = "public, s-maxage=86400, stale-while-revalidate=604800";
+export const IGDB_SEARCH_CACHE_CONTROL =
+  "public, s-maxage=86400, stale-while-revalidate=604800";
 
 const throttle = new RequestThrottle(4);
 const searchCache = new LruCache<IgdbSearchHit[]>({ maxEntries: 256 });
@@ -38,14 +39,21 @@ async function getAccessToken(): Promise<string | null> {
     { method: "POST" },
   );
   if (!response.ok) return null;
-  const body = await response.json() as { access_token?: string; expires_in?: number };
+  const body = (await response.json()) as {
+    access_token?: string;
+    expires_in?: number;
+  };
   if (!body.access_token) return null;
-  const ttlMs = (typeof body.expires_in === "number" ? body.expires_in : 3600) * 1000;
+  const ttlMs =
+    (typeof body.expires_in === "number" ? body.expires_in : 3600) * 1000;
   tokenState = { accessToken: body.access_token, expiresAtMs: now + ttlMs };
   return body.access_token;
 }
 
-async function igdbPost(endpoint: string, body: string): Promise<Response | null> {
+async function igdbPost(
+  endpoint: string,
+  body: string,
+): Promise<Response | null> {
   const creds = credentials();
   const token = await getAccessToken();
   if (!creds || !token) return null;
@@ -66,13 +74,19 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
   const hits: IgdbSearchHit[] = [];
   for (const row of rows) {
     if (!row || typeof row !== "object") continue;
-    const record = row as { id?: number; name?: string; cover?: { url?: string } };
+    const record = row as {
+      id?: number;
+      name?: string;
+      cover?: { url?: string };
+    };
     if (!record.id || !record.name) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
     hits.push({
       id: String(record.id),
       title: record.name,
-      ...(coverUrl ? { cover: { url: coverUrl.replace(/\/t_[^/]+\//, "/t_cover_big/") } } : {}),
+      ...(coverUrl
+        ? { cover: { url: coverUrl.replace(/\/t_[^/]+\//, "/t_cover_big/") } }
+        : {}),
     });
   }
   return hits;
@@ -86,7 +100,10 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (cached) return cached;
 
   if (igdbMockEnabled()) {
-    const hits = dedupeIgdbAgainstCatalogue(mockIgdbSearch(query), getCatalogueIgdbIds());
+    const hits = dedupeIgdbAgainstCatalogue(
+      mockIgdbSearch(query),
+      getCatalogueIgdbIds(),
+    );
     searchCache.set(normalized, hits);
     return hits;
   }
@@ -108,7 +125,10 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
     }
     const rows = await response.json();
     if (!Array.isArray(rows)) return [];
-    const hits = dedupeIgdbAgainstCatalogue(mapSearchRows(rows), getCatalogueIgdbIds());
+    const hits = dedupeIgdbAgainstCatalogue(
+      mapSearchRows(rows),
+      getCatalogueIgdbIds(),
+    );
     searchCache.set(normalized, hits);
     return hits;
   } catch {
@@ -117,15 +137,32 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
 }
 
 const detailFields = [
-  "id", "name", "slug", "summary", "storyline", "first_release_date",
-  "rating", "rating_count", "aggregated_rating", "aggregated_rating_count",
-  "genres.name", "themes.name", "platforms.name",
-  "involved_companies.developer", "involved_companies.publisher",
-  "involved_companies.company.id", "involved_companies.company.name",
-  "cover.url", "release_dates.date", "release_dates.human", "release_dates.platform.name",
+  "id",
+  "name",
+  "slug",
+  "summary",
+  "storyline",
+  "first_release_date",
+  "rating",
+  "rating_count",
+  "aggregated_rating",
+  "aggregated_rating_count",
+  "genres.name",
+  "themes.name",
+  "platforms.name",
+  "involved_companies.developer",
+  "involved_companies.publisher",
+  "involved_companies.company.id",
+  "involved_companies.company.name",
+  "cover.url",
+  "release_dates.date",
+  "release_dates.human",
+  "release_dates.platform.name",
 ].join(",");
 
-export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
+export async function fetchIgdbGameById(
+  id: string,
+): Promise<IgdbLiveGame | null> {
   if (!/^\d+$/.test(id)) return null;
 
   if (igdbMockEnabled()) {
@@ -135,7 +172,10 @@ export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null
   if (!credentials()) return null;
 
   try {
-    const response = await igdbPost("games", `fields ${detailFields}; where id = ${id}; limit 1;`);
+    const response = await igdbPost(
+      "games",
+      `fields ${detailFields}; where id = ${id}; limit 1;`,
+    );
     if (!response || !response.ok) return null;
     const rows = await response.json();
     if (!Array.isArray(rows) || rows.length === 0) return null;

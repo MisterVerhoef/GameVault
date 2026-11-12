@@ -1,4 +1,9 @@
-import { discountBadge, formatHistoryDate, lowestRecorded, normalizePriceHistory } from "./price-history";
+import {
+  discountBadge,
+  formatHistoryDate,
+  lowestRecorded,
+  normalizePriceHistory,
+} from "./price-history";
 import { storePlatform, type StoreId } from "./store-match";
 
 /** A cached Netherlands store offer, matched to a catalogue game id. */
@@ -42,8 +47,14 @@ const EMPTY_INDEX: StoreOfferIndex = {
 };
 
 function isStore(value: unknown): value is StoreId {
-  return value === "xbox" || value === "playstation" || value === "nintendo"
-    || value === "steam" || value === "epic" || value === "gog";
+  return (
+    value === "xbox" ||
+    value === "playstation" ||
+    value === "nintendo" ||
+    value === "steam" ||
+    value === "epic" ||
+    value === "gog"
+  );
 }
 
 /** A negative amount is a sentinel for "unknown", not a price. */
@@ -65,7 +76,10 @@ function httpsUrl(value: unknown): string | undefined {
   }
 }
 
-export function isStoreDeal(price: number | null, regularPrice: number | null): boolean {
+export function isStoreDeal(
+  price: number | null,
+  regularPrice: number | null,
+): boolean {
   return price != null && regularPrice != null && regularPrice > price;
 }
 
@@ -91,11 +105,17 @@ export function isLowestCurrentPrice(
 }
 
 export function formatEuro(amount: number): string {
-  return new Intl.NumberFormat("nl-NL", { style: "currency", currency: "EUR" }).format(amount);
+  return new Intl.NumberFormat("nl-NL", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amount);
 }
 
 /** Visible lowest-recorded line. The date is the first day GameVault stored that price. */
-export function formatLowestRecorded(lowest: { price: number; date: string }): string {
+export function formatLowestRecorded(lowest: {
+  price: number;
+  date: string;
+}): string {
   return `Lowest recorded ${formatEuro(lowest.price)} on ${formatHistoryDate(lowest.date)}`;
 }
 
@@ -131,7 +151,9 @@ function parseOffer(value: unknown): CachedStoreOffer | undefined {
     currency: "EUR",
     deal: isStoreDeal(price, regularPrice),
     discountLabel: discountBadge(price, regularPrice),
-    lowestRecorded: lowest ? { price: lowest.cents / 100, date: lowest.date } : null,
+    lowestRecorded: lowest
+      ? { price: lowest.cents / 100, date: lowest.date }
+      : null,
   };
 }
 
@@ -148,13 +170,23 @@ export function indexStoreOffers(raw: unknown): StoreOfferIndex {
     games?: unknown;
   };
   if (file.schemaVersion !== 1) return EMPTY_INDEX;
-  if (typeof file.currency === "string" && file.currency !== "EUR") return EMPTY_INDEX;
-  if (typeof file.region === "string" && file.region.toUpperCase() !== "NL") return EMPTY_INDEX;
-  if (!file.games || typeof file.games !== "object" || Array.isArray(file.games)) return EMPTY_INDEX;
+  if (typeof file.currency === "string" && file.currency !== "EUR")
+    return EMPTY_INDEX;
+  if (typeof file.region === "string" && file.region.toUpperCase() !== "NL")
+    return EMPTY_INDEX;
+  if (
+    !file.games ||
+    typeof file.games !== "object" ||
+    Array.isArray(file.games)
+  )
+    return EMPTY_INDEX;
 
   const byGameId = new Map<string, readonly CachedStoreOffer[]>();
-  for (const [gameId, entry] of Object.entries(file.games as Record<string, unknown>)) {
-    if (!gameId || !entry || typeof entry !== "object" || Array.isArray(entry)) continue;
+  for (const [gameId, entry] of Object.entries(
+    file.games as Record<string, unknown>,
+  )) {
+    if (!gameId || !entry || typeof entry !== "object" || Array.isArray(entry))
+      continue;
     const rawOffers = (entry as { offers?: unknown }).offers;
     if (!Array.isArray(rawOffers)) continue;
     const seen = new Set<StoreId>();
@@ -166,7 +198,9 @@ export function indexStoreOffers(raw: unknown): StoreOfferIndex {
       offers.push(offer);
     }
     if (offers.length === 0) continue;
-    offers.sort((left, right) => STORE_ORDER[left.store] - STORE_ORDER[right.store]);
+    offers.sort(
+      (left, right) => STORE_ORDER[left.store] - STORE_ORDER[right.store],
+    );
     byGameId.set(gameId, offers);
   }
 

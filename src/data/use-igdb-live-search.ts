@@ -19,9 +19,10 @@ export function useIgdbLiveSearch(
   enabled: boolean,
 ): IgdbLiveSearchState {
   const trimmed = query.trim();
-  const shouldSearch = enabled
-    && trimmed.length >= MIN_QUERY
-    && catalogueHitCount < MAX_CATALOGUE_HITS;
+  const shouldSearch =
+    enabled &&
+    trimmed.length >= MIN_QUERY &&
+    catalogueHitCount < MAX_CATALOGUE_HITS;
 
   const [fetchKey, setFetchKey] = useState("");
   const [loading, setLoading] = useState(false);
@@ -48,17 +49,23 @@ export function useIgdbLiveSearch(
       const params = new URLSearchParams({ q: trimmed });
       fetch(`/api/igdb/search?${params}`, { signal: controller.signal })
         .then((response) => (response.ok ? response.json() : { games: [] }))
-        .then((body: { games?: { id: string; title: string; cover?: { url: string } }[] }) => {
-          if (controller.signal.aborted) return;
-          const rows = Array.isArray(body.games) ? body.games : [];
-          setGames(rows.map((row) => ({
-            id: row.id,
-            title: row.title,
-            platforms: ["Other"],
-            ...(row.cover ? { cover: row.cover } : {}),
-          })));
-          setLoading(false);
-        })
+        .then(
+          (body: {
+            games?: { id: string; title: string; cover?: { url: string } }[];
+          }) => {
+            if (controller.signal.aborted) return;
+            const rows = Array.isArray(body.games) ? body.games : [];
+            setGames(
+              rows.map((row) => ({
+                id: row.id,
+                title: row.title,
+                platforms: ["Other"],
+                ...(row.cover ? { cover: row.cover } : {}),
+              })),
+            );
+            setLoading(false);
+          },
+        )
         .catch(() => {
           if (controller.signal.aborted) return;
           setGames([]);

@@ -1,20 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { readReleaseDateIndex, type ReleaseDateRecord } from "./release-calendar";
+import {
+  readReleaseDateIndex,
+  type ReleaseDateRecord,
+} from "./release-calendar";
 
 let request: Promise<ReleaseDateRecord[]> | null = null;
 
 function loadReleaseDates() {
   if (!request) {
     request = fetch("/catalog/release-dates.json").then(async (response) => {
-      if (!response.ok) throw new Error(`Release date request failed (${response.status}).`);
+      if (!response.ok)
+        throw new Error(`Release date request failed (${response.status}).`);
       const payload: unknown = await response.json();
       if (
-        !payload
-        || typeof payload !== "object"
-        || (payload as { schemaVersion?: unknown }).schemaVersion !== 1
-        || !Array.isArray((payload as { games?: unknown }).games)
+        !payload ||
+        typeof payload !== "object" ||
+        (payload as { schemaVersion?: unknown }).schemaVersion !== 1 ||
+        !Array.isArray((payload as { games?: unknown }).games)
       ) {
         throw new Error("Unsupported release date index.");
       }

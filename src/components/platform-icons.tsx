@@ -48,15 +48,22 @@ const tux: MarkPath[] = [
 ];
 
 const thirtyTwoX: MarkPath[] = [
-  { d: "M7.2 4.2h9.6l2.2 4.2H5l2.2-4.2zM5.4 9.2h13.2v8.2a1.4 1.4 0 0 1-1.4 1.4H6.8a1.4 1.4 0 0 1-1.4-1.4V9.2z" },
+  {
+    d: "M7.2 4.2h9.6l2.2 4.2H5l2.2-4.2zM5.4 9.2h13.2v8.2a1.4 1.4 0 0 1-1.4 1.4H6.8a1.4 1.4 0 0 1-1.4-1.4V9.2z",
+  },
 ];
 
 const sg1000: MarkPath[] = [
-  { d: "M4 11.2h12.4v6.4A1.2 1.2 0 0 1 15.2 18.8H5.2A1.2 1.2 0 0 1 4 17.6v-6.4zM16.6 8.2h1.6v8.2h-1.6zM16.2 6.4h2.4v2.2h-2.4z" },
+  {
+    d: "M4 11.2h12.4v6.4A1.2 1.2 0 0 1 15.2 18.8H5.2A1.2 1.2 0 0 1 4 17.6v-6.4zM16.6 8.2h1.6v8.2h-1.6zM16.2 6.4h2.4v2.2h-2.4z",
+  },
 ];
 
 const atari2600: MarkPath[] = [
-  { evenodd: true, d: "M3.2 16.8 6.4 8.2h11.2l3.2 8.6H3.2zM8.6 11.2h6.8v1.3H8.6z" },
+  {
+    evenodd: true,
+    d: "M3.2 16.8 6.4 8.2h11.2l3.2 8.6H3.2zM8.6 11.2h6.8v1.3H8.6z",
+  },
 ];
 
 const atari5200: MarkPath[] = [
@@ -80,7 +87,9 @@ const atariSt: MarkPath[] = [
   },
 ];
 
-const atariXegs: MarkPath[] = [{ d: "M3.4 12.4 5.6 8h12.8l2.2 4.4H3.4zM3 13.4h18v3.2H3v-3.2z" }];
+const atariXegs: MarkPath[] = [
+  { d: "M3.4 12.4 5.6 8h12.8l2.2 4.4H3.4zM3 13.4h18v3.2H3v-3.2z" },
+];
 
 const lynx: MarkPath[] = [
   {
@@ -94,22 +103,38 @@ const atariVcs: MarkPath[] = [
 ];
 
 const ouya: MarkPath[] = [
-  { stroke: true, sw: 1.5, d: "M12 2.8 20.4 7.6v8.8L12 21.2 3.6 16.4V7.6L12 2.8z" },
+  {
+    stroke: true,
+    sw: 1.5,
+    d: "M12 2.8 20.4 7.6v8.8L12 21.2 3.6 16.4V7.6L12 2.8z",
+  },
   { stroke: true, sw: 1.5, d: "M12 11.6 19 7.8M12 11.6 5 7.8M12 11.6v8.4" },
   { d: "M9.3 13.2h1.5v1.5H9.3zm3.9 0h1.5v1.5h-1.5z" },
 ];
 
 const stadia: MarkPath[] = [
-  { d: "M6.4 5.2c-.9 0-1.4 1-.8 1.7l5.6 8.4c.5.8 1.7.8 2.2 0l5.6-8.4c.6-.7.1-1.7-.8-1.7H6.4z" },
+  {
+    d: "M6.4 5.2c-.9 0-1.4 1-.8 1.7l5.6 8.4c.5.8 1.7.8 2.2 0l5.6-8.4c.6-.7.1-1.7-.8-1.7H6.4z",
+  },
 ];
 
 const arcade: MarkPath[] = [
-  { d: "M9.4 3.2a2.6 2.6 0 1 0 5.2 0 2.6 2.6 0 0 0-5.2 0zM11.2 6.2h1.6l.6 8.4h-2.8l.6-8.4zM6.2 16.2h11.6l1.4 3.6H4.8l1.4-3.6z" },
+  {
+    d: "M9.4 3.2a2.6 2.6 0 1 0 5.2 0 2.6 2.6 0 0 0-5.2 0zM11.2 6.2h1.6l.6 8.4h-2.8l.6-8.4zM6.2 16.2h11.6l1.4 3.6H4.8l1.4-3.6z",
+  },
 ];
 
 const web: MarkPath[] = [
-  { stroke: true, sw: 1.6, d: "M12 3.8a8.2 8.2 0 1 0 0 16.4 8.2 8.2 0 0 0 0-16.4z" },
-  { stroke: true, sw: 1.6, d: "M12 3.8c-2 0-3.6 3.7-3.6 8.2s1.6 8.2 3.6 8.2 3.6-3.7 3.6-8.2-1.6-8.2-3.6-8.2z" },
+  {
+    stroke: true,
+    sw: 1.6,
+    d: "M12 3.8a8.2 8.2 0 1 0 0 16.4 8.2 8.2 0 0 0 0-16.4z",
+  },
+  {
+    stroke: true,
+    sw: 1.6,
+    d: "M12 3.8c-2 0-3.6 3.7-3.6 8.2s1.6 8.2 3.6 8.2 3.6-3.7 3.6-8.2-1.6-8.2-3.6-8.2z",
+  },
   { stroke: true, sw: 1.6, d: "M3.8 12h16.4M5.2 7.6h13.6M5.2 16.4h13.6" },
 ];
 
@@ -176,7 +201,9 @@ function candidateKeys(label: string): string[] {
   return keys;
 }
 
-function resolveMark(label: string): { brand: BrandMark } | { logo: Logo } | { glyph: MarkPath[] } | null {
+function resolveMark(
+  label: string,
+): { brand: BrandMark } | { logo: Logo } | { glyph: MarkPath[] } | null {
   for (const key of candidateKeys(label)) {
     const brand = BRAND_LOGOS[key];
     if (brand) return { brand };
@@ -196,7 +223,12 @@ export function platformIconKind(name: string): "logo" | "glyph" | null {
 
 function Mark({ nodes, className }: { nodes: MarkPath[]; className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" className={`shrink-0 ${className ?? ""}`} aria-hidden="true" focusable="false">
+    <svg
+      viewBox="0 0 24 24"
+      className={`shrink-0 ${className ?? ""}`}
+      aria-hidden="true"
+      focusable="false"
+    >
       {nodes.map((node, index) => (
         <path
           key={index}
@@ -214,7 +246,13 @@ function Mark({ nodes, className }: { nodes: MarkPath[]; className?: string }) {
   );
 }
 
-export function PlatformIcon({ name, className = "h-4 w-4" }: { name: string; className?: string }) {
+export function PlatformIcon({
+  name,
+  className = "h-4 w-4",
+}: {
+  name: string;
+  className?: string;
+}) {
   const mark = resolveMark(name);
   if (!mark) return null;
   if ("brand" in mark) {
@@ -227,7 +265,11 @@ export function PlatformIcon({ name, className = "h-4 w-4" }: { name: string; cl
       >
         {/* SVG files stay vector and are cached; next/image does not optimize SVG. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={brand.src} alt="" className="absolute inset-[7%] size-[86%] object-contain" />
+        <img
+          src={brand.src}
+          alt=""
+          className="absolute inset-[7%] size-[86%] object-contain"
+        />
       </span>
     );
   }
@@ -239,7 +281,13 @@ export function PlatformIcon({ name, className = "h-4 w-4" }: { name: string; cl
         style={{ width: "auto", aspectRatio: String(logo.aspect) }}
         aria-hidden="true"
       >
-        <Image src={logo.src} alt="" fill sizes="80px" className="object-contain" />
+        <Image
+          src={logo.src}
+          alt=""
+          fill
+          sizes="80px"
+          className="object-contain"
+        />
       </span>
     );
   }

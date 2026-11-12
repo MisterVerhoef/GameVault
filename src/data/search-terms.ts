@@ -9,11 +9,15 @@ export function matchesSearchTerms(terms: string, query: string) {
   const raw = query.trim().toLowerCase();
   if (!raw) return true;
   if (terms.includes(raw)) return true;
-  const loose = raw.replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
+  const loose = raw
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
   if (loose.length > 0 && loose !== raw && terms.includes(loose)) return true;
   if (!raw.includes(" ") && loose.includes(" ")) {
     const parts = loose.split(" ").filter((token) => token.length >= 3);
-    if (parts.length >= 2 && parts.every((token) => terms.includes(token))) return true;
+    if (parts.length >= 2 && parts.every((token) => terms.includes(token)))
+      return true;
   }
   return false;
 }

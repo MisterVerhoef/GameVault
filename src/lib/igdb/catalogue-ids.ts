@@ -8,7 +8,9 @@ export function getCatalogueIgdbIds(): Set<string> {
   if (cachedIds) return cachedIds;
   const path = join(process.cwd(), "public/catalog/search-index.json");
   try {
-    const file = JSON.parse(readFileSync(path, "utf8")) as { games?: { id: string }[] };
+    const file = JSON.parse(readFileSync(path, "utf8")) as {
+      games?: { id: string }[];
+    };
     const ids = new Set<string>();
     for (const game of file.games ?? []) {
       if (game?.id) ids.add(String(game.id));

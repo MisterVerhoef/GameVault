@@ -87,14 +87,14 @@ The catalogue in `public/catalog/` is checked in. Builds and page requests use t
 
 Copy `.env.example` to `.env.local` only if you sync the catalogue on your machine. None of these are read by the Next.js server or the browser.
 
-| Variable | Required for the site | Where it belongs |
-| --- | --- | --- |
-| `IGDB_CLIENT_ID` | No | Local sync, or a GitHub Actions secret for `.github/workflows/catalogue.yml` |
-| `IGDB_CLIENT_SECRET` | No | Same as `IGDB_CLIENT_ID`. Never commit it and never set `NEXT_PUBLIC_` on it. |
-| `IGDB_SOURCE_VERSION` | No | Optional provenance label for a sync |
-| `IGDB_LIMIT`, `IGDB_PAGES`, `IGDB_MIN_GAMES` | No | Optional sync bounds. Defaults are 500, 10, and 5. |
-| `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
-| `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
+| Variable                                     | Required for the site | Where it belongs                                                              |
+| -------------------------------------------- | --------------------- | ----------------------------------------------------------------------------- |
+| `IGDB_CLIENT_ID`                             | No                    | Local sync, or a GitHub Actions secret for `.github/workflows/catalogue.yml`  |
+| `IGDB_CLIENT_SECRET`                         | No                    | Same as `IGDB_CLIENT_ID`. Never commit it and never set `NEXT_PUBLIC_` on it. |
+| `IGDB_SOURCE_VERSION`                        | No                    | Optional provenance label for a sync                                          |
+| `IGDB_LIMIT`, `IGDB_PAGES`, `IGDB_MIN_GAMES` | No                    | Optional sync bounds. Defaults are 500, 10, and 5.                            |
+| `IGDB_SEARCH_TERMS`                          | No                    | Optional comma-separated franchise searches. Default: `halo,the witcher`      |
+| `IGDB_QUERY`                                 | No                    | Optional replacement for the built-in IGDB popular-games query                |
 
 Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule at 04:17 UTC). The workflow runs `npm ci` and `npm run catalogue:sync:igdb`, then commits `public/catalog/games-index.json`, `public/catalog/browse-index.json`, `public/catalog/search-index.json`, `public/catalog/release-dates.json`, and `public/catalog/store-offers.json` when they change. After it pushes to `main`, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
 

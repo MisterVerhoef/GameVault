@@ -68,21 +68,46 @@ test("keeps rating and notes when status, progress, or the other field changes",
   };
   const stamped = "2026-10-05T00:00:00.000Z";
 
-  assert.equal(updateLibraryEntry(saved, { status: "paused" }, stamped)?.notes, "Co-op night.");
+  assert.equal(
+    updateLibraryEntry(saved, { status: "paused" }, stamped)?.notes,
+    "Co-op night.",
+  );
   assert.equal(updateLibraryEntry(saved, { progress: 80 }, stamped)?.rating, 5);
-  assert.equal(updateLibraryEntry(saved, { notes: "Still co-op." }, stamped)?.rating, 5);
-  assert.equal(updateLibraryEntry(saved, { rating: null }, stamped)?.notes, "Co-op night.");
-  assert.equal(updateLibraryEntry(saved, { rating: null }, stamped)?.rating, undefined);
+  assert.equal(
+    updateLibraryEntry(saved, { notes: "Still co-op." }, stamped)?.rating,
+    5,
+  );
+  assert.equal(
+    updateLibraryEntry(saved, { rating: null }, stamped)?.notes,
+    "Co-op night.",
+  );
+  assert.equal(
+    updateLibraryEntry(saved, { rating: null }, stamped)?.rating,
+    undefined,
+  );
   assert.equal(updateLibraryEntry(saved, { notes: "" }, stamped)?.rating, 5);
-  assert.equal(updateLibraryEntry(saved, { notes: "" }, stamped)?.notes, undefined);
+  assert.equal(
+    updateLibraryEntry(saved, { notes: "" }, stamped)?.notes,
+    undefined,
+  );
   assert.equal(updateLibraryEntry(undefined, { notes: "   " }), null);
 });
 
 test("truncates long notes and skips entries with an unknown status", () => {
   const notes = "a".repeat(600);
   const state = normalizeLibraryState({
-    kept: { status: "paused", progress: 10, notes, updatedAt: "2026-10-03T00:00:00.000Z" },
-    dropped: { status: "abandoned", progress: 10, notes: "nope", updatedAt: "2026-10-03T00:00:00.000Z" },
+    kept: {
+      status: "paused",
+      progress: 10,
+      notes,
+      updatedAt: "2026-10-03T00:00:00.000Z",
+    },
+    dropped: {
+      status: "abandoned",
+      progress: 10,
+      notes: "nope",
+      updatedAt: "2026-10-03T00:00:00.000Z",
+    },
   });
 
   assert.equal(state.kept.notes?.length, 500);

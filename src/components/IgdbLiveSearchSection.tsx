@@ -9,17 +9,30 @@ interface IgdbLiveSearchSectionProps {
   games: CatalogueCard[];
 }
 
-export default function IgdbLiveSearchSection({ loading, games }: IgdbLiveSearchSectionProps) {
+export default function IgdbLiveSearchSection({
+  loading,
+  games,
+}: IgdbLiveSearchSectionProps) {
   if (!loading && games.length === 0) return null;
 
   return (
-    <section aria-labelledby="igdb-live-search" className="border-t border-white/10 pt-8">
+    <section
+      aria-labelledby="igdb-live-search"
+      className="border-t border-white/10 pt-8"
+    >
       <div className="mb-4 px-4 sm:px-6 lg:px-8">
-        <h2 id="igdb-live-search" className="text-lg font-bold tracking-tight text-foreground">
+        <h2
+          id="igdb-live-search"
+          className="text-lg font-bold tracking-tight text-foreground"
+        >
           Meer op IGDB
         </h2>
         {loading ? (
-          <p className="mt-2 flex items-center gap-2 text-sm text-muted" role="status" aria-live="polite">
+          <p
+            className="mt-2 flex items-center gap-2 text-sm text-muted"
+            role="status"
+            aria-live="polite"
+          >
             <span
               className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-muted border-t-transparent"
               aria-hidden="true"
@@ -27,7 +40,9 @@ export default function IgdbLiveSearchSection({ loading, games }: IgdbLiveSearch
             Zoeken…
           </p>
         ) : (
-          <p className="mt-1 text-sm text-muted">{games.length === 1 ? "1 resultaat" : `${games.length} resultaten`}</p>
+          <p className="mt-1 text-sm text-muted">
+            {games.length === 1 ? "1 resultaat" : `${games.length} resultaten`}
+          </p>
         )}
       </div>
       {loading && games.length === 0 ? (

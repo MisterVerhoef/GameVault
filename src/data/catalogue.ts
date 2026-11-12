@@ -1,4 +1,11 @@
-import type { AgeRating, CompanyRef, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
+import type {
+  AgeRating,
+  CompanyRef,
+  Game,
+  MultiplayerInfo,
+  PlatformRelease,
+  TimeToBeat,
+} from "./games";
 import type { Platform } from "./platforms";
 import { catalogueCompanyLogo } from "./studio-logo";
 import { sanitizeWebsites, type ExternalLinkCategory } from "./websites";
@@ -48,11 +55,12 @@ export function isGame(value: unknown): value is Game {
     Array.isArray(value.franchises) &&
     Array.isArray(value.collections) &&
     Array.isArray(value.source) &&
-    value.source.every((source) => (
-      isRecord(source) &&
-      typeof source.provider === "string" &&
-      typeof source.id === "string"
-    )) &&
+    value.source.every(
+      (source) =>
+        isRecord(source) &&
+        typeof source.provider === "string" &&
+        typeof source.id === "string",
+    ) &&
     typeof value.updatedAt === "string" &&
     value.updatedAt.length > 0
   );
@@ -96,8 +104,16 @@ export interface ExternalGameRecord {
   dlc?: { id: string; title: string }[];
   expansions?: { id: string; title: string }[];
   editions?: { id: string; title: string }[];
-  relatedGames?: { id: string; title: string; relation: "sequel" | "prequel" | "spinoff" | "collection" | "remake" }[];
-  similarGames?: { id: string; title: string; cover?: string | { url: string; width?: number; height?: number } }[];
+  relatedGames?: {
+    id: string;
+    title: string;
+    relation: "sequel" | "prequel" | "spinoff" | "collection" | "remake";
+  }[];
+  similarGames?: {
+    id: string;
+    title: string;
+    cover?: string | { url: string; width?: number; height?: number };
+  }[];
   franchises?: string[];
   collections?: string[];
   source?: { provider: string; id: string };
@@ -114,32 +130,44 @@ function normalizeMediaUrl(value?: string): string | undefined {
   return trimmed.replace(/^\/\//, "https://");
 }
 
-function upgradeIgdbImageUrl(url: string, size: "t_cover_big" | "t_screenshot_huge" | "t_1080p") {
+function upgradeIgdbImageUrl(
+  url: string,
+  size: "t_cover_big" | "t_screenshot_huge" | "t_1080p",
+) {
   if (!url.includes("images.igdb.com/igdb/image/upload/")) return url;
   return url.replace(/\/t_[^/]+\//, `/${size}/`);
 }
 
 function sameCompanyLogo(company: CompanyRef, logo: CompanyRef["logo"]) {
   if (!logo) return company.logo == null;
-  return company.logo?.url === logo.url
-    && company.logo.width === logo.width
-    && company.logo.height === logo.height;
+  return (
+    company.logo?.url === logo.url &&
+    company.logo.width === logo.width &&
+    company.logo.height === logo.height
+  );
 }
 
 /** Drop unusable logo URLs and rewrite IGDB files to `t_logo_med`. Keeps the input list when nothing changes. */
-function normalizeCompanyList(companies: { id: string; name: string; logo?: unknown }[]): CompanyRef[] {
+function normalizeCompanyList(
+  companies: { id: string; name: string; logo?: unknown }[],
+): CompanyRef[] {
   let changed = false;
   const next = companies.map((company) => {
     const current = company as CompanyRef;
     const logo = catalogueCompanyLogo(company.logo);
     if (sameCompanyLogo(current, logo)) return current;
     changed = true;
-    return logo ? { id: company.id, name: company.name, logo } : { id: company.id, name: company.name };
+    return logo
+      ? { id: company.id, name: company.name, logo }
+      : { id: company.id, name: company.name };
   });
-  return changed ? next : companies as CompanyRef[];
+  return changed ? next : (companies as CompanyRef[]);
 }
 
-function mergeCompanies(previous: CompanyRef[], incoming: CompanyRef[]): CompanyRef[] {
+function mergeCompanies(
+  previous: CompanyRef[],
+  incoming: CompanyRef[],
+): CompanyRef[] {
   const merged = new Map<string, CompanyRef>();
   for (const company of previous) merged.set(company.id, company);
   for (const company of incoming) {
@@ -148,9 +176,15 @@ function mergeCompanies(previous: CompanyRef[], incoming: CompanyRef[]): Company
       merged.set(company.id, company);
       continue;
     }
-    const name = company.name.length >= existing.name.length ? company.name : existing.name;
+    const name =
+      company.name.length >= existing.name.length
+        ? company.name
+        : existing.name;
     const logo = company.logo ?? existing.logo;
-    merged.set(company.id, logo ? { id: company.id, name, logo } : { id: company.id, name });
+    merged.set(
+      company.id,
+      logo ? { id: company.id, name, logo } : { id: company.id, name },
+    );
   }
   return [...merged.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -161,10 +195,16 @@ function normalizeGameMedia(game: Game): Game {
     developers: normalizeCompanyList(game.developers),
     publishers: normalizeCompanyList(game.publishers),
     cover: game.cover
-      ? { ...game.cover, url: upgradeIgdbImageUrl(game.cover.url, "t_cover_big") }
+      ? {
+          ...game.cover,
+          url: upgradeIgdbImageUrl(game.cover.url, "t_cover_big"),
+        }
       : undefined,
     background: game.background
-      ? { ...game.background, url: upgradeIgdbImageUrl(game.background.url, "t_1080p") }
+      ? {
+          ...game.background,
+          url: upgradeIgdbImageUrl(game.background.url, "t_1080p"),
+        }
       : undefined,
     screenshots: game.screenshots.map((screenshot) => ({
       ...screenshot,
@@ -175,7 +215,8 @@ function normalizeGameMedia(game: Game): Game {
 }
 
 function positiveInt(value: unknown): number | undefined {
-  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) return undefined;
+  if (typeof value !== "number" || !Number.isFinite(value) || value <= 0)
+    return undefined;
   return Math.round(value);
 }
 
@@ -205,7 +246,12 @@ function copyAgeRatings(value: unknown): AgeRating[] | undefined {
   const seen = new Set<string>();
   const result: AgeRating[] = [];
   for (const entry of value) {
-    if (!isRecord(entry) || typeof entry.board !== "string" || typeof entry.label !== "string") continue;
+    if (
+      !isRecord(entry) ||
+      typeof entry.board !== "string" ||
+      typeof entry.label !== "string"
+    )
+      continue;
     const board = entry.board.trim();
     const label = entry.label.trim();
     const key = board.toLowerCase();
@@ -220,8 +266,21 @@ function copyAgeRatings(value: unknown): AgeRating[] | undefined {
 function copyMultiplayer(value: unknown): MultiplayerInfo | undefined {
   if (!isRecord(value)) return undefined;
   const summary: MultiplayerInfo = {};
-  const flags = ["campaignCoop", "dropIn", "lanCoop", "offlineCoop", "onlineCoop", "splitscreen", "splitscreenOnline"] as const;
-  const maximums = ["offlineCoopMax", "offlineMax", "onlineCoopMax", "onlineMax"] as const;
+  const flags = [
+    "campaignCoop",
+    "dropIn",
+    "lanCoop",
+    "offlineCoop",
+    "onlineCoop",
+    "splitscreen",
+    "splitscreenOnline",
+  ] as const;
+  const maximums = [
+    "offlineCoopMax",
+    "offlineMax",
+    "onlineCoopMax",
+    "onlineMax",
+  ] as const;
   for (const flag of flags) {
     if (value[flag] === true) summary[flag] = true;
   }
@@ -241,7 +300,10 @@ function copyReleases(value: unknown): PlatformRelease[] | undefined {
     const platform = entry.platform.trim();
     const key = platform.toLowerCase();
     if (!platform || seen.has(key)) continue;
-    const date = typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date) ? entry.date : undefined;
+    const date =
+      typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date)
+        ? entry.date
+        : undefined;
     const label = typeof entry.label === "string" ? entry.label.trim() : "";
     if (!date && !label) continue;
     seen.add(key);
@@ -270,7 +332,10 @@ function copyTimeToBeat(value: unknown): TimeToBeat | undefined {
   };
 }
 
-function asImage(value: ExternalGameRecord["cover"] | ExternalGameRecord["background"], fallback?: string) {
+function asImage(
+  value: ExternalGameRecord["cover"] | ExternalGameRecord["background"],
+  fallback?: string,
+) {
   if (typeof value === "string") {
     const url = normalizeMediaUrl(value);
     return url ? { url } : undefined;
@@ -286,15 +351,22 @@ function asImage(value: ExternalGameRecord["cover"] | ExternalGameRecord["backgr
   return undefined;
 }
 
-export function normalizeExternalGame(record: ExternalGameRecord, provider: string, updatedAt: string): Game {
+export function normalizeExternalGame(
+  record: ExternalGameRecord,
+  provider: string,
+  updatedAt: string,
+): Game {
   const title = record.title ?? record.name;
   if (!record.id || !title) {
     throw new Error("Each imported game requires an id and title.");
   }
 
-  const platforms = record.platforms ?? (record.platform ? [record.platform] : []);
+  const platforms =
+    record.platforms ?? (record.platform ? [record.platform] : []);
   if (platforms.length === 0) {
-    throw new Error(`Imported game "${record.id}" requires at least one platform.`);
+    throw new Error(
+      `Imported game "${record.id}" requires at least one platform.`,
+    );
   }
 
   const sourceId = record.source?.id ?? record.sourceId ?? record.id;
@@ -333,11 +405,13 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     ...(multiplayer ? { multiplayer } : {}),
     ...(releases ? { releases } : {}),
     ...(timeToBeat ? { timeToBeat } : {}),
-    screenshots: (record.screenshots ?? []).map((image) => ({
-      url: normalizeMediaUrl(image.url) ?? "",
-      width: image.width,
-      height: image.height,
-    })).filter((image) => image.url),
+    screenshots: (record.screenshots ?? [])
+      .map((image) => ({
+        url: normalizeMediaUrl(image.url) ?? "",
+        width: image.width,
+        height: image.height,
+      }))
+      .filter((image) => image.url),
     videos: (record.videos ?? []).map((video) => ({
       id: video.id,
       name: video.name,
@@ -356,7 +430,9 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     franchises: record.franchises ?? [],
     collections: record.collections ?? [],
     source: [{ provider: record.source?.provider ?? provider, id: sourceId }],
-    ...(record.externalIds && record.externalIds.length > 0 ? { externalIds: record.externalIds } : {}),
+    ...(record.externalIds && record.externalIds.length > 0
+      ? { externalIds: record.externalIds }
+      : {}),
     updatedAt: record.updatedAt ?? updatedAt,
   };
 }
@@ -366,7 +442,11 @@ export interface CatalogueQualityReport {
   duplicateIds: string[];
   duplicateTitles: string[];
   missingDescriptions: string[];
-  invalidRelationships: { gameId: string; relation: string; targetId: string }[];
+  invalidRelationships: {
+    gameId: string;
+    relation: string;
+    targetId: string;
+  }[];
   warnings: string[];
 }
 
@@ -376,10 +456,14 @@ export function auditCatalogue(games: Game[]): CatalogueQualityReport {
   const duplicateIds: string[] = [];
   const duplicateTitles: string[] = [];
   const missingDescriptions: string[] = [];
-  const invalidRelationships: CatalogueQualityReport["invalidRelationships"] = [];
+  const invalidRelationships: CatalogueQualityReport["invalidRelationships"] =
+    [];
 
   for (const game of games) {
-    if (games.filter((candidate) => candidate.id === game.id).length > 1 && !duplicateIds.includes(game.id)) {
+    if (
+      games.filter((candidate) => candidate.id === game.id).length > 1 &&
+      !duplicateIds.includes(game.id)
+    ) {
       duplicateIds.push(game.id);
     }
     const titleKey = game.title.trim().toLowerCase();
@@ -393,14 +477,25 @@ export function auditCatalogue(games: Game[]): CatalogueQualityReport {
       ...game.similarGames.map((target) => ["similar", target] as const),
     ]) {
       if (!ids.has(relation[1].id)) {
-        invalidRelationships.push({ gameId: game.id, relation: relation[0], targetId: relation[1].id });
+        invalidRelationships.push({
+          gameId: game.id,
+          relation: relation[0],
+          targetId: relation[1].id,
+        });
       }
     }
   }
   for (const gameIds of titles.values()) {
     if (gameIds.length > 1) duplicateTitles.push(...gameIds);
   }
-  return { gameCount: games.length, duplicateIds, duplicateTitles, missingDescriptions, invalidRelationships, warnings: [] };
+  return {
+    gameCount: games.length,
+    duplicateIds,
+    duplicateTitles,
+    missingDescriptions,
+    invalidRelationships,
+    warnings: [],
+  };
 }
 
 export function mergeGames(existing: Game[], incoming: Game[]): Game[] {
@@ -416,27 +511,46 @@ export function mergeGames(existing: Game[], incoming: Game[]): Game[] {
       ...game,
       genres: Array.from(new Set([...previous.genres, ...game.genres])).sort(),
       themes: Array.from(new Set([...previous.themes, ...game.themes])).sort(),
-      platforms: Array.from(new Set([...previous.platforms, ...game.platforms])).sort(),
+      platforms: Array.from(
+        new Set([...previous.platforms, ...game.platforms]),
+      ).sort(),
       developers: mergeCompanies(previous.developers, game.developers),
       publishers: mergeCompanies(previous.publishers, game.publishers),
-      source: Array.from(new Map([...previous.source, ...game.source].map((source) => [`${source.provider}:${source.id}`, source])).values()).sort((a, b) => `${a.provider}:${a.id}`.localeCompare(`${b.provider}:${b.id}`)),
+      source: Array.from(
+        new Map(
+          [...previous.source, ...game.source].map((source) => [
+            `${source.provider}:${source.id}`,
+            source,
+          ]),
+        ).values(),
+      ).sort((a, b) =>
+        `${a.provider}:${a.id}`.localeCompare(`${b.provider}:${b.id}`),
+      ),
     });
   }
   return Array.from(merged.values()).sort((a, b) => a.id.localeCompare(b.id));
 }
 
 export function validateCatalogue(value: unknown): value is CatalogueIndex {
-  if (!isRecord(value) || value.schemaVersion !== 1 || typeof value.generatedAt !== "string") {
+  if (
+    !isRecord(value) ||
+    value.schemaVersion !== 1 ||
+    typeof value.generatedAt !== "string"
+  ) {
     return false;
   }
 
-  if (value.provenance !== undefined && (
-    !isRecord(value.provenance) ||
-    typeof value.provenance.provider !== "string" ||
-    (value.provenance.importedAt !== undefined && typeof value.provenance.importedAt !== "string") ||
-    (value.provenance.sourceVersion !== undefined && typeof value.provenance.sourceVersion !== "string") ||
-    (value.provenance.sourceChecksum !== undefined && typeof value.provenance.sourceChecksum !== "string")
-  )) {
+  if (
+    value.provenance !== undefined &&
+    (!isRecord(value.provenance) ||
+      typeof value.provenance.provider !== "string" ||
+      (value.provenance.importedAt !== undefined &&
+        typeof value.provenance.importedAt !== "string") ||
+      (value.provenance.sourceVersion !== undefined &&
+        typeof value.provenance.sourceVersion !== "string") ||
+      (value.provenance.sourceChecksum !== undefined &&
+        typeof value.provenance.sourceChecksum !== "string"))
+  ) {
     return false;
   }
 
@@ -444,7 +558,9 @@ export function validateCatalogue(value: unknown): value is CatalogueIndex {
 }
 
 export function normalizeCatalogue(value: unknown, fallback: Game[]): Game[] {
-  return validateCatalogue(value) ? value.games.map(normalizeGameMedia) : fallback.map(normalizeGameMedia);
+  return validateCatalogue(value)
+    ? value.games.map(normalizeGameMedia)
+    : fallback.map(normalizeGameMedia);
 }
 
 type CatalogueIdentity = {
@@ -457,7 +573,12 @@ type CatalogueIdentity = {
  * Catalogue `id` wins over another entry that only lists that value as a source id.
  * Same-title remasters stay unmatched: IGDB gives them different ids.
  */
-export function findCatalogueEntry<T extends CatalogueIdentity>(games: readonly T[], refId: string): T | undefined {
-  return games.find((game) => game.id === refId)
-    ?? games.find((game) => game.source.some((source) => source.id === refId));
+export function findCatalogueEntry<T extends CatalogueIdentity>(
+  games: readonly T[],
+  refId: string,
+): T | undefined {
+  return (
+    games.find((game) => game.id === refId) ??
+    games.find((game) => game.source.some((source) => source.id === refId))
+  );
 }

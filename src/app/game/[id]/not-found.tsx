@@ -32,7 +32,8 @@ export default function GameNotFound() {
             Game not found
           </h1>
           <p className="mx-auto mt-4 max-w-md text-base leading-7 text-muted">
-            We couldn&apos;t find that game or page in GameVault. Browse the catalogue or return to your vault to keep exploring.
+            We couldn&apos;t find that game or page in GameVault. Browse the
+            catalogue or return to your vault to keep exploring.
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Link

@@ -1,8 +1,28 @@
-import { browseQuery, byRatingThenTitle, compareGenreBrowse, criticScore, gameMatchesGenre, genreDefinition, GENRE_DEFINITIONS, parseGenreSort, releaseOrder, type GenreSort } from "./browse";
+import {
+  browseQuery,
+  byRatingThenTitle,
+  compareGenreBrowse,
+  criticScore,
+  gameMatchesGenre,
+  genreDefinition,
+  GENRE_DEFINITIONS,
+  parseGenreSort,
+  releaseOrder,
+  type GenreSort,
+} from "./browse";
 import type { CatalogueCard } from "./catalogue-card";
 import cloudStreamingCatalogue from "../../public/catalog/cloud-streaming.json";
-import { cloudServiceNames, cloudServicesForGame, indexCloudStreaming } from "./cloud-streaming";
-import { gameIsPlatformExclusive, gameMatchesPlatformVariant, isPcPlatformBrowse, type Platform } from "./platforms";
+import {
+  cloudServiceNames,
+  cloudServicesForGame,
+  indexCloudStreaming,
+} from "./cloud-streaming";
+import {
+  gameIsPlatformExclusive,
+  gameMatchesPlatformVariant,
+  isPcPlatformBrowse,
+  type Platform,
+} from "./platforms";
 import { matchesSearchTerms } from "./search-terms";
 
 const PLATFORMS: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
@@ -93,7 +113,12 @@ export interface LibraryView {
   topGames: CatalogueCard[];
   exclusivePreview: CatalogueCard[];
   exclusiveHref: string;
-  genreRows: { key: string; label: string; href: string; games: CatalogueCard[] }[];
+  genreRows: {
+    key: string;
+    label: string;
+    href: string;
+    games: CatalogueCard[];
+  }[];
   wall: {
     key: string;
     title: string;
@@ -109,7 +134,10 @@ function isPlatform(value: string): value is Platform {
   return (PLATFORMS as readonly string[]).includes(value);
 }
 
-export function createBrowseCatalogue(browse: BrowseIndexFile, search: SearchIndexFile | null): BrowseCatalogue {
+export function createBrowseCatalogue(
+  browse: BrowseIndexFile,
+  search: SearchIndexFile | null,
+): BrowseCatalogue {
   if (browse.schemaVersion !== 1 || !Array.isArray(browse.games)) {
     throw new Error("Unsupported browse index.");
   }
@@ -126,7 +154,9 @@ export function createBrowseCatalogue(browse: BrowseIndexFile, search: SearchInd
       throw new Error(`Browse index record ${record.id} has no platforms.`);
     }
     const aggregatedRating = criticScore(record.aggregatedRating);
-    const releaseOn = releaseOrder(record.releaseOn) ? record.releaseOn : undefined;
+    const releaseOn = releaseOrder(record.releaseOn)
+      ? record.releaseOn
+      : undefined;
     return {
       id: record.id,
       slug: record.slug,
@@ -150,7 +180,8 @@ export function createBrowseCatalogue(browse: BrowseIndexFile, search: SearchInd
   const bySourceId = new Map<string, BrowseGame>();
   for (const game of games) {
     for (const sourceId of game.sourceIds) {
-      if (!byId.has(sourceId) && !bySourceId.has(sourceId)) bySourceId.set(sourceId, game);
+      if (!byId.has(sourceId) && !bySourceId.has(sourceId))
+        bySourceId.set(sourceId, game);
     }
   }
 
@@ -158,7 +189,9 @@ export function createBrowseCatalogue(browse: BrowseIndexFile, search: SearchInd
     games,
     byId,
     bySourceId,
-    termsById: search ? new Map(search.games.map((game) => [game.id, game.terms])) : null,
+    termsById: search
+      ? new Map(search.games.map((game) => [game.id, game.terms]))
+      : null,
     hasVariants: games.some((game) => game.platformVariants.length > 0),
   };
 }
@@ -176,7 +209,9 @@ export function toCard(game: BrowseGame): CatalogueCard {
     platformVariants: game.platformVariants,
     releaseYear: game.releaseYear,
     rating: game.rating,
-    cloudServices: cloudServiceNames(cloudServicesForGame(cloudStreamingIndex, game.id)),
+    cloudServices: cloudServiceNames(
+      cloudServicesForGame(cloudStreamingIndex, game.id),
+    ),
   };
 }
 
@@ -210,17 +245,25 @@ export function readHomeQuery(params: {
 }
 
 export function sameHomeQuery(left: HomeQuery, right: HomeQuery) {
-  return left.search === right.search
-    && left.family === right.family
-    && left.platform === right.platform
-    && left.variant === right.variant
-    && left.genre === right.genre
-    && left.exclusives === right.exclusives
-    && left.sort === right.sort;
+  return (
+    left.search === right.search &&
+    left.family === right.family &&
+    left.platform === right.platform &&
+    left.variant === right.variant &&
+    left.genre === right.genre &&
+    left.exclusives === right.exclusives &&
+    left.sort === right.sort
+  );
 }
 
-function onThisPlatform(game: BrowseGame, catalogue: BrowseCatalogue, platform: Platform | null, variant: string | null) {
-  if (variant && catalogue.hasVariants) return gameMatchesPlatformVariant(game, variant);
+function onThisPlatform(
+  game: BrowseGame,
+  catalogue: BrowseCatalogue,
+  platform: Platform | null,
+  variant: string | null,
+) {
+  if (variant && catalogue.hasVariants)
+    return gameMatchesPlatformVariant(game, variant);
   if (platform) return game.platforms.includes(platform);
   return true;
 }
@@ -230,7 +273,13 @@ function matchesGenre(game: BrowseGame, genreKey: string) {
   return gameMatchesGenre(game, genreKey);
 }
 
-const RECENT_SEEDS = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
+const RECENT_SEEDS = [
+  "bg3",
+  "god-of-war",
+  "forza-horizon-5",
+  "zelda-totk",
+  "cyberpunk",
+];
 
 const SEED_TITLE_HINTS: Record<string, string> = {
   bg3: "baldur's gate iii",
@@ -256,8 +305,11 @@ function resolveSeed(catalogue: BrowseCatalogue, seed: string) {
     return slug === slugNeedle || slug.includes(compact);
   });
   if (bySlug) return bySlug;
-  const titleHint = SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
-  return catalogue.games.find((game) => game.title.toLowerCase().includes(titleHint));
+  const titleHint =
+    SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
+  return catalogue.games.find((game) =>
+    game.title.toLowerCase().includes(titleHint),
+  );
 }
 
 function recentlyPlayed(catalogue: BrowseCatalogue) {
@@ -272,14 +324,20 @@ function recentlyPlayed(catalogue: BrowseCatalogue) {
   }
   if (resolved.length > 0) return resolved;
   return [...catalogue.games]
-    .sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0) || (right.releaseYear ?? 0) - (left.releaseYear ?? 0))
+    .sort(
+      (left, right) =>
+        (right.rating ?? 0) - (left.rating ?? 0) ||
+        (right.releaseYear ?? 0) - (left.releaseYear ?? 0),
+    )
     .slice(0, 5);
 }
 
 function searchGames(catalogue: BrowseCatalogue, query: string) {
   const termsById = catalogue.termsById;
   if (!termsById) return [];
-  return catalogue.games.filter((game) => matchesSearchTerms(termsById.get(game.id) ?? "", query));
+  return catalogue.games.filter((game) =>
+    matchesSearchTerms(termsById.get(game.id) ?? "", query),
+  );
 }
 
 export function buildLibraryView(
@@ -297,60 +355,92 @@ export function buildLibraryView(
     const game = findBrowseGame(catalogue, id);
     return game ? [game] : [];
   });
-  const continueGames = (playing.length > 0 ? playing : recentlyPlayed(catalogue))
-    .filter((game) => onThisPlatform(game, catalogue, platform, variant));
+  const continueGames = (
+    playing.length > 0 ? playing : recentlyPlayed(catalogue)
+  ).filter((game) => onThisPlatform(game, catalogue, platform, variant));
 
   const platformGames = variant
-    ? catalogue.games.filter((game) => gameMatchesPlatformVariant(game, variant))
+    ? catalogue.games.filter((game) =>
+        gameMatchesPlatformVariant(game, variant),
+      )
     : platform
       ? catalogue.games.filter((game) => game.platforms.includes(platform))
       : [];
-  const topGames = [...platformGames].sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0));
+  const topGames = [...platformGames].sort(
+    (left, right) => (right.rating ?? 0) - (left.rating ?? 0),
+  );
 
-  const exclusiveList = trimmedSearch || genreKey || pcBrowse || (!platform && !variant)
-    ? []
-    : catalogue.games
-      .filter((game) => gameIsPlatformExclusive(game, { platform, variant }))
-      .sort(byRatingThenTitle);
+  const exclusiveList =
+    trimmedSearch || genreKey || pcBrowse || (!platform && !variant)
+      ? []
+      : catalogue.games
+          .filter((game) =>
+            gameIsPlatformExclusive(game, { platform, variant }),
+          )
+          .sort(byRatingThenTitle);
 
-  const genreGames = trimmedSearch || !genreKey
-    ? []
-    : catalogue.games
-      .filter((game) => matchesGenre(game, genreKey) && onThisPlatform(game, catalogue, platform, variant))
-      .sort((left, right) => compareGenreBrowse(query.sort, left, right));
+  const genreGames =
+    trimmedSearch || !genreKey
+      ? []
+      : catalogue.games
+          .filter(
+            (game) =>
+              matchesGenre(game, genreKey) &&
+              onThisPlatform(game, catalogue, platform, variant),
+          )
+          .sort((left, right) => compareGenreBrowse(query.sort, left, right));
 
-  const genreRows = trimmedSearch || genreKey
-    ? []
-    : GENRE_DEFINITIONS.map((definition) => ({
-      key: definition.key,
-      label: definition.label,
-      href: browseQuery({ family, platform, variant, genre: definition.key, sort: query.sort }),
-      games: catalogue.games
-        .filter((game) => matchesGenre(game, definition.key) && onThisPlatform(game, catalogue, platform, variant))
-        .sort(byRatingThenTitle)
-        .slice(0, 12)
-        .map(toCard),
-    }));
+  const genreRows =
+    trimmedSearch || genreKey
+      ? []
+      : GENRE_DEFINITIONS.map((definition) => ({
+          key: definition.key,
+          label: definition.label,
+          href: browseQuery({
+            family,
+            platform,
+            variant,
+            genre: definition.key,
+            sort: query.sort,
+          }),
+          games: catalogue.games
+            .filter(
+              (game) =>
+                matchesGenre(game, definition.key) &&
+                onThisPlatform(game, catalogue, platform, variant),
+            )
+            .sort(byRatingThenTitle)
+            .slice(0, 12)
+            .map(toCard),
+        }));
 
   const searchResults = trimmedSearch
-    ? searchGames(catalogue, trimmedSearch).filter((game) => onThisPlatform(game, catalogue, platform, variant))
+    ? searchGames(catalogue, trimmedSearch).filter((game) =>
+        onThisPlatform(game, catalogue, platform, variant),
+      )
     : [];
 
   const heroSource = variant ? platformGames.slice(0, 8) : continueGames;
   const heroGames = heroSource.map(toCard);
   const featuredFallback = platformGames[0] ?? continueGames[0];
-  const featuredGame = heroGames.length > 0 || !featuredFallback ? null : toCard(featuredFallback);
+  const featuredGame =
+    heroGames.length > 0 || !featuredFallback ? null : toCard(featuredFallback);
 
   let wall: LibraryView["wall"] = null;
   if (trimmedSearch) {
-    const games = searchResults.filter((game) => !game.downloadable).map(toCard);
+    const games = searchResults
+      .filter((game) => !game.downloadable)
+      .map(toCard);
     const dlc = searchResults.filter((game) => game.downloadable).map(toCard);
-    const sections = dlc.length > 0
-      ? [
-        ...(games.length > 0 ? [{ id: "games", title: "Games", kind: "games" as const, games }] : []),
-        { id: "dlc", title: "DLC", kind: "dlc" as const, games: dlc },
-      ]
-      : undefined;
+    const sections =
+      dlc.length > 0
+        ? [
+            ...(games.length > 0
+              ? [{ id: "games", title: "Games", kind: "games" as const, games }]
+              : []),
+            { id: "dlc", title: "DLC", kind: "dlc" as const, games: dlc },
+          ]
+        : undefined;
     wall = {
       key: `search:${trimmedSearch}:${place ?? ""}`,
       title: `Search results for "${trimmedSearch}"`,

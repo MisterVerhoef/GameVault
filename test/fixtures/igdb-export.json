@@ -8,14 +8,45 @@
     "genres": [{ "name": "Role-playing (RPG)" }],
     "themes": [{ "name": "Fantasy" }],
     "involved_companies": [
-      { "developer": true, "company": { "id": 1, "name": "Larian Studios", "logo": { "image_id": "cllarian", "width": 400, "height": 100, "alpha_channel": true, "url": "//images.igdb.com/igdb/image/upload/t_thumb/cllarian.jpg" } } },
+      {
+        "developer": true,
+        "company": {
+          "id": 1,
+          "name": "Larian Studios",
+          "logo": {
+            "image_id": "cllarian",
+            "width": 400,
+            "height": 100,
+            "alpha_channel": true,
+            "url": "//images.igdb.com/igdb/image/upload/t_thumb/cllarian.jpg"
+          }
+        }
+      },
       { "publisher": true, "company": { "id": 2, "name": "Larian Studios" } }
     ],
-    "platforms": [{ "name": "PC" }, { "name": "PlayStation 5" }, { "name": "Google Stadia" }],
-    "cover": { "url": "//images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg" },
-    "screenshots": [{ "url": "//images.igdb.com/igdb/image/upload/t_screenshot_big/bg3-shot.jpg", "width": 1920, "height": 1080 }],
+    "platforms": [
+      { "name": "PC" },
+      { "name": "PlayStation 5" },
+      { "name": "Google Stadia" }
+    ],
+    "cover": {
+      "url": "//images.igdb.com/igdb/image/upload/t_cover_big/bg3.jpg"
+    },
+    "screenshots": [
+      {
+        "url": "//images.igdb.com/igdb/image/upload/t_screenshot_big/bg3-shot.jpg",
+        "width": 1920,
+        "height": 1080
+      }
+    ],
     "videos": [{ "id": 3, "name": "Trailer", "video_id": "abc123" }],
-    "websites": [{ "name": "Official site", "url": "https://example.com/bg3", "category": 1 }],
+    "websites": [
+      {
+        "name": "Official site",
+        "url": "https://example.com/bg3",
+        "category": 1
+      }
+    ],
     "dlcs": [{ "id": 2001, "name": "DLC One" }],
     "franchises": [{ "name": "Baldur's Gate" }],
     "rating": 96.7,
@@ -23,21 +54,57 @@
     "aggregated_rating": 94.2,
     "aggregated_rating_count": 38,
     "age_ratings": [
-      { "organization": { "name": "Pan European Game Information (PEGI)" }, "rating_category": { "rating": "18" } },
+      {
+        "organization": { "name": "Pan European Game Information (PEGI)" },
+        "rating_category": { "rating": "18" }
+      },
       { "category": 1, "rating": 11 }
     ],
-    "game_modes": [{ "name": "Single player" }, { "name": "Multiplayer" }, { "name": "Co-operative" }],
+    "game_modes": [
+      { "name": "Single player" },
+      { "name": "Multiplayer" },
+      { "name": "Co-operative" }
+    ],
     "player_perspectives": [{ "name": "Third person" }],
-    "keywords": [{ "name": "Fantasy" }, { "name": "Romance" }, { "name": "Choices Matter" }],
+    "keywords": [
+      { "name": "Fantasy" },
+      { "name": "Romance" },
+      { "name": "Choices Matter" }
+    ],
     "multiplayer_modes": [
-      { "onlinecoop": true, "onlinecoopmax": 4, "campaigncoop": true, "offlinemax": 1 },
+      {
+        "onlinecoop": true,
+        "onlinecoopmax": 4,
+        "campaigncoop": true,
+        "offlinemax": 1
+      },
       { "onlinecoop": true, "onlinecoopmax": 2, "dropin": true }
     ],
     "release_dates": [
-      { "platform": { "name": "PC (Microsoft Windows)" }, "date": 1690848000, "region": 2, "human": "Aug 01, 2023" },
-      { "platform": { "name": "PC (Microsoft Windows)" }, "date": 1691280000, "region": 8, "human": "Aug 06, 2023" },
-      { "platform": { "name": "PlayStation 5" }, "date": 1691366400, "release_region": { "region": "europe" }, "human": "Aug 07, 2023" }
+      {
+        "platform": { "name": "PC (Microsoft Windows)" },
+        "date": 1690848000,
+        "region": 2,
+        "human": "Aug 01, 2023"
+      },
+      {
+        "platform": { "name": "PC (Microsoft Windows)" },
+        "date": 1691280000,
+        "region": 8,
+        "human": "Aug 06, 2023"
+      },
+      {
+        "platform": { "name": "PlayStation 5" },
+        "date": 1691366400,
+        "release_region": { "region": "europe" },
+        "human": "Aug 07, 2023"
+      }
     ],
-    "game_time_to_beat": { "hastily": 180000, "normally": 270000, "completely": 432000, "count": 150 }
+    "game_time_to_beat": {
+      "hastily": 180000,
+      "normally": 270000,
+      "completely": 432000,
+      "count": 150
+    }
   }
 ]

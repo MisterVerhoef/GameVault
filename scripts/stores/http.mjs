@@ -58,13 +58,19 @@ async function fetchJsonOnce(url, headers, options = {}) {
     const response = await fetch(url, {
       method: options.method ?? "GET",
       body: options.body,
-      headers: { Accept: "application/json", "User-Agent": USER_AGENT, ...headers },
+      headers: {
+        Accept: "application/json",
+        "User-Agent": USER_AGENT,
+        ...headers,
+      },
       signal: controller.signal,
       redirect: "follow",
     });
     const text = await response.text();
     if (!response.ok) {
-      const error = new Error(`HTTP ${response.status} for ${new URL(url).hostname}`);
+      const error = new Error(
+        `HTTP ${response.status} for ${new URL(url).hostname}`,
+      );
       error.status = response.status;
       error.body = text.slice(0, 240);
       throw error;
