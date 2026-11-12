@@ -151,7 +151,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     }));
   };
 
-  const handlePlatformSelect = (platform: Platform | null, familyKey: string) => {
+  const handlePlatformSelect = (familyKey: string) => {
     const nextFamily = selectedFamilyKey === familyKey ? null : platformFamilies.find((family) => family.key === familyKey) ?? null;
     setSelectedFamilyKey(nextFamily?.key ?? null);
     setSelectedVariant(null);
@@ -321,7 +321,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                 <button
                   key={family.key}
                   type="button"
-                  onClick={() => handlePlatformSelect(family.platform, family.key)}
+                  onClick={() => handlePlatformSelect(family.key)}
                   aria-label={`Filter by ${family.label}`}
                   aria-pressed={selectedFamilyKey === family.key}
                   className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
@@ -338,7 +338,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             <button
               key={family.key}
               type="button"
-              onClick={() => handlePlatformSelect(family.platform, family.key)}
+              onClick={() => handlePlatformSelect(family.key)}
               aria-label={`Filter by ${family.label}`}
               aria-pressed={selectedFamilyKey === family.key}
               className={`flex h-7 items-center justify-center rounded-full px-2 text-xs font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
@@ -699,7 +699,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                 <div key={family.key}>
                   <button
                     type="button"
-                    onClick={() => handlePlatformSelect(family.platform, family.key)}
+                    onClick={() => handlePlatformSelect(family.key)}
                     className={`flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
                     style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
                     aria-pressed={selectedFamilyKey === family.key}
