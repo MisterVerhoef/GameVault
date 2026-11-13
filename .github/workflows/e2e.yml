@@ -9,6 +9,7 @@ on:
       - "playwright.config.mjs"
       - "package.json"
       - "package-lock.json"
+      - "tsconfig.json"
       - ".github/workflows/e2e.yml"
   push:
     branches: [main]
