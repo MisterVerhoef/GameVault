@@ -72,8 +72,8 @@ export default function GameRow({
   titleHref,
   platformLabel,
 }: GameRowProps) {
-  const { ref: scrollRef, onKeyDown, onFocus } = useRovingCards<HTMLDivElement>();
-  const { scroll, canScrollLeft, canScrollRight } = useHorizontalRowScroll(scrollRef, games.length);
+  const { ref: scrollRef, rootRef, onFocus } = useRovingCards<HTMLDivElement>(games.length);
+  const { scroll, canScrollLeft, canScrollRight } = useHorizontalRowScroll(rootRef, games.length);
   const headingId = useId();
   const hintId = useId();
   const virtualize = games.length > VIRTUALIZE_AFTER;
@@ -81,7 +81,7 @@ export default function GameRow({
 
   useEffect(() => {
     if (!virtualize) return;
-    const node = scrollRef.current;
+    const node = rootRef.current;
     if (!node) return;
     let frame = 0;
     const measure = () => {
@@ -119,7 +119,7 @@ export default function GameRow({
       large.removeEventListener("change", schedule);
       small.removeEventListener("change", schedule);
     };
-  }, [games.length, scrollRef, size, virtualize]);
+  }, [games.length, rootRef, size, virtualize]);
 
   if (games.length === 0) {
     return null;
@@ -201,7 +201,6 @@ export default function GameRow({
 
       <div
         ref={scrollRef}
-        onKeyDown={onKeyDown}
         onFocus={onFocus}
         className={
           virtualize && rowWindow
