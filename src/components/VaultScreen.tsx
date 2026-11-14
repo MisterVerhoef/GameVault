@@ -48,7 +48,7 @@ function VaultShelf({
   const missing = items.filter((item) => !item.game);
   const label = LIBRARY_STATUS_LABELS[status];
   const hintId = useId();
-  const { ref, onKeyDown, onFocus } = useRovingCards<HTMLUListElement>();
+  const { ref, onFocus } = useRovingCards<HTMLUListElement>(known.length);
 
   return (
     <section aria-labelledby={`vault-${status}`} aria-describedby={hintId} className="mb-10">
@@ -64,7 +64,6 @@ function VaultShelf({
         <ul
           ref={ref}
           aria-labelledby={`vault-${status}`}
-          onKeyDown={onKeyDown}
           onFocus={onFocus}
           className="flex list-none flex-wrap gap-x-4 gap-y-5"
         >

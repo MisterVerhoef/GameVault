@@ -111,7 +111,6 @@ export default function ListsScreen() {
   const requestedId = params.get("id");
   const { state, ready, create, rename, remove, removeGame } = useLists();
   const { catalogue, failed } = useBrowseCatalogue(false);
-  const { ref, onKeyDown, onFocus } = useRovingCards<HTMLUListElement>();
   const [announcement, setAnnouncement] = useState("");
 
   const lists = useMemo(
@@ -127,6 +126,7 @@ export default function ListsScreen() {
     });
   }, [activeList, catalogue]);
   const missingIds = activeList?.gameIds.filter((id) => !knownGames.some((item) => item.id === id)) ?? [];
+  const { ref, onFocus } = useRovingCards<HTMLUListElement>(knownGames.length);
 
   const handleCreate = (name: string) => {
     const result = create(name);
@@ -187,7 +187,7 @@ export default function ListsScreen() {
             ) : (
               <>
                 {knownGames.length > 0 && (
-                  <ul ref={ref} onKeyDown={onKeyDown} onFocus={onFocus} className="flex list-none flex-wrap gap-x-4 gap-y-5">
+                  <ul ref={ref} onFocus={onFocus} className="flex list-none flex-wrap gap-x-4 gap-y-5">
                     {knownGames.map(({ id, game }) => (
                       <li key={id} className="w-32 flex-shrink-0 lg:w-44">
                         <GameCard game={game} />
