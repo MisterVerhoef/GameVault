@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, type ReactNode } from "react";
+import { useLayoutEffect, useState, type ReactNode } from "react";
+import { scrollEdges } from "./scroll-edges.mjs";
 import { useRovingCards } from "./use-roving-cards";
 
 /** Horizontal card strip with the same arrow-key movement as a game row. */
@@ -18,6 +19,7 @@ export default function CardScroller({
   heading?: ReactNode;
 }) {
   const { ref, onKeyDown, onFocus } = useRovingCards<HTMLDivElement>();
+  const [edges, setEdges] = useState({ left: false, right: true });
 
   const scroll = (direction: "left" | "right") => {
     const node = ref.current;
@@ -29,7 +31,31 @@ export default function CardScroller({
     });
   };
 
-  useEffect(() => {
+  useLayoutEffect(() => {
+    const node = ref.current;
+    if (!node) return;
+
+    const update = () => {
+      const next = scrollEdges(node.scrollLeft, node.scrollWidth, node.clientWidth);
+      setEdges((current) => (
+        current.left === next.left && current.right === next.right ? current : next
+      ));
+    };
+
+    update();
+    node.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(node);
+    Array.from(node.children).forEach((child) => {
+      if (child instanceof Element) observer.observe(child);
+    });
+    return () => {
+      node.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [ref, children]);
+
+  useLayoutEffect(() => {
     const node = ref.current;
     if (!node) return;
     const onWheel = (event: WheelEvent) => {
@@ -47,7 +73,8 @@ export default function CardScroller({
       <button
         type="button"
         onClick={() => scroll("left")}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        disabled={!edges.left}
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-default disabled:opacity-35 disabled:hover:bg-card disabled:hover:text-muted"
         aria-label={`Scroll ${label} left`}
       >
         <svg
@@ -65,7 +92,8 @@ export default function CardScroller({
       <button
         type="button"
         onClick={() => scroll("right")}
-        className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        disabled={!edges.right}
+        className="flex h-8 w-8 items-center justify-center rounded-full bg-card text-muted transition hover:bg-card-hover hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-default disabled:opacity-35 disabled:hover:bg-card disabled:hover:text-muted"
         aria-label={`Scroll ${label} right`}
       >
         <svg

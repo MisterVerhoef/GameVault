@@ -80,10 +80,10 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
             Featured Game
           </p>
-          <h1 className="text-2xl font-bold tracking-tight break-words sm:text-4xl lg:text-5xl">
+          <h1 className="break-words text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {featured.title}
           </h1>
-          <div className="flex flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
             <span>{featured.releaseYear}</span>
             {ratingText ? (
               <>
@@ -95,7 +95,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               </>
             ) : null}
             <span aria-hidden="true">•</span>
-            <div className="flex flex-wrap justify-center gap-1.5 lg:justify-start">
+            <div className="flex min-w-0 max-w-full flex-wrap justify-center gap-1.5 lg:justify-start">
               {listedSystemNames(featured).slice(0, 4).map((name) => (
                 <span
                   key={name}
@@ -108,9 +108,13 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           </div>
 
           <div className="mt-4 flex flex-wrap justify-center gap-3 lg:justify-start">
-            <button className="rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background" style={{ borderColor: `${themeColor}33` }}>
+            <Link
+              href={`/game/${featured.id}`}
+              className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              style={{ borderColor: `${themeColor}33` }}
+            >
               Details
-            </button>
+            </Link>
           </div>
 
           {availableGames.length > 1 && (
@@ -138,7 +142,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
                       className={`h-2.5 w-2.5 rounded-full transition ${
                         index === selectedIndex
                           ? "scale-125 bg-accent"
-                          : "bg-white/35 group-hover:bg-white/55"
+                          : "bg-foreground/60 group-hover:bg-foreground/85"
                       }`}
                     />
                   </button>
