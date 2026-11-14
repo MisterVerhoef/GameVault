@@ -27,7 +27,7 @@ test("home paints without the catalogue, then search loads it", async ({ page })
 
 test("arrow keys still move between home cards", async ({ page }) => {
   await page.goto("/");
-  const cards = page.locator("button[data-roving-card]");
+  const cards = page.locator("[data-roving-active] button[data-roving-card]");
   await expect(cards.first()).toBeVisible();
   await cards.first().focus();
   const first = await cards.first().getAttribute("data-card-id");

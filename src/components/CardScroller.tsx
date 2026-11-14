@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useState, type ReactNode } from "react";
+import { Children, useLayoutEffect, useState, type ReactNode } from "react";
 import { scrollEdges } from "./scroll-edges.mjs";
 import { useRovingCards } from "./use-roving-cards";
 
@@ -18,11 +18,11 @@ export default function CardScroller({
   /** Optional title shown on the left of the scroll controls. */
   heading?: ReactNode;
 }) {
-  const { ref, onKeyDown, onFocus } = useRovingCards<HTMLDivElement>();
+  const { ref, rootRef, onFocus } = useRovingCards<HTMLDivElement>(Children.count(children));
   const [edges, setEdges] = useState({ left: false, right: true });
 
   const scroll = (direction: "left" | "right") => {
-    const node = ref.current;
+    const node = rootRef.current;
     if (!node) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     node.scrollBy({
@@ -32,7 +32,7 @@ export default function CardScroller({
   };
 
   useLayoutEffect(() => {
-    const node = ref.current;
+    const node = rootRef.current;
     if (!node) return;
 
     const update = () => {
@@ -53,10 +53,10 @@ export default function CardScroller({
       node.removeEventListener("scroll", update);
       observer.disconnect();
     };
-  }, [ref, children]);
+  }, [rootRef, children]);
 
   useLayoutEffect(() => {
-    const node = ref.current;
+    const node = rootRef.current;
     if (!node) return;
     const onWheel = (event: WheelEvent) => {
       if (node.scrollWidth <= node.clientWidth) return;
@@ -66,7 +66,7 @@ export default function CardScroller({
     };
     node.addEventListener("wheel", onWheel, { passive: false });
     return () => node.removeEventListener("wheel", onWheel);
-  }, [ref]);
+  }, [rootRef]);
 
   const controls = (
     <div className="flex flex-shrink-0 gap-2">
@@ -123,7 +123,6 @@ export default function CardScroller({
       )}
       <div
         ref={ref}
-        onKeyDown={onKeyDown}
         onFocus={onFocus}
         className={["scrollbar-hide", className].filter(Boolean).join(" ")}
       >

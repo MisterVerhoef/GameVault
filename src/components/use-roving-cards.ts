@@ -1,7 +1,7 @@
 "use client";
 
-import { useCallback, useLayoutEffect, useRef } from "react";
-import type { KeyboardEvent, FocusEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
+import type { FocusEvent } from "react";
 import { nextRovingIndex } from "./roving-cards.mjs";
 
 const CARD = "[data-roving-card]";
@@ -35,28 +35,45 @@ function reveal(card: HTMLElement) {
  * One tab stop per group. Arrow keys move between `[data-roving-card]`
  * descendants and keep the focused card as the only tab stop.
  */
-export function useRovingCards<T extends HTMLElement>() {
-  const ref = useRef<T>(null);
+export function useRovingCards<T extends HTMLElement>(cardCount?: number) {
+  const rootRef = useRef<T | null>(null);
   const activeId = useRef<string | null>(null);
 
   const restore = useCallback((preferred?: HTMLElement | null) => {
-    const root = ref.current;
+    const root = rootRef.current;
     if (!root) return;
     const cards = cardsIn(root);
     if (cards.length === 0) return;
+    const focused =
+      document.activeElement instanceof HTMLElement
+        ? cards.find(
+            (card) => card === document.activeElement || card.contains(document.activeElement),
+          )
+        : undefined;
     const remembered = cards.find((card) => card.dataset.cardId === activeId.current);
-    const current = (preferred && cards.includes(preferred) ? preferred : null) ?? remembered ?? cards[0];
-    activeId.current = current.dataset.cardId ?? null;
-    for (const card of cards) card.tabIndex = card === current ? 0 : -1;
+    let current =
+      (preferred && cards.includes(preferred) ? preferred : null) ??
+      focused ??
+      remembered ??
+      cards[0];
+    if (focused && focused !== current) {
+      activeId.current = focused.dataset.cardId ?? activeId.current;
+      current = focused;
+    } else {
+      activeId.current = current.dataset.cardId ?? null;
+    }
+    for (const card of cards) {
+      const isFocused =
+        document.activeElement instanceof HTMLElement &&
+        (card === document.activeElement || card.contains(document.activeElement));
+      card.tabIndex = card === current || isFocused ? 0 : -1;
+    }
+    root.toggleAttribute("data-roving-active", cards.length > 0);
   }, []);
 
-  useLayoutEffect(() => {
-    restore();
-  });
-
-  const onKeyDown = useCallback((event: KeyboardEvent<T>) => {
+  const onKeyDown = useCallback((event: KeyboardEvent) => {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
-    const root = ref.current;
+    const root = rootRef.current;
     if (!root) return;
     const cards = cardsIn(root);
     if (cards.length === 0) return;
@@ -72,16 +89,41 @@ export function useRovingCards<T extends HTMLElement>() {
     event.preventDefault();
     const card = cards[next];
     activeId.current = card.dataset.cardId ?? null;
-    for (const item of cards) item.tabIndex = item === card ? 0 : -1;
+    card.tabIndex = 0;
     card.focus();
+    for (const item of cards) {
+      if (item !== card) item.tabIndex = -1;
+    }
     reveal(card);
   }, []);
 
+  const bindRoot = useCallback(
+    (node: T | null) => {
+      rootRef.current = node;
+      if (node) {
+        restore();
+      }
+    },
+    [restore],
+  );
+
+  useLayoutEffect(() => {
+    restore();
+  }, [restore, cardCount]);
+
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    restore();
+    root.addEventListener("keydown", onKeyDown, true);
+    return () => root.removeEventListener("keydown", onKeyDown, true);
+  }, [onKeyDown, restore, cardCount]);
+
   const onFocus = useCallback((event: FocusEvent<T>) => {
     const card = event.target instanceof HTMLElement ? event.target.closest<HTMLElement>(CARD) : null;
-    if (!card || !ref.current?.contains(card)) return;
+    if (!card || !rootRef.current?.contains(card)) return;
     restore(card);
   }, [restore]);
 
-  return { ref, onKeyDown, onFocus };
+  return { ref: bindRoot, rootRef, onFocus };
 }
