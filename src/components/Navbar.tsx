@@ -253,7 +253,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   return (
     <header ref={headerRef} className="sticky top-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-xl">
       <div className={searchOpen ? "relative pb-[calc(3.75rem+1px)] sm:pb-0" : "relative"}>
-      <div ref={rowRef} className="mx-auto flex h-16 w-full min-w-0 max-w-[1920px] items-center justify-between gap-4 px-4 sm:px-6 lg:gap-2 lg:px-4">
+      <div ref={rowRef} className="gv-layout-container flex h-16 items-center justify-between gap-4 lg:gap-2">
         <Link
           href="/"
           aria-label="GameVault home"
@@ -615,7 +615,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
 
       {selectedFamily && (
         <div className="hidden border-t border-white/5 lg:block">
-          <div className="mx-auto flex max-w-[1920px] items-center gap-2 overflow-x-auto px-4 py-2 sm:px-6 lg:px-8">
+          <div className="gv-layout-container flex items-center gap-2 overflow-x-auto py-2">
             <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
               <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
               <span>platforms</span>
