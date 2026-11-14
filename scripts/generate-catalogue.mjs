@@ -54,6 +54,6 @@ fs.writeFileSync(
     generatedAt,
     provenance: { provider: "demo", sourceVersion: "canonical-source", sourceChecksum },
     games,
-  }, null, 2)}\n`,
+  })}\n`,
 );
 console.log(`Generated ${games.length} games at ${path.relative(root, outputPath)}`);
