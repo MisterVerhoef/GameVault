@@ -12,6 +12,20 @@
   --muted: #a1a1aa;
   /* Supporting copy. Dark theme stays light; light theme is darker so small text clears AA. */
   --muted-strong: #e4e4e7;
+  --gv-layout-max-width: 1920px;
+  --gv-layout-padding-inline: 16px;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --gv-layout-padding-inline: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --gv-layout-padding-inline: 32px;
+  }
 }
 
 /* Light theme - override CSS variables */
@@ -50,6 +64,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Shared page shell for header, hero, and home row headings (gv-layout-01). */
+.gv-layout-container {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--gv-layout-max-width);
+  margin-inline: auto;
+  padding-inline: var(--gv-layout-padding-inline);
+  min-width: 0;
+}
+
+.gv-layout-row-scroll {
+  padding-inline: var(--gv-layout-padding-inline);
+  scroll-padding-inline: var(--gv-layout-padding-inline);
 }
 
 /* Tailwind v4 defaults borders to currentColor; keep light surfaces readable. */

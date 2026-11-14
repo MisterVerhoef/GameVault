@@ -4,6 +4,36 @@ async function pageOverflow(page) {
   return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 }
 
+const LAYOUT_ALIGN_WIDTHS = [1265, 1580, 1920];
+
+test("gv-layout-01: header, hero, and row headings share one container inset", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Featured Games", exact: true })).toBeVisible();
+
+  for (const width of LAYOUT_ALIGN_WIDTHS) {
+    await page.setViewportSize({ width, height: 900 });
+    const edges = await page.evaluate(() => {
+      const logo = document.querySelector('a[aria-label="GameVault home"]')?.getBoundingClientRect();
+      const hero = document
+        .querySelector('section a[aria-label^="Open "]')
+        ?.getBoundingClientRect();
+      const featured = [...document.querySelectorAll("h2")]
+        .find((heading) => heading.textContent?.trim() === "Featured Games")
+        ?.getBoundingClientRect();
+      return {
+        logoX: logo?.x ?? 0,
+        heroX: hero?.x ?? 0,
+        featuredX: featured?.x ?? 0,
+      };
+    });
+
+    expect(edges.logoX, `logo inset at ${width}px`).toBeGreaterThan(0);
+    expect(Math.abs(edges.logoX - edges.heroX), `logo vs hero at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(edges.logoX - edges.featuredX), `logo vs featured heading at ${width}px`).toBeLessThanOrEqual(2);
+    expect(Math.abs(edges.heroX - edges.featuredX), `hero vs featured heading at ${width}px`).toBeLessThanOrEqual(2);
+  }
+});
+
 test("header does not overflow and keeps both bars intact", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("header")).toBeVisible();

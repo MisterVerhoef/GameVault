@@ -56,7 +56,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
         </div>
       </div>
 
-      <div className="relative mx-auto grid w-full min-w-0 max-w-[1920px] grid-cols-1 gap-6 px-4 py-6 sm:px-6 sm:py-[30px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-end lg:gap-8 lg:px-8 lg:py-12 xl:gap-10">
+      <div className="gv-layout-container relative grid grid-cols-1 gap-6 py-6 sm:py-[30px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-end lg:gap-8 lg:py-12 xl:gap-10">
         {/* Cover art — centered on mobile, side on desktop */}
       <Link
         href={`/game/${featured.id}`}

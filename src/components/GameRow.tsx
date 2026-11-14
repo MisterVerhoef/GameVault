@@ -28,6 +28,14 @@ interface RowWindow {
   innerWidth: number;
 }
 
+function layoutRowPadding() {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--gv-layout-padding-inline")
+    .trim();
+  const value = Number.parseFloat(raw);
+  return Number.isFinite(value) ? value : 16;
+}
+
 function measureRow(node: HTMLDivElement, size: "sm" | "md" | "lg", count: number): RowWindow {
   const large = window.matchMedia("(min-width: 1024px)").matches;
   const small = window.matchMedia("(min-width: 640px)").matches;
@@ -35,7 +43,7 @@ function measureRow(node: HTMLDivElement, size: "sm" | "md" | "lg", count: numbe
   const cardWidth = large ? dims.largeWidth : dims.width;
   const cardHeight = large ? dims.largeHeight : dims.height;
   const gap = small ? 16 : 12;
-  const padLeft = large ? 32 : small ? 24 : 16;
+  const padLeft = layoutRowPadding();
   const stride = cardWidth + gap;
   const start = Math.max(0, Math.floor((node.scrollLeft - padLeft) / stride) - 3);
   const end = Math.min(
@@ -135,7 +143,7 @@ export default function GameRow({
       aria-describedby={hintId}
       className="cv-section relative mb-8"
     >
-      <div className="mb-3 flex items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="gv-layout-container mb-3 flex items-center justify-between">
         <h2
           id={headingId}
           className="flex items-center gap-2 text-lg font-bold tracking-tight text-foreground sm:text-xl lg:text-2xl"
@@ -204,8 +212,8 @@ export default function GameRow({
         onFocus={onFocus}
         className={
           virtualize && rowWindow
-            ? "scrollbar-hide overflow-x-auto pb-4 scroll-pl-4 scroll-pr-4 sm:scroll-pl-6 sm:scroll-pr-6 lg:scroll-pl-8 lg:scroll-pr-8"
-            : "row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-4 pb-4 scroll-pl-4 scroll-pr-4 sm:px-6 sm:scroll-pl-6 sm:scroll-pr-6 lg:px-8 lg:scroll-pl-8 lg:scroll-pr-8"
+            ? "gv-layout-row-scroll scrollbar-hide overflow-x-auto pb-4"
+            : "gv-layout-row-scroll row-scroll scrollbar-hide flex gap-4 overflow-x-auto pb-4"
         }
         style={virtualize && rowWindow ? { overflowAnchor: "none" } : undefined}
       >
