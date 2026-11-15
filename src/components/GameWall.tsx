@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
+import { searchCardLabel } from "@/data/search-card-label";
 import { PlatformIcon } from "./platform-icons";
 
 const PAGE_SIZE = 48;
@@ -169,11 +170,14 @@ function CoverGrid({
         className={`grid gap-x-2 gap-y-3 sm:gap-x-3 ${columnsClass ?? ""}`}
         style={gridWindow ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
       >
-        {shown.map((game) => (
+        {shown.map((game) => {
+          const label = searchCardLabel(game, games);
+          return (
           <li key={game.id} className="min-w-0">
             <Link
               href={`/game/${game.id}`}
               className="group block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              aria-label={label}
             >
               <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
                 <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
@@ -197,11 +201,12 @@ function CoverGrid({
                 )}
               </span>
               <span className="mt-1 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90 sm:text-xs">
-                {game.title}
+                {label}
               </span>
             </Link>
           </li>
-        ))}
+        );
+        })}
         {pendingSkeletons > 0 && (!gridWindow || gridWindow.end >= games.length)
           ? Array.from({ length: pendingSkeletons }).map((_, index) => (
               <CoverSkeleton key={`pending-${index}`} />

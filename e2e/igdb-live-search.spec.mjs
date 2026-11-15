@@ -16,12 +16,19 @@ test("live IGDB search merges results into the search wall", async ({ page }) =>
 });
 
 test("searching syndicate shows the 2012 Syndicate from IGDB beside catalogue hits", async ({ page }) => {
+  const liveSearch = page.waitForResponse(
+    (response) => response.url().includes("/api/igdb/search") && response.ok(),
+    { timeout: 20_000 },
+  );
   await page.goto("/?search=syndicate");
   await expect(page.getByRole("heading", { name: /Search results for "syndicate"/i })).toBeVisible({
     timeout: 20_000,
   });
-  await expect(page.getByRole("link", { name: /^Syndicate$/i }).first()).toBeVisible();
-  const links = page.getByRole("link", { name: /^Syndicate$/i });
-  await expect(links).toHaveCount(2, { timeout: 20_000 });
+  await liveSearch.catch(() => {});
+  await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
+
+  await expect(page.getByRole("link", { name: "Syndicate (1993)" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Syndicate (2012)" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Syndicate (1993)" })).toHaveCount(1);
   await expect(page.getByRole("link", { name: /Syndicate: American Revolt/i })).toBeVisible();
 });

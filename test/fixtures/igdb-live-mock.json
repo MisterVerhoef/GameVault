@@ -8,12 +8,21 @@
       }
     },
     {
-      "id": "2115",
+      "id": "213754",
+      "title": "Syndicate",
+      "releaseYear": 1993,
+      "versionParentId": "49",
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "1006",
       "title": "Syndicate",
       "releaseYear": 2012,
       "rating": 73.4,
       "cover": {
-        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2srt.webp"
       }
     }
   ],
@@ -37,6 +46,41 @@
       "rating": 82.5,
       "ratingCount": 120,
       "releases": [{ "platform": "Windows", "date": "2026-03-01" }]
+    },
+    "1006": {
+      "id": "1006",
+      "slug": "syndicate--3",
+      "title": "Syndicate",
+      "summary": "2012 Syndicate reboot mock",
+      "description": "2012 Syndicate reboot mock",
+      "releaseYear": 2012,
+      "genres": ["Shooter"],
+      "themes": ["Science fiction"],
+      "platforms": ["PC"],
+      "platformVariants": ["Windows"],
+      "developers": [{ "id": "500010", "name": "Starbreeze Studios" }],
+      "publishers": [{ "id": "500011", "name": "Electronic Arts" }],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2srt.webp"
+      },
+      "rating": 73.4,
+      "releases": [{ "platform": "Windows", "date": "2012-02-21" }]
+    },
+    "213754": {
+      "id": "213754",
+      "slug": "syndicate-amiga",
+      "title": "Syndicate",
+      "releaseYear": 1993,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["Amiga"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
     },
     "210585": {
       "id": "210585",

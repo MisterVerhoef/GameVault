@@ -8,7 +8,10 @@ import { mapIgdbApiRecord } from "./map-record";
 import { igdbMockEnabled, mockIgdbGame, mockIgdbSearch } from "./mock";
 import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
-import { buildIgdbSearchBody } from "./search-api";
+import {
+  buildIgdbSearchBody,
+  IGDB_LIVE_SEARCH_RESULT_CAP,
+} from "./search-api";
 import { mapIgdbBasicRecord } from "./map-basic-record";
 import { mockIgdbGamesByIds } from "./mock";
 import { TtlCache } from "./ttl-cache";
@@ -102,6 +105,7 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       version_parent?: { id?: number };
     };
     if (!record.id || !record.name) continue;
+    if (record.version_parent?.id != null) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
     const releaseYear =
       typeof record.first_release_date === "number" && Number.isFinite(record.first_release_date)
@@ -124,9 +128,17 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
   return hits;
 }
 
+function dropIgdbPortsCoveredByCatalogue(hits: IgdbSearchHit[]): IgdbSearchHit[] {
+  const catalogueIds = getCatalogueIgdbIds();
+  return hits.filter((hit) => {
+    const parent = hit.versionParentId ?? hit.parentGameId;
+    return !(parent && catalogueIds.has(parent));
+  });
+}
+
 function finalizeIgdbSearchHits(query: string, hits: IgdbSearchHit[]): IgdbSearchHit[] {
-  const grouped = groupIgdbSearchHits(hits);
-  return sortSearchResults(query, grouped).slice(0, 12);
+  const grouped = groupIgdbSearchHits(dropIgdbPortsCoveredByCatalogue(hits));
+  return sortSearchResults(query, grouped).slice(0, IGDB_LIVE_SEARCH_RESULT_CAP);
 }
 
 export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
