@@ -3,6 +3,7 @@ import { after, before, test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const { enrichOffCatalogueContentRefs } = loadTsModule("src/lib/igdb/enrich-off-catalogue-refs.ts");
+const { enrichSimilarGamesForApi } = loadTsModule("src/lib/igdb/similar-games-api.ts");
 const { fetchIgdbGamesByIds, __testBasicGameCache } = loadTsModule("src/lib/igdb/client.ts");
 const { mapIgdbBasicRecord } = loadTsModule("src/lib/igdb/map-basic-record.ts");
 const { TtlCache } = loadTsModule("src/lib/igdb/ttl-cache.ts");
@@ -49,6 +50,13 @@ test("TtlCache stores hit and miss entries", () => {
   cache.set("miss", null, false);
   assert.equal(cache.get("hit")?.title, "A");
   assert.equal(cache.get("miss"), null);
+});
+
+test("enrichSimilarGamesForApi reports live hits for enriched covers", async () => {
+  const refs = [{ id: "210585", title: "Soulstone Survivors" }];
+  const { refs: enriched, hasLiveHits } = await enrichSimilarGamesForApi(refs);
+  assert.equal(hasLiveHits, true);
+  assert.match(enriched[0].cover?.url ?? "", /images\.igdb\.com/);
 });
 
 test("enrichOffCatalogueContentRefs fills cover for off-catalogue refs", async () => {

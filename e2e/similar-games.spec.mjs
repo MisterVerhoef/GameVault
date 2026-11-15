@@ -1,7 +1,14 @@
 import { test, expect } from "@playwright/test";
 
 test("off-catalogue similar games link to live game pages", async ({ page }) => {
+  const enrich = page.waitForResponse(
+    (response) =>
+      response.url().includes("/api/igdb/similar-games") &&
+      response.request().method() === "POST" &&
+      response.ok(),
+  );
   await page.goto("/game/423352");
+  await enrich;
   const similar = page.getByRole("link", { name: /Open Soulstone Survivors\. Not in catalogue\./i });
   await expect(similar).toBeVisible({ timeout: 20_000 });
   await similar.click();
