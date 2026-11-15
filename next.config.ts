@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   // List pages read these at runtime instead of bundling games-index.json.
   outputFileTracingIncludes: {
     "/api/igdb/search": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
+    "/api/igdb/similar-games": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
     "/game/[id]": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
     "/": ["./public/catalog/browse-index.json", "./public/catalog/search-index.json"],
     "/vault": ["./public/catalog/browse-index.json"],

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ContentRef, type ExternalLink, type Game } from "@/data/games";
+import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ExternalLink } from "@/data/games";
 import { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } from "@/data/game-facts";
 import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
@@ -17,10 +17,10 @@ import Image from "next/image";
 import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
-import CardScroller from "@/components/CardScroller";
 import Navbar from "@/components/Navbar";
 import IgdbOnlyGameDetail from "@/components/IgdbOnlyGameDetail";
 import { fetchIgdbGameById } from "@/lib/igdb/client";
+import SimilarGamesSection, { type SimilarGameItem } from "@/components/SimilarGamesSection";
 
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
@@ -172,50 +172,6 @@ function LabeledContentGrid({ items }: { items: readonly (readonly [string, stri
   );
 }
 
-function SimilarGameCard({ item }: { item: ContentRef }) {
-  const catalogueGame: Game | undefined = findGameByProviderId(item.id);
-  const coverUrl = catalogueGame?.cover?.url ?? item.cover?.url;
-  const className = catalogueGame
-    ? "group relative flex h-64 min-h-11 min-w-40 cursor-pointer touch-manipulation scroll-mt-24 flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 transition hover:ring-1 hover:ring-accent/60 focus:outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-accent sm:min-w-44"
-    : "relative flex h-64 min-w-40 cursor-default flex-col justify-end overflow-hidden rounded-lg bg-card px-4 py-4 opacity-75 sm:min-w-44";
-  const content = (
-    <>
-      {coverUrl && (
-        <Image
-          src={coverUrl}
-          alt=""
-          fill
-          className={`object-cover${catalogueGame ? " transition duration-300 group-hover:scale-105" : ""}`}
-          sizes="176px"
-          unoptimized
-          loading="lazy"
-        />
-      )}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
-      <div className="relative">
-        <span className="text-xs font-medium uppercase tracking-wider text-white/70">
-          {catalogueGame ? "Similar" : "Not in catalogue"}
-        </span>
-        <span className="mt-1 line-clamp-2 text-sm font-medium text-white">{item.title}</span>
-      </div>
-    </>
-  );
-
-  if (!catalogueGame) {
-    return (
-      <div className={className} aria-label={`${item.title} is not in the catalogue`}>
-        {content}
-      </div>
-    );
-  }
-
-  return (
-    <Link href={`/game/${catalogueGame.id}`} className={className} aria-label={`Open ${catalogueGame.title}`} data-roving-card="" data-card-id={catalogueGame.id}>
-      {content}
-    </Link>
-  );
-}
-
 export const dynamicParams = true;
 export const revalidate = 86400;
 
@@ -251,6 +207,18 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const hasPlay = gameModes.length > 0 || perspectives.length > 0 || playPhrases.length > 0;
   const hasDetails = hasPlay || playTimes.length > 0 || keywords.length > 0 || releases.length > 0;
   const guides = guideLinks(game.websites);
+  const similarGames: SimilarGameItem[] = game.similarGames.map((ref) => {
+    const catalogueGame = findGameByProviderId(ref.id);
+    return {
+      id: ref.id,
+      title: catalogueGame?.title ?? ref.title,
+      ...(catalogueGame?.cover ?? ref.cover
+        ? { cover: catalogueGame?.cover ?? ref.cover }
+        : {}),
+      inCatalogue: Boolean(catalogueGame),
+      hrefId: catalogueGame?.id ?? ref.id,
+    };
+  });
 
   // Get primary platform for theming
   const primaryPlatform: Platform = game.platforms[0];
@@ -675,24 +643,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         )}
 
-        {game.similarGames.length > 0 && (
-          <section className="mb-12" aria-labelledby="similar-games">
-            <p className="sr-only">Arrow keys move between games in the catalogue.</p>
-            <CardScroller
-              label="Similar games"
-              heading={
-                <h2 id="similar-games" className="text-lg font-bold tracking-tight text-foreground">
-                  Similar games
-                </h2>
-              }
-              className="flex gap-4 overflow-x-auto pb-3"
-            >
-              {game.similarGames.map((item) => (
-                <SimilarGameCard key={item.id} item={item} />
-              ))}
-            </CardScroller>
-          </section>
-        )}
+        {similarGames.length > 0 ? <SimilarGamesSection items={similarGames} /> : null}
       </main>
     </div>
   );

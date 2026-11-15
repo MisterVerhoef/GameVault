@@ -6,7 +6,10 @@ import { igdbMockEnabled, mockIgdbGame, mockIgdbSearch } from "./mock";
 import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
 import { buildIgdbSearchBody } from "./search-api";
-import type { IgdbLiveGame, IgdbSearchHit } from "./types";
+import { mapIgdbBasicRecord } from "./map-basic-record";
+import { mockIgdbGamesByIds } from "./mock";
+import { TtlCache } from "./ttl-cache";
+import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
 
 export {
   buildIgdbSearchBody,
@@ -17,6 +20,14 @@ export {
 
 const throttle = new RequestThrottle(4);
 const searchCache = new LruCache<IgdbSearchHit[]>({ maxEntries: 256 });
+const basicGameCache = new TtlCache<IgdbBasicGame | null>({
+  hitTtlMs: 86_400_000,
+  missTtlMs: 60_000,
+  maxEntries: 4096,
+});
+
+const IGDB_BATCH_LIMIT = 500;
+const basicGameFields = "id,name,cover.url,first_release_date,platforms.name";
 
 interface TokenState {
   accessToken: string;
@@ -133,6 +144,98 @@ const detailFields = [
   "cover.url", "release_dates.date", "release_dates.human", "release_dates.platform.name",
 ].join(",");
 
+function numericIgdbIds(ids: readonly string[]): string[] {
+  const numeric: string[] = [];
+  const seen = new Set<string>();
+  for (const id of ids) {
+    if (!/^\d+$/.test(id) || seen.has(id)) continue;
+    seen.add(id);
+    numeric.push(id);
+  }
+  return numeric;
+}
+
+async function fetchIgdbBasicUncached(ids: readonly string[]): Promise<Map<string, IgdbBasicGame | null>> {
+  const result = new Map<string, IgdbBasicGame | null>();
+  if (ids.length === 0) return result;
+
+  if (igdbMockEnabled()) {
+    for (const [id, value] of mockIgdbGamesByIds(ids)) {
+      result.set(id, value);
+    }
+    return result;
+  }
+
+  if (!credentials()) {
+    console.warn("[igdb] batch games skipped: missing credentials");
+    for (const id of ids) result.set(id, null);
+    return result;
+  }
+
+  for (let offset = 0; offset < ids.length; offset += IGDB_BATCH_LIMIT) {
+    const chunk = ids.slice(offset, offset + IGDB_BATCH_LIMIT);
+    const where = `where id = (${chunk.join(",")});`;
+    try {
+      const response = await igdbPost(
+        "games",
+        `fields ${basicGameFields}; ${where} limit ${chunk.length};`,
+      );
+      if (!response || !response.ok) {
+        console.error(`[igdb] batch games HTTP ${response?.status ?? "none"} for ${chunk.length} ids`);
+        for (const id of chunk) result.set(id, null);
+        continue;
+      }
+      const rows = await response.json();
+      if (!Array.isArray(rows)) {
+        console.error("[igdb] batch games response was not a JSON array");
+        for (const id of chunk) result.set(id, null);
+        continue;
+      }
+      const found = new Set<string>();
+      for (const row of rows) {
+        const mapped = mapIgdbBasicRecord(row);
+        if (!mapped) continue;
+        found.add(mapped.id);
+        result.set(mapped.id, mapped);
+      }
+      for (const id of chunk) {
+        if (!found.has(id)) result.set(id, null);
+      }
+    } catch (error) {
+      console.error("[igdb] batch games request failed:", error instanceof Error ? error.message : error);
+      for (const id of chunk) result.set(id, null);
+    }
+  }
+
+  return result;
+}
+
+export async function fetchIgdbGamesByIds(ids: readonly string[]): Promise<Map<string, IgdbBasicGame | null>> {
+  const numericIds = numericIgdbIds(ids);
+  const out = new Map<string, IgdbBasicGame | null>();
+  const uncached: string[] = [];
+
+  for (const id of numericIds) {
+    const cached = basicGameCache.get(id);
+    if (cached !== undefined) {
+      out.set(id, cached);
+    } else {
+      uncached.push(id);
+    }
+  }
+
+  if (uncached.length === 0) return out;
+
+  const fetched = await fetchIgdbBasicUncached(uncached);
+  for (const id of uncached) {
+    const value = fetched.get(id) ?? null;
+    basicGameCache.set(id, value, value !== null);
+    out.set(id, value);
+  }
+
+  return out;
+}
+
 export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
   if (!/^\d+$/.test(id)) return null;
 
@@ -160,4 +263,8 @@ export function __testSearchCache(): LruCache<IgdbSearchHit[]> {
 
 export function __testThrottle(): RequestThrottle {
   return throttle;
+}
+
+export function __testBasicGameCache(): TtlCache<IgdbBasicGame | null> {
+  return basicGameCache;
 }
