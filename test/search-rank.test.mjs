@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
-const { searchTitleTier, sortSearchResults, compareSearchRank } =
+const { searchTitleTier, searchMatchTier, sortSearchResults, compareSearchRank } =
   loadTsModule("src/data/search-rank.ts");
 
 test("searchTitleTier prefers exact title matches", () => {
@@ -39,5 +39,20 @@ test("compareSearchRank keeps rating order within the same tier", () => {
   assert.equal(
     compareSearchRank("zz", { title: "Alpha", rating: 10 }, { title: "Beta", rating: 20 }),
     10,
+  );
+});
+
+test("searchMatchTier ranks title matches above summary-only hits", () => {
+  assert.equal(searchMatchTier("zelda", "The Legend of Zelda: Breath of the Wild"), 2);
+  assert.equal(searchMatchTier("zelda", "Style Savvy: Fashion Forward"), 0);
+  const sorted = sortSearchResults("Zelda", [
+    { id: "style", title: "Style Savvy: Fashion Forward", rating: 99 },
+    { id: "soul", title: "SoulCalibur II", rating: 98 },
+    { id: "botw", title: "The Legend of Zelda: Breath of the Wild", rating: 90 },
+    { id: "totk", title: "The Legend of Zelda: Tears of the Kingdom", rating: 80 },
+  ]);
+  assert.deepEqual(
+    sorted.slice(0, 2).map((row) => row.id),
+    ["botw", "totk"],
   );
 });

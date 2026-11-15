@@ -11,12 +11,34 @@ export function searchTitleTier(query: string, title: string): 0 | 1 | 2 {
   return 0;
 }
 
+function titleContainsQuery(query: string, title: string): boolean {
+  const needle = normalizeTitle(query);
+  const haystack = normalizeTitle(title);
+  if (!needle || !haystack) return false;
+  if (haystack.includes(` ${needle} `) || haystack.startsWith(`${needle} `) || haystack.endsWith(` ${needle}`)) {
+    return true;
+  }
+  return haystack === needle || haystack.includes(needle);
+}
+
+/**
+ * Search ranking tiers — title matches beat summary/term-only hits:
+ * 4 exact title, 3 title prefix, 2 title contains, 0 terms-only.
+ */
+export function searchMatchTier(query: string, title: string): 0 | 2 | 3 | 4 {
+  const exactTier = searchTitleTier(query, title);
+  if (exactTier === 2) return 4;
+  if (exactTier === 1) return 3;
+  if (titleContainsQuery(query, title)) return 2;
+  return 0;
+}
+
 export function compareSearchRank<T extends { title: string; rating?: number }>(
   query: string,
   left: T,
   right: T,
 ): number {
-  const tier = searchTitleTier(query, right.title) - searchTitleTier(query, left.title);
+  const tier = searchMatchTier(query, right.title) - searchMatchTier(query, left.title);
   if (tier !== 0) return tier;
   return byRatingThenTitle(left, right);
 }

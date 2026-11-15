@@ -19,6 +19,7 @@ export const IGDB_CATALOG_GAME_FIELDS = [
   "involved_companies.company.logo.image_id,involved_companies.company.logo.url,involved_companies.company.logo.width,involved_companies.company.logo.height,involved_companies.company.logo.alpha_channel,involved_companies.company.logo.animated,",
   "dlcs.id,dlcs.name,expansions.id,expansions.name,",
   "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,similar_games.cover.url,",
+  "parent_game,version_parent,ports,",
   "franchises.name,collections.name;",
 ].join(" ");
 

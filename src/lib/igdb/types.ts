@@ -2,6 +2,10 @@ export interface IgdbSearchHit {
   id: string;
   title: string;
   cover?: { url: string };
+  releaseYear?: number;
+  rating?: number;
+  parentGameId?: string;
+  versionParentId?: string;
 }
 
 export interface IgdbBasicGame {

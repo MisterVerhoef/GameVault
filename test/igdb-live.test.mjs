@@ -60,7 +60,8 @@ test("buildIgdbSearchBody uses game_type filter and escapes quotes", () => {
   assert.match(body, /game_type = \(0,8,9,10,11\)/);
   assert.doesNotMatch(body, /category =/);
   assert.match(body, /search "Say \\"Hello\\"";/);
-  assert.match(body, /version_parent = null/);
+  assert.match(body, /parent_game,version_parent/);
+  assert.doesNotMatch(body, /version_parent = null/);
 });
 
 test("igdbSearchCacheControl uses long TTL for hits and short for empty", () => {

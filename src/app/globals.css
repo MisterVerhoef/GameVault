@@ -14,6 +14,11 @@
   --muted-strong: #e4e4e7;
   --gv-layout-max-width: 1920px;
   --gv-layout-padding-inline: 16px;
+  /* Row scrollers are full-bleed; match the shared container's content inset (gv-layout-02). */
+  --gv-layout-row-inset-inline: max(
+    var(--gv-layout-padding-inline),
+  calc((100vw - min(100vw, var(--gv-layout-max-width))) / 2 + var(--gv-layout-padding-inline))
+  );
 }
 
 @media (min-width: 640px) {
@@ -77,8 +82,8 @@ body {
 }
 
 .gv-layout-row-scroll {
-  padding-inline: var(--gv-layout-padding-inline);
-  scroll-padding-inline: var(--gv-layout-padding-inline);
+  padding-inline: var(--gv-layout-row-inset-inline);
+  scroll-padding-inline: var(--gv-layout-row-inset-inline);
 }
 
 /* Tailwind v4 defaults borders to currentColor; keep light surfaces readable. */

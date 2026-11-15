@@ -19,6 +19,7 @@ import {
   isPcPlatformBrowse,
   type Platform,
 } from "./platforms";
+import { groupSearchMatches } from "./search-grouping";
 import { sortSearchResults } from "./search-rank";
 import { matchesSearchTerms } from "./search-terms";
 
@@ -43,6 +44,9 @@ export interface BrowseRecord {
   multiplayer?: boolean;
   downloadable?: boolean;
   sourceIds?: string[];
+  parentGameId?: string;
+  versionParentId?: string;
+  portIds?: string[];
 }
 
 export interface BrowseIndexFile {
@@ -71,6 +75,9 @@ export interface BrowseGame {
   multiplayer: boolean;
   downloadable: boolean;
   sourceIds: string[];
+  parentGameId?: string;
+  versionParentId?: string;
+  portIds?: string[];
 }
 
 export interface BrowseCatalogue {
@@ -163,6 +170,9 @@ export function createBrowseCatalogue(
       multiplayer: record.multiplayer === true,
       downloadable: record.downloadable === true,
       sourceIds: record.sourceIds ?? [],
+      ...(record.parentGameId ? { parentGameId: record.parentGameId } : {}),
+      ...(record.versionParentId ? { versionParentId: record.versionParentId } : {}),
+      ...(record.portIds?.length ? { portIds: record.portIds } : {}),
     };
   });
 
@@ -313,7 +323,7 @@ function searchGames(catalogue: BrowseCatalogue, query: string) {
   const matches = catalogue.games.filter((game) =>
     matchesSearchTerms(termsById.get(game.id) ?? "", query),
   );
-  return sortSearchResults(query, matches);
+  return groupSearchMatches(sortSearchResults(query, matches), catalogue.games);
 }
 
 export function buildLibraryView(
