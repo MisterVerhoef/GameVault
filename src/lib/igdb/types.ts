@@ -4,6 +4,14 @@ export interface IgdbSearchHit {
   cover?: { url: string };
 }
 
+export interface IgdbBasicGame {
+  id: string;
+  title: string;
+  cover?: { url: string };
+  releaseYear?: number;
+  platforms?: string[];
+}
+
 export interface IgdbLiveGame {
   id: string;
   slug: string;

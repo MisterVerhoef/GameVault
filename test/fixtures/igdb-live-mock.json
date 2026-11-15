@@ -28,6 +28,21 @@
       "rating": 82.5,
       "ratingCount": 120,
       "releases": [{ "platform": "Windows", "date": "2026-03-01" }]
+    },
+    "210585": {
+      "id": "210585",
+      "slug": "soulstone-survivors-mock",
+      "title": "Soulstone Survivors",
+      "genres": ["RPG"],
+      "themes": [],
+      "platforms": ["PC"],
+      "platformVariants": ["Windows"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
     }
   }
 }

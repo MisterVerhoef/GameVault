@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { IgdbLiveGame, IgdbSearchHit } from "./types";
+import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
 import { normalizeIgdbQuery } from "./normalize-query";
 
 export function igdbMockEnabled(): boolean {
@@ -36,4 +36,33 @@ export function mockIgdbSearch(query: string): IgdbSearchHit[] {
 export function mockIgdbGame(id: string): IgdbLiveGame | null {
   const fixture = loadMockFile();
   return fixture.games[id] ?? null;
+}
+
+export function mockIgdbGamesByIds(ids: readonly string[]): Map<string, IgdbBasicGame | null> {
+  const fixture = loadMockFile();
+  const results = new Map<string, IgdbBasicGame | null>();
+  for (const id of ids) {
+    const full = fixture.games[id];
+    if (full) {
+      results.set(id, {
+        id,
+        title: full.title,
+        ...(full.cover ? { cover: full.cover } : {}),
+        ...(full.releaseYear != null ? { releaseYear: full.releaseYear } : {}),
+        ...(full.platformVariants.length > 0 ? { platforms: full.platformVariants } : {}),
+      });
+      continue;
+    }
+    const hit = fixture.search.find((entry) => entry.id === id);
+    if (hit) {
+      results.set(id, {
+        id,
+        title: hit.title,
+        ...(hit.cover ? { cover: hit.cover } : {}),
+      });
+      continue;
+    }
+    results.set(id, null);
+  }
+  return results;
 }

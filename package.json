@@ -18,7 +18,7 @@
     "catalogue:enrich:cloud": "node scripts/enrich-cloud.mjs",
     "catalogue:search-index": "node scripts/build-search-index.mjs",
     "catalogue:diff": "node scripts/catalogue-diff.mjs",
-    "test:catalogue": "node --test test/format-helpers.test.mjs test/game-lists.test.mjs test/catalogue.test.mjs test/store-enrichment.test.mjs test/store-offer-index.test.mjs test/price-history.test.mjs test/cloud-streaming.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs test/header-and-scroll.test.mjs test/release-calendar.test.mjs test/vault-stats.test.mjs test/genre-sort.test.mjs test/igdb-live.test.mjs test/search-rank.test.mjs test/horizontal-row-scroll.test.mjs"
+    "test:catalogue": "node --test test/format-helpers.test.mjs test/game-lists.test.mjs test/catalogue.test.mjs test/store-enrichment.test.mjs test/store-offer-index.test.mjs test/price-history.test.mjs test/cloud-streaming.test.mjs test/library-entry.test.mjs test/roving-cards.test.mjs test/header-and-scroll.test.mjs test/release-calendar.test.mjs test/vault-stats.test.mjs test/genre-sort.test.mjs test/igdb-live.test.mjs test/similar-games-enrich.test.mjs test/search-rank.test.mjs test/horizontal-row-scroll.test.mjs"
   },
   "dependencies": {
     "next": "16.4.6",
@@ -32,8 +32,8 @@
     "@types/react-dom": "^19",
     "eslint": "^10",
     "eslint-config-next": "16.4.6",
+    "prettier": "^3",
     "tailwindcss": "^4",
-    "typescript": "^5",
-    "prettier": "^3"
+    "typescript": "^5"
   }
 }
