@@ -16,7 +16,6 @@ import {
   type LibraryView,
 } from "@/data/library-view";
 import { useIgdbLiveSearch } from "@/data/use-igdb-live-search";
-import IgdbLiveSearchSection from "@/components/IgdbLiveSearchSection";
 
 function HomeMainBody({
   view,
@@ -25,7 +24,10 @@ function HomeMainBody({
   catalogueReady,
   genreSort,
   onSortChange,
-  igdbLive,
+  wallGames,
+  wallSections,
+  hybridSearchLoading,
+  hybridSearchShowSkeletons,
 }: {
   view: LibraryView;
   queryDirty: boolean;
@@ -33,7 +35,10 @@ function HomeMainBody({
   catalogueReady: boolean;
   genreSort: boolean;
   onSortChange: (sort: GenreSort) => void;
-  igdbLive: ReturnType<typeof useIgdbLiveSearch>;
+  wallGames: NonNullable<LibraryView["wall"]>["games"];
+  wallSections: NonNullable<LibraryView["wall"]>["sections"];
+  hybridSearchLoading: boolean;
+  hybridSearchShowSkeletons: boolean;
 }) {
   const featured = view.heroGames[0] ?? view.featuredGame;
 
@@ -55,22 +60,28 @@ function HomeMainBody({
             key={view.wall.key}
             title={view.wall.title}
             platformLabel={view.place}
-            games={view.wall.games}
+            games={wallGames}
             resetKey={view.wall.key}
             backHref={view.wall.backHref}
             backLabel={view.wall.backLabel}
             emptyLabel={view.wall.emptyLabel}
-            sections={view.wall.sections}
+            sections={wallSections}
             sortValue={genreSort ? view.query.sort : undefined}
             onSortChange={genreSort ? onSortChange : undefined}
+            liveSearchLoading={view.searching && hybridSearchLoading}
+            liveSearchShowSkeletons={view.searching && hybridSearchShowSkeletons}
+            liveSearchStatus={
+              view.searching && hybridSearchLoading ? (
+                <span className="ml-2 inline-flex items-center gap-2 text-sm font-normal text-muted">
+                  <span
+                    className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted border-t-transparent"
+                    aria-hidden="true"
+                  />
+                  Searching…
+                </span>
+              ) : null
+            }
           />
-          {view.searching && igdbLive.visible ? (
-            <IgdbLiveSearchSection
-              loading={igdbLive.loading}
-              games={igdbLive.games}
-              showSkeletons={igdbLive.showSkeletons}
-            />
-          ) : null}
         </>
       ) : (
         <>
@@ -159,12 +170,18 @@ function HomeMain({
       ? buildLibraryView(catalogue, liveQuery, ready ? playingIds : [])
       : initialView;
 
-  const catalogueSearchCount = view.wall?.games.length ?? 0;
-  const igdbLive = useIgdbLiveSearch(
+  const catalogueWallGames = view.wall?.games ?? [];
+  const catalogueWallSections = view.wall?.sections;
+  const hybridSearch = useIgdbLiveSearch(
     view.trimmedSearch,
-    catalogueSearchCount,
+    catalogueWallGames,
+    catalogueWallSections,
     igdbLiveEnabled && Boolean(view.wall && view.searching),
   );
+  const wallGames =
+    view.searching && igdbLiveEnabled ? hybridSearch.games : catalogueWallGames;
+  const wallSections =
+    view.searching && igdbLiveEnabled ? hybridSearch.sections ?? catalogueWallSections : catalogueWallSections;
   const genreSort = Boolean(view.query.genre) && !view.searching && view.wall != null;
   const onSortChange = (sort: GenreSort) => {
     router.push(
@@ -188,7 +205,10 @@ function HomeMain({
       catalogueReady={Boolean(catalogue?.termsById)}
       genreSort={genreSort}
       onSortChange={onSortChange}
-      igdbLive={igdbLive}
+      wallGames={wallGames}
+      wallSections={wallSections}
+      hybridSearchLoading={hybridSearch.loading}
+      hybridSearchShowSkeletons={hybridSearch.showSkeletons}
     />
   );
 }
@@ -227,7 +247,10 @@ export default function HomeScreen({
             catalogueReady
             genreSort={false}
             onSortChange={() => {}}
-            igdbLive={{ loading: false, games: [], visible: false, showSkeletons: false }}
+            wallGames={initialView.wall?.games ?? []}
+            wallSections={initialView.wall?.sections}
+            hybridSearchLoading={false}
+            hybridSearchShowSkeletons={false}
           />
         }
       >

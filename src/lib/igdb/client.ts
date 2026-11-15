@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { groupIgdbSearchHits } from "@/data/search-grouping";
 import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
@@ -27,6 +28,12 @@ const basicGameCache = new TtlCache<IgdbBasicGame | null>({
   missTtlMs: 60_000,
   maxEntries: 4096,
 });
+const liveGameCache = new TtlCache<IgdbLiveGame | null>({
+  hitTtlMs: 86_400_000,
+  missTtlMs: 60_000,
+  maxEntries: 2048,
+});
+const LIVE_GAME_CACHE_SECONDS = 86_400;
 
 const IGDB_BATCH_LIMIT = 500;
 const basicGameFields = "id,name,cover.url,first_release_date,platforms.name";
@@ -268,13 +275,7 @@ export async function fetchIgdbGamesByIds(ids: readonly string[]): Promise<Map<s
   return out;
 }
 
-export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
-  if (!/^\d+$/.test(id)) return null;
-
-  if (igdbMockEnabled()) {
-    return mockIgdbGame(id);
-  }
-
+async function fetchIgdbGameByIdUncached(id: string): Promise<IgdbLiveGame | null> {
   if (!credentials()) return null;
 
   try {
@@ -288,6 +289,35 @@ export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null
   }
 }
 
+async function fetchIgdbGameByIdServerCached(id: string): Promise<IgdbLiveGame | null> {
+  const cached = liveGameCache.get(id);
+  if (cached !== undefined) return cached;
+
+  let value: IgdbLiveGame | null;
+  try {
+    value = await unstable_cache(
+      () => fetchIgdbGameByIdUncached(id),
+      ["igdb-live-game", id],
+      { revalidate: LIVE_GAME_CACHE_SECONDS, tags: [`igdb-game-${id}`] },
+    )();
+  } catch {
+    value = await fetchIgdbGameByIdUncached(id);
+  }
+
+  liveGameCache.set(id, value, value !== null);
+  return value;
+}
+
+export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
+  if (!/^\d+$/.test(id)) return null;
+
+  if (igdbMockEnabled()) {
+    return mockIgdbGame(id);
+  }
+
+  return fetchIgdbGameByIdServerCached(id);
+}
+
 /** Test hooks */
 export function __testSearchCache(): LruCache<IgdbSearchHit[]> {
   return searchCache;
@@ -299,4 +329,8 @@ export function __testThrottle(): RequestThrottle {
 
 export function __testBasicGameCache(): TtlCache<IgdbBasicGame | null> {
   return basicGameCache;
+}
+
+export function __testLiveGameCache(): TtlCache<IgdbLiveGame | null> {
+  return liveGameCache;
 }

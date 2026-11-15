@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -34,6 +35,18 @@ interface GameWallProps {
   /** Genre results only. Omitted for search, shelves, and platform exclusives. */
   sortValue?: GenreSort;
   onSortChange?: (sort: GenreSort) => void;
+  liveSearchLoading?: boolean;
+  liveSearchShowSkeletons?: boolean;
+  liveSearchStatus?: ReactNode;
+}
+
+function CoverSkeleton() {
+  return (
+    <li className="min-w-0" aria-hidden="true">
+      <span className="relative block aspect-[3/4] animate-pulse overflow-hidden rounded-md bg-card ring-1 ring-white/10" />
+      <span className="mt-1 block h-8 rounded bg-card/80" />
+    </li>
+  );
 }
 
 function GenreSortControl({ value, onChange }: { value: GenreSort; onChange: (sort: GenreSort) => void }) {
@@ -81,7 +94,13 @@ interface GridWindow {
   padBottom: number;
 }
 
-function CoverGrid({ games }: { games: CatalogueCard[] }) {
+function CoverGrid({
+  games,
+  pendingSkeletons = 0,
+}: {
+  games: CatalogueCard[];
+  pendingSkeletons?: number;
+}) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
   const fallback = games.slice(0, Math.min(games.length, PAGE_SIZE));
@@ -183,6 +202,11 @@ function CoverGrid({ games }: { games: CatalogueCard[] }) {
             </Link>
           </li>
         ))}
+        {pendingSkeletons > 0 && (!gridWindow || gridWindow.end >= games.length)
+          ? Array.from({ length: pendingSkeletons }).map((_, index) => (
+              <CoverSkeleton key={`pending-${index}`} />
+            ))
+          : null}
       </ul>
       {gridWindow && gridWindow.padBottom > 0 ? <div style={{ height: gridWindow.padBottom }} /> : null}
     </div>
@@ -202,6 +226,9 @@ export default function GameWall({
   platformLabel,
   sortValue,
   onSortChange,
+  liveSearchLoading = false,
+  liveSearchShowSkeletons = false,
+  liveSearchStatus,
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const split = sections && sections.length > 0 ? sections : null;
@@ -221,12 +248,13 @@ export default function GameWall({
             id="game-wall-heading"
             ref={headingRef}
             tabIndex={-1}
-            className="flex items-center gap-2 text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
+            className="flex flex-wrap items-center gap-2 text-xl font-bold tracking-tight text-foreground focus:outline-none sm:text-2xl"
           >
             {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
             {title}
+            {liveSearchStatus}
           </HeadingTag>
-          <p className="mt-1 text-sm text-muted">
+          <p className="mt-1 text-sm text-muted" aria-live="polite">
             {countLabel(total, split ? "results" : "games")}
           </p>
         </div>
@@ -260,12 +288,20 @@ export default function GameWall({
                 </h2>
                 <p className="mt-1 text-sm text-muted">{countLabel(section.games.length, section.kind)}</p>
               </div>
-              <CoverGrid games={section.games} />
+              <CoverGrid
+                games={section.games}
+                pendingSkeletons={
+                  section.kind === "games" && liveSearchLoading && liveSearchShowSkeletons ? 6 : 0
+                }
+              />
             </section>
           ))}
         </div>
       ) : (
-        <CoverGrid games={games} />
+        <CoverGrid
+          games={games}
+          pendingSkeletons={liveSearchLoading && liveSearchShowSkeletons ? 6 : 0}
+        />
       )}
     </section>
   );

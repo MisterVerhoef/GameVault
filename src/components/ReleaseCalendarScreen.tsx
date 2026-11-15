@@ -60,7 +60,7 @@ function WishlistBadge() {
 }
 
 function CalendarEntryLink({ entry }: { entry: CalendarEntry }) {
-  const dateText = entry.missing ? "Not in the catalogue" : entryDateLabel(entry);
+  const dateText = entry.missing ? "Release date unknown" : entryDateLabel(entry);
   const later = laterReleaseLabel(entry.later);
   const platforms = entry.platforms.slice(0, 4).join(" · ");
   const body = (
