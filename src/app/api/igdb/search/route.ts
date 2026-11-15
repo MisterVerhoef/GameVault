@@ -1,4 +1,4 @@
-import { searchIgdbLive, IGDB_SEARCH_CACHE_CONTROL } from "@/lib/igdb/client";
+import { searchIgdbLive, igdbSearchCacheControl } from "@/lib/igdb/client";
 
 export const runtime = "nodejs";
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     {
       status: 200,
       headers: {
-        "Cache-Control": IGDB_SEARCH_CACHE_CONTROL,
+        "Cache-Control": igdbSearchCacheControl(games.length),
       },
     },
   );
