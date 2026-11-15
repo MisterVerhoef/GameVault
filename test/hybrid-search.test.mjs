@@ -5,6 +5,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 const {
   shouldQueryIgdbLiveSearch,
   mergeCatalogueAndIgdbSearch,
+  filterIgdbHitsForCatalogueMerge,
   catalogueTitleMatchCount,
 } = loadTsModule("src/data/hybrid-search.ts");
 const { searchMatchTier } = loadTsModule("src/data/search-rank.ts");
@@ -33,6 +34,25 @@ test("mergeCatalogueAndIgdbSearch ranks exact title matches and dedupes ids", ()
   assert.equal(syndicates.length, 2);
   assert.ok(syndicates.some((game) => game.id === "2115" && game.releaseYear === 2012));
   assert.ok(merged[merged.length - 1].title.startsWith("Syndicate:"));
+});
+
+test("filterIgdbHitsForCatalogueMerge drops IGDB duplicates unless exact shared title", () => {
+  assert.deepEqual(
+    filterIgdbHitsForCatalogueMerge(
+      "zelda",
+      [{ id: "1", title: "The Legend of Zelda: Ocarina of Time", platforms: ["Other"] }],
+      [{ id: "999", title: "The Legend of Zelda: Ocarina of Time" }],
+    ).map((hit) => hit.id),
+    [],
+  );
+  assert.deepEqual(
+    filterIgdbHitsForCatalogueMerge(
+      "syndicate",
+      [{ id: "49", title: "Syndicate", platforms: ["PC"] }],
+      [{ id: "2115", title: "Syndicate", releaseYear: 2012 }],
+    ).map((hit) => hit.id),
+    ["2115"],
+  );
 });
 
 test("shouldQueryIgdbLiveSearch skips IGDB when many exact title matches", () => {

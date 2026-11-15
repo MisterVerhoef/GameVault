@@ -1,5 +1,6 @@
 import type { CatalogueCard } from "./catalogue-card";
 import { searchMatchTier, sortSearchResults } from "./search-rank";
+import { normalizeTitle } from "./store-match";
 import type { IgdbSearchHit } from "@/lib/igdb/types";
 
 export const MIN_TITLE_MATCHES_BEFORE_SKIP_IGDB = 5;
@@ -43,6 +44,26 @@ export function igdbSearchHitToCard(hit: IgdbSearchHit): CatalogueCard {
   };
 }
 
+/** Drop IGDB rows that repeat an already-listed title unless both sides are exact query title matches. */
+export function filterIgdbHitsForCatalogueMerge(
+  query: string,
+  catalogue: readonly CatalogueCard[],
+  igdbHits: readonly IgdbSearchHit[],
+): IgdbSearchHit[] {
+  const catalogueIds = new Set(catalogue.map((game) => game.id));
+  return igdbHits.filter((hit) => {
+    if (catalogueIds.has(hit.id)) return false;
+    const hitNorm = normalizeTitle(hit.title);
+    const sameTitleCatalogue = catalogue.filter((game) => normalizeTitle(game.title) === hitNorm);
+    if (sameTitleCatalogue.length === 0) return true;
+    const hitTier = searchMatchTier(query, hit.title);
+    if (hitTier === 4 && sameTitleCatalogue.some((game) => searchMatchTier(query, game.title) === 4)) {
+      return true;
+    }
+    return false;
+  });
+}
+
 export function mergeCatalogueAndIgdbSearch(
   query: string,
   catalogue: readonly CatalogueCard[],
@@ -52,7 +73,7 @@ export function mergeCatalogueAndIgdbSearch(
   for (const game of catalogue) {
     merged.set(game.id, game);
   }
-  for (const hit of igdbHits) {
+  for (const hit of filterIgdbHitsForCatalogueMerge(query, catalogue, igdbHits)) {
     if (!merged.has(hit.id)) {
       merged.set(hit.id, igdbSearchHitToCard(hit));
     }
