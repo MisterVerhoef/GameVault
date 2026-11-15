@@ -4,6 +4,8 @@ export interface IgdbSearchHit {
   cover?: { url: string };
   releaseYear?: number;
   rating?: number;
+  ratingCount?: number;
+  gameType?: number;
   parentGameId?: string;
   versionParentId?: string;
 }

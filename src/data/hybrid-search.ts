@@ -1,6 +1,7 @@
 import type { CatalogueCard } from "./catalogue-card";
 import { searchMatchTier, sortSearchResults } from "./search-rank";
 import { normalizeTitle } from "./store-match";
+import { foldUnlinkedIgdbPorts, type PortFoldRow } from "./port-fold";
 import type { IgdbSearchHit } from "@/lib/igdb/types";
 
 export const MIN_TITLE_MATCHES_BEFORE_SKIP_IGDB = 5;
@@ -68,6 +69,15 @@ export function igdbHitDuplicatesCatalogueTitle(
   return hitYear === catYear;
 }
 
+function cataloguePortFoldPeers(catalogue: readonly CatalogueCard[]): PortFoldRow[] {
+  return catalogue.map((game) => ({
+    id: game.id,
+    title: game.title,
+    ...(game.releaseYear != null ? { releaseYear: game.releaseYear } : {}),
+    ...(game.ratingCount != null ? { ratingCount: game.ratingCount } : {}),
+  }));
+}
+
 /** Drop IGDB rows that repeat an already-listed title and release year. */
 export function filterIgdbHitsForCatalogueMerge(
   query: string,
@@ -75,7 +85,11 @@ export function filterIgdbHitsForCatalogueMerge(
   igdbHits: readonly IgdbSearchHit[],
 ): IgdbSearchHit[] {
   const catalogueIds = new Set(catalogue.map((game) => game.id));
-  return dropIgdbPortsWithCatalogueParent(igdbHits, catalogue).filter((hit) => {
+  const folded = foldUnlinkedIgdbPorts(
+    dropIgdbPortsWithCatalogueParent(igdbHits, catalogue),
+    cataloguePortFoldPeers(catalogue),
+  );
+  return folded.filter((hit) => {
     if (catalogueIds.has(hit.id)) return false;
     const hitNorm = normalizeTitle(hit.title);
     const sameTitleCatalogue = catalogue.filter((game) => normalizeTitle(game.title) === hitNorm);

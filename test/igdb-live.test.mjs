@@ -59,11 +59,11 @@ test("LruCache evicts oldest entries", () => {
 
 test("buildIgdbSearchBody uses game_type filter and escapes quotes", () => {
   const body = buildIgdbSearchBody('Say "Hello"');
-  assert.match(body, /game_type = \(0,8,9,10,11\)/);
+  assert.match(body, /game_type != \(11,12,13,14\)/);
   assert.match(body, /game_type = null/);
   assert.doesNotMatch(body, /category =/);
   assert.match(body, /search "Say \\"Hello\\"";/);
-  assert.match(body, /parent_game,version_parent/);
+  assert.match(body, /total_rating_count,game_type,parent_game,version_parent/);
   assert.match(body, /version_parent = null/);
 });
 

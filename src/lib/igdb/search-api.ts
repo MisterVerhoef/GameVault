@@ -23,7 +23,7 @@ export function igdbSearchCacheControl(gameCount: number): string {
 export function buildIgdbSearchBody(query: string): string {
   const escaped = query.trim().replace(/"/g, '\\"');
   return [
-    "fields id,name,cover.url,first_release_date,rating,parent_game,version_parent;",
+    "fields id,name,cover.url,first_release_date,rating,total_rating_count,game_type,parent_game,version_parent;",
     `search "${escaped}";`,
     `where ${IGDB_LIVE_SEARCH_GAME_TYPE_FILTER};`,
     `limit ${IGDB_LIVE_SEARCH_LIMIT};`,
@@ -34,7 +34,7 @@ export function buildIgdbSearchBody(query: string): string {
 export function buildIgdbExactNameSearchBody(query: string): string {
   const escaped = query.trim().replace(/"/g, '\\"');
   return [
-    "fields id,name,cover.url,first_release_date,rating,parent_game,version_parent;",
+    "fields id,name,cover.url,first_release_date,rating,total_rating_count,game_type,parent_game,version_parent;",
     `where name ~ "${escaped}" & ${IGDB_LIVE_SEARCH_GAME_TYPE_FILTER};`,
     "sort total_rating_count desc;",
     `limit ${IGDB_LIVE_EXACT_NAME_LIMIT};`,

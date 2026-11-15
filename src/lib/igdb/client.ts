@@ -1,5 +1,7 @@
 import { unstable_cache } from "next/cache";
+import { foldUnlinkedIgdbPorts } from "@/data/port-fold";
 import { groupIgdbSearchHits } from "@/data/search-grouping";
+import { cataloguePortPeersForTitles } from "./catalogue-port-peers";
 import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
@@ -110,10 +112,13 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       cover?: { url?: string };
       first_release_date?: number;
       rating?: number;
+      total_rating_count?: number;
+      game_type?: number;
       parent_game?: { id?: number };
       version_parent?: { id?: number };
     };
     if (!record.id || !record.name) continue;
+    if (typeof record.game_type === "number" && [11, 12, 13, 14].includes(record.game_type)) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
     const releaseYear =
       typeof record.first_release_date === "number" && Number.isFinite(record.first_release_date)
@@ -128,6 +133,10 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       title: record.name,
       ...(releaseYear != null ? { releaseYear } : {}),
       ...(typeof record.rating === "number" ? { rating: record.rating } : {}),
+      ...(typeof record.total_rating_count === "number"
+        ? { ratingCount: record.total_rating_count }
+        : {}),
+      ...(typeof record.game_type === "number" ? { gameType: record.game_type } : {}),
       ...(parentGameId ? { parentGameId } : {}),
       ...(versionParentId ? { versionParentId } : {}),
       ...(coverUrl ? { cover: { url: coverUrl.replace(/\/t_[^/]+\//, "/t_cover_big/") } } : {}),
@@ -145,7 +154,10 @@ function dropIgdbPortsCoveredByCatalogue(hits: IgdbSearchHit[]): IgdbSearchHit[]
 }
 
 function finalizeIgdbSearchHits(query: string, hits: IgdbSearchHit[]): IgdbSearchHit[] {
-  const grouped = groupIgdbSearchHits(dropIgdbPortsCoveredByCatalogue(hits));
+  const deduped = dropIgdbPortsCoveredByCatalogue(hits);
+  const cataloguePeers = cataloguePortPeersForTitles(deduped.map((hit) => hit.title));
+  const folded = foldUnlinkedIgdbPorts(deduped, cataloguePeers);
+  const grouped = groupIgdbSearchHits(folded);
   return sortSearchResults(query, grouped).slice(0, IGDB_LIVE_SEARCH_RESULT_CAP);
 }
 

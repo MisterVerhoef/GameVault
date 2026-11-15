@@ -19,16 +19,17 @@ const {
   IGDB_LIVE_SEARCH_LIMIT,
 } = loadTsModule("src/lib/igdb/search-api.ts");
 
-const SYNDICATE_CATALOGUE = [{ id: "49", title: "Syndicate", releaseYear: 1993, platforms: ["PC"] }];
-const SYNDICATE_IGDB_FUZZY = [{ id: "213754", title: "Syndicate", releaseYear: 1993 }];
-const SYNDICATE_IGDB_EXACT = [{ id: "1006", title: "Syndicate", releaseYear: 2012, rating: 73.4 }];
+const SYNDICATE_CATALOGUE = [{ id: "49", title: "Syndicate", releaseYear: 1993, platforms: ["PC"], ratingCount: 64 }];
+const SYNDICATE_IGDB_FUZZY = [{ id: "213754", title: "Syndicate", releaseYear: 1993, ratingCount: 0 }];
+const SYNDICATE_IGDB_EXACT = [{ id: "1006", title: "Syndicate", releaseYear: 2012, rating: 73.4, ratingCount: 120 }];
 const SYNDICATE_IGDB = mergeIgdbLiveSearchRows(SYNDICATE_IGDB_EXACT, SYNDICATE_IGDB_FUZZY);
 
 test("buildIgdbSearchBody excludes ports and raises the page size", () => {
   const body = buildIgdbSearchBody("syndicate");
   assert.match(body, /version_parent = null/);
-  assert.match(body, /game_type = \(0,8,9,10,11\)/);
+  assert.match(body, /game_type != \(11,12,13,14\)/);
   assert.match(body, /game_type = null/);
+  assert.match(body, /total_rating_count/);
   assert.match(body, new RegExp(`limit ${IGDB_LIVE_SEARCH_LIMIT};`));
 });
 

@@ -11,8 +11,37 @@
       "id": "213754",
       "title": "Syndicate",
       "releaseYear": 1993,
+      "ratingCount": 0,
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "213570",
+      "title": "Syndicate",
+      "releaseYear": 1994,
+      "ratingCount": 2,
+      "rating": 60,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "213885",
+      "title": "Syndicate",
+      "releaseYear": 1995,
+      "ratingCount": 1,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "214456",
+      "title": "Syndicate Wars",
+      "releaseYear": 1997,
+      "ratingCount": 0,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5443.jpg"
       }
     }
   ],
@@ -22,6 +51,7 @@
       "title": "Syndicate",
       "releaseYear": 2012,
       "rating": 73.4,
+      "ratingCount": 120,
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2srt.webp"
       }
@@ -80,6 +110,54 @@
       "publishers": [],
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "213570": {
+      "id": "213570",
+      "slug": "syndicate-snes",
+      "title": "Syndicate",
+      "releaseYear": 1994,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["SNES"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "213885": {
+      "id": "213885",
+      "slug": "syndicate-md",
+      "title": "Syndicate",
+      "releaseYear": 1995,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["Mega Drive"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "214456": {
+      "id": "214456",
+      "slug": "syndicate-wars-ps",
+      "title": "Syndicate Wars",
+      "releaseYear": 1997,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["PlayStation"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5443.jpg"
       },
       "releases": []
     },
