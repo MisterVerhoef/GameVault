@@ -29,9 +29,10 @@ interface RowWindow {
 }
 
 function layoutRowPadding() {
-  const raw = getComputedStyle(document.documentElement)
-    .getPropertyValue("--gv-layout-padding-inline")
-    .trim();
+  const root = getComputedStyle(document.documentElement);
+  const inset = root.getPropertyValue("--gv-layout-row-inset-inline").trim();
+  const fallback = root.getPropertyValue("--gv-layout-padding-inline").trim();
+  const raw = inset || fallback;
   const value = Number.parseFloat(raw);
   return Number.isFinite(value) ? value : 16;
 }

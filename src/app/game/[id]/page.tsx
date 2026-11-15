@@ -21,6 +21,7 @@ import Navbar from "@/components/Navbar";
 import IgdbOnlyGameDetail from "@/components/IgdbOnlyGameDetail";
 import { fetchIgdbGameById } from "@/lib/igdb/client";
 import SimilarGamesSection, { type SimilarGameItem } from "@/components/SimilarGamesSection";
+import { listGroupedVariants, type GroupableGame } from "@/data/search-grouping";
 
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
@@ -207,6 +208,20 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const hasPlay = gameModes.length > 0 || perspectives.length > 0 || playPhrases.length > 0;
   const hasDetails = hasPlay || playTimes.length > 0 || keywords.length > 0 || releases.length > 0;
   const guides = guideLinks(game.websites);
+  const catalogueForGrouping: GroupableGame[] = allGames.map((entry) => ({
+    id: entry.id,
+    title: entry.title,
+    releaseYear: entry.releaseYear,
+    rating: entry.rating,
+    platforms: entry.platforms,
+    platformVariants: entry.platformVariants,
+    parentGameId: entry.parentGameId,
+    versionParentId: entry.versionParentId,
+    portIds: entry.portIds,
+    relatedGames: entry.relatedGames,
+  }));
+  const groupedVariants = listGroupedVariants(game.id, catalogueForGrouping);
+
   const similarGames: SimilarGameItem[] = game.similarGames.map((ref) => {
     const catalogueGame = findGameByProviderId(ref.id);
     return {
@@ -628,6 +643,28 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
             </div>
           </section>
         )}
+
+        {groupedVariants.length > 0 ? (
+          <section className="mb-12">
+            <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Ports &amp; editions</h2>
+            <ul className="divide-y divide-white/10 overflow-hidden rounded-xl bg-card ring-1 ring-white/10">
+              {groupedVariants.map((variant) => (
+                <li key={variant.id} className="flex flex-col gap-1 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <Link
+                    href={`/game/${variant.id}`}
+                    className="font-medium text-foreground transition hover:text-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  >
+                    {variant.title}
+                  </Link>
+                  <p className="text-sm text-muted">
+                    {variant.platformLabel}
+                    {variant.releaseYear != null ? ` · ${variant.releaseYear}` : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        ) : null}
 
         {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
           <section className="mb-12">

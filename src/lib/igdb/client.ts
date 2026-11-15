@@ -1,3 +1,5 @@
+import { groupIgdbSearchHits } from "@/data/search-grouping";
+import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
 import { LruCache } from "./lru-cache";
@@ -83,16 +85,41 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
   const hits: IgdbSearchHit[] = [];
   for (const row of rows) {
     if (!row || typeof row !== "object") continue;
-    const record = row as { id?: number; name?: string; cover?: { url?: string } };
+    const record = row as {
+      id?: number;
+      name?: string;
+      cover?: { url?: string };
+      first_release_date?: number;
+      rating?: number;
+      parent_game?: { id?: number };
+      version_parent?: { id?: number };
+    };
     if (!record.id || !record.name) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
+    const releaseYear =
+      typeof record.first_release_date === "number" && Number.isFinite(record.first_release_date)
+        ? new Date(record.first_release_date * 1000).getUTCFullYear()
+        : undefined;
+    const parentGameId =
+      typeof record.parent_game?.id === "number" ? String(record.parent_game.id) : undefined;
+    const versionParentId =
+      typeof record.version_parent?.id === "number" ? String(record.version_parent.id) : undefined;
     hits.push({
       id: String(record.id),
       title: record.name,
+      ...(releaseYear != null ? { releaseYear } : {}),
+      ...(typeof record.rating === "number" ? { rating: record.rating } : {}),
+      ...(parentGameId ? { parentGameId } : {}),
+      ...(versionParentId ? { versionParentId } : {}),
       ...(coverUrl ? { cover: { url: coverUrl.replace(/\/t_[^/]+\//, "/t_cover_big/") } } : {}),
     });
   }
   return hits;
+}
+
+function finalizeIgdbSearchHits(query: string, hits: IgdbSearchHit[]): IgdbSearchHit[] {
+  const grouped = groupIgdbSearchHits(hits);
+  return sortSearchResults(query, grouped).slice(0, 12);
 }
 
 export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
@@ -103,7 +130,10 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (cached) return cached;
 
   if (igdbMockEnabled()) {
-    const hits = dedupeIgdbAgainstCatalogue(mockIgdbSearch(query), getCatalogueIgdbIds());
+    const hits = finalizeIgdbSearchHits(
+      query,
+      dedupeIgdbAgainstCatalogue(mockIgdbSearch(query), getCatalogueIgdbIds()),
+    );
     searchCache.set(normalized, hits);
     return hits;
   }
@@ -126,7 +156,9 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
       console.error("[igdb] search response was not a JSON array");
       return [];
     }
-    const hits = dedupeIgdbAgainstCatalogue(mapSearchRows(rows), getCatalogueIgdbIds());
+    const mapped = mapSearchRows(rows);
+    const deduped = dedupeIgdbAgainstCatalogue(mapped, getCatalogueIgdbIds());
+    const hits = finalizeIgdbSearchHits(query, deduped);
     searchCache.set(normalized, hits);
     return hits;
   } catch (error) {

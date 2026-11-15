@@ -17,6 +17,7 @@ const { createBrowseCatalogue, buildLibraryView, readHomeQuery } = loadTsModule(
   "src/data/library-view.ts",
 );
 const { sortSearchResults } = loadTsModule("src/data/search-rank.ts");
+const { groupSearchMatches } = loadTsModule("src/data/search-grouping.ts");
 const { matchesSearchTerms } = loadTsModule("src/data/search-terms.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -477,7 +478,7 @@ test("genre results sort the full set before pagination and leave other shelves 
   );
   assert.deepEqual(
     search.wall.games.map((entry) => entry.id),
-    sortSearchResults("game", searchHits).map((entry) => entry.id),
+    groupSearchMatches(sortSearchResults("game", searchHits), catalogue.games).map((entry) => entry.id),
   );
 
   const exclusives = buildLibraryView(

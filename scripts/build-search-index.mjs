@@ -75,6 +75,9 @@ const browseGames = catalogue.games.map((game) => {
   if (gameMatchesGenre(game, "multiplayer")) record.multiplayer = true;
   if (downloadableIds.has(game.id)) record.downloadable = true;
   if (sourceIds.length > 0) record.sourceIds = sourceIds;
+  if (game.parentGameId) record.parentGameId = game.parentGameId;
+  if (game.versionParentId) record.versionParentId = game.versionParentId;
+  if (game.portIds?.length) record.portIds = game.portIds;
   return record;
 });
 const browseBody = `${JSON.stringify({ schemaVersion: 1, games: browseGames })}\n`;

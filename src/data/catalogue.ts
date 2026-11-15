@@ -103,6 +103,9 @@ export interface ExternalGameRecord {
   source?: { provider: string; id: string };
   sourceId?: string;
   externalIds?: { store: "xbox" | "playstation" | "nintendo"; id: string }[];
+  parentGameId?: string;
+  versionParentId?: string;
+  portIds?: string[];
   updatedAt?: string;
   warnings?: string[];
 }
@@ -357,6 +360,9 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     collections: record.collections ?? [],
     source: [{ provider: record.source?.provider ?? provider, id: sourceId }],
     ...(record.externalIds && record.externalIds.length > 0 ? { externalIds: record.externalIds } : {}),
+    ...(record.parentGameId ? { parentGameId: record.parentGameId } : {}),
+    ...(record.versionParentId ? { versionParentId: record.versionParentId } : {}),
+    ...(record.portIds?.length ? { portIds: record.portIds } : {}),
     updatedAt: record.updatedAt ?? updatedAt,
   };
 }

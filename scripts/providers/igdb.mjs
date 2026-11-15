@@ -391,8 +391,13 @@ export function normalizeIgdbRecord(record) {
     })).concat((record.remasters ?? []).map((game) => ({
       id: String(game.id),
       title: game.name,
-      relation: "sequel",
+      relation: "remake",
     }))),
+    ...(record.parent_game?.id ? { parentGameId: String(record.parent_game.id) } : {}),
+    ...(record.version_parent?.id ? { versionParentId: String(record.version_parent.id) } : {}),
+    ...(Array.isArray(record.ports) && record.ports.length > 0
+      ? { portIds: record.ports.map((game) => String(game.id)).filter(Boolean) }
+      : {}),
     similarGames: contentRefs(record.similar_games),
     franchises: (record.franchises ?? []).map((franchise) => franchise.name).filter(Boolean),
     collections: (record.collections ?? []).map((collection) => collection.name).filter(Boolean),

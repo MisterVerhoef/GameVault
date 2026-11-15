@@ -4,7 +4,7 @@ async function pageOverflow(page) {
   return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
 }
 
-const LAYOUT_ALIGN_WIDTHS = [1265, 1580, 1920];
+const LAYOUT_ALIGN_WIDTHS = [1265, 1580, 1920, 2560];
 
 test("gv-layout-01: header, hero, and row headings share one container inset", async ({ page }) => {
   await page.goto("/");
@@ -31,6 +31,27 @@ test("gv-layout-01: header, hero, and row headings share one container inset", a
     expect(Math.abs(edges.logoX - edges.heroX), `logo vs hero at ${width}px`).toBeLessThanOrEqual(2);
     expect(Math.abs(edges.logoX - edges.featuredX), `logo vs featured heading at ${width}px`).toBeLessThanOrEqual(2);
     expect(Math.abs(edges.heroX - edges.featuredX), `hero vs featured heading at ${width}px`).toBeLessThanOrEqual(2);
+  }
+});
+
+test("gv-layout-02: row scrollers align first card with row title", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Featured Games", exact: true })).toBeVisible();
+
+  for (const width of [1920, 2560]) {
+    await page.setViewportSize({ width, height: 900 });
+    const edges = await page.evaluate(() => {
+      const featuredHeading = [...document.querySelectorAll("h2")].find(
+        (heading) => heading.textContent?.trim() === "Featured Games",
+      );
+      const section = featuredHeading?.closest("section");
+      const firstCard = section?.querySelector("[data-roving-card]");
+      return {
+        titleX: featuredHeading?.getBoundingClientRect().x ?? 0,
+        cardX: firstCard?.getBoundingClientRect().x ?? 0,
+      };
+    });
+    expect(Math.abs(edges.titleX - edges.cardX), `featured card inset at ${width}px`).toBeLessThanOrEqual(2);
   }
 });
 

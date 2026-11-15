@@ -138,6 +138,12 @@ export interface Game {
   achievements?: AchievementSummary;
   source: SourceRef[];
   externalIds?: ExternalStoreId[];
+  /** IGDB parent_game when this row is a port/edition (optional until sync). */
+  parentGameId?: string;
+  /** IGDB version_parent for SKU variants (optional until sync). */
+  versionParentId?: string;
+  /** IGDB ports grouped under this parent (optional until sync). */
+  portIds?: string[];
   updatedAt: string;
 }
 

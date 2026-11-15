@@ -11,9 +11,9 @@ export function igdbSearchCacheControl(gameCount: number): string {
 export function buildIgdbSearchBody(query: string): string {
   const escaped = query.trim().replace(/"/g, '\\"');
   return [
-    "fields id,name,cover.url;",
+    "fields id,name,cover.url,first_release_date,rating,parent_game,version_parent;",
     `search "${escaped}";`,
-    "where game_type = (0,8,9,10,11) & version_parent = null;",
-    "limit 12;",
+    "where game_type = (0,8,9,10,11);",
+    "limit 24;",
   ].join(" ");
 }
