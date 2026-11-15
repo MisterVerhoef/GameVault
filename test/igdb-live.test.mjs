@@ -12,6 +12,19 @@ const {
   IGDB_SEARCH_CACHE_CONTROL,
   IGDB_SEARCH_CACHE_CONTROL_EMPTY,
 } = loadTsModule("src/lib/igdb/search-api.ts");
+const {
+  buildPopularCatalogQuery,
+  buildRecentCatalogQuery,
+  dedupeIgdbGamesLastWins,
+  mergeIgdbGamesPreferPrimary,
+  paginateIgdbQuery,
+  firstReleaseWindowUnix,
+  resolveRecentSyncConfig,
+  DEFAULT_IGDB_RECENT_PAST_MONTHS,
+  DEFAULT_IGDB_RECENT_FUTURE_MONTHS,
+  DEFAULT_IGDB_RECENT_LIMIT,
+  DEFAULT_IGDB_RECENT_PAGES,
+} = loadTsModule("src/lib/igdb/catalog-sync-selection.ts");
 
 test("normalizeIgdbQuery collapses whitespace and lowercases", () => {
   assert.equal(normalizeIgdbQuery("  Foo\tBAR  "), "foo bar");
@@ -55,6 +68,74 @@ test("igdbSearchCacheControl uses long TTL for hits and short for empty", () => 
   assert.equal(igdbSearchCacheControl(0), IGDB_SEARCH_CACHE_CONTROL_EMPTY);
   assert.match(IGDB_SEARCH_CACHE_CONTROL, /s-maxage=86400/);
   assert.match(IGDB_SEARCH_CACHE_CONTROL_EMPTY, /s-maxage=60/);
+});
+
+test("buildRecentCatalogQuery filters main games by release window and popularity", () => {
+  const reference = new Date("2026-05-15T12:00:00.000Z");
+  const body = buildRecentCatalogQuery({
+    limit: 100,
+    pastMonths: 18,
+    futureMonths: 6,
+    referenceDate: reference,
+  });
+  const { start, end } = firstReleaseWindowUnix(18, 6, reference);
+  assert.match(body, /game_type = \(0,8,9,10,11\)/);
+  assert.match(body, /version_parent = null/);
+  assert.doesNotMatch(body, /category =/);
+  assert.match(body, new RegExp(`first_release_date >= ${start}`));
+  assert.match(body, new RegExp(`first_release_date <= ${end}`));
+  assert.match(body, /platforms != null/);
+  assert.match(body, /sort hypes desc;/);
+  assert.match(body, /limit 100;/);
+});
+
+test("buildPopularCatalogQuery keeps rating sort and platform filter", () => {
+  const body = buildPopularCatalogQuery(250);
+  assert.match(body, /where platforms != null;/);
+  assert.match(body, /sort rating desc;/);
+  assert.match(body, /limit 250;/);
+});
+
+test("mergeIgdbGamesPreferPrimary keeps rating rows and adds new recent ids", () => {
+  const primary = [
+    { id: 1, name: "Rated", rating: 90 },
+    { id: 2, name: "Also rated" },
+  ];
+  const recent = [
+    { id: 2, name: "Recent duplicate", rating: undefined },
+    { id: 3, name: "New release" },
+  ];
+  const merged = mergeIgdbGamesPreferPrimary(primary, recent);
+  assert.equal(merged.length, 3);
+  assert.equal(merged.find((g) => g.id === 2)?.name, "Also rated");
+  assert.equal(merged.find((g) => g.id === 3)?.name, "New release");
+});
+
+test("dedupeIgdbGamesLastWins lets later search hits replace earlier pages", () => {
+  const games = [
+    { id: 10, slug: "old" },
+    { id: 11, slug: "one" },
+    { id: 10, slug: "new" },
+  ];
+  assert.deepEqual(dedupeIgdbGamesLastWins(games), [
+    { id: 10, slug: "new" },
+    { id: 11, slug: "one" },
+  ]);
+});
+
+test("paginateIgdbQuery applies limit and offset", () => {
+  const base = buildPopularCatalogQuery(500);
+  const paged = paginateIgdbQuery(base, 500, 1500);
+  assert.match(paged, /limit 500; offset 1500;/);
+});
+
+test("resolveRecentSyncConfig uses documented defaults", () => {
+  const config = resolveRecentSyncConfig({});
+  assert.equal(config.pastMonths, DEFAULT_IGDB_RECENT_PAST_MONTHS);
+  assert.equal(config.futureMonths, DEFAULT_IGDB_RECENT_FUTURE_MONTHS);
+  assert.equal(config.limit, DEFAULT_IGDB_RECENT_LIMIT);
+  assert.equal(config.pages, DEFAULT_IGDB_RECENT_PAGES);
+  assert.equal(config.sort, "hypes desc;");
 });
 
 test("RequestThrottle limits burst rate", async () => {

@@ -3,6 +3,17 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { loadTsModule } from "./load-ts-module.mjs";
+
+const {
+  buildPopularCatalogQuery,
+  buildRecentCatalogQuery,
+  dedupeIgdbGamesLastWins,
+  mergeIgdbGamesPreferPrimary,
+  paginateIgdbQuery,
+  resolveRecentSyncConfig,
+  assertRecentSyncConfig,
+} = loadTsModule("src/lib/igdb/catalog-sync-selection.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const clientId = process.env.IGDB_CLIENT_ID;
@@ -29,25 +40,17 @@ if (!Number.isInteger(minimumGames) || minimumGames < 1) {
   throw new Error("IGDB_MIN_GAMES must be a positive integer.");
 }
 
-const defaultQuery = [
-  "fields id,name,slug,summary,storyline,first_release_date,rating,rating_count,aggregated_rating,aggregated_rating_count,",
-  "genres.name,themes.name,game_modes.name,player_perspectives.name,platforms.name,cover.url,artworks.url,",
-  "age_ratings.organization.name,age_ratings.rating_category.rating,age_ratings.category,age_ratings.rating,",
-  "multiplayer_modes.campaigncoop,multiplayer_modes.dropin,multiplayer_modes.lancoop,multiplayer_modes.offlinecoop,multiplayer_modes.offlinecoopmax,multiplayer_modes.offlinemax,multiplayer_modes.onlinecoop,multiplayer_modes.onlinecoopmax,multiplayer_modes.onlinemax,multiplayer_modes.splitscreen,multiplayer_modes.splitscreenonline,",
-  "release_dates.date,release_dates.human,release_dates.platform.name,release_dates.region,release_dates.release_region.region,",
-  "screenshots.url,screenshots.width,screenshots.height,",
-  "videos.id,videos.name,videos.video_id,websites.url,websites.category,websites.type.type,",
-  "external_games.uid,external_games.external_game_source,external_games.category,external_games.url,",
-  "involved_companies.developer,involved_companies.publisher,involved_companies.company.id,involved_companies.company.name,",
-  "involved_companies.company.logo.image_id,involved_companies.company.logo.url,involved_companies.company.logo.width,involved_companies.company.logo.height,involved_companies.company.logo.alpha_channel,involved_companies.company.logo.animated,",
-  "dlcs.id,dlcs.name,expansions.id,expansions.name,",
-  "remakes.id,remakes.name,remasters.id,remasters.name,similar_games.id,similar_games.name,similar_games.cover.url,",
-  "franchises.name,collections.name;",
-  `limit ${limit};`,
-  "where platforms != null;",
-  "sort rating desc;",
-].join(" ");
+const recentSync = resolveRecentSyncConfig(process.env);
+assertRecentSyncConfig(recentSync);
+
+const defaultQuery = buildPopularCatalogQuery(limit);
 const query = process.env.IGDB_QUERY ?? defaultQuery;
+const recentQuery = buildRecentCatalogQuery({
+  limit: recentSync.limit,
+  pastMonths: recentSync.pastMonths,
+  futureMonths: recentSync.futureMonths,
+  sort: recentSync.sort,
+});
 
 async function requestToken() {
   const response = await fetch(
@@ -129,8 +132,9 @@ async function attachDetailFields(games, token) {
 }
 
 async function requestGames(token) {
-  const games = [];
-  async function requestPage(pageQuery) {
+  const ratingAndSearch = [];
+  const recentGames = [];
+  async function requestPage(pageQuery, target) {
     const response = await igdbQuery(token, "games", pageQuery);
     if (!response.ok) {
       const detail = await response.text();
@@ -138,25 +142,39 @@ async function requestGames(token) {
     }
     const pageGames = await response.json();
     if (!Array.isArray(pageGames)) throw new Error("IGDB returned an invalid games response.");
-    games.push(...pageGames);
+    target.push(...pageGames);
     return pageGames.length;
   }
 
   for (let page = 0; page < pages; page += 1) {
-    const pageQuery = query.replace(/\blimit\s+\d+\s*;/i, `limit ${limit}; offset ${page * limit};`);
-    const count = await requestPage(pageQuery);
+    const pageQuery = paginateIgdbQuery(query, limit, page * limit);
+    const count = await requestPage(pageQuery, ratingAndSearch);
     if (count < limit) break;
   }
   for (const term of searchTerms) {
     const searchQuery = defaultQuery
       .replace(/\blimit\s+\d+\s*;/i, `search "${term.replace(/"/g, '\\"')}"; limit 100;`)
       .replace(/sort rating desc;\s*$/i, "");
-    await requestPage(searchQuery);
+    await requestPage(searchQuery, ratingAndSearch);
   }
-  if (!Array.isArray(games) || games.length === 0) {
+  if (recentSync.pages > 0) {
+    for (let page = 0; page < recentSync.pages; page += 1) {
+      const pageQuery = paginateIgdbQuery(recentQuery, recentSync.limit, page * recentSync.limit);
+      const count = await requestPage(pageQuery, recentGames);
+      if (count < recentSync.limit) break;
+    }
+  }
+  if (!Array.isArray(ratingAndSearch) || ratingAndSearch.length === 0) {
     throw new Error("IGDB returned no games; refusing to replace the checked-in catalogue.");
   }
-  const unique = Array.from(new Map(games.map((game) => [game.id, game])).values());
+  const ratingCatalogue = dedupeIgdbGamesLastWins(ratingAndSearch);
+  const unique = mergeIgdbGamesPreferPrimary(ratingCatalogue, dedupeIgdbGamesLastWins(recentGames));
+  if (recentSync.pages > 0 && recentGames.length > 0) {
+    const added = unique.length - ratingCatalogue.length;
+    console.log(
+      `IGDB recent-release pass contributed ${added} game(s) (${recentSync.pastMonths}mo lookback, ${recentSync.futureMonths}mo ahead, ${recentSync.pages} page(s)).`,
+    );
+  }
   await attachDetailFields(unique, token);
   return unique;
 }
