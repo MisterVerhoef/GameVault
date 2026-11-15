@@ -95,7 +95,7 @@ fs.writeFileSync(
       sourceChecksum,
     },
     games,
-  }, null, 2)}\n`,
+  })}\n`,
 );
 console.log(`Imported ${games.length} games from ${path.relative(root, resolvedInputPath)}`);
 console.log(`Quality report written to ${path.relative(root, reportPath)}`);

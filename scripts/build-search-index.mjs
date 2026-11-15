@@ -38,7 +38,7 @@ const index = catalogue.games
     };
   })
   .sort((a, b) => a.id.localeCompare(b.id));
-fs.writeFileSync(outputPath, `${JSON.stringify({ schemaVersion: 1, games: index }, null, 2)}\n`);
+fs.writeFileSync(outputPath, `${JSON.stringify({ schemaVersion: 1, games: index })}\n`);
 console.log(`Built search index for ${index.length} games.`);
 
 function coverUrl(url) {
