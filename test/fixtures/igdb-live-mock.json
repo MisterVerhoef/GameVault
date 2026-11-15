@@ -1,5 +1,5 @@
 {
-  "search": [
+  "searchFuzzy": [
     {
       "id": "999999001",
       "title": "Vault Mock Exclusief Spel",
@@ -11,11 +11,12 @@
       "id": "213754",
       "title": "Syndicate",
       "releaseYear": 1993,
-      "versionParentId": "49",
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
       }
-    },
+    }
+  ],
+  "searchExact": [
     {
       "id": "1006",
       "title": "Syndicate",

@@ -5,12 +5,19 @@ import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
 import { LruCache } from "./lru-cache";
 import { mapIgdbApiRecord } from "./map-record";
-import { igdbMockEnabled, mockIgdbGame, mockIgdbSearch } from "./mock";
+import {
+  igdbMockEnabled,
+  mockIgdbGame,
+  mockIgdbSearchExact,
+  mockIgdbSearchFuzzy,
+} from "./mock";
 import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
 import {
+  buildIgdbExactNameSearchBody,
   buildIgdbSearchBody,
   IGDB_LIVE_SEARCH_RESULT_CAP,
+  mergeIgdbLiveSearchRows,
 } from "./search-api";
 import { mapIgdbBasicRecord } from "./map-basic-record";
 import { mockIgdbGamesByIds } from "./mock";
@@ -18,10 +25,12 @@ import { TtlCache } from "./ttl-cache";
 import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
 
 export {
+  buildIgdbExactNameSearchBody,
   buildIgdbSearchBody,
   igdbSearchCacheControl,
   IGDB_SEARCH_CACHE_CONTROL,
   IGDB_SEARCH_CACHE_CONTROL_EMPTY,
+  mergeIgdbLiveSearchRows,
 } from "./search-api";
 
 const throttle = new RequestThrottle(4);
@@ -105,7 +114,6 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       version_parent?: { id?: number };
     };
     if (!record.id || !record.name) continue;
-    if (record.version_parent?.id != null) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
     const releaseYear =
       typeof record.first_release_date === "number" && Number.isFinite(record.first_release_date)
@@ -149,10 +157,12 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (cached) return cached;
 
   if (igdbMockEnabled()) {
-    const hits = finalizeIgdbSearchHits(
-      query,
-      dedupeIgdbAgainstCatalogue(mockIgdbSearch(query), getCatalogueIgdbIds()),
+    const catalogueIds = getCatalogueIgdbIds();
+    const combined = mergeIgdbLiveSearchRows(
+      dedupeIgdbAgainstCatalogue(mockIgdbSearchExact(query), catalogueIds),
+      dedupeIgdbAgainstCatalogue(mockIgdbSearchFuzzy(query), catalogueIds),
     );
+    const hits = finalizeIgdbSearchHits(query, combined);
     searchCache.set(normalized, hits);
     return hits;
   }
@@ -160,24 +170,33 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (!credentials()) return [];
 
   try {
-    const body = buildIgdbSearchBody(query);
-    const response = await igdbPost("games", body);
-    if (!response) {
+    const [fuzzyResponse, exactResponse] = await Promise.all([
+      igdbPost("games", buildIgdbSearchBody(query)),
+      igdbPost("games", buildIgdbExactNameSearchBody(query)),
+    ]);
+    if (!fuzzyResponse && !exactResponse) {
       console.warn("[igdb] search skipped: missing credentials or auth token");
       return [];
     }
-    if (!response.ok) {
-      console.error(`[igdb] search HTTP ${response.status} for query length ${query.trim().length}`);
+    const rowsFrom = async (response: Response | null) => {
+      if (!response || !response.ok) return [] as unknown[];
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    };
+    const exactRows = await rowsFrom(exactResponse);
+    const fuzzyRows = await rowsFrom(fuzzyResponse);
+    if (!fuzzyResponse?.ok && !exactResponse?.ok) {
+      console.error(
+        `[igdb] search HTTP fuzzy=${fuzzyResponse?.status ?? "none"} exact=${exactResponse?.status ?? "none"}`,
+      );
       return [];
     }
-    const rows = await response.json();
-    if (!Array.isArray(rows)) {
-      console.error("[igdb] search response was not a JSON array");
-      return [];
-    }
-    const mapped = mapSearchRows(rows);
-    const deduped = dedupeIgdbAgainstCatalogue(mapped, getCatalogueIgdbIds());
-    const hits = finalizeIgdbSearchHits(query, deduped);
+    const catalogueIds = getCatalogueIgdbIds();
+    const combined = mergeIgdbLiveSearchRows(
+      dedupeIgdbAgainstCatalogue(mapSearchRows(exactRows), catalogueIds),
+      dedupeIgdbAgainstCatalogue(mapSearchRows(fuzzyRows), catalogueIds),
+    );
+    const hits = finalizeIgdbSearchHits(query, combined);
     searchCache.set(normalized, hits);
     return hits;
   } catch (error) {

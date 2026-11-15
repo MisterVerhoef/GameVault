@@ -7,23 +7,64 @@ const {
   mergeCatalogueAndIgdbSearch,
   filterIgdbHitsForCatalogueMerge,
   dropIgdbPortsWithCatalogueParent,
+  igdbHitDuplicatesCatalogueTitle,
   catalogueTitleMatchCount,
 } = loadTsModule("src/data/hybrid-search.ts");
 const { searchMatchTier } = loadTsModule("src/data/search-rank.ts");
 const { searchCardLabel } = loadTsModule("src/data/search-card-label.ts");
-const { buildIgdbSearchBody, IGDB_LIVE_SEARCH_LIMIT } = loadTsModule("src/lib/igdb/search-api.ts");
+const {
+  buildIgdbSearchBody,
+  buildIgdbExactNameSearchBody,
+  mergeIgdbLiveSearchRows,
+  IGDB_LIVE_SEARCH_LIMIT,
+} = loadTsModule("src/lib/igdb/search-api.ts");
 
 const SYNDICATE_CATALOGUE = [{ id: "49", title: "Syndicate", releaseYear: 1993, platforms: ["PC"] }];
-const SYNDICATE_IGDB = [
-  { id: "213754", title: "Syndicate", releaseYear: 1993, versionParentId: "49" },
-  { id: "1006", title: "Syndicate", releaseYear: 2012, rating: 73.4 },
-];
+const SYNDICATE_IGDB_FUZZY = [{ id: "213754", title: "Syndicate", releaseYear: 1993 }];
+const SYNDICATE_IGDB_EXACT = [{ id: "1006", title: "Syndicate", releaseYear: 2012, rating: 73.4 }];
+const SYNDICATE_IGDB = mergeIgdbLiveSearchRows(SYNDICATE_IGDB_EXACT, SYNDICATE_IGDB_FUZZY);
 
 test("buildIgdbSearchBody excludes ports and raises the page size", () => {
   const body = buildIgdbSearchBody("syndicate");
   assert.match(body, /version_parent = null/);
   assert.match(body, /game_type = \(0,8,9,10,11\)/);
+  assert.match(body, /game_type = null/);
   assert.match(body, new RegExp(`limit ${IGDB_LIVE_SEARCH_LIMIT};`));
+});
+
+test("buildIgdbExactNameSearchBody matches titles with ~ and popularity sort", () => {
+  const body = buildIgdbExactNameSearchBody("Syndicate");
+  assert.match(body, /where name ~ "Syndicate"/);
+  assert.match(body, /sort total_rating_count desc;/);
+  assert.match(body, /version_parent = null/);
+});
+
+test("mergeIgdbLiveSearchRows prefers exact-name rows and dedupes ids", () => {
+  const merged = mergeIgdbLiveSearchRows(
+    [{ id: "1006", title: "Syndicate", releaseYear: 2012 }],
+    [
+      { id: "1006", title: "Syndicate (dup)", releaseYear: 2012 },
+      { id: "213754", title: "Syndicate", releaseYear: 1993 },
+    ],
+  );
+  assert.deepEqual(merged.map((hit) => hit.id), ["1006", "213754"]);
+});
+
+test("igdbHitDuplicatesCatalogueTitle treats missing years as duplicates", () => {
+  assert.equal(
+    igdbHitDuplicatesCatalogueTitle(
+      { title: "Syndicate", releaseYear: 1993 },
+      { title: "Syndicate", releaseYear: undefined },
+    ),
+    true,
+  );
+  assert.equal(
+    igdbHitDuplicatesCatalogueTitle(
+      { title: "Syndicate", releaseYear: 2012 },
+      { title: "Syndicate", releaseYear: 1993 },
+    ),
+    false,
+  );
 });
 
 test("shouldQueryIgdbLiveSearch ignores summary-only catalogue hits", () => {
@@ -37,9 +78,21 @@ test("shouldQueryIgdbLiveSearch ignores summary-only catalogue hits", () => {
 
 test("dropIgdbPortsWithCatalogueParent removes ports parented on catalogue ids", () => {
   assert.deepEqual(
-    dropIgdbPortsWithCatalogueParent(SYNDICATE_IGDB, SYNDICATE_CATALOGUE).map((hit) => hit.id),
-    ["1006"],
+    dropIgdbPortsWithCatalogueParent(
+      [{ id: "9", title: "Port", versionParentId: "49" }],
+      SYNDICATE_CATALOGUE,
+    ).map((hit) => hit.id),
+    [],
   );
+});
+
+test("syndicate merge drops Amiga fuzzy port without version_parent metadata", () => {
+  const filtered = filterIgdbHitsForCatalogueMerge(
+    "syndicate",
+    SYNDICATE_CATALOGUE,
+    SYNDICATE_IGDB,
+  );
+  assert.deepEqual(filtered.map((hit) => hit.id), ["1006"]);
 });
 
 test("syndicate merge keeps 1993 catalogue and 2012 IGDB, not the Amiga port", () => {

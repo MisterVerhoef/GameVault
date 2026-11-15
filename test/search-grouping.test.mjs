@@ -101,3 +101,15 @@ test("groupIgdbSearchHits merges live IGDB duplicates", () => {
   assert.equal(grouped.length, 1);
   assert.equal(grouped[0].id, "7346");
 });
+
+test("groupIgdbSearchHits keeps same title across different release years", () => {
+  const grouped = groupIgdbSearchHits([
+    { id: "49", title: "Syndicate", releaseYear: 1993, rating: 83 },
+    { id: "1006", title: "Syndicate", releaseYear: 2012, rating: 73 },
+    { id: "213754", title: "Syndicate", releaseYear: 1993, rating: 70 },
+  ]);
+  assert.deepEqual(
+    grouped.map((hit) => hit.id).sort(),
+    ["1006", "49"],
+  );
+});

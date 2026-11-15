@@ -1,6 +1,10 @@
 /** Main retail games on IGDB (excludes DLC, mods, episodes, etc.). */
 export const IGDB_MAIN_GAME_TYPE_FILTER = "game_type = (0,8,9,10,11) & version_parent = null";
 
+/** Live search: allow missing `game_type` on older catalogue rows. */
+export const IGDB_LIVE_SEARCH_GAME_TYPE_FILTER =
+  "(game_type = (0,8,9,10,11) | game_type = null) & version_parent = null";
+
 export const DEFAULT_IGDB_RECENT_PAST_MONTHS = 18;
 export const DEFAULT_IGDB_RECENT_FUTURE_MONTHS = 6;
 export const DEFAULT_IGDB_RECENT_LIMIT = 500;

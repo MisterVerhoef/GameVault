@@ -56,6 +56,18 @@ export function dropIgdbPortsWithCatalogueParent(
   });
 }
 
+/** Same normalized title and overlapping or unknown release year (duplicate port/edition). */
+export function igdbHitDuplicatesCatalogueTitle(
+  hit: Pick<IgdbSearchHit, "title" | "releaseYear">,
+  catalogueGame: Pick<CatalogueCard, "title" | "releaseYear">,
+): boolean {
+  if (normalizeTitle(hit.title) !== normalizeTitle(catalogueGame.title)) return false;
+  const hitYear = hit.releaseYear;
+  const catYear = catalogueGame.releaseYear;
+  if (hitYear == null || catYear == null) return true;
+  return hitYear === catYear;
+}
+
 /** Drop IGDB rows that repeat an already-listed title and release year. */
 export function filterIgdbHitsForCatalogueMerge(
   query: string,
@@ -68,11 +80,9 @@ export function filterIgdbHitsForCatalogueMerge(
     const hitNorm = normalizeTitle(hit.title);
     const sameTitleCatalogue = catalogue.filter((game) => normalizeTitle(game.title) === hitNorm);
     if (sameTitleCatalogue.length === 0) return true;
-    const hitYear = hit.releaseYear;
-    const duplicateYear = sameTitleCatalogue.some(
-      (game) => game.releaseYear != null && hitYear != null && game.releaseYear === hitYear,
-    );
-    if (duplicateYear) return false;
+    if (sameTitleCatalogue.some((game) => igdbHitDuplicatesCatalogueTitle(hit, game))) {
+      return false;
+    }
     return searchMatchTier(query, hit.title) >= 2;
   });
 }
