@@ -5,9 +5,15 @@ import { mapIgdbApiRecord } from "./map-record";
 import { igdbMockEnabled, mockIgdbGame, mockIgdbSearch } from "./mock";
 import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
+import { buildIgdbSearchBody } from "./search-api";
 import type { IgdbLiveGame, IgdbSearchHit } from "./types";
 
-export const IGDB_SEARCH_CACHE_CONTROL = "public, s-maxage=86400, stale-while-revalidate=604800";
+export {
+  buildIgdbSearchBody,
+  igdbSearchCacheControl,
+  IGDB_SEARCH_CACHE_CONTROL,
+  IGDB_SEARCH_CACHE_CONTROL_EMPTY,
+} from "./search-api";
 
 const throttle = new RequestThrottle(4);
 const searchCache = new LruCache<IgdbSearchHit[]>({ maxEntries: 256 });
@@ -94,24 +100,26 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (!credentials()) return [];
 
   try {
-    const escaped = query.trim().replace(/"/g, '\\"');
-    const body = [
-      "fields id,name,cover.url;",
-      `search "${escaped}";`,
-      "where category = (0,8,9,10,11) & version_parent = null;",
-      "limit 12;",
-    ].join(" ");
+    const body = buildIgdbSearchBody(query);
     const response = await igdbPost("games", body);
-    if (!response || !response.ok) {
-      if (response?.status === 429) return [];
+    if (!response) {
+      console.warn("[igdb] search skipped: missing credentials or auth token");
+      return [];
+    }
+    if (!response.ok) {
+      console.error(`[igdb] search HTTP ${response.status} for query length ${query.trim().length}`);
       return [];
     }
     const rows = await response.json();
-    if (!Array.isArray(rows)) return [];
+    if (!Array.isArray(rows)) {
+      console.error("[igdb] search response was not a JSON array");
+      return [];
+    }
     const hits = dedupeIgdbAgainstCatalogue(mapSearchRows(rows), getCatalogueIgdbIds());
     searchCache.set(normalized, hits);
     return hits;
-  } catch {
+  } catch (error) {
+    console.error("[igdb] search request failed:", error instanceof Error ? error.message : error);
     return [];
   }
 }
