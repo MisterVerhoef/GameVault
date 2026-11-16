@@ -23,7 +23,7 @@ test("home paints without the catalogue, then search loads it", async ({ page })
   await page.locator("#navbar-search").fill("baldur");
   await expect(page.getByRole("heading", { level: 1, name: /Search results/i })).toBeVisible();
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
-  await expect(page.getByRole("button", { name: /Baldur's Gate III/i }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /Baldur's Gate III/i }).first()).toBeVisible();
 });
 
 test("arrow keys still move between home cards", async ({ page }) => {

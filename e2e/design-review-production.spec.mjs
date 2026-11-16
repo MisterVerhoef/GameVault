@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 async function readSearchTitles(page) {
   return page
-    .locator('section[aria-labelledby="game-wall-heading"] button[data-roving-card] span.line-clamp-2')
+    .locator('section[aria-labelledby="game-wall-heading"] a[data-roving-card] span.line-clamp-2')
     .evaluateAll((nodes) => nodes.map((node) => node.textContent?.trim() ?? "").filter(Boolean));
 }
 
@@ -12,18 +12,12 @@ test("single click on a search result opens the game page", async ({ page }) => 
     timeout: 30_000,
   });
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 30_000 });
-  const card = page
-    .locator('section[aria-labelledby="game-wall-heading"] button[data-roving-card]')
-    .filter({ hasText: /Syndicate/i })
-    .first();
+  const card = page.getByRole("link", { name: /Syndicate \(1993\)/i }).first();
   await expect(card).toBeVisible();
-  const href = await card.evaluate((node) => {
-    const id = node.getAttribute("data-card-id");
-    return id ? `/game/${id}` : "";
-  });
+  const href = await card.getAttribute("href");
   expect(href).toMatch(/^\/game\/\d+$/);
   await Promise.all([page.waitForURL(href), card.click()]);
-  expect(page.url()).toContain(href);
+  expect(page.url()).toContain(href ?? "");
 });
 
 test("search result order stays stable after live search completes", async ({ page }) => {

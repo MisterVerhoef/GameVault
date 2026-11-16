@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useRovingCards } from "@/components/use-roving-cards";
 import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
@@ -115,27 +114,19 @@ interface GridWindow {
   padBottom: number;
 }
 
-function SearchCoverCard({
-  game,
-  label,
-  onOpen,
-}: {
-  game: CatalogueCard;
-  label: string;
-  onOpen: (id: string) => void;
-}) {
+function SearchCoverCard({ game, label }: { game: CatalogueCard; label: string }) {
   return (
     <li className="min-w-0">
-      <button
-        type="button"
+      <Link
+        href={`/game/${game.id}`}
+        prefetch={false}
         data-roving-card=""
         data-card-id={game.id}
         aria-label={label}
         onMouseDown={(event) => {
           if (event.button === 0) event.preventDefault();
         }}
-        onClick={() => onOpen(game.id)}
-        className="group relative w-full cursor-pointer rounded-md text-left focus:outline-none focus-visible:z-10"
+        className="group relative block w-full rounded-md focus:outline-none focus-visible:z-10"
       >
         <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-black/10 transition group-hover:ring-accent/60 dark:ring-white/10">
           {!game.cover?.url ? (
@@ -176,7 +167,7 @@ function SearchCoverCard({
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 z-10 rounded-md ring-2 ring-transparent ring-inset group-focus-visible:ring-accent"
         />
-      </button>
+      </Link>
     </li>
   );
 }
@@ -194,15 +185,11 @@ function CoverGrid({
   skeletonOnly?: boolean;
   rovingSearchCards?: boolean;
 }) {
-  const router = useRouter();
   const hostRef = useRef<HTMLDivElement>(null);
   const roving = useRovingCards(skeletonOnly ? pendingSkeletons : games.length);
   const gridRef = rovingSearchCards ? roving.ref : hostRef;
   const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
   const fallback = games.slice(0, Math.min(games.length, PAGE_SIZE));
-  const openGame = (id: string) => {
-    router.push(`/game/${id}`);
-  };
 
   useEffect(() => {
     const host = hostRef.current;
@@ -276,9 +263,7 @@ function CoverGrid({
         {shown.map((game) => {
           const label = searchCardLabel(game, games);
           if (rovingSearchCards) {
-            return (
-              <SearchCoverCard key={game.id} game={game} label={label} onOpen={openGame} />
-            );
+            return <SearchCoverCard key={game.id} game={game} label={label} />;
           }
           return (
             <li key={game.id} className="min-w-0">
