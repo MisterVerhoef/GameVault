@@ -151,6 +151,31 @@ function coverFromApps(entry: Record<string, unknown>): string | null {
   return box ?? poster ?? (typeof entry.iconUrl === "string" ? entry.iconUrl : null);
 }
 
+function microsoftAvailabilities(product: Record<string, unknown>) {
+  return ((product.DisplaySkuAvailabilities as Record<string, unknown>[] | undefined) ?? []).flatMap((sku) => (
+    ((sku.Availabilities as Record<string, unknown>[] | undefined) ?? []).map((availability) => {
+      const price = availability?.OrderManagementData as { Price?: { CurrencyCode?: string; ListPrice?: number; MSRP?: number } } | undefined;
+      return {
+        skuType: (sku.Sku as { SkuType?: string } | undefined)?.SkuType,
+        actions: availability?.Actions as string[] | undefined,
+        remediationRequired: availability?.RemediationRequired === true,
+        currency: price?.Price?.CurrencyCode,
+        listPrice: price?.Price?.ListPrice,
+        msrp: price?.Price?.MSRP,
+      };
+    })
+  ));
+}
+
+/** Current Netherlands purchase price from Display Catalog, including non-sale list prices. */
+export function xboxListPriceFromDisplayCatalog(
+  product: Record<string, unknown> | undefined,
+): { price: number; regularPrice: number } | null {
+  if (!product) return null;
+  const priced = selectMicrosoftPrice(microsoftAvailabilities(product));
+  return priced ?? null;
+}
+
 /** Normalize a Display Catalog product into a deal row when it is on sale. */
 export function xboxDealFromDisplayCatalog(
   product: Record<string, unknown>,
@@ -162,21 +187,7 @@ export function xboxDealFromDisplayCatalog(
   const localized = (product.LocalizedProperties as Record<string, unknown>[] | undefined)?.[0] ?? {};
   const title = typeof localized.ProductTitle === "string" ? localized.ProductTitle : "";
   if (!title) return null;
-  const priced = selectMicrosoftPrice(
-    ((product.DisplaySkuAvailabilities as Record<string, unknown>[] | undefined) ?? []).flatMap((sku) => (
-      ((sku.Availabilities as Record<string, unknown>[] | undefined) ?? []).map((availability) => {
-        const price = availability?.OrderManagementData as { Price?: { CurrencyCode?: string; ListPrice?: number; MSRP?: number } } | undefined;
-        return {
-          skuType: (sku.Sku as { SkuType?: string } | undefined)?.SkuType,
-          actions: availability?.Actions as string[] | undefined,
-          remediationRequired: availability?.RemediationRequired === true,
-          currency: price?.Price?.CurrencyCode,
-          listPrice: price?.Price?.ListPrice,
-          msrp: price?.Price?.MSRP,
-        };
-      })
-    )),
-  );
+  const priced = selectMicrosoftPrice(microsoftAvailabilities(product));
   if (!priced || priced.regularPrice <= priced.price) return null;
   const productKind = classifyMicrosoftProductKind(product, undefined, sources, title);
   return {

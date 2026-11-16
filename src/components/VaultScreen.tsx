@@ -19,7 +19,8 @@ import type { CatalogueCard } from "@/data/catalogue-card";
 import { useBrowseCatalogue } from "@/data/load-browse-catalogue";
 import { findBrowseGame, toCard } from "@/data/library-view";
 import { useStoreOfferIndex } from "@/data/load-store-offers";
-import { gameIsOnSale } from "@/data/store-offer-index";
+import { useLiveStoreOfferOverlays } from "@/data/use-live-store-offers";
+import { offersForGame, type CachedStoreOffer } from "@/data/store-offer-index";
 
 interface VaultItem {
   gameId: string;
@@ -37,11 +38,13 @@ function VaultShelf({
   status,
   items,
   offerState,
+  liveOffersFor,
   onRemove,
 }: {
   status: LibraryStatus;
   items: VaultItem[];
   offerState: WishlistOfferState;
+  liveOffersFor: (gameId: string, platforms?: readonly string[]) => readonly CachedStoreOffer[] | undefined;
   onRemove: (gameId: string) => void;
 }) {
   const known = items.filter((item) => item.game);
@@ -100,6 +103,7 @@ function VaultShelf({
                     title={item.game.title}
                     platforms={item.game.platforms}
                     state={offerState}
+                    liveOffers={liveOffersFor(item.game.id, item.game.platforms)}
                     className="w-full flex-1"
                   />
                 )}
@@ -142,6 +146,13 @@ export default function VaultScreen() {
   const onSale = activeStatus === "wishlist" && params.get("sale") === "1";
   const showWishlistPrices = ready && wishlistCount > 0 && (activeStatus == null || activeStatus === "wishlist");
   const storeOffers = useStoreOfferIndex(showWishlistPrices);
+  const wishlistGameIds = useMemo(
+    () => Object.entries(entries)
+      .filter(([, entry]) => entry.status === "wishlist")
+      .map(([gameId]) => gameId),
+    [entries],
+  );
+  const liveOverlay = useLiveStoreOfferOverlays(wishlistGameIds, showWishlistPrices && storeOffers.index != null);
   const offerState: WishlistOfferState = !showWishlistPrices
     ? { status: "hidden" }
     : storeOffers.failed
@@ -169,14 +180,24 @@ export default function VaultScreen() {
 
   const total = groups.reduce((sum, group) => sum + group.items.length, 0);
   const wishlistGroup = groups.find((group) => group.status === "wishlist");
+  const offersForWishlistItem = (gameId: string, platforms?: readonly string[]) => {
+    if (offerState.status !== "ready") return undefined;
+    const live = liveOverlay.overlays?.get(gameId);
+    if (live) return live;
+    return offersForGame(offerState.index, gameId, platforms);
+  };
+  const gameOnSale = (gameId: string, platforms?: readonly string[]) => {
+    const offers = offersForWishlistItem(gameId, platforms) ?? [];
+    return offers.some((offer) => offer.deal);
+  };
   const onSaleCount = offerState.status === "ready" && wishlistGroup
-    ? wishlistGroup.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)).length
+    ? wishlistGroup.items.filter((item) => item.game && gameOnSale(item.game.id, item.game.platforms)).length
     : null;
   const selected = (activeStatus ? groups.filter((group) => group.status === activeStatus) : groups).map((group) => {
     if (!onSale || group.status !== "wishlist" || offerState.status !== "ready") return group;
     return {
       ...group,
-      items: group.items.filter((item) => item.game && gameIsOnSale(offerState.index, item.game.id, item.game.platforms)),
+      items: group.items.filter((item) => item.game && gameOnSale(item.game.id, item.game.platforms)),
     };
   });
   const visible = selected.filter((group) => group.items.length > 0);
@@ -293,6 +314,9 @@ export default function VaultScreen() {
                 status={group.status}
                 items={group.items}
                 offerState={group.status === "wishlist" ? offerState : { status: "hidden" }}
+                liveOffersFor={(gameId, platforms) => (
+                  group.status === "wishlist" ? offersForWishlistItem(gameId, platforms) : undefined
+                )}
                 onRemove={(gameId) => setStatus(gameId, null)}
               />
             ))
