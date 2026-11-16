@@ -90,6 +90,8 @@ export function useIgdbLiveSearch(
 
   const stale = fetchKey !== trimmed;
   const stillLoading = shouldSearch && (loading || stale);
+  const willQueryIgdb =
+    shouldSearch && shouldQueryIgdbLiveSearch(trimmed, catalogueGames);
   const activeHits = useMemo(
     () => (fetchKey === trimmed ? igdbHits : []),
     [fetchKey, trimmed, igdbHits],
@@ -101,14 +103,27 @@ export function useIgdbLiveSearch(
   );
 
   const games = useMemo(() => {
-    if (!shouldSearch || igdbGameHits.length === 0) {
-      return [...catalogueGames];
-    }
+    if (!shouldSearch) return [...catalogueGames];
+    if (willQueryIgdb && stillLoading) return [];
+    if (igdbGameHits.length === 0) return [...catalogueGames];
     return mergeCatalogueAndIgdbSearch(trimmed, catalogueGames, igdbGameHits);
-  }, [trimmed, catalogueGames, igdbGameHits, shouldSearch]);
+  }, [
+    trimmed,
+    catalogueGames,
+    igdbGameHits,
+    shouldSearch,
+    willQueryIgdb,
+    stillLoading,
+  ]);
 
   const sections = useMemo(() => {
     if (!catalogueSections || catalogueSections.length === 0) return undefined;
+    if (willQueryIgdb && stillLoading) {
+      return catalogueSections.map((section) => ({
+        ...section,
+        games: [],
+      }));
+    }
     if (!shouldSearch || activeHits.length === 0) {
       return catalogueSections.map((section) => ({
         ...section,
@@ -116,7 +131,14 @@ export function useIgdbLiveSearch(
       }));
     }
     return mergeSearchWallSections(trimmed, catalogueSections, activeHits);
-  }, [trimmed, catalogueSections, activeHits, shouldSearch]);
+  }, [
+    trimmed,
+    catalogueSections,
+    activeHits,
+    shouldSearch,
+    willQueryIgdb,
+    stillLoading,
+  ]);
 
   return {
     loading: stillLoading,

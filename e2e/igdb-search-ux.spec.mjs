@@ -38,6 +38,6 @@ test("IGDB card without cover shows initials placeholder", async ({ page }) => {
     timeout: 20_000,
   });
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
-  await expect(page.getByRole("link", { name: /Syndicate Boyfriend/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Syndicate Boyfriend/i })).toBeVisible();
   await expect(page.getByText("SB", { exact: true })).toBeVisible();
 });

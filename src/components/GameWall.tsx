@@ -1,14 +1,16 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { searchCardLabel } from "@/data/search-card-label";
 import { GameCoverPlaceholder } from "./cover-placeholder";
 import { PlatformIcon } from "./platform-icons";
+import { useRovingCards } from "./use-roving-cards";
 
 const PAGE_SIZE = 48;
 /** Title block plus the grid's vertical gap, added under each cover. */
@@ -65,6 +67,83 @@ function CoverSkeleton({ reducedMotion }: { reducedMotion: boolean }) {
   );
 }
 
+function SearchWallCard({ game, label }: { game: CatalogueCard; label: string }) {
+  const router = useRouter();
+  const openedFromMouseDown = useRef(false);
+  const open = useCallback(() => {
+    router.push(`/game/${game.id}`);
+  }, [router, game.id]);
+
+  const onMouseDown = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (event.button !== 0) return;
+    if (document.activeElement !== event.currentTarget) {
+      event.preventDefault();
+      openedFromMouseDown.current = true;
+      open();
+    }
+  };
+
+  const onClick = () => {
+    if (openedFromMouseDown.current) {
+      openedFromMouseDown.current = false;
+      return;
+    }
+    open();
+  };
+
+  return (
+    <button
+      type="button"
+      data-roving-card=""
+      data-card-id={game.id}
+      aria-label={label}
+      onClick={onClick}
+      onMouseDown={onMouseDown}
+      className="group relative block w-full min-h-11 touch-manipulation rounded-md text-left focus:outline-none"
+    >
+      <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
+        {!game.cover?.url ? (
+          <span className="absolute inset-0">
+            <GameCoverPlaceholder title={game.title} />
+          </span>
+        ) : (
+          <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
+        )}
+        {game.cloudServices && game.cloudServices.length > 0 ? (
+          <span
+            className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"
+            title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
+            aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
+            </svg>
+          </span>
+        ) : null}
+        {game.cover?.url ? (
+          <Image
+            src={game.cover.url}
+            alt=""
+            fill
+            unoptimized
+            loading="lazy"
+            sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 10vw"
+            className="object-cover"
+          />
+        ) : null}
+      </span>
+      <span className="mt-1 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90 sm:text-xs">
+        {label}
+      </span>
+      <span
+        data-focus-ring=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 rounded-md ring-2 ring-transparent ring-inset group-focus-visible:ring-accent"
+      />
+    </button>
+  );
+}
+
 function GenreSortControl({ value, onChange }: { value: GenreSort; onChange: (sort: GenreSort) => void }) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-1 sm:w-auto">
@@ -114,14 +193,19 @@ function CoverGrid({
   games,
   pendingSkeletons = 0,
   reducedMotion = false,
+  searchRoving = false,
 }: {
   games: CatalogueCard[];
   pendingSkeletons?: number;
   reducedMotion?: boolean;
+  searchRoving?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
   const fallback = games.slice(0, Math.min(games.length, PAGE_SIZE));
+  const { ref: rovingRef, onFocus } = useRovingCards<HTMLUListElement>(
+    searchRoving ? games.length + pendingSkeletons : 0,
+  );
 
   useEffect(() => {
     const host = hostRef.current;
@@ -184,13 +268,18 @@ function CoverGrid({
     <div ref={hostRef} className="px-4 sm:px-6 lg:px-8" style={{ overflowAnchor: "none" }}>
       {gridWindow && gridWindow.padTop > 0 ? <div style={{ height: gridWindow.padTop }} /> : null}
       <ul
+        ref={searchRoving ? rovingRef : undefined}
+        onFocus={searchRoving ? onFocus : undefined}
         className={`grid gap-x-2 gap-y-3 sm:gap-x-3 ${columnsClass ?? ""}`}
         style={gridWindow ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
       >
         {shown.map((game) => {
           const label = searchCardLabel(game, games);
           return (
-          <li key={game.id} className="min-w-0">
+          <li key={game.id} className="relative min-w-0">
+            {searchRoving ? (
+              <SearchWallCard game={game} label={label} />
+            ) : (
             <Link
               href={`/game/${game.id}`}
               className="group block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
@@ -227,6 +316,7 @@ function CoverGrid({
                 {label}
               </span>
             </Link>
+            )}
           </li>
         );
         })}
@@ -265,6 +355,7 @@ export default function GameWall({
     liveSearchLoading && liveSearchShowSkeletons ? liveSearchSkeletonCount : 0;
   const split = sections && sections.length > 0 ? sections : null;
   const total = split ? split.reduce((count, section) => count + section.games.length, 0) : games.length;
+  const searchRoving = resetKey.startsWith("search:");
   const HeadingTag = titleLevel === "h2" ? "h2" : "h1";
 
   useEffect(() => {
@@ -305,7 +396,7 @@ export default function GameWall({
         ) : null}
       </div>
 
-      {total === 0 ? (
+      {total === 0 && pendingSkeletons === 0 ? (
         <p className="mx-auto max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
           No games in the catalogue match {emptyLabel ?? title}.
         </p>
@@ -323,6 +414,7 @@ export default function GameWall({
                 games={section.games}
                 pendingSkeletons={section.kind === "games" ? pendingSkeletons : 0}
                 reducedMotion={reducedMotion}
+                searchRoving={searchRoving}
               />
             </section>
           ))}
@@ -332,6 +424,7 @@ export default function GameWall({
           games={games}
           pendingSkeletons={pendingSkeletons}
           reducedMotion={reducedMotion}
+          searchRoving={searchRoving}
         />
       )}
     </section>

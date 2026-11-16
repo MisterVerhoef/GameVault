@@ -12,7 +12,7 @@ test("Zelda search shows one card per grouped title in catalogue results", async
   await liveSearch.catch(() => {});
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
 
-  const titles = await page.locator('section[aria-labelledby="game-wall-heading"] ul a span.line-clamp-2').evaluateAll((nodes) =>
+  const titles = await page.locator('section[aria-labelledby="game-wall-heading"] ul button[data-roving-card] span.line-clamp-2').evaluateAll((nodes) =>
     nodes.map((node) => node.textContent?.trim() ?? "").filter(Boolean),
   );
   const normalized = titles.map((title) => title.trim().toLowerCase());
