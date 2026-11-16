@@ -2,6 +2,8 @@ import type { CatalogueCard } from "./catalogue-card";
 import { searchMatchTier, sortSearchResults } from "./search-rank";
 import { normalizeTitle } from "./store-match";
 import { foldUnlinkedIgdbPorts, type PortFoldRow } from "./port-fold";
+import { dropIgdbSearchNoise } from "@/lib/igdb/search-hit-quality";
+import { isIgdbDlcSearchHit, partitionIgdbSearchHits } from "@/lib/igdb/search-hit-types";
 import type { IgdbSearchHit } from "@/lib/igdb/types";
 
 export const MIN_TITLE_MATCHES_BEFORE_SKIP_IGDB = 5;
@@ -85,11 +87,15 @@ export function filterIgdbHitsForCatalogueMerge(
   igdbHits: readonly IgdbSearchHit[],
 ): IgdbSearchHit[] {
   const catalogueIds = new Set(catalogue.map((game) => game.id));
-  const folded = foldUnlinkedIgdbPorts(
-    dropIgdbPortsWithCatalogueParent(igdbHits, catalogue),
-    cataloguePortFoldPeers(catalogue),
+  const folded = dropIgdbSearchNoise(
+    query,
+    foldUnlinkedIgdbPorts(
+      dropIgdbPortsWithCatalogueParent(igdbHits, catalogue),
+      cataloguePortFoldPeers(catalogue),
+    ),
   );
   return folded.filter((hit) => {
+    if (isIgdbDlcSearchHit(hit)) return false;
     if (catalogueIds.has(hit.id)) return false;
     const hitNorm = normalizeTitle(hit.title);
     const sameTitleCatalogue = catalogue.filter((game) => normalizeTitle(game.title) === hitNorm);
@@ -118,6 +124,26 @@ export function mergeCatalogueAndIgdbSearch(
   return sortSearchResults(query, [...merged.values()]);
 }
 
+function mergeDlcSection(
+  query: string,
+  catalogue: readonly CatalogueCard[],
+  igdbDlc: readonly IgdbSearchHit[],
+): CatalogueCard[] {
+  const merged = new Map<string, CatalogueCard>();
+  for (const game of catalogue) {
+    merged.set(game.id, game);
+  }
+  const filtered = foldUnlinkedIgdbPorts(
+    dropIgdbPortsWithCatalogueParent(igdbDlc, catalogue),
+    cataloguePortFoldPeers(catalogue),
+  );
+  for (const hit of filtered) {
+    if (merged.has(hit.id)) continue;
+    merged.set(hit.id, igdbSearchHitToCard(hit));
+  }
+  return sortSearchResults(query, [...merged.values()]);
+}
+
 export function mergeSearchWallSections(
   query: string,
   sections: readonly { id: string; title: string; kind: "games" | "dlc"; games: CatalogueCard[] }[],
@@ -125,15 +151,22 @@ export function mergeSearchWallSections(
 ):
   | { id: string; title: string; kind: "games" | "dlc"; games: CatalogueCard[] }[]
   | undefined {
+  const { games: igdbGameHits, dlc: igdbDlcHits } = partitionIgdbSearchHits(
+    igdbHits.filter((hit) => !sections.some((section) =>
+      section.games.some((game) => game.id === hit.id),
+    )),
+  );
   if (sections.length === 0) return undefined;
-  const igdbGames = igdbHits.filter((hit) => !sections.some((section) =>
-    section.games.some((game) => game.id === hit.id),
-  ));
   return sections.map((section) => {
-    if (section.kind !== "games") return section;
+    if (section.kind === "dlc") {
+      return {
+        ...section,
+        games: mergeDlcSection(query, section.games, igdbDlcHits),
+      };
+    }
     return {
       ...section,
-      games: mergeCatalogueAndIgdbSearch(query, section.games, igdbGames),
+      games: mergeCatalogueAndIgdbSearch(query, section.games, igdbGameHits),
     };
   });
 }

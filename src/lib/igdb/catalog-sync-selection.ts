@@ -1,9 +1,9 @@
 /** Main retail games on IGDB (excludes DLC, mods, episodes, etc.). */
 export const IGDB_MAIN_GAME_TYPE_FILTER = "game_type = (0,8,9,10,11) & version_parent = null";
 
-/** Live search: allow missing `game_type` on legacy rows; exclude port/fork/pack/update types. */
+/** Live search: allow legacy null types; keep DLC/expansion/pack; drop bundles, mods, ports. */
 export const IGDB_LIVE_SEARCH_GAME_TYPE_FILTER =
-  "version_parent = null & (game_type = null | game_type != (11,12,13,14))";
+  "version_parent = null & (game_type = null | game_type != (3,5,11,12,14))";
 
 export const DEFAULT_IGDB_RECENT_PAST_MONTHS = 18;
 export const DEFAULT_IGDB_RECENT_FUTURE_MONTHS = 6;

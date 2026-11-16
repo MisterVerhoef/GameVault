@@ -7,6 +7,7 @@ import Link from "next/link";
 import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { searchCardLabel } from "@/data/search-card-label";
+import { GameCoverPlaceholder } from "./cover-placeholder";
 import { PlatformIcon } from "./platform-icons";
 
 const PAGE_SIZE = 48;
@@ -38,14 +39,28 @@ interface GameWallProps {
   onSortChange?: (sort: GenreSort) => void;
   liveSearchLoading?: boolean;
   liveSearchShowSkeletons?: boolean;
+  liveSearchSkeletonCount?: number;
   liveSearchStatus?: ReactNode;
 }
 
-function CoverSkeleton() {
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const apply = () => setReduced(media.matches);
+    apply();
+    media.addEventListener("change", apply);
+    return () => media.removeEventListener("change", apply);
+  }, []);
+  return reduced;
+}
+
+function CoverSkeleton({ reducedMotion }: { reducedMotion: boolean }) {
+  const pulse = reducedMotion ? "" : "animate-pulse";
   return (
     <li className="min-w-0" aria-hidden="true">
-      <span className="relative block aspect-[3/4] animate-pulse overflow-hidden rounded-md bg-card ring-1 ring-white/10" />
-      <span className="mt-1 block h-8 rounded bg-card/80" />
+      <span className={`relative block aspect-[3/4] overflow-hidden rounded-md bg-card ring-1 ring-white/10 ${pulse}`} />
+      <span className={`mt-1 block h-8 rounded bg-card/80 ${pulse}`} />
     </li>
   );
 }
@@ -98,9 +113,11 @@ interface GridWindow {
 function CoverGrid({
   games,
   pendingSkeletons = 0,
+  reducedMotion = false,
 }: {
   games: CatalogueCard[];
   pendingSkeletons?: number;
+  reducedMotion?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
@@ -180,7 +197,13 @@ function CoverGrid({
               aria-label={label}
             >
               <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
-                <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+                {!game.cover?.url ? (
+                  <span className="absolute inset-0">
+                    <GameCoverPlaceholder title={game.title} />
+                  </span>
+                ) : (
+                  <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
+                )}
                 {game.cloudServices && game.cloudServices.length > 0 ? (
                   <span className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm" title={`Cloud streaming: ${game.cloudServices.join(", ")}`} aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}>
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -209,7 +232,7 @@ function CoverGrid({
         })}
         {pendingSkeletons > 0 && (!gridWindow || gridWindow.end >= games.length)
           ? Array.from({ length: pendingSkeletons }).map((_, index) => (
-              <CoverSkeleton key={`pending-${index}`} />
+              <CoverSkeleton key={`pending-${index}`} reducedMotion={reducedMotion} />
             ))
           : null}
       </ul>
@@ -233,9 +256,13 @@ export default function GameWall({
   onSortChange,
   liveSearchLoading = false,
   liveSearchShowSkeletons = false,
+  liveSearchSkeletonCount = 8,
   liveSearchStatus,
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
+  const pendingSkeletons =
+    liveSearchLoading && liveSearchShowSkeletons ? liveSearchSkeletonCount : 0;
   const split = sections && sections.length > 0 ? sections : null;
   const total = split ? split.reduce((count, section) => count + section.games.length, 0) : games.length;
   const HeadingTag = titleLevel === "h2" ? "h2" : "h1";
@@ -295,9 +322,8 @@ export default function GameWall({
               </div>
               <CoverGrid
                 games={section.games}
-                pendingSkeletons={
-                  section.kind === "games" && liveSearchLoading && liveSearchShowSkeletons ? 6 : 0
-                }
+                pendingSkeletons={section.kind === "games" ? pendingSkeletons : 0}
+                reducedMotion={reducedMotion}
               />
             </section>
           ))}
@@ -305,7 +331,8 @@ export default function GameWall({
       ) : (
         <CoverGrid
           games={games}
-          pendingSkeletons={liveSearchLoading && liveSearchShowSkeletons ? 6 : 0}
+          pendingSkeletons={pendingSkeletons}
+          reducedMotion={reducedMotion}
         />
       )}
     </section>

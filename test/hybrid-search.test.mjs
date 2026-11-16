@@ -27,7 +27,7 @@ const SYNDICATE_IGDB = mergeIgdbLiveSearchRows(SYNDICATE_IGDB_EXACT, SYNDICATE_I
 test("buildIgdbSearchBody excludes ports and raises the page size", () => {
   const body = buildIgdbSearchBody("syndicate");
   assert.match(body, /version_parent = null/);
-  assert.match(body, /game_type != \(11,12,13,14\)/);
+  assert.match(body, /game_type != \(3,5,11,12,14\)/);
   assert.match(body, /game_type = null/);
   assert.match(body, /total_rating_count/);
   assert.match(body, new RegExp(`limit ${IGDB_LIVE_SEARCH_LIMIT};`));

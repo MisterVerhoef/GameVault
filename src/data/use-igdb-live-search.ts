@@ -7,6 +7,7 @@ import {
   mergeSearchWallSections,
   shouldQueryIgdbLiveSearch,
 } from "./hybrid-search";
+import { partitionIgdbSearchHits } from "@/lib/igdb/search-hit-types";
 import type { IgdbSearchHit } from "@/lib/igdb/types";
 
 export interface HybridSearchWallSection {
@@ -17,14 +18,15 @@ export interface HybridSearchWallSection {
 }
 
 const DEBOUNCE_MS = 350;
-const SKELETON_DELAY_MS = 300;
 const MIN_QUERY = 3;
+const LIVE_SEARCH_SKELETON_COUNT = 8;
 
 export interface IgdbLiveSearchState {
   loading: boolean;
   games: CatalogueCard[];
   sections?: HybridSearchWallSection[];
   showSkeletons: boolean;
+  skeletonCount: number;
 }
 
 export function useIgdbLiveSearch(
@@ -41,21 +43,10 @@ export function useIgdbLiveSearch(
 
   const [fetchKey, setFetchKey] = useState("");
   const [loading, setLoading] = useState(false);
-  const [skeletonDelayed, setSkeletonDelayed] = useState(false);
   const [igdbHits, setIgdbHits] = useState<IgdbSearchHit[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const skeletonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearSkeletonTimer = () => {
-    if (skeletonTimerRef.current) clearTimeout(skeletonTimerRef.current);
-    skeletonTimerRef.current = null;
-  };
-
   const stopLoading = useCallback(() => {
-    if (skeletonTimerRef.current) clearTimeout(skeletonTimerRef.current);
-    skeletonTimerRef.current = null;
-    setSkeletonDelayed(false);
     setLoading(false);
   }, []);
 
@@ -64,7 +55,6 @@ export function useIgdbLiveSearch(
       abortRef.current?.abort();
       abortRef.current = null;
       if (timerRef.current) clearTimeout(timerRef.current);
-      clearSkeletonTimer();
       return;
     }
 
@@ -76,9 +66,6 @@ export function useIgdbLiveSearch(
       abortRef.current = controller;
       setFetchKey(nextKey);
       setLoading(true);
-      setSkeletonDelayed(false);
-      clearSkeletonTimer();
-      skeletonTimerRef.current = setTimeout(() => setSkeletonDelayed(true), SKELETON_DELAY_MS);
       const params = new URLSearchParams({ q: trimmed });
       fetch(`/api/igdb/search?${params}`, { signal: controller.signal })
         .then((response) => (response.ok ? response.json() : { games: [] }))
@@ -98,7 +85,6 @@ export function useIgdbLiveSearch(
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       abortRef.current?.abort();
-      clearSkeletonTimer();
     };
   }, [shouldSearch, stopLoading, trimmed]);
 
@@ -109,12 +95,17 @@ export function useIgdbLiveSearch(
     [fetchKey, trimmed, igdbHits],
   );
 
+  const igdbGameHits = useMemo(
+    () => partitionIgdbSearchHits(activeHits).games,
+    [activeHits],
+  );
+
   const games = useMemo(() => {
-    if (!shouldSearch || activeHits.length === 0) {
+    if (!shouldSearch || igdbGameHits.length === 0) {
       return [...catalogueGames];
     }
-    return mergeCatalogueAndIgdbSearch(trimmed, catalogueGames, activeHits);
-  }, [trimmed, catalogueGames, activeHits, shouldSearch]);
+    return mergeCatalogueAndIgdbSearch(trimmed, catalogueGames, igdbGameHits);
+  }, [trimmed, catalogueGames, igdbGameHits, shouldSearch]);
 
   const sections = useMemo(() => {
     if (!catalogueSections || catalogueSections.length === 0) return undefined;
@@ -131,6 +122,7 @@ export function useIgdbLiveSearch(
     loading: stillLoading,
     games,
     sections,
-    showSkeletons: stillLoading && skeletonDelayed,
+    showSkeletons: stillLoading,
+    skeletonCount: LIVE_SEARCH_SKELETON_COUNT,
   };
 }

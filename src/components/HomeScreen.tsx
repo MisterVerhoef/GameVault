@@ -28,6 +28,7 @@ function HomeMainBody({
   wallSections,
   hybridSearchLoading,
   hybridSearchShowSkeletons,
+  hybridSearchSkeletonCount,
 }: {
   view: LibraryView;
   queryDirty: boolean;
@@ -39,6 +40,7 @@ function HomeMainBody({
   wallSections: NonNullable<LibraryView["wall"]>["sections"];
   hybridSearchLoading: boolean;
   hybridSearchShowSkeletons: boolean;
+  hybridSearchSkeletonCount: number;
 }) {
   const featured = view.heroGames[0] ?? view.featuredGame;
 
@@ -70,6 +72,7 @@ function HomeMainBody({
             onSortChange={genreSort ? onSortChange : undefined}
             liveSearchLoading={view.searching && hybridSearchLoading}
             liveSearchShowSkeletons={view.searching && hybridSearchShowSkeletons}
+            liveSearchSkeletonCount={hybridSearchSkeletonCount}
             liveSearchStatus={
               view.searching && hybridSearchLoading ? (
                 <span className="ml-2 inline-flex items-center gap-2 text-sm font-normal text-muted">
@@ -209,6 +212,7 @@ function HomeMain({
       wallSections={wallSections}
       hybridSearchLoading={hybridSearch.loading}
       hybridSearchShowSkeletons={hybridSearch.showSkeletons}
+      hybridSearchSkeletonCount={hybridSearch.skeletonCount}
     />
   );
 }
@@ -251,6 +255,7 @@ export default function HomeScreen({
             wallSections={initialView.wall?.sections}
             hybridSearchLoading={false}
             hybridSearchShowSkeletons={false}
+            hybridSearchSkeletonCount={8}
           />
         }
       >

@@ -6,6 +6,8 @@ export interface IgdbSearchHit {
   rating?: number;
   ratingCount?: number;
   gameType?: number;
+  hasPlatforms?: boolean;
+  hasCompanies?: boolean;
   parentGameId?: string;
   versionParentId?: string;
 }
