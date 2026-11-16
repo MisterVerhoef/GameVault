@@ -91,13 +91,6 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   }, [searchQuery]);
   /* eslint-enable react-hooks/set-state-in-effect */
 
-  useLayoutEffect(() => {
-    if (pathname === "/deals") {
-      setSelectedFamilyKey("xbox");
-      setSelectedVariant(null);
-    }
-  }, [pathname]);
-
   useEffect(() => {
     if (searchOpen) mobileSearchRef.current?.focus();
   }, [searchOpen]);
@@ -774,7 +767,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   >
                     <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
                   </button>
-                  {selectedFamilyKey === family.key && (
+                  {(selectedFamilyKey === family.key || (onDealsPage && family.key === "xbox")) && (
                     <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
                       {family.variants.map((variant) => (
                         <button

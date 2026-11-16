@@ -36,7 +36,7 @@ async function accentRingPixelsDelta(page, buttonLocator, beforeBytes, afterByte
     let blueRingHits = 0;
     let changed = 0;
     for (let i = 0; i < after.length; i += 4) {
-      const [br, bg, bb, ba] = [before[i], before[i + 1], before[i + 2], before[i + 3]];
+      const [br, bg, bb] = [before[i], before[i + 1], before[i + 2]];
       const [ar, ag, ab, aa] = [after[i], after[i + 1], after[i + 2], after[i + 3]];
       const delta = Math.abs(br - ar) + Math.abs(bg - ag) + Math.abs(bb - ab);
       if (delta > 18) {
