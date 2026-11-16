@@ -638,6 +638,23 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                   </button>
                 ))}
+                {selectedFamily.key === "xbox" ? (
+                  <>
+                    <span className="ml-3 h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
+                    <Link
+                      href="/deals"
+                      prefetch={false}
+                      aria-current={pathname === "/deals" ? "page" : undefined}
+                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        pathname === "/deals"
+                          ? "bg-white/10 text-foreground"
+                          : "text-muted hover:bg-white/5 hover:text-foreground"
+                      }`}
+                    >
+                      Deals
+                    </Link>
+                  </>
+                ) : null}
               </div>
               {selectedVariantRoot && selectedFamily.variantChildren?.[selectedVariantRoot] && (
                 <div className="flex items-center gap-1 pl-2">
@@ -761,6 +778,21 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                         </button>
                       ))}
+                      {family.key === "xbox" ? (
+                        <Link
+                          href="/deals"
+                          prefetch={false}
+                          onClick={() => setMenuOpen(false)}
+                          aria-current={pathname === "/deals" ? "page" : undefined}
+                          className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                            pathname === "/deals"
+                              ? "bg-white/10 text-foreground"
+                              : "text-muted hover:bg-white/5 hover:text-foreground"
+                          }`}
+                        >
+                          Deals
+                        </Link>
+                      ) : null}
                       {selectedVariantRoot && family.variantChildren?.[selectedVariantRoot] && (
                         <div className="basis-full border-t border-white/5 pt-1">
                           <div className="flex flex-wrap gap-1 pl-2">
