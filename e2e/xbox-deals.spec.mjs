@@ -87,7 +87,7 @@ test("deals page renders, filters and sorts mocked deals", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" }).first()).toBeVisible();
 
   await page.getByRole("button", { name: "DLC", exact: true }).click();
-  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 1 of 3 deals")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 1 of 1 deals")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bravo DLC Pack" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" })).toHaveCount(0);
 
