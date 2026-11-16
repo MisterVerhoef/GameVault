@@ -78,6 +78,16 @@ test("groupSearchMatches returns one Zelda row per title cluster", () => {
   assert.equal(titles.includes("1030"), true);
 });
 
+test("listGroupedVariants labels GBA port with Game Boy Advance", () => {
+  const variants = listGroupedVariants("1026", [
+    { id: "1026", title: "The Legend of Zelda: A Link to the Past", releaseYear: 1991, platformVariants: ["SNES"] },
+    { id: "229416", title: "The Legend of Zelda: A Link to the Past", releaseYear: 2002, platformVariants: ["Game Boy Advance"] },
+  ]);
+  assert.equal(variants.length, 1);
+  assert.equal(variants[0].id, "229416");
+  assert.equal(variants[0].platformLabel, "Game Boy Advance");
+});
+
 test("listGroupedVariants lists ports under the canonical game", () => {
   const index = buildSearchGroupingIndex(zeldaSlice);
   const variants = listGroupedVariants("7346", zeldaSlice);

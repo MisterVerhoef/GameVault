@@ -113,7 +113,10 @@
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
       },
-      "releases": []
+      "releases": [
+        { "platform": "Amiga", "date": "1993-12-31" },
+        { "platform": "Commodore", "date": "1993-06-06" }
+      ]
     },
     "213570": {
       "id": "213570",

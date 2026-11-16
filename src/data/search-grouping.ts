@@ -1,4 +1,4 @@
-import { cardPlatformLabels } from "./platforms";
+import { igdbPlatformLabel } from "./platforms";
 import { normalizeTitle } from "./store-match";
 
 /**
@@ -71,8 +71,19 @@ export function stripConservativeEditionSuffix(
 }
 
 function platformSummary(game: GroupableGame): string {
-  const labels = cardPlatformLabels(game);
-  if (labels.length > 0) return labels.slice(0, 3).join(", ");
+  const variants = game.platformVariants?.filter(Boolean) ?? [];
+  if (variants.length > 0) {
+    const seen = new Set<string>();
+    const labels: string[] = [];
+    for (const name of variants) {
+      const label = igdbPlatformLabel(name);
+      const key = label.toLowerCase();
+      if (!key || seen.has(key)) continue;
+      seen.add(key);
+      labels.push(label);
+    }
+    if (labels.length > 0) return labels.slice(0, 3).join(", ");
+  }
   if (game.platforms?.length) return game.platforms.join(", ");
   return "—";
 }

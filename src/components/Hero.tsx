@@ -87,9 +87,11 @@ export default function Hero({
             {ratingText ? (
               <>
                 <span aria-hidden="true">•</span>
-                <span className="text-yellow-400" aria-label={`Rating ${ratingText} out of 100`}>
-                  <span aria-hidden="true">★ </span>
-                  {ratingText}
+                <span aria-label={`Rating ${ratingText} out of 100`}>
+                  <span className="text-yellow-500 dark:text-yellow-400" aria-hidden="true">
+                    ★{" "}
+                  </span>
+                  <span className="text-amber-800 dark:text-yellow-400">{ratingText}</span>
                 </span>
               </>
             ) : null}

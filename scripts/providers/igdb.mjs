@@ -1,6 +1,6 @@
 import { loadTsModule } from "../load-ts-module.mjs";
 
-const { resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
+const { igdbPlatformLabel, platformVariantFromIgdb, resolveIgdbPlatform } = loadTsModule("src/data/platforms.ts");
 const { mapIgdbWebsites } = loadTsModule("src/data/websites.ts");
 const { storeIdsFromIgdb } = loadTsModule("src/data/store-match.ts");
 
@@ -287,7 +287,7 @@ function platformReleases(dates = []) {
   for (const entry of dates) {
     const rawName = entry?.platform?.name;
     if (typeof rawName !== "string" || !rawName.trim()) continue;
-    const platform = resolveIgdbPlatform(rawName).variant || rawName.trim();
+    const platform = igdbPlatformLabel(rawName, entry?.platform?.id);
     const date = isoDay(entry.date);
     const label = typeof entry.human === "string" ? entry.human.trim() : "";
     if (!date && !label) continue;
@@ -333,9 +333,11 @@ function timeToBeat(record) {
 
 export function normalizeIgdbRecord(record) {
   const resolvedPlatforms = (record.platforms ?? [])
-    .map((platform) => platform.name)
-    .filter(Boolean)
-    .map((name) => resolveIgdbPlatform(name));
+    .filter((platform) => typeof platform?.name === "string" && platform.name)
+    .map((platform) => {
+      const label = platformVariantFromIgdb(platform.name, platform.id);
+      return resolveIgdbPlatform(label);
+    });
   const unsupportedPlatforms = resolvedPlatforms
     .filter((entry) => entry.unmapped)
     .map((entry) => entry.name);

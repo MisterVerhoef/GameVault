@@ -183,7 +183,6 @@ test("catalogue import keeps sanitized detail fields and drops empty ones", () =
   assert.equal(game.keywords.length, 12);
   assert.deepEqual(game.multiplayer, { onlineCoop: true, offlineMax: 4 });
   assert.deepEqual(game.releases, [
-    { platform: "Windows", date: "2022-02-25" },
     { platform: "Windows", date: "2020-01-01" },
     { platform: "Switch", label: "Q4 2026" },
   ]);
