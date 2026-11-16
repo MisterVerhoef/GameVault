@@ -66,7 +66,7 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
         details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`
       }
       onClick={handleClick}
-      className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 rounded-lg text-left focus:outline-none focus-visible:z-10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${sizes[size]}`}
+      className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 rounded-lg text-left focus:outline-none focus-visible:z-10 ${sizes[size]}`}
     >
       {/* Cover */}
       <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-black/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20 dark:ring-white/10 group-active:ring-2 group-active:ring-accent">

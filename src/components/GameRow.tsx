@@ -213,8 +213,8 @@ export default function GameRow({
         onFocus={onFocus}
         className={
           virtualize && rowWindow
-            ? "gv-layout-row-scroll scrollbar-hide overflow-x-auto px-0.5 py-1 pb-4"
-            : "gv-layout-row-scroll row-scroll scrollbar-hide flex gap-4 overflow-x-auto px-0.5 py-1 pb-4"
+            ? "gv-layout-row-scroll scrollbar-hide overflow-x-auto pb-4"
+            : "gv-layout-row-scroll row-scroll scrollbar-hide flex gap-4 overflow-x-auto pb-4"
         }
         style={virtualize && rowWindow ? { overflowAnchor: "none" } : undefined}
       >

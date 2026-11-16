@@ -181,3 +181,9 @@ html.dark .calendar-meta {
     scroll-behavior: auto !important;
   }
 }
+
+/* Inset ring stays inside row overflow scrollers (GameCard buttons). */
+button[data-roving-card]:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}

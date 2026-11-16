@@ -91,7 +91,7 @@ export default function Hero({
                   <span className="text-yellow-500 dark:text-yellow-400" aria-hidden="true">
                     ★{" "}
                   </span>
-                  <span className="text-amber-800 dark:text-yellow-400">{ratingText}</span>
+                  <span className="text-muted-strong dark:text-yellow-400">{ratingText}</span>
                 </span>
               </>
             ) : null}
