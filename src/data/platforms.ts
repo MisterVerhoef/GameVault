@@ -51,6 +51,7 @@ export const PLATFORM_FAMILIES: readonly PlatformFamily[] = [
       "3DS",
       "DS",
       "Game Boy",
+      "Game Boy Advance",
     ],
   },
   {
@@ -129,9 +130,16 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   { names: ["Nintendo 3DS", "New Nintendo 3DS", "3DS"], family: "Switch", variant: "3DS" },
   { names: ["Nintendo DS", "Nintendo DSi", "DS"], family: "Switch", variant: "DS" },
   {
-    names: ["Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Game Boy"],
+    names: ["Game Boy", "Game Boy Color", "Nintendo Game Boy"],
     family: "Switch",
     variant: "Game Boy",
+  },
+  { names: ["Game Boy Advance", "GBA"], family: "Switch", variant: "Game Boy Advance" },
+  { names: ["Amiga"], family: "Other", variant: "Amiga" },
+  {
+    names: ["Amiga CD32", "Commodore CDTV", "CDTV"],
+    family: "Other",
+    variant: "Amiga CD32",
   },
   { names: ["Sega Master System", "Master System"], family: "Other", variant: "Master System" },
   {
@@ -164,10 +172,11 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   {
     names: [
       "Commodore C64/128",
+      "Commodore C64",
+      "Commodore 128",
       "Commodore VIC-20",
       "Commodore 16",
       "Commodore Plus/4",
-      "Amiga",
       "Commodore",
     ],
     family: "Other",
@@ -192,6 +201,30 @@ for (const family of PLATFORM_FAMILIES) {
 
 export function normalizePlatformLabel(value: string) {
   return value.trim().toLowerCase();
+}
+
+/** IGDB platform ids that need an explicit label regardless of the stored name. */
+export const IGDB_PLATFORM_ID_TO_LABEL: Readonly<Record<number, string>> = {
+  24: "Game Boy Advance",
+};
+
+/** Label for release rows and port summaries; keeps specific systems separate from family buckets. */
+export function igdbPlatformLabel(name: string, platformId?: number | null): string {
+  if (typeof platformId === "number" && IGDB_PLATFORM_ID_TO_LABEL[platformId]) {
+    return IGDB_PLATFORM_ID_TO_LABEL[platformId]!;
+  }
+  const trimmed = name.trim();
+  if (!trimmed) return trimmed;
+  const key = normalizePlatformLabel(trimmed);
+  if (key === "gba") return "Game Boy Advance";
+  const resolved = resolveIgdbPlatform(trimmed);
+  if (resolved.unmapped) return trimmed;
+  if (resolved.variant === "Commodore" && key !== "commodore") return trimmed;
+  return resolved.variant;
+}
+
+export function platformVariantFromIgdb(name: string, platformId?: number | null): string {
+  return igdbPlatformLabel(name, platformId);
 }
 
 export function resolveIgdbPlatform(name: string): {

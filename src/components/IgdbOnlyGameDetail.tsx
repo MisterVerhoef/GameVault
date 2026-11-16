@@ -5,6 +5,7 @@ import GameDescription from "@/components/GameDescription";
 import { StudioLogo } from "@/components/studio-logos";
 import { formatRating, PLATFORM_COLORS } from "@/data/games";
 import { formatReleaseDay } from "@/data/game-facts";
+import { dedupeReleaseRows } from "@/data/release-dedupe";
 import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "@/components/platform-icons";
 import type { IgdbLiveGame } from "@/lib/igdb/types";
@@ -38,6 +39,7 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
     platformVariants: game.platformVariants,
   });
   const hasScores = game.rating != null || game.aggregatedRating != null;
+  const releases = dedupeReleaseRows(game.releases);
 
   return (
     <div className="relative min-h-screen">
@@ -85,11 +87,8 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
         tabIndex={-1}
         className="relative mx-auto max-w-[1920px] scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8"
       >
-        <section className="relative mb-12 flex flex-col gap-6 lg:flex-row lg:gap-12">
-          <div
-            className="relative mx-auto h-64 w-44 flex-shrink-0 overflow-hidden rounded-xl shadow-2xl ring-1 ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64"
-            style={{ borderColor: `${themeColor}33` }}
-          >
+        <section className="relative mb-8 grid gap-6 lg:mb-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-12">
+          <div className="relative mx-auto h-64 w-44 overflow-hidden rounded-xl shadow-2xl ring-1 ring-foreground/15 dark:ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64">
             {game.cover?.url ? (
               <Image
                 src={game.cover.url}
@@ -136,9 +135,14 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
               ))}
             </div>
 
-            {game.description ? <GameDescription text={game.description} /> : null}
           </div>
         </section>
+
+        {game.description ? (
+          <div className="mb-8 lg:mb-12">
+            <GameDescription text={game.description} inset="full" />
+          </div>
+        ) : null}
 
         <section className="mb-8">
           <h2 className="mb-3 text-lg font-bold tracking-tight text-foreground">
@@ -180,7 +184,7 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
           </dl>
         </section>
 
-        {game.releases.length > 0 && (
+        {releases.length > 0 && (
           <section className="mb-12" aria-labelledby="igdb-releases">
             <h2
               id="igdb-releases"
@@ -189,7 +193,7 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
               Release dates
             </h2>
             <ul className="grid gap-2 sm:grid-cols-2">
-              {game.releases.map((release) => (
+              {releases.map((release) => (
                 <li
                   key={`${release.platform}-${release.date ?? release.label}`}
                   className="flex items-center justify-between gap-3 rounded-lg bg-card px-3 py-2.5 text-sm"

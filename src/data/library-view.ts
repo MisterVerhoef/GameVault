@@ -54,9 +54,16 @@ export interface BrowseIndexFile {
   games: BrowseRecord[];
 }
 
+export interface SearchIndexRecord {
+  id: string;
+  terms: string;
+  franchises?: string[];
+  collections?: string[];
+}
+
 export interface SearchIndexFile {
   schemaVersion: number;
-  games: { id: string; terms: string }[];
+  games: SearchIndexRecord[];
 }
 
 export interface BrowseGame {
@@ -86,6 +93,7 @@ export interface BrowseCatalogue {
   byId: Map<string, BrowseGame>;
   bySourceId: Map<string, BrowseGame>;
   termsById: Map<string, string> | null;
+  seriesById: Map<string, { franchises: string[]; collections: string[] }> | null;
   hasVariants: boolean;
 }
 
@@ -185,11 +193,24 @@ export function createBrowseCatalogue(
     }
   }
 
+  const seriesById = search
+    ? new Map(
+        search.games.map((game) => [
+          game.id,
+          {
+            franchises: game.franchises ?? [],
+            collections: game.collections ?? [],
+          },
+        ]),
+      )
+  : null;
+
   return {
     games,
     byId,
     bySourceId,
     termsById: search ? new Map(search.games.map((game) => [game.id, game.terms])) : null,
+    seriesById,
     hasVariants: games.some((game) => game.platformVariants.length > 0),
   };
 }
@@ -325,7 +346,15 @@ function searchGames(catalogue: BrowseCatalogue, query: string) {
   const matches = catalogue.games.filter((game) =>
     matchesSearchTerms(termsById.get(game.id) ?? "", query),
   );
-  return groupSearchMatches(sortSearchResults(query, matches), catalogue.games);
+  const ranked = matches.map((game) => {
+    const series = catalogue.seriesById?.get(game.id);
+    return {
+      ...game,
+      franchises: series?.franchises ?? [],
+      collections: series?.collections ?? [],
+    };
+  });
+  return groupSearchMatches(sortSearchResults(query, ranked), catalogue.games);
 }
 
 export function buildLibraryView(

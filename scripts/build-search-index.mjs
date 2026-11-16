@@ -31,11 +31,14 @@ const index = catalogue.games
       ...(game.collections ?? []),
     ].flatMap((value) => String(value).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean)));
 
-    return {
+    const entry = {
       id: game.id,
       title: game.title,
       terms: Array.from(terms).join(" "),
     };
+    if (game.franchises?.length) entry.franchises = game.franchises;
+    if (game.collections?.length) entry.collections = game.collections;
+    return entry;
   })
   .sort((a, b) => a.id.localeCompare(b.id));
 fs.writeFileSync(outputPath, `${JSON.stringify({ schemaVersion: 1, games: index })}\n`);

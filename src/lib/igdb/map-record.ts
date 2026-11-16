@@ -1,4 +1,5 @@
-import { resolveIgdbPlatform, type Platform } from "@/data/platforms";
+import { dedupeReleaseRows } from "@/data/release-dedupe";
+import { igdbPlatformLabel, platformVariantFromIgdb, resolveIgdbPlatform, type Platform } from "@/data/platforms";
 import type { IgdbLiveGame } from "./types";
 
 function imageUrl(image: { url?: string } | undefined, size = "t_cover_big"): string | undefined {
@@ -24,13 +25,18 @@ function companies(
 }
 
 function platformReleases(
-  dates: { date?: number; human?: string; platform?: { name?: string } }[] | undefined,
+  dates: {
+    date?: number;
+    human?: string;
+    platform?: { name?: string; id?: number };
+  }[] | undefined,
 ) {
-  const rows: { platform: string; date?: string; label?: string }[] = [];
+  const rows: { platform: string; date?: string; label?: string; platformId?: number }[] = [];
   for (const entry of dates ?? []) {
     const rawName = entry?.platform?.name;
     if (typeof rawName !== "string" || !rawName.trim()) continue;
-    const platform = resolveIgdbPlatform(rawName).variant || rawName.trim();
+    const platformId = typeof entry?.platform?.id === "number" ? entry.platform.id : undefined;
+    const platform = igdbPlatformLabel(rawName, platformId);
     const date = typeof entry.date === "number" && Number.isFinite(entry.date)
       ? new Date(entry.date * 1000).toISOString().slice(0, 10)
       : undefined;
@@ -38,21 +44,24 @@ function platformReleases(
     if (!date && !label) continue;
     rows.push({
       platform,
+      ...(platformId != null ? { platformId } : {}),
       ...(date ? { date } : {}),
       ...(!date && label ? { label } : {}),
     });
-    if (rows.length >= 12) break;
   }
-  return rows;
+  return dedupeReleaseRows(rows).slice(0, 12);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function mapIgdbApiRecord(record: any): IgdbLiveGame | null {
   if (!record?.id || !record?.name) return null;
   const resolvedPlatforms = (record.platforms ?? [])
-    .map((platform: { name?: string }) => platform?.name)
-    .filter((name: string | undefined): name is string => typeof name === "string" && name.length > 0)
-    .map((name: string) => resolveIgdbPlatform(name));
+    .filter(
+      (platform: { name?: string }) => typeof platform?.name === "string" && platform.name.length > 0,
+    )
+    .map((platform: { name?: string; id?: number }) =>
+      resolveIgdbPlatform(platformVariantFromIgdb(platform.name!, platform.id)),
+    );
   const platforms = [...new Set(resolvedPlatforms.map((entry: ReturnType<typeof resolveIgdbPlatform>) => entry.family))] as Platform[];
   const platformVariants = [...new Set(resolvedPlatforms.map((entry: ReturnType<typeof resolveIgdbPlatform>) => entry.variant))] as string[];
   if (platforms.length === 0) return null;

@@ -128,7 +128,7 @@ export function StoreOfferPriceLink({
           className={
             variant === "wishlist"
               ? "text-[11px] leading-snug text-[color:var(--muted-strong)]"
-              : "text-[10px] font-normal text-muted"
+              : "text-[10px] font-normal text-[color:var(--muted-strong)]"
           }
         >
           {formatLowestRecorded(offer.lowestRecorded)}

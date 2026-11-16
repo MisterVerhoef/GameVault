@@ -56,3 +56,24 @@ test("searchMatchTier ranks title matches above summary-only hits", () => {
     ["botw", "totk"],
   );
 });
+
+test("sortSearchResults boosts franchise matches above summary-only hits", () => {
+  assert.equal(searchMatchTier("zelda", "Hyrule Warriors", { franchises: ["The Legend of Zelda"] }), 1);
+  const sorted = sortSearchResults("Zelda", [
+    { id: "style", title: "Style Savvy: Fashion Forward", rating: 99 },
+    { id: "hw", title: "Hyrule Warriors", rating: 70, franchises: ["The Legend of Zelda"] },
+    { id: "botw", title: "The Legend of Zelda: Breath of the Wild", rating: 60 },
+  ]);
+  assert.deepEqual(
+    sorted.map((row) => row.id),
+    ["botw", "hw", "style"],
+  );
+});
+
+test("compareSearchRank prefers a primary Zelda franchise over crossover tier-1 hits", () => {
+  const sorted = sortSearchResults("Zelda", [
+    { id: "smash", title: "Super Smash Bros. Brawl", rating: 95, franchises: ["Mario", "The Legend of Zelda"] },
+    { id: "hw", title: "Hyrule Warriors: Age of Calamity", rating: 70, franchises: ["The Legend of Zelda", "Musou"] },
+  ]);
+  assert.deepEqual(sorted.map((row) => row.id), ["hw", "smash"]);
+});

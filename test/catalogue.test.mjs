@@ -183,7 +183,7 @@ test("catalogue import keeps sanitized detail fields and drops empty ones", () =
   assert.equal(game.keywords.length, 12);
   assert.deepEqual(game.multiplayer, { onlineCoop: true, offlineMax: 4 });
   assert.deepEqual(game.releases, [
-    { platform: "Windows", date: "2022-02-25" },
+    { platform: "Windows", date: "2020-01-01" },
     { platform: "Switch", label: "Q4 2026" },
   ]);
   assert.deepEqual(game.timeToBeat, { hastily: 3600 });
@@ -319,6 +319,12 @@ test("maps navbar platform chips to IGDB platform variant labels", () => {
   );
 });
 
+test("maps Game Boy Advance to its own platform variant", () => {
+  const { canonicalPlatformVariant } = loadTsModule("src/data/platforms.ts");
+  assert.equal(canonicalPlatformVariant("Game Boy Advance"), "Game Boy Advance");
+  assert.equal(canonicalPlatformVariant("Game Boy"), "Game Boy");
+});
+
 test("treats a single platform as exclusive and keeps other releases out", () => {
   const ps2 = { platforms: ["PS5"], platformVariants: ["PS2"] };
   const ps2AndPs3 = { platforms: ["PS5"], platformVariants: ["PS2", "PS3"] };
@@ -340,7 +346,8 @@ test("treats a single platform as exclusive and keeps other releases out", () =>
   assert.equal(gameIsPlatformExclusive(segaPair, { platform: "Other", variant: "Sega" }), true);
   assert.equal(gameIsPlatformExclusive(windows, { platform: "PC", variant: null }), false);
   assert.equal(gameIsPlatformExclusive(windows, { platform: "PC", variant: "Windows" }), false);
-  assert.equal(gameIsPlatformExclusive(gameBoyAdvance, { platform: "Switch", variant: "Game Boy" }), true);
+  assert.equal(gameIsPlatformExclusive(gameBoyAdvance, { platform: "Switch", variant: "Game Boy" }), false);
+  assert.equal(gameIsPlatformExclusive(gameBoyAdvance, { platform: "Switch", variant: "Game Boy Advance" }), true);
   assert.equal(isPcPlatformBrowse("PC", null), true);
   assert.equal(isPcPlatformBrowse("PS5", "PS2"), false);
   assert.equal(browseQuery({ family: "PlayStation", platform: "PS5", variant: "PS2", genre: "action" }), "/?family=PlayStation&platform=PS5&variant=PS2&genre=action");

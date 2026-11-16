@@ -227,10 +227,10 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
 const detailFields = [
   "id", "name", "slug", "summary", "storyline", "first_release_date",
   "rating", "rating_count", "aggregated_rating", "aggregated_rating_count",
-  "genres.name", "themes.name", "platforms.name",
+  "genres.name", "themes.name", "platforms.id", "platforms.name",
   "involved_companies.developer", "involved_companies.publisher",
   "involved_companies.company.id", "involved_companies.company.name",
-  "cover.url", "release_dates.date", "release_dates.human", "release_dates.platform.name",
+  "cover.url", "release_dates.date", "release_dates.human", "release_dates.platform.id", "release_dates.platform.name",
 ].join(",");
 
 function numericIgdbIds(ids: readonly string[]): string[] {
