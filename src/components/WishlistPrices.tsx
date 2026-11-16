@@ -1,5 +1,5 @@
 import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
-import { offersForGame, type StoreOfferIndex } from "@/data/store-offer-index";
+import { offersForGame, type CachedStoreOffer, type StoreOfferIndex } from "@/data/store-offer-index";
 import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
 
 export type WishlistOfferState =
@@ -22,7 +22,7 @@ export function WishlistPriceNote({ state }: { state: WishlistOfferState }) {
   if (state.status === "ready") {
     return (
       <p className="mb-3 text-xs text-muted">
-        Netherlands EUR prices from the cached store catalogue. Games without a match stay unpriced. {LOWEST_RECORDED_NOTE}
+        Netherlands EUR prices from the cached store catalogue, with live Microsoft Store prices when available. Games without a match stay unpriced. {LOWEST_RECORDED_NOTE}
       </p>
     );
   }
@@ -34,16 +34,19 @@ export default function WishlistPrices({
   title,
   platforms,
   state,
+  liveOffers,
   className = "",
 }: {
   gameId: string;
   title: string;
   platforms?: readonly string[];
   state: WishlistOfferState;
+  liveOffers?: readonly CachedStoreOffer[];
   className?: string;
 }) {
   if (state.status !== "ready") return null;
-  const offers = offersForGame(state.index, gameId, platforms);
+  const cached = offersForGame(state.index, gameId, platforms);
+  const offers = liveOffers ?? cached;
   if (offers.length === 0) {
     return <p className={`mt-1.5 text-[11px] leading-snug text-muted ${className}`}>No cached store price</p>;
   }

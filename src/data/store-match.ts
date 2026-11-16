@@ -281,9 +281,63 @@ export function steamAppIds(id: string): string[] {
   return ids;
 }
 
-export function preferIdentity(identities: readonly StoreIdentity[], store: StoreId): StoreIdentity | undefined {
+/** Xbox bigIds from a catalogue game, with store-website ids first. */
+export function xboxIdentitiesOrdered(game: {
+  websites?: { url: string }[];
+  externalIds?: { store: StoreId; id: string }[];
+}): StoreIdentity[] {
+  const matches = identitiesFromGame(game).filter(
+    (identity) => identity.store === "xbox" && isUsableStoreId("xbox", identity.id),
+  );
+  const fromWebsite = new Set(
+    (game.websites ?? [])
+      .map((site) => parseStoreUrl(site.url))
+      .filter((identity): identity is StoreIdentity => identity?.store === "xbox")
+      .map((identity) => identity.id.toUpperCase()),
+  );
+  return [...matches].sort((left, right) => {
+    const leftRank = fromWebsite.has(left.id.toUpperCase()) ? 0 : 1;
+    const rightRank = fromWebsite.has(right.id.toUpperCase()) ? 0 : 1;
+    return leftRank - rightRank || left.id.localeCompare(right.id);
+  });
+}
+
+export function pickBestMicrosoftProduct(
+  products: readonly {
+    id?: string;
+    kind?: string;
+    price?: number | null;
+    currency?: string;
+    regularPrice?: number | null;
+  }[],
+  identityOrder: readonly string[],
+): (typeof products)[number] | undefined {
+  const byId = new Map(products.map((product) => [String(product.id ?? "").toUpperCase(), product]));
+  const ordered = identityOrder
+    .map((id) => byId.get(id.toUpperCase()))
+    .filter((product): product is NonNullable<typeof product> => Boolean(product));
+  const candidates = ordered.length > 0 ? ordered : [...products];
+  const games = candidates.filter((product) => product.kind !== "other");
+  const pool = games.length > 0 ? games : candidates;
+  const priced = pool.filter((product) => product.currency === "EUR" && typeof product.price === "number");
+  if (priced.length > 0) {
+    priced.sort((left, right) => (left.price ?? Number.POSITIVE_INFINITY) - (right.price ?? Number.POSITIVE_INFINITY));
+    return priced[0];
+  }
+  return pool[0];
+}
+
+export function preferIdentity(
+  identities: readonly StoreIdentity[],
+  store: StoreId,
+  game?: { websites?: { url: string }[]; externalIds?: { store: StoreId; id: string }[] },
+): StoreIdentity | undefined {
   const matches = identities.filter((identity) => identity.store === store);
-  if (store === "xbox" || store === "nintendo") {
+  if (store === "xbox") {
+    if (game) return xboxIdentitiesOrdered(game)[0];
+    return matches.find((identity) => isUsableStoreId(store, identity.id));
+  }
+  if (store === "nintendo") {
     return matches.find((identity) => isUsableStoreId(store, identity.id));
   }
   if (store === "playstation") {

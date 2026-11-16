@@ -106,7 +106,7 @@ async function fetchMergedAppsDeals(): Promise<MergedAppsDeal[]> {
   return [...merged.values()];
 }
 
-async function fetchDisplayCatalogProducts(bigIds: readonly string[]): Promise<Map<string, Record<string, unknown>>> {
+export async function fetchDisplayCatalogProducts(bigIds: readonly string[]): Promise<Map<string, Record<string, unknown>>> {
   const found = new Map<string, Record<string, unknown>>();
   for (let offset = 0; offset < bigIds.length; offset += 20) {
     const chunk = bigIds.slice(offset, offset + 20);

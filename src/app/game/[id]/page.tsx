@@ -9,7 +9,7 @@ import { dedupeReleaseRows } from "@/data/release-dedupe";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
 import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
-import { presentCatalogueGame } from "@/data/store-offers";
+import { presentCatalogueGameLive } from "@/data/store-offers";
 import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
 import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
@@ -193,7 +193,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
     return <IgdbOnlyGameDetail game={live} />;
   }
 
-  const { game: display, offers, captions } = presentCatalogueGame(game);
+  const { game: display, offers, captions } = await presentCatalogueGameLive(game);
   const cloudServices = cloudServicesForGame(cloudStreamingIndex, game.id);
   const ageRatings = game.ageRatings ?? [];
   const gameModes = game.gameModes ?? [];
