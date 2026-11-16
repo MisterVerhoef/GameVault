@@ -3,7 +3,7 @@ import { foldUnlinkedIgdbPorts } from "@/data/port-fold";
 import { groupIgdbSearchHits } from "@/data/search-grouping";
 import { cataloguePortPeersForTitles } from "./catalogue-port-peers";
 import { dropIgdbSearchNoise } from "./search-hit-quality";
-import { isExcludedIgdbLiveSearchGameType, partitionIgdbSearchHits } from "./search-hit-types";
+import { isExcludedIgdbLiveSearchGameType } from "./search-hit-types";
 import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
@@ -163,8 +163,7 @@ function finalizeIgdbSearchHits(query: string, hits: IgdbSearchHit[]): IgdbSearc
   const deduped = dropIgdbPortsCoveredByCatalogue(hits);
   const cataloguePeers = cataloguePortPeersForTitles(deduped.map((hit) => hit.title));
   const folded = foldUnlinkedIgdbPorts(deduped, cataloguePeers);
-  const { games, dlc } = partitionIgdbSearchHits(folded);
-  const cleaned = [...dropIgdbSearchNoise(query, games), ...dlc];
+  const cleaned = dropIgdbSearchNoise(query, folded);
   const grouped = groupIgdbSearchHits(cleaned);
   return sortSearchResults(query, grouped).slice(0, IGDB_LIVE_SEARCH_RESULT_CAP);
 }

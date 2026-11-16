@@ -133,9 +133,12 @@ function mergeDlcSection(
   for (const game of catalogue) {
     merged.set(game.id, game);
   }
-  const filtered = foldUnlinkedIgdbPorts(
-    dropIgdbPortsWithCatalogueParent(igdbDlc, catalogue),
-    cataloguePortFoldPeers(catalogue),
+  const filtered = dropIgdbSearchNoise(
+    query,
+    foldUnlinkedIgdbPorts(
+      dropIgdbPortsWithCatalogueParent(igdbDlc, catalogue),
+      cataloguePortFoldPeers(catalogue),
+    ),
   );
   for (const hit of filtered) {
     if (merged.has(hit.id)) continue;

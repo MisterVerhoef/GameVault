@@ -1,7 +1,7 @@
 import type { IgdbSearchHit } from "./types";
 
-/** IGDB `game_type` values dropped from live search (bundles, mods, ports). */
-export const IGDB_LIVE_SEARCH_EXCLUDED_GAME_TYPES = new Set([3, 5, 11, 12, 14]);
+/** IGDB `game_type` values dropped from live search (bundles, mods, episodes, ports). */
+export const IGDB_LIVE_SEARCH_EXCLUDED_GAME_TYPES = new Set([3, 5, 6, 7, 11, 12, 14]);
 
 /** IGDB DLC-like types routed to the search DLC section. */
 export const IGDB_LIVE_SEARCH_DLC_GAME_TYPES = new Set([1, 2, 13]);
