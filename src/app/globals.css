@@ -182,8 +182,7 @@ html.dark .calendar-meta {
   }
 }
 
-/* Inset ring stays inside row overflow scrollers (GameCard buttons). */
-button[data-roving-card]:focus-visible {
-  outline: none;
+/* GameCard focus ring overlay above cover art (inset, not clipped by row scrollers). */
+button[data-roving-card]:focus-visible > [data-focus-ring] {
   box-shadow: inset 0 0 0 2px var(--accent);
 }

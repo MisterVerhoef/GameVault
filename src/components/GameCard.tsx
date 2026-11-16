@@ -167,6 +167,11 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
           </h3>
         </div>
       </div>
+      <span
+        data-focus-ring=""
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-10 rounded-lg ring-2 ring-transparent ring-inset group-focus-visible:ring-accent"
+      />
     </button>
   );
 }
