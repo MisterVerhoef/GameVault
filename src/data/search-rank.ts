@@ -62,3 +62,34 @@ export function compareSearchRank<T extends SearchRankable>(query: string, left:
 export function sortSearchResults<T extends SearchRankable>(query: string, games: readonly T[]): T[] {
   return [...games].sort((left, right) => compareSearchRank(query, left, right));
 }
+
+/**
+ * When the catalogue has a title match (tier ≥ 2), drop summary-only and weak
+ * crossover franchise hits so search walls stay title-relevant.
+ */
+export function filterRelevantSearchResults<T extends SearchRankable>(
+  query: string,
+  games: readonly T[],
+): T[] {
+  if (games.length === 0) return [];
+  const ranked = games.map((game) => ({
+    game,
+    tier: searchMatchTier(query, game.title, game),
+  }));
+  const hasTitleMatch = ranked.some((row) => row.tier >= 2);
+  if (!hasTitleMatch) return [...games];
+  return ranked
+    .filter(
+      ({ game, tier }) =>
+        tier >= 2
+        || (tier === 1 && primarySeriesMatchesQuery(query, game.franchises, game.collections)),
+    )
+    .map((row) => row.game);
+}
+
+export function sortAndFilterSearchResults<T extends SearchRankable>(
+  query: string,
+  games: readonly T[],
+): T[] {
+  return filterRelevantSearchResults(query, sortSearchResults(query, games));
+}

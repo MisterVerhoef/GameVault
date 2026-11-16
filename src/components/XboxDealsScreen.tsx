@@ -10,6 +10,8 @@ interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
 }
 
+const DEALS_PAGE_SIZE = 48;
+
 function formatUpdatedNl(iso: string): string {
   const parsed = Date.parse(iso);
   if (!Number.isFinite(parsed)) return "Unknown";
@@ -27,12 +29,16 @@ const SOURCE_LABEL: Record<XboxDealsPayload["source"], string> = {
 export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
+  const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
 
   const visible = useMemo(
     () => sortXboxDeals(filterXboxDeals(initial.deals, kind), sort),
     [initial.deals, kind, sort],
   );
+
+  const displayed = visible.slice(0, visibleCount);
+  const canLoadMore = visibleCount < visible.length;
 
   return (
     <div className="min-h-screen bg-background">
@@ -57,7 +63,10 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
             <select
               id="xbox-deals-sort"
               value={sort}
-              onChange={(event) => setSort(event.target.value as XboxDealSort)}
+              onChange={(event) => {
+                setSort(event.target.value as XboxDealSort);
+                setVisibleCount(DEALS_PAGE_SIZE);
+              }}
               className="min-h-11 rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <option value="discount-desc">Discount (high to low)</option>
@@ -80,7 +89,10 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
                     type="button"
                     data-xbox-deal-kind={value}
                     aria-pressed={kind === value}
-                    onClick={() => setKind(value)}
+                    onClick={() => {
+                      setKind(value);
+                      setVisibleCount(DEALS_PAGE_SIZE);
+                    }}
                     className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
                       kind === value ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
                     }`}
@@ -91,9 +103,11 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
               </div>
             </div>
           ) : null}
-          <p className="text-sm text-muted sm:ml-auto" aria-live="polite">
-            Showing {visible.length} of {initial.deals.length} deals
-          </p>
+          {visible.length > 0 ? (
+            <p className="text-sm text-muted sm:ml-auto" aria-live="polite">
+              Showing {displayed.length} of {visible.length} deals
+            </p>
+          ) : null}
         </section>
 
         {visible.length === 0 ? (
@@ -103,11 +117,24 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
               : "No deals match this filter."}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-            {visible.map((deal) => (
-              <XboxDealCard key={deal.bigId} deal={deal} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              {displayed.map((deal) => (
+                <XboxDealCard key={deal.bigId} deal={deal} />
+              ))}
+            </div>
+            {canLoadMore ? (
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setVisibleCount((count) => count + DEALS_PAGE_SIZE)}
+                  className="inline-flex min-h-11 items-center rounded-full border border-white/15 bg-card px-6 text-sm font-medium text-foreground transition hover:border-accent/50 hover:bg-card/90 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  Load more
+                </button>
+              </div>
+            ) : null}
+          </>
         )}
       </main>
     </div>

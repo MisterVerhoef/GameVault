@@ -20,7 +20,7 @@ import {
   type Platform,
 } from "./platforms";
 import { groupSearchMatches } from "./search-grouping";
-import { sortSearchResults } from "./search-rank";
+import { sortAndFilterSearchResults } from "./search-rank";
 import { matchesSearchTerms } from "./search-terms";
 
 const PLATFORMS: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
@@ -354,7 +354,7 @@ function searchGames(catalogue: BrowseCatalogue, query: string) {
       collections: series?.collections ?? [],
     };
   });
-  return groupSearchMatches(sortSearchResults(query, ranked), catalogue.games);
+  return groupSearchMatches(sortAndFilterSearchResults(query, ranked), catalogue.games);
 }
 
 export function buildLibraryView(

@@ -7,6 +7,7 @@ const {
   classifyMicrosoftProductKind,
   discountPercent,
   filterXboxDeals,
+  formatSaleEndNl,
   parseDealsBigIdsScript,
   parseRecoDealIds,
   sortXboxDeals,
@@ -112,4 +113,9 @@ test("sorts and filters deals", () => {
   assert.equal(sortXboxDeals(deals, "title-asc")[0].title, "Alpha");
   assert.equal(filterXboxDeals(deals, "game").length, 2);
   assert.equal(filterXboxDeals(deals, "dlc").length, 1);
+});
+
+test("formatSaleEndNl hides placeholder sale end dates far in the future", () => {
+  assert.equal(formatSaleEndNl("2045-01-01T00:00:00.000Z"), null);
+  assert.match(formatSaleEndNl("2026-12-31T12:00:00.000Z"), /2026/);
 });

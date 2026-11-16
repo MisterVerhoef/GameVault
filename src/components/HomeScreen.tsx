@@ -29,6 +29,8 @@ function HomeMainBody({
   hybridSearchLoading,
   hybridSearchShowSkeletons,
   hybridSearchSkeletonCount,
+  hybridSearchExpectedCount,
+  rovingSearchCards = false,
 }: {
   view: LibraryView;
   queryDirty: boolean;
@@ -41,8 +43,11 @@ function HomeMainBody({
   hybridSearchLoading: boolean;
   hybridSearchShowSkeletons: boolean;
   hybridSearchSkeletonCount: number;
+  hybridSearchExpectedCount?: number;
+  rovingSearchCards?: boolean;
 }) {
   const featured = view.heroGames[0] ?? view.featuredGame;
+  const hybridSearchActive = view.searching;
 
   return (
     <main id="main-content" tabIndex={-1} className="flex-1 scroll-mt-20 focus:outline-none">
@@ -70,11 +75,13 @@ function HomeMainBody({
             sections={wallSections}
             sortValue={genreSort ? view.query.sort : undefined}
             onSortChange={genreSort ? onSortChange : undefined}
-            liveSearchLoading={view.searching && hybridSearchLoading}
-            liveSearchShowSkeletons={view.searching && hybridSearchShowSkeletons}
+            liveSearchLoading={hybridSearchActive && hybridSearchLoading}
+            liveSearchShowSkeletons={hybridSearchActive && hybridSearchShowSkeletons}
             liveSearchSkeletonCount={hybridSearchSkeletonCount}
+            liveSearchExpectedCount={hybridSearchExpectedCount}
+            rovingSearchCards={rovingSearchCards}
             liveSearchStatus={
-              view.searching && hybridSearchLoading ? (
+              hybridSearchActive && (hybridSearchLoading || hybridSearchShowSkeletons) ? (
                 <span className="inline-flex items-center gap-2">
                   <span
                     className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted border-t-transparent"
@@ -181,10 +188,17 @@ function HomeMain({
     catalogueWallSections,
     igdbLiveEnabled && Boolean(view.wall && view.searching),
   );
-  const wallGames =
-    view.searching && igdbLiveEnabled ? hybridSearch.games : catalogueWallGames;
-  const wallSections =
-    view.searching && igdbLiveEnabled ? hybridSearch.sections ?? catalogueWallSections : catalogueWallSections;
+  const hybridSearchActive = view.searching && igdbLiveEnabled;
+  const wallGames = hybridSearchActive
+    ? hybridSearch.resultsReady
+      ? hybridSearch.games
+      : []
+    : catalogueWallGames;
+  const wallSections = hybridSearchActive
+    ? hybridSearch.resultsReady
+      ? hybridSearch.sections ?? catalogueWallSections
+      : undefined
+    : catalogueWallSections;
   const genreSort = Boolean(view.query.genre) && !view.searching && view.wall != null;
   const onSortChange = (sort: GenreSort) => {
     router.push(
@@ -213,6 +227,10 @@ function HomeMain({
       hybridSearchLoading={hybridSearch.loading}
       hybridSearchShowSkeletons={hybridSearch.showSkeletons}
       hybridSearchSkeletonCount={hybridSearch.skeletonCount}
+      hybridSearchExpectedCount={
+        hybridSearchActive && !hybridSearch.resultsReady ? hybridSearch.catalogueMatchCount : undefined
+      }
+      rovingSearchCards={hybridSearchActive}
     />
   );
 }

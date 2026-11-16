@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import { GameCoverPlaceholder } from "@/components/cover-placeholder";
 import GameDescription from "@/components/GameDescription";
 import { StudioLogo } from "@/components/studio-logos";
 import { formatRating, PLATFORM_COLORS } from "@/data/games";
@@ -87,8 +88,11 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
         tabIndex={-1}
         className="relative mx-auto max-w-[1920px] scroll-mt-20 px-4 py-8 focus:outline-none sm:px-6 lg:px-8"
       >
-        <section className="relative mb-8 grid gap-6 lg:mb-12 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-12">
-          <div className="relative mx-auto h-64 w-44 overflow-hidden rounded-xl shadow-2xl ring-1 ring-foreground/15 dark:ring-white/10 sm:h-80 sm:w-56 lg:mx-0 lg:h-96 lg:w-64">
+        <section className="relative mb-8 grid gap-6 lg:mb-8 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start lg:gap-10">
+          <div className="relative mx-auto aspect-[3/4] w-44 overflow-hidden rounded-xl bg-card shadow-2xl ring-1 ring-foreground/15 dark:ring-white/10 sm:w-56 lg:mx-0 lg:w-64">
+            {!game.cover?.url ? (
+              <GameCoverPlaceholder title={game.title} className="absolute inset-0" />
+            ) : null}
             {game.cover?.url ? (
               <Image
                 src={game.cover.url}
@@ -97,12 +101,9 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
                 className="object-cover"
                 unoptimized
                 priority
+                sizes="(max-width: 640px) 45vw, 256px"
               />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-zinc-700 via-zinc-900 to-black px-3 text-center text-xs font-medium text-zinc-300">
-                {game.title}
-              </div>
-            )}
+            ) : null}
           </div>
 
           <div className="flex flex-1 flex-col gap-4">

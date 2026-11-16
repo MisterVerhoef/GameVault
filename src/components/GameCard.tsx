@@ -65,6 +65,9 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
       aria-label={
         details.length > 0 ? `Open ${game.title}, ${details.join(", ")}` : `Open ${game.title}`
       }
+      onMouseDown={(event) => {
+        if (event.button === 0) event.preventDefault();
+      }}
       onClick={handleClick}
       className={`group relative min-h-11 min-w-11 flex-shrink-0 cursor-pointer touch-manipulation scroll-mt-24 rounded-lg text-left focus:outline-none focus-visible:z-10 ${sizes[size]}`}
     >

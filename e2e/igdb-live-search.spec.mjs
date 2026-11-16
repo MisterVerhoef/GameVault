@@ -7,6 +7,7 @@ test("live IGDB search merges results into the search wall", async ({ page }) =>
   await expect(page.getByRole("heading", { name: /Search results for/i })).toBeVisible({
     timeout: 20_000,
   });
+  await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
   await expect(page.getByRole("link", { name: /Vault Mock Exclusief Spel/i })).toBeVisible({
     timeout: 20_000,
   });

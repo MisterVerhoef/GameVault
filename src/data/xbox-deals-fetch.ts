@@ -268,7 +268,11 @@ async function fetchXboxDealsLive(): Promise<XboxDealsPayload> {
 
 function readE2eFixture(): XboxDealsPayload | null {
   if (process.env.GAMEVAULT_E2E_XBOX_DEALS !== "1") return null;
-  const path = join(process.cwd(), "test/fixtures/xbox-deals-e2e.json");
+  const fileName =
+    process.env.GAMEVAULT_E2E_XBOX_DEALS_FIXTURE === "pagination"
+      ? "xbox-deals-e2e.json"
+      : "xbox-deals-e2e-smoke.json";
+  const path = join(process.cwd(), "test/fixtures", fileName);
   try {
     return JSON.parse(readFileSync(path, "utf8")) as XboxDealsPayload;
   } catch {

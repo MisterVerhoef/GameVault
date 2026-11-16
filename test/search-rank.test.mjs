@@ -2,8 +2,14 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
-const { searchTitleTier, searchMatchTier, sortSearchResults, compareSearchRank } =
-  loadTsModule("src/data/search-rank.ts");
+const {
+  searchTitleTier,
+  searchMatchTier,
+  sortSearchResults,
+  compareSearchRank,
+  filterRelevantSearchResults,
+  sortAndFilterSearchResults,
+} = loadTsModule("src/data/search-rank.ts");
 
 test("searchTitleTier prefers exact title matches", () => {
   assert.equal(searchTitleTier("Dispatch", "Dispatch"), 2);
@@ -68,6 +74,19 @@ test("sortSearchResults boosts franchise matches above summary-only hits", () =>
     sorted.map((row) => row.id),
     ["botw", "hw", "style"],
   );
+});
+
+test("filterRelevantSearchResults drops crossover noise when title matches exist", () => {
+  const sorted = sortAndFilterSearchResults("Zelda", [
+    { id: "mk", title: "Mario Kart 8 Deluxe", rating: 99, franchises: ["Mario", "The Legend of Zelda"] },
+    { id: "botw", title: "The Legend of Zelda: Breath of the Wild", rating: 90 },
+    { id: "hw", title: "Hyrule Warriors", rating: 70, franchises: ["The Legend of Zelda", "Musou"] },
+  ]);
+  assert.deepEqual(
+    sorted.map((row) => row.id),
+    ["botw", "hw"],
+  );
+  assert.equal(filterRelevantSearchResults("solo", [{ id: "1", title: "Solo keywords only in summary terms" }]).length, 1);
 });
 
 test("compareSearchRank prefers a primary Zelda franchise over crossover tier-1 hits", () => {

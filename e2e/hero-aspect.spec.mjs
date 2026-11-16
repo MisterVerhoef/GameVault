@@ -5,6 +5,7 @@ test("homepage hero cover keeps a 3:4 aspect ratio at 1440px", async ({ page }) 
   await page.setViewportSize({ width: 1440, height: 900 });
   const cover = page.locator('a[aria-label^="Open"][aria-label$="details"]').first();
   await expect(cover).toBeVisible({ timeout: 15_000 });
+  await cover.scrollIntoViewIfNeeded();
   const box = await cover.boundingBox();
   expect(box).not.toBeNull();
   if (box) {

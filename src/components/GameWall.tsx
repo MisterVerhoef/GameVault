@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRovingCards } from "@/components/use-roving-cards";
 import { GENRE_SORT_OPTIONS, parseGenreSort, type GenreSort } from "@/data/browse";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { searchCardLabel } from "@/data/search-card-label";
@@ -40,7 +41,10 @@ interface GameWallProps {
   liveSearchLoading?: boolean;
   liveSearchShowSkeletons?: boolean;
   liveSearchSkeletonCount?: number;
+  liveSearchExpectedCount?: number;
   liveSearchStatus?: ReactNode;
+  /** Search results: one tab stop per grid with arrow-key roving and first-click navigation. */
+  rovingSearchCards?: boolean;
 }
 
 function usePrefersReducedMotion() {
@@ -110,16 +114,80 @@ interface GridWindow {
   padBottom: number;
 }
 
+function SearchCoverCard({ game, label }: { game: CatalogueCard; label: string }) {
+  return (
+    <li className="min-w-0">
+      <Link
+        href={`/game/${game.id}`}
+        prefetch={false}
+        data-roving-card=""
+        data-card-id={game.id}
+        aria-label={label}
+        onMouseDown={(event) => {
+          if (event.button === 0) event.preventDefault();
+        }}
+        className="group relative block w-full rounded-md focus:outline-none focus-visible:z-10"
+      >
+        <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-black/10 transition group-hover:ring-accent/60 dark:ring-white/10">
+          {!game.cover?.url ? (
+            <span className="absolute inset-0">
+              <GameCoverPlaceholder title={game.title} />
+            </span>
+          ) : (
+            <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
+          )}
+          {game.cloudServices && game.cloudServices.length > 0 ? (
+            <span
+              className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"
+              title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
+              aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
+            >
+              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
+              </svg>
+            </span>
+          ) : null}
+          {game.cover?.url && (
+            <Image
+              src={game.cover.url}
+              alt=""
+              fill
+              unoptimized
+              loading="lazy"
+              sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 10vw"
+              className="object-cover"
+            />
+          )}
+        </span>
+        <span className="mt-1 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90 sm:text-xs">
+          {label}
+        </span>
+        <span
+          data-focus-ring=""
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-10 rounded-md ring-2 ring-transparent ring-inset group-focus-visible:ring-accent"
+        />
+      </Link>
+    </li>
+  );
+}
+
 function CoverGrid({
   games,
   pendingSkeletons = 0,
   reducedMotion = false,
+  skeletonOnly = false,
+  rovingSearchCards = false,
 }: {
   games: CatalogueCard[];
   pendingSkeletons?: number;
   reducedMotion?: boolean;
+  skeletonOnly?: boolean;
+  rovingSearchCards?: boolean;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
+  const roving = useRovingCards(skeletonOnly ? pendingSkeletons : games.length);
+  const gridRef = rovingSearchCards ? roving.ref : hostRef;
   const [gridWindow, setGridWindow] = useState<GridWindow | null>(null);
   const fallback = games.slice(0, Math.min(games.length, PAGE_SIZE));
 
@@ -175,62 +243,70 @@ function CoverGrid({
       window.removeEventListener("resize", schedule);
       resize.disconnect();
     };
-  }, [games.length]);
+  }, [games.length, skeletonOnly, pendingSkeletons]);
 
-  const shown = gridWindow ? games.slice(gridWindow.start, gridWindow.end) : fallback;
+  const shown = skeletonOnly ? [] : gridWindow ? games.slice(gridWindow.start, gridWindow.end) : fallback;
   const columnsClass = gridWindow ? undefined : "grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 2xl:grid-cols-12";
 
   return (
-    <div ref={hostRef} className="px-4 sm:px-6 lg:px-8" style={{ overflowAnchor: "none" }}>
+    <div
+      ref={gridRef}
+      className="px-4 sm:px-6 lg:px-8"
+      style={{ overflowAnchor: "none" }}
+      onFocus={rovingSearchCards ? roving.onFocus : undefined}
+    >
       {gridWindow && gridWindow.padTop > 0 ? <div style={{ height: gridWindow.padTop }} /> : null}
       <ul
         className={`grid gap-x-2 gap-y-3 sm:gap-x-3 ${columnsClass ?? ""}`}
-        style={gridWindow ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
+        style={gridWindow && !skeletonOnly ? { gridTemplateColumns: `repeat(${gridWindow.columns}, minmax(0, 1fr))` } : undefined}
       >
         {shown.map((game) => {
           const label = searchCardLabel(game, games);
+          if (rovingSearchCards) {
+            return <SearchCoverCard key={game.id} game={game} label={label} />;
+          }
           return (
-          <li key={game.id} className="min-w-0">
-            <Link
-              href={`/game/${game.id}`}
-              className="group block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              aria-label={label}
-            >
-              <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-white/10 transition group-hover:ring-accent/60">
-                {!game.cover?.url ? (
-                  <span className="absolute inset-0">
-                    <GameCoverPlaceholder title={game.title} />
-                  </span>
-                ) : (
-                  <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
-                )}
-                {game.cloudServices && game.cloudServices.length > 0 ? (
-                  <span className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm" title={`Cloud streaming: ${game.cloudServices.join(", ")}`} aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}>
-                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                      <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
-                    </svg>
-                  </span>
-                ) : null}
-                {game.cover?.url && (
-                  <Image
-                    src={game.cover.url}
-                    alt=""
-                    fill
-                    unoptimized
-                    loading="lazy"
-                    sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 10vw"
-                    className="object-cover"
-                  />
-                )}
-              </span>
-              <span className="mt-1 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90 sm:text-xs">
-                {label}
-              </span>
-            </Link>
-          </li>
-        );
+            <li key={game.id} className="min-w-0">
+              <Link
+                href={`/game/${game.id}`}
+                className="group block rounded-md focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                aria-label={label}
+              >
+                <span className="relative block aspect-[3/4] overflow-hidden rounded-md bg-card shadow-md ring-1 ring-black/10 transition group-hover:ring-accent/60">
+                  {!game.cover?.url ? (
+                    <span className="absolute inset-0">
+                      <GameCoverPlaceholder title={game.title} />
+                    </span>
+                  ) : (
+                    <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
+                  )}
+                  {game.cloudServices && game.cloudServices.length > 0 ? (
+                    <span className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm" title={`Cloud streaming: ${game.cloudServices.join(", ")}`} aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}>
+                      <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
+                      </svg>
+                    </span>
+                  ) : null}
+                  {game.cover?.url && (
+                    <Image
+                      src={game.cover.url}
+                      alt=""
+                      fill
+                      unoptimized
+                      loading="lazy"
+                      sizes="(max-width: 640px) 33vw, (max-width: 1024px) 16vw, 10vw"
+                      className="object-cover"
+                    />
+                  )}
+                </span>
+                <span className="mt-1 line-clamp-2 text-[11px] font-medium leading-tight text-foreground/90 sm:text-xs">
+                  {label}
+                </span>
+              </Link>
+            </li>
+          );
         })}
-        {pendingSkeletons > 0 && (!gridWindow || gridWindow.end >= games.length)
+        {pendingSkeletons > 0 && (skeletonOnly || !gridWindow || gridWindow.end >= games.length)
           ? Array.from({ length: pendingSkeletons }).map((_, index) => (
               <CoverSkeleton key={`pending-${index}`} reducedMotion={reducedMotion} />
             ))
@@ -257,14 +333,21 @@ export default function GameWall({
   liveSearchLoading = false,
   liveSearchShowSkeletons = false,
   liveSearchSkeletonCount = 8,
+  liveSearchExpectedCount,
   liveSearchStatus,
+  rovingSearchCards = false,
 }: GameWallProps) {
   const headingRef = useRef<HTMLHeadingElement>(null);
   const reducedMotion = usePrefersReducedMotion();
   const pendingSkeletons =
     liveSearchLoading && liveSearchShowSkeletons ? liveSearchSkeletonCount : 0;
-  const split = sections && sections.length > 0 ? sections : null;
-  const total = split ? split.reduce((count, section) => count + section.games.length, 0) : games.length;
+  const skeletonOnly = pendingSkeletons > 0 && games.length === 0;
+  const split = !skeletonOnly && sections && sections.length > 0 ? sections : null;
+  const total = split
+    ? split.reduce((count, section) => count + section.games.length, 0)
+    : games.length > 0
+      ? games.length
+      : (liveSearchExpectedCount ?? 0);
   const HeadingTag = titleLevel === "h2" ? "h2" : "h1";
 
   useEffect(() => {
@@ -286,7 +369,9 @@ export default function GameWall({
             {title}
           </HeadingTag>
           <p className="mt-1 flex min-h-5 items-center text-sm text-muted" aria-live="polite">
-            {liveSearchLoading && liveSearchStatus ? liveSearchStatus : countLabel(total, split ? "results" : "games")}
+            {liveSearchStatus && (liveSearchLoading || (liveSearchShowSkeletons && games.length === 0))
+              ? liveSearchStatus
+              : countLabel(total, split ? "results" : "games")}
           </p>
         </div>
         {onSortChange || (backHref && backLabel) ? (
@@ -305,7 +390,7 @@ export default function GameWall({
         ) : null}
       </div>
 
-      {total === 0 ? (
+      {total === 0 && !skeletonOnly ? (
         <p className="mx-auto max-w-[1920px] px-4 text-sm text-muted sm:px-6 lg:px-8">
           No games in the catalogue match {emptyLabel ?? title}.
         </p>
@@ -323,6 +408,7 @@ export default function GameWall({
                 games={section.games}
                 pendingSkeletons={section.kind === "games" ? pendingSkeletons : 0}
                 reducedMotion={reducedMotion}
+                rovingSearchCards={rovingSearchCards}
               />
             </section>
           ))}
@@ -332,6 +418,8 @@ export default function GameWall({
           games={games}
           pendingSkeletons={pendingSkeletons}
           reducedMotion={reducedMotion}
+          skeletonOnly={skeletonOnly}
+          rovingSearchCards={rovingSearchCards}
         />
       )}
     </section>

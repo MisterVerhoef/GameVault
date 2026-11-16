@@ -55,7 +55,7 @@ export default function Hero({
         </div>
       </div>
 
-      <div className="gv-layout-container relative grid grid-cols-1 gap-6 py-6 sm:py-[30px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-end lg:gap-8 lg:py-12 xl:gap-10">
+      <div className="gv-layout-container relative grid grid-cols-1 gap-6 py-6 sm:py-[30px] lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:items-end lg:gap-8 lg:py-12 xl:gap-10 min-[1921px]:mx-auto min-[1921px]:max-w-[1680px] min-[1921px]:gap-6">
         {/* Cover art — centered on mobile, side on desktop */}
       <Link
         href={`/game/${featured.id}`}

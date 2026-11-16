@@ -21,21 +21,18 @@ export default function XboxDealCard({ deal }: XboxDealCardProps) {
         href={href}
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
-        className="group relative block aspect-[3/4] overflow-hidden rounded-t-lg focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        className="group relative block aspect-[3/4] overflow-hidden rounded-t-lg bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         aria-label={external ? `${label}. Opens Microsoft Store in a new tab` : `${label}. Open in GameVault`}
       >
         {deal.coverUrl ? (
-          <>
-            <CoverGradient />
-            <Image
-              src={deal.coverUrl}
-              alt=""
-              fill
-              sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
-              className="object-cover transition duration-300 group-hover:scale-[1.02]"
-              unoptimized
-            />
-          </>
+          <Image
+            src={deal.coverUrl}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
+            className="object-cover transition duration-300 group-hover:scale-[1.02]"
+            unoptimized
+          />
         ) : (
           <GameCoverPlaceholder title={deal.title} className="absolute inset-0" />
         )}
@@ -45,23 +42,19 @@ export default function XboxDealCard({ deal }: XboxDealCardProps) {
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-3">
         <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{deal.title}</h3>
-        <p className="text-sm">
-          <span className="text-muted line-through">{formatEuro(deal.regularPrice)}</span>{" "}
-          <span className="font-semibold text-foreground">{formatEuro(deal.price)}</span>
+        <p className="text-sm leading-snug">
+          <span className="text-muted-strong line-through decoration-foreground/35">{formatEuro(deal.regularPrice)}</span>{" "}
+          <span className="text-base font-semibold text-foreground">{formatEuro(deal.price)}</span>
         </p>
         {saleEnds ? (
           <p className="text-xs text-muted">
             Sale ends <time dateTime={deal.saleEndsAt ?? undefined}>{saleEnds}</time>
           </p>
         ) : null}
-        <p className="mt-auto text-xs uppercase tracking-wide text-muted">
-          {deal.productKind === "game" ? "Game" : "DLC / add-on"}
-        </p>
+        {deal.productKind === "dlc" ? (
+          <p className="mt-auto text-xs font-medium uppercase tracking-wide text-muted">DLC / add-on</p>
+        ) : null}
       </div>
     </article>
   );
-}
-
-function CoverGradient() {
-  return <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />;
 }

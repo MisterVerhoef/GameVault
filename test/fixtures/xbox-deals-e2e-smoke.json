@@ -1,0 +1,45 @@
+{
+  "source": "microsoft-apps-store",
+  "updatedAt": "2026-11-16T12:00:00.000Z",
+  "deals": [
+    {
+      "bigId": "9NE2E2E01AAA",
+      "title": "Alpha Deal Game",
+      "coverUrl": "https://store-images.s-microsoft.com/image/apps.1.png",
+      "price": 9.99,
+      "regularPrice": 29.99,
+      "discountPercent": 67,
+      "currency": "EUR",
+      "productKind": "game",
+      "saleEndsAt": "2026-12-01T23:59:59.000Z",
+      "storeUrl": "https://www.xbox.com/nl-NL/games/store/alpha-deal-game/9NE2E2E01AAA",
+      "gameId": "42"
+    },
+    {
+      "bigId": "9NE2E2E01BBB",
+      "title": "Bravo DLC Pack",
+      "coverUrl": null,
+      "price": 4.99,
+      "regularPrice": 9.99,
+      "discountPercent": 50,
+      "currency": "EUR",
+      "productKind": "dlc",
+      "saleEndsAt": null,
+      "storeUrl": "https://www.xbox.com/nl-NL/games/store/bravo-dlc-pack/9NE2E2E01BBB",
+      "gameId": null
+    },
+    {
+      "bigId": "9NE2E2E01CCC",
+      "title": "Charlie Value Game",
+      "coverUrl": "https://store-images.s-microsoft.com/image/apps.2.png",
+      "price": 2.49,
+      "regularPrice": 19.99,
+      "discountPercent": 88,
+      "currency": "EUR",
+      "productKind": "game",
+      "saleEndsAt": "2026-12-15T23:59:59.000Z",
+      "storeUrl": "https://www.xbox.com/nl-NL/games/store/charlie-value-game/9NE2E2E01CCC",
+      "gameId": "7"
+    }
+  ]
+}
