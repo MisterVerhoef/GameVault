@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { formatRating } from "@/data/format-rating";
-import { listedSystemNames, PLATFORM_COLORS, type Platform } from "@/data/platforms";
+import { listedSystemNames } from "@/data/platforms";
 import { PlatformName } from "./platform-icons";
 import { useState } from "react";
 
@@ -20,7 +20,11 @@ function getHighQualityCoverUrl(url: string) {
     : url;
 }
 
-export default function Hero({ featuredGame, featuredGames = [], selectedPlatform }: HeroProps) {
+export default function Hero({
+  featuredGame,
+  featuredGames = [],
+  selectedPlatform: _selectedPlatform,
+}: HeroProps) {
   const availableGames = featuredGames.length > 0 ? featuredGames : featuredGame ? [featuredGame] : [];
   const [selectedIndex, setSelectedIndex] = useState(0);
   const featured = availableGames[Math.min(selectedIndex, Math.max(availableGames.length - 1, 0))];
@@ -29,12 +33,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
   if (!featured) return null;
   
   // Get primary platform for theming (use selected platform or first platform of the game)
-  const gamePlatform = featured.platforms?.[0];
-  const primaryPlatform: Platform = selectedPlatform
-    || (gamePlatform === "PC" || gamePlatform === "PS5" || gamePlatform === "Xbox" || gamePlatform === "Switch" || gamePlatform === "Other"
-      ? gamePlatform
-      : "PC");
-  const themeColor = PLATFORM_COLORS[primaryPlatform];
+  void _selectedPlatform;
 
   return (
     <section className="relative mb-10 overflow-x-clip">
@@ -61,7 +60,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group relative mx-auto block aspect-[3/4] w-full max-w-[min(100%,22.5rem)] justify-self-center overflow-hidden rounded-xl border-2 border-white shadow-2xl transition hover:border-accent focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:max-w-[26rem] lg:mx-0 lg:max-h-[564px] lg:max-w-none lg:justify-self-stretch lg:self-end"
+        className="group relative mx-auto block aspect-[3/4] w-full max-w-[min(100%,22.5rem)] justify-self-center overflow-hidden rounded-xl border-2 border-foreground/15 shadow-2xl transition hover:border-accent focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white sm:max-w-[26rem] lg:mx-0 lg:h-[min(564px,calc(100dvh-10rem))] lg:w-auto lg:max-h-[564px] lg:max-w-[min(100%,calc(564px*3/4))] lg:justify-self-center lg:self-end"
       >
         {coverUrl && (
           <Image
@@ -77,13 +76,13 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
 
         {/* Info */}
         <div className="relative z-10 flex min-w-0 flex-col gap-3 text-center lg:text-left">
-          <p className="text-sm font-medium uppercase tracking-wider" style={{ color: themeColor }}>
+          <p className="text-sm font-semibold uppercase tracking-wider text-muted-strong">
             Featured Game
           </p>
           <h1 className="break-words text-2xl font-bold tracking-tight sm:text-4xl lg:text-5xl">
             {featured.title}
           </h1>
-          <div className="flex min-w-0 flex-wrap items-center justify-center gap-3 text-sm text-muted lg:justify-start">
+          <div className="flex min-w-0 flex-wrap items-center justify-center gap-3 text-sm text-muted-strong lg:justify-start">
             <span>{featured.releaseYear}</span>
             {ratingText ? (
               <>
@@ -99,7 +98,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
               {listedSystemNames(featured).slice(0, 4).map((name) => (
                 <span
                   key={name}
-                  className="rounded bg-white/10 px-2 py-0.5 text-xs"
+                  className="rounded border border-foreground/20 bg-foreground/5 px-2 py-0.5 text-xs text-foreground dark:border-white/15 dark:bg-white/10"
                 >
                   <PlatformName name={name} iconClassName="h-4 w-4" className="gap-1" />
                 </span>
@@ -110,8 +109,7 @@ export default function Hero({ featuredGame, featuredGames = [], selectedPlatfor
           <div className="mt-4 flex flex-wrap justify-center gap-3 lg:justify-start">
             <Link
               href={`/game/${featured.id}`}
-              className="inline-flex items-center rounded-full border border-white/20 bg-white/5 px-6 py-2.5 text-sm font-medium transition hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              style={{ borderColor: `${themeColor}33` }}
+              className="inline-flex items-center rounded-full border border-foreground/20 bg-foreground/5 px-6 py-2.5 text-sm font-medium text-foreground transition hover:bg-foreground/10 focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white/20 dark:bg-white/5 dark:hover:bg-white/10"
             >
               Details
             </Link>

@@ -75,7 +75,7 @@ function HomeMainBody({
             liveSearchSkeletonCount={hybridSearchSkeletonCount}
             liveSearchStatus={
               view.searching && hybridSearchLoading ? (
-                <span className="ml-2 inline-flex items-center gap-2 text-sm font-normal text-muted">
+                <span className="inline-flex items-center gap-2">
                   <span
                     className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-muted border-t-transparent"
                     aria-hidden="true"

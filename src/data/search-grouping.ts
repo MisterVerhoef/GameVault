@@ -1,3 +1,4 @@
+import { cardPlatformLabels } from "./platforms";
 import { normalizeTitle } from "./store-match";
 
 /**
@@ -70,8 +71,8 @@ export function stripConservativeEditionSuffix(
 }
 
 function platformSummary(game: GroupableGame): string {
-  const variants = game.platformVariants?.filter(Boolean) ?? [];
-  if (variants.length > 0) return variants.slice(0, 3).join(", ");
+  const labels = cardPlatformLabels(game);
+  if (labels.length > 0) return labels.slice(0, 3).join(", ");
   if (game.platforms?.length) return game.platforms.join(", ");
   return "—";
 }

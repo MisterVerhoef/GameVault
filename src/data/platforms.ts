@@ -51,6 +51,7 @@ export const PLATFORM_FAMILIES: readonly PlatformFamily[] = [
       "3DS",
       "DS",
       "Game Boy",
+      "Game Boy Advance",
     ],
   },
   {
@@ -129,10 +130,11 @@ export const IGDB_PLATFORM_ALIASES: readonly IgdbPlatformMapping[] = [
   { names: ["Nintendo 3DS", "New Nintendo 3DS", "3DS"], family: "Switch", variant: "3DS" },
   { names: ["Nintendo DS", "Nintendo DSi", "DS"], family: "Switch", variant: "DS" },
   {
-    names: ["Game Boy", "Game Boy Color", "Game Boy Advance", "Nintendo Game Boy"],
+    names: ["Game Boy", "Game Boy Color", "Nintendo Game Boy"],
     family: "Switch",
     variant: "Game Boy",
   },
+  { names: ["Game Boy Advance"], family: "Switch", variant: "Game Boy Advance" },
   { names: ["Sega Master System", "Master System"], family: "Other", variant: "Master System" },
   {
     names: ["Sega Mega Drive/Genesis", "Sega Genesis", "Genesis", "Mega Drive"],

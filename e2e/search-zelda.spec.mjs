@@ -31,6 +31,13 @@ test("Zelda search shows one card per grouped title in catalogue results", async
     expect(normalized.some((entry) => entry.includes(title)), `missing ${title}`).toBe(true);
   }
 
+  const hyruleIndex = normalized.findIndex((entry) => entry.includes("hyrule warriors"));
+  const botwIndex = normalized.findIndex((entry) => entry.includes("breath of the wild"));
+  if (hyruleIndex >= 0 && botwIndex >= 0) {
+    expect(hyruleIndex, "Hyrule Warriors should rank after title matches").toBeGreaterThan(botwIndex);
+    expect(hyruleIndex, "Hyrule Warriors should rank ahead of summary-only Zelda hits").toBeLessThan(25);
+  }
+
   const duplicateEditions = [
     "the legend of zelda: breath of the wild - nintendo switch 2 edition",
     "the legend of zelda: tears of the kingdom - nintendo switch 2 edition",

@@ -284,10 +284,9 @@ export default function GameWall({
           >
             {platformLabel ? <PlatformIcon name={platformLabel} className="h-6 w-6 shrink-0" /> : null}
             {title}
-            {liveSearchStatus}
           </HeadingTag>
-          <p className="mt-1 text-sm text-muted" aria-live="polite">
-            {countLabel(total, split ? "results" : "games")}
+          <p className="mt-1 flex min-h-5 items-center text-sm text-muted" aria-live="polite">
+            {liveSearchLoading && liveSearchStatus ? liveSearchStatus : countLabel(total, split ? "results" : "games")}
           </p>
         </div>
         {onSortChange || (backHref && backLabel) ? (

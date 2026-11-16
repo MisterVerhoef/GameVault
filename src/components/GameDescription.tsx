@@ -24,7 +24,7 @@ export default function GameDescription({
   heading?: string;
   showHeading?: boolean;
   /** `edge` matches the game page. `quarter` shortens the text column by about 25%. */
-  inset?: "edge" | "quarter";
+  inset?: "edge" | "quarter" | "full";
   collapseDesktop?: boolean;
 }) {
   const textId = useId();
@@ -60,7 +60,11 @@ export default function GameDescription({
   const collapsed = canToggle && !expanded;
 
   return (
-    <div className={`mt-4 ${inset === "quarter" ? "lg:pr-[25%]" : "lg:pr-40"}`}>
+    <div
+      className={`mt-4 ${
+        inset === "full" ? "" : inset === "quarter" ? "lg:pr-[25%]" : "lg:pr-40"
+      }`}
+    >
       {showHeading ? (
         <h3 className="text-sm font-medium uppercase tracking-wider text-muted">
           {heading}

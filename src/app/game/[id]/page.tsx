@@ -5,6 +5,7 @@ import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS
 import { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } from "@/data/game-facts";
 import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
+import { dedupeReleaseRows } from "@/data/release-dedupe";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
 import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
@@ -198,7 +199,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
   const gameModes = game.gameModes ?? [];
   const perspectives = game.playerPerspectives ?? [];
   const keywords = game.keywords ?? [];
-  const releases = game.releases ?? [];
+  const releases = dedupeReleaseRows(game.releases ?? []);
   const playPhrases = multiplayerPhrases(game.multiplayer);
   const playTimes = [
     game.timeToBeat?.hastily ? ["Hastily", game.timeToBeat.hastily] : null,
@@ -395,7 +396,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               </section>
             )}
             {offers.length > 0 && (
-              <p className="text-xs text-muted">
+              <p className="text-xs text-[color:var(--muted-strong)]">
                 Prices in EUR for the Netherlands.
                 {offers.some((offer) => offer.price != null && offer.lowestRecorded) ? ` ${LOWEST_RECORDED_NOTE}` : ""}
               </p>

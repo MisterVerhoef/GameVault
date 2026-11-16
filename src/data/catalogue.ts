@@ -1,4 +1,5 @@
 import type { AgeRating, CompanyRef, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
+import { dedupeReleaseRows } from "./release-dedupe";
 import type { Platform } from "./platforms";
 import { catalogueCompanyLogo } from "./studio-logo";
 import { sanitizeWebsites, type ExternalLinkCategory } from "./websites";
@@ -237,24 +238,21 @@ function copyMultiplayer(value: unknown): MultiplayerInfo | undefined {
 
 function copyReleases(value: unknown): PlatformRelease[] | undefined {
   if (!Array.isArray(value)) return undefined;
-  const seen = new Set<string>();
-  const result: PlatformRelease[] = [];
+  const rows: PlatformRelease[] = [];
   for (const entry of value) {
     if (!isRecord(entry) || typeof entry.platform !== "string") continue;
     const platform = entry.platform.trim();
-    const key = platform.toLowerCase();
-    if (!platform || seen.has(key)) continue;
+    if (!platform) continue;
     const date = typeof entry.date === "string" && /^\d{4}-\d{2}-\d{2}$/.test(entry.date) ? entry.date : undefined;
     const label = typeof entry.label === "string" ? entry.label.trim() : "";
     if (!date && !label) continue;
-    seen.add(key);
-    result.push({
+    rows.push({
       platform,
       ...(date ? { date } : {}),
       ...(!date && label ? { label } : {}),
     });
-    if (result.length >= 12) break;
   }
+  const result = dedupeReleaseRows(rows).slice(0, 12);
   return result.length > 0 ? result : undefined;
 }
 

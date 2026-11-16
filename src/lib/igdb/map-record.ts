@@ -1,3 +1,4 @@
+import { dedupeReleaseRows } from "@/data/release-dedupe";
 import { resolveIgdbPlatform, type Platform } from "@/data/platforms";
 import type { IgdbLiveGame } from "./types";
 
@@ -41,9 +42,8 @@ function platformReleases(
       ...(date ? { date } : {}),
       ...(!date && label ? { label } : {}),
     });
-    if (rows.length >= 12) break;
   }
-  return rows;
+  return dedupeReleaseRows(rows).slice(0, 12);
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
