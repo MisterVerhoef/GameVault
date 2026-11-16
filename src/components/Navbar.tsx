@@ -26,7 +26,7 @@ const platformFamilies = PLATFORM_FAMILIES;
 export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const onDealsPage = pathname === "/deals";
+  const isDeals = pathname === "/deals";
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -51,18 +51,17 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const storesToggleRef = useRef<HTMLButtonElement>(null);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
-  const xboxFamily = platformFamilies.find((family) => family.key === "xbox");
-  const breakdownFamily = onDealsPage ? xboxFamily : selectedFamily;
-  const platformFamilySelected = (familyKey: string) => (
-    onDealsPage ? familyKey === "xbox" : selectedFamilyKey === familyKey
-  );
+  const effectiveFamilyKey = isDeals ? "xbox" : selectedFamilyKey;
+  const effectiveVariant = isDeals ? null : selectedVariant;
+  const effectiveFamily = platformFamilies.find((family) => family.key === effectiveFamilyKey) ?? null;
+  const breakdownFamily = effectiveFamily;
+  const platformFamilySelected = (familyKey: string) => effectiveFamilyKey === familyKey;
   const selectedVariantParent =
-    selectedFamily && selectedVariant
-      ? Object.entries(selectedFamily.variantChildren ?? {}).find(([, children]) => children.includes(selectedVariant))?.[0] ?? null
+    effectiveFamily && effectiveVariant
+      ? Object.entries(effectiveFamily.variantChildren ?? {}).find(([, children]) => children.includes(effectiveVariant))?.[0] ?? null
       : null;
-  const selectedVariantRoot =
-    selectedVariantParent ?? (selectedVariant && selectedFamily?.variantChildren?.[selectedVariant] ? selectedVariant : null);
+  const effectiveVariantRoot =
+    selectedVariantParent ?? (effectiveVariant && effectiveFamily?.variantChildren?.[effectiveVariant] ? effectiveVariant : null);
 
   /* The address bar is the source of truth after Back, and after a genre link clears search. */
   /* eslint-disable react-hooks/set-state-in-effect */
@@ -206,13 +205,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     const nextVariant = selectedVariant === variant ? null : variant;
     setSelectedVariant(nextVariant);
     onPlatformVariantSelect?.(nextVariant);
-    const opensNestedMenu = Boolean(nextVariant && selectedFamily?.variantChildren?.[nextVariant]?.length);
+    const opensNestedMenu = Boolean(nextVariant && effectiveFamily?.variantChildren?.[nextVariant]?.length);
     // Sega and Atari only reveal their nested list. Every finished pick dismisses
     // the phone menu; the desktop breakdown is not tied to that menu.
     if (!opensNestedMenu) setMenuOpen(false);
     pushPlatformFilter({
-      family: selectedFamily?.label ?? null,
-      platform: selectedFamily?.platform ?? null,
+      family: effectiveFamily?.label ?? null,
+      platform: effectiveFamily?.platform ?? null,
       variant: nextVariant,
     });
   };
@@ -343,10 +342,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
             aria-label="Stores"
             aria-expanded={storesOpen}
             aria-controls="stores-menu"
-            className={`flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamily ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-            style={selectedFamily?.platform ? { backgroundColor: PLATFORM_COLORS[selectedFamily.platform] } : {}}
+            className={`flex h-8 items-center gap-1.5 rounded-full px-2.5 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${effectiveFamily ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+            style={effectiveFamily?.platform ? { backgroundColor: PLATFORM_COLORS[effectiveFamily.platform] } : {}}
           >
-            <span>{selectedFamily ? selectedFamily.label : "Stores"}</span>
+            <span>{effectiveFamily ? effectiveFamily.label : "Stores"}</span>
           </button>
           {storesOpen && (
             <div
@@ -359,9 +358,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   type="button"
                   onClick={() => handlePlatformSelect(family.key)}
                   aria-label={`Filter by ${family.label}`}
-                  aria-pressed={selectedFamilyKey === family.key}
-                  className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
-                  style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
+                  aria-pressed={platformFamilySelected(family.key)}
+                  className={`flex w-full items-center rounded-lg px-2.5 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${platformFamilySelected(family.key) ? "text-white" : "text-muted hover:bg-white/5 hover:text-foreground"}`}
+                  style={platformFamilySelected(family.key) && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
                 >
                   <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
                 </button>
@@ -634,9 +633,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     key={variant}
                     type="button"
                     onClick={() => handleVariantSelect(variant)}
-                    aria-pressed={!onDealsPage && (selectedVariant === variant || selectedVariantRoot === variant)}
+                    aria-pressed={effectiveVariant === variant || effectiveVariantRoot === variant}
                     className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                      selectedVariant === variant
+                      effectiveVariant === variant
                         ? "bg-white/10 text-foreground"
                         : "text-muted hover:bg-white/5 hover:text-foreground"
                     }`}
@@ -662,16 +661,16 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   </>
                 ) : null}
               </div>
-              {!onDealsPage && selectedVariantRoot && breakdownFamily.variantChildren?.[selectedVariantRoot] && (
+              {!isDeals && effectiveVariantRoot && breakdownFamily.variantChildren?.[effectiveVariantRoot] && (
                 <div className="flex items-center gap-1 pl-2">
-                  {breakdownFamily.variantChildren[selectedVariantRoot].map((variant) => (
+                  {breakdownFamily.variantChildren[effectiveVariantRoot].map((variant) => (
                     <button
                       key={variant}
                       type="button"
                       onClick={() => handleVariantSelect(variant)}
-                      aria-pressed={selectedVariant === variant}
+                      aria-pressed={effectiveVariant === variant}
                       className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                        selectedVariant === variant
+                        effectiveVariant === variant
                           ? "bg-white/10 text-foreground"
                           : "text-muted hover:bg-white/5 hover:text-foreground"
                       }`}
@@ -761,22 +760,22 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   <button
                     type="button"
                     onClick={() => handlePlatformSelect(family.key)}
-                    className={`flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${selectedFamilyKey === family.key ? "text-white" : "text-muted hover:text-foreground"}`}
-                    style={selectedFamilyKey === family.key && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
-                    aria-pressed={selectedFamilyKey === family.key}
+                    className={`flex min-h-11 w-full items-center rounded-lg px-3 py-2 text-left text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${platformFamilySelected(family.key) ? "text-white" : "text-muted hover:text-foreground"}`}
+                    style={platformFamilySelected(family.key) && family.platform ? { color: PLATFORM_COLORS[family.platform] } : {}}
+                    aria-pressed={platformFamilySelected(family.key)}
                   >
                     <PlatformName name={family.label} iconClassName="h-4 w-4" className="gap-1.5" />
                   </button>
-                  {(selectedFamilyKey === family.key || (onDealsPage && family.key === "xbox")) && (
+                  {platformFamilySelected(family.key) && (
                     <div className="ml-3 flex flex-wrap gap-1 border-l border-white/10 pl-3">
                       {family.variants.map((variant) => (
                         <button
                           key={variant}
                           type="button"
                           onClick={() => handleVariantSelect(variant)}
-                      aria-pressed={!onDealsPage && selectedVariant === variant}
+                      aria-pressed={effectiveVariant === variant}
                       className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                        selectedVariant === variant
+                        effectiveVariant === variant
                           ? "bg-white/10 text-foreground"
                           : "text-muted hover:bg-white/5 hover:text-foreground"
                       }`}
@@ -799,17 +798,17 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           Deals
                         </Link>
                       ) : null}
-                      {selectedVariantRoot && family.variantChildren?.[selectedVariantRoot] && (
+                      {!isDeals && effectiveVariantRoot && family.variantChildren?.[effectiveVariantRoot] && (
                         <div className="basis-full border-t border-white/5 pt-1">
                           <div className="flex flex-wrap gap-1 pl-2">
-                            {family.variantChildren[selectedVariantRoot].map((variant) => (
+                            {family.variantChildren[effectiveVariantRoot].map((variant) => (
                               <button
                                 key={variant}
                                 type="button"
                                 onClick={() => handleVariantSelect(variant)}
-                                aria-pressed={selectedVariant === variant}
+                                aria-pressed={effectiveVariant === variant}
                                 className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                                  selectedVariant === variant
+                                  effectiveVariant === variant
                                     ? "bg-white/10 text-foreground"
                                     : "text-muted hover:bg-white/5 hover:text-foreground"
                                 }`}
