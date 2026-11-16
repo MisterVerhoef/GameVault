@@ -26,3 +26,14 @@ export function matchesFranchiseOrCollection(
   const names = [...(franchises ?? []), ...(collections ?? [])];
   return names.some((name) => seriesNameMatchesQuery(query, name));
 }
+
+/** First-listed franchise or collection matches the query (crossover games sort lower). */
+export function primarySeriesMatchesQuery(
+  query: string,
+  franchises: readonly string[] | undefined,
+  collections: readonly string[] | undefined,
+): boolean {
+  const primary = franchises?.[0] ?? collections?.[0];
+  if (!primary) return false;
+  return seriesNameMatchesQuery(query, primary);
+}

@@ -1,5 +1,5 @@
 import { byRatingThenTitle } from "./browse";
-import { matchesFranchiseOrCollection } from "./search-series";
+import { matchesFranchiseOrCollection, primarySeriesMatchesQuery } from "./search-series";
 import { normalizeTitle } from "./store-match";
 
 /** 2 = exact normalized title, 1 = title starts with query, 0 = other matches. */
@@ -47,9 +47,15 @@ export function searchMatchTier(
 }
 
 export function compareSearchRank<T extends SearchRankable>(query: string, left: T, right: T): number {
-  const tier =
-    searchMatchTier(query, right.title, right) - searchMatchTier(query, left.title, left);
+  const leftTier = searchMatchTier(query, left.title, left);
+  const rightTier = searchMatchTier(query, right.title, right);
+  const tier = rightTier - leftTier;
   if (tier !== 0) return tier;
+  if (leftTier === 1 && rightTier === 1) {
+    const rightPrimary = primarySeriesMatchesQuery(query, right.franchises, right.collections);
+    const leftPrimary = primarySeriesMatchesQuery(query, left.franchises, left.collections);
+    if (rightPrimary !== leftPrimary) return Number(rightPrimary) - Number(leftPrimary);
+  }
   return byRatingThenTitle(left, right);
 }
 

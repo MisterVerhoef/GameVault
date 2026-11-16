@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { formatRating } from "@/data/format-rating";
-import { listedSystemNames } from "@/data/platforms";
+import { listedSystemNames, type Platform } from "@/data/platforms";
 import { PlatformName } from "./platform-icons";
 import { useState } from "react";
 
@@ -60,7 +60,7 @@ export default function Hero({
       <Link
         href={`/game/${featured.id}`}
         aria-label={`Open ${featured.title} details`}
-        className="group relative mx-auto block aspect-[3/4] w-full max-w-[min(100%,22.5rem)] justify-self-center overflow-hidden rounded-xl border-2 border-foreground/15 shadow-2xl transition hover:border-accent focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white sm:max-w-[26rem] lg:mx-0 lg:h-[min(564px,calc(100dvh-10rem))] lg:w-auto lg:max-h-[564px] lg:max-w-[min(100%,calc(564px*3/4))] lg:justify-self-center lg:self-end"
+        className="group relative mx-auto block aspect-[3/4] w-full max-w-[min(100%,22.5rem)] justify-self-center overflow-hidden rounded-xl border-2 border-foreground/15 shadow-2xl transition hover:border-accent focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent dark:border-white sm:max-w-[26rem] lg:mx-0 lg:h-[min(564px,calc(100dvh-10rem))] lg:w-auto lg:max-h-[564px] lg:max-w-[min(100%,calc(564px*3/4))] lg:justify-self-start lg:self-end"
       >
         {coverUrl && (
           <Image

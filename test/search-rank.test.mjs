@@ -69,3 +69,11 @@ test("sortSearchResults boosts franchise matches above summary-only hits", () =>
     ["botw", "hw", "style"],
   );
 });
+
+test("compareSearchRank prefers a primary Zelda franchise over crossover tier-1 hits", () => {
+  const sorted = sortSearchResults("Zelda", [
+    { id: "smash", title: "Super Smash Bros. Brawl", rating: 95, franchises: ["Mario", "The Legend of Zelda"] },
+    { id: "hw", title: "Hyrule Warriors: Age of Calamity", rating: 70, franchises: ["The Legend of Zelda", "Musou"] },
+  ]);
+  assert.deepEqual(sorted.map((row) => row.id), ["hw", "smash"]);
+});
