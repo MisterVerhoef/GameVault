@@ -16,8 +16,10 @@ import type { XboxDeal, XboxDealSource, XboxDealsPayload } from "./xbox-deals-ty
 const REVALIDATE_SECONDS = 10_800;
 const RECO_URL =
   "https://reco-public.rec.mp.microsoft.com/channels/Reco/V8.0/Lists/Computed/Deal?Market=NL&Language=NL&ItemTypes=Game&deviceFamily=Windows.Xbox";
-const APPS_DEALS_URL =
+const APPS_GAME_DEALS_URL =
   "https://apps.microsoft.com/api/Reco/GetComputedProductsList?gl=NL&hl=nl-NL&listName=Deal&filteredCategories=AllProducts&mediaType=games";
+const APPS_ADDON_DEALS_URL =
+  "https://apps.microsoft.com/api/Reco/GetComputedProductsList?gl=NL&hl=nl-NL&listName=DealAddOns&mediaType=games";
 const DISPLAY_URL = "https://displaycatalog.mp.microsoft.com/v7.0/products";
 const DEALS_BIGIDS_URL = "https://www.xbox.com/nl-NL/xbox-game-pass/deals/JS/deals-bigids.js";
 
@@ -50,16 +52,24 @@ async function fetchRecoBigIds(): Promise<string[]> {
   return [...new Set(ids)];
 }
 
-async function fetchAppsDealsList(): Promise<Record<string, unknown>[]> {
+async function fetchAppsListPage(baseUrl: string, page: number): Promise<{
+  productsList?: Record<string, unknown>[];
+  hasMorePages?: boolean;
+  nextPageNumber?: number;
+}> {
+  const url = `${baseUrl}&pgNo=${page}&noItems=50`;
+  return fetchJson(url) as Promise<{
+    productsList?: Record<string, unknown>[];
+    hasMorePages?: boolean;
+    nextPageNumber?: number;
+  }>;
+}
+
+async function fetchAppsDealsList(baseUrl: string): Promise<Record<string, unknown>[]> {
   const items: Record<string, unknown>[] = [];
   let page = 1;
   for (let attempt = 0; attempt < 30; attempt += 1) {
-    const url = `${APPS_DEALS_URL}&pgNo=${page}&noItems=50`;
-    const body = await fetchJson(url) as {
-      productsList?: Record<string, unknown>[];
-      hasMorePages?: boolean;
-      nextPageNumber?: number;
-    };
+    const body = await fetchAppsListPage(baseUrl, page);
     const batch = body.productsList ?? [];
     if (batch.length === 0) break;
     items.push(...batch);
@@ -67,6 +77,33 @@ async function fetchAppsDealsList(): Promise<Record<string, unknown>[]> {
     page = body.nextPageNumber ?? page + 1;
   }
   return items;
+}
+
+interface MergedAppsDeal {
+  entry: Record<string, unknown>;
+  sources: ("game-deal" | "addon-deal")[];
+}
+
+async function fetchMergedAppsDeals(): Promise<MergedAppsDeal[]> {
+  const [gameList, addonList] = await Promise.all([
+    fetchAppsDealsList(APPS_GAME_DEALS_URL),
+    fetchAppsDealsList(APPS_ADDON_DEALS_URL),
+  ]);
+  const merged = new Map<string, MergedAppsDeal>();
+  for (const entry of gameList) {
+    const id = String(entry.productId ?? "").toUpperCase();
+    merged.set(id, { entry, sources: ["game-deal"] });
+  }
+  for (const entry of addonList) {
+    const id = String(entry.productId ?? "").toUpperCase();
+    const existing = merged.get(id);
+    if (existing) {
+      if (!existing.sources.includes("addon-deal")) existing.sources.push("addon-deal");
+    } else {
+      merged.set(id, { entry, sources: ["addon-deal"] });
+    }
+  }
+  return [...merged.values()];
 }
 
 async function fetchDisplayCatalogProducts(bigIds: readonly string[]): Promise<Map<string, Record<string, unknown>>> {
@@ -108,16 +145,14 @@ async function dealsFromBigIds(
 }
 
 async function dealsFromAppsList(gameIdByBigId: ReadonlyMap<string, string>): Promise<XboxDealsPayload> {
-  const list = await fetchAppsDealsList();
-  const bigIds = list
-    .map((entry) => String(entry.productId ?? "").toUpperCase())
-    .filter((id) => id.length > 0);
+  const list = await fetchMergedAppsDeals();
+  const bigIds = list.map(({ entry }) => String(entry.productId ?? "").toUpperCase()).filter((id) => id.length > 0);
   const catalog = await fetchDisplayCatalogProducts(bigIds);
   const deals: XboxDeal[] = [];
   const seen = new Set<string>();
-  for (const entry of list) {
+  for (const { entry, sources } of list) {
     const bigId = String(entry.productId ?? "").toUpperCase();
-    const deal = xboxDealFromAppsListItem(entry, gameIdByBigId, catalog);
+    const deal = xboxDealFromAppsListItem(entry, gameIdByBigId, catalog, sources);
     if (!deal || seen.has(bigId)) continue;
     seen.add(bigId);
     deals.push(deal);
@@ -244,5 +279,5 @@ function readE2eFixture(): XboxDealsPayload | null {
 export async function getXboxDeals(): Promise<XboxDealsPayload> {
   const fixture = readE2eFixture();
   if (fixture) return fixture;
-  return unstable_cache(fetchXboxDealsLive, ["xbox-deals-nl-v1"], { revalidate: REVALIDATE_SECONDS })();
+  return unstable_cache(fetchXboxDealsLive, ["xbox-deals-nl-v2"], { revalidate: REVALIDATE_SECONDS })();
 }

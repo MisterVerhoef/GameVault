@@ -26,6 +26,7 @@ const platformFamilies = PLATFORM_FAMILIES;
 export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const onDealsPage = pathname === "/deals";
   const [search, setSearch] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -51,6 +52,11 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const selectedFamily = platformFamilies.find((family) => family.key === selectedFamilyKey);
+  const xboxFamily = platformFamilies.find((family) => family.key === "xbox");
+  const breakdownFamily = onDealsPage ? xboxFamily : selectedFamily;
+  const platformFamilySelected = (familyKey: string) => (
+    onDealsPage ? familyKey === "xbox" : selectedFamilyKey === familyKey
+  );
   const selectedVariantParent =
     selectedFamily && selectedVariant
       ? Object.entries(selectedFamily.variantChildren ?? {}).find(([, children]) => children.includes(selectedVariant))?.[0] ?? null
@@ -84,6 +90,13 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
     setSearch("");
   }, [searchQuery]);
   /* eslint-enable react-hooks/set-state-in-effect */
+
+  useLayoutEffect(() => {
+    if (pathname === "/deals") {
+      setSelectedFamilyKey("xbox");
+      setSelectedVariant(null);
+    }
+  }, [pathname]);
 
   useEffect(() => {
     if (searchOpen) mobileSearchRef.current?.focus();
@@ -373,9 +386,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
               type="button"
               onClick={() => handlePlatformSelect(family.key)}
               aria-label={`Filter by ${family.label}`}
-              aria-pressed={selectedFamilyKey === family.key}
-              className={`flex h-7 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 text-xs font-medium transition ${selectedFamilyKey === family.key ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
-              style={selectedFamilyKey === family.key && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
+              aria-pressed={platformFamilySelected(family.key)}
+              className={`flex h-7 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 text-xs font-medium transition ${platformFamilySelected(family.key) ? "text-white" : "bg-card text-muted hover:text-foreground"}`}
+              style={platformFamilySelected(family.key) && family.platform ? { backgroundColor: PLATFORM_COLORS[family.platform] } : {}}
             >
               <PlatformName
                 name={family.label}
@@ -613,22 +626,22 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
       </div>
       </div>
 
-      {selectedFamily && (
+      {breakdownFamily && (
         <div className="hidden border-t border-white/5 lg:block">
           <div className="gv-layout-container flex items-center gap-2 overflow-x-auto py-2">
             <span className="inline-flex flex-shrink-0 items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-muted">
-              <PlatformName name={selectedFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
+              <PlatformName name={breakdownFamily.label} iconClassName="h-3.5 w-3.5" className="gap-1.5" />
               <span>platforms</span>
             </span>
             <span className="h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
-            <div className="flex min-w-0 flex-col gap-1" aria-label={`${selectedFamily.label} platform breakdown`}>
+            <div className="flex min-w-0 flex-col gap-1" aria-label={`${breakdownFamily.label} platform breakdown`}>
               <div className="flex items-center gap-1">
-                {selectedFamily.variants.map((variant) => (
+                {breakdownFamily.variants.map((variant) => (
                   <button
                     key={variant}
                     type="button"
                     onClick={() => handleVariantSelect(variant)}
-                    aria-pressed={selectedVariant === variant || selectedVariantRoot === variant}
+                    aria-pressed={!onDealsPage && (selectedVariant === variant || selectedVariantRoot === variant)}
                     className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                       selectedVariant === variant
                         ? "bg-white/10 text-foreground"
@@ -638,7 +651,7 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                   </button>
                 ))}
-                {selectedFamily.key === "xbox" ? (
+                {breakdownFamily.key === "xbox" ? (
                   <>
                     <span className="ml-3 h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
                     <Link
@@ -656,9 +669,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                   </>
                 ) : null}
               </div>
-              {selectedVariantRoot && selectedFamily.variantChildren?.[selectedVariantRoot] && (
+              {!onDealsPage && selectedVariantRoot && breakdownFamily.variantChildren?.[selectedVariantRoot] && (
                 <div className="flex items-center gap-1 pl-2">
-                  {selectedFamily.variantChildren[selectedVariantRoot].map((variant) => (
+                  {breakdownFamily.variantChildren[selectedVariantRoot].map((variant) => (
                     <button
                       key={variant}
                       type="button"
@@ -768,17 +781,17 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           key={variant}
                           type="button"
                           onClick={() => handleVariantSelect(variant)}
-                          aria-pressed={selectedVariant === variant}
-                          className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                            selectedVariant === variant
-                              ? "bg-white/10 text-foreground"
-                              : "text-muted hover:bg-white/5 hover:text-foreground"
-                          }`}
-                        >
-                          <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
-                        </button>
-                      ))}
-                      {family.key === "xbox" ? (
+                      aria-pressed={!onDealsPage && selectedVariant === variant}
+                      className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                        selectedVariant === variant
+                          ? "bg-white/10 text-foreground"
+                          : "text-muted hover:bg-white/5 hover:text-foreground"
+                      }`}
+                    >
+                      <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
+                    </button>
+                  ))}
+                  {family.key === "xbox" ? (
                         <Link
                           href="/deals"
                           prefetch={false}

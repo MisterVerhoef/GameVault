@@ -1,7 +1,15 @@
 import { selectMicrosoftPrice, isXboxBigId, plainText } from "./store-match";
 import type { XboxDeal, XboxDealKindFilter, XboxDealProductKind, XboxDealSort } from "./xbox-deals-types";
 
+export type MicrosoftDealListSource = "game-deal" | "addon-deal";
+
 const IMAGE_HOST = "https:";
+
+const NON_GAME_PRODUCT_KINDS = new Set(["Durable", "Consumable", "UnmanagedConsumable"]);
+const NON_GAME_SKU_TYPES = new Set(["addon", "consumable", "durable", "unmanagedconsumable"]);
+const DLC_TITLE_PATTERN =
+  /\b(dlc|add-?ons?|expansion(?:\s+pass)?|season pass|map pack|coin pack|currency|credit packs?|upgrade pack|content pack|character pack|skin pack)\b/i;
+const DLC_BUNDLE_PATTERN = /\b(premium add-ons bundle|add-ons bundle|ultimate dlc|dlc bundle)\b/i;
 
 function httpsStoreImage(uri: string | undefined): string | null {
   if (typeof uri !== "string" || uri.trim() === "") return null;
@@ -35,20 +43,88 @@ export function discountPercent(price: number, regularPrice: number): number {
   return Math.round(((regularPrice - price) / regularPrice) * 100);
 }
 
-function productKindFromCatalog(product: Record<string, unknown> | undefined): XboxDealProductKind {
-  const kind = String(product?.ProductKind ?? "").toLowerCase();
-  const type = String(product?.ProductType ?? "").toLowerCase();
-  if (kind === "game" || type === "game") return "game";
-  return "dlc";
+function catalogParentProduct(product?: Record<string, unknown>): boolean {
+  const properties = product?.Properties as { ParentProducts?: unknown[] } | undefined;
+  if (Array.isArray(properties?.ParentProducts) && properties.ParentProducts.length > 0) return true;
+  const related = product?.RelatedProducts as { RelationshipType?: string }[] | undefined;
+  return Array.isArray(related) && related.some((entry) => /^parent$/i.test(entry.RelationshipType ?? ""));
 }
 
-function productKindFromApps(entry: Record<string, unknown>): XboxDealProductKind {
-  if (entry.isGame === true && entry.isCoreGame !== false) return "game";
-  const family = String(entry.productFamilyName ?? "").toLowerCase();
-  if (family.includes("game")) return "game";
-  const categories = Array.isArray(entry.categories) ? entry.categories.map(String) : [];
-  if (categories.some((value) => /dlc|add-?on|consumable|durable/i.test(value))) return "dlc";
-  return entry.isGame === true ? "game" : "dlc";
+function catalogSkuTypes(product?: Record<string, unknown>): string[] {
+  return ((product?.DisplaySkuAvailabilities as { Sku?: { SkuType?: string } }[] | undefined) ?? [])
+    .map((sku) => String(sku.Sku?.SkuType ?? "").toLowerCase())
+    .filter(Boolean);
+}
+
+function titleSuggestsAddOn(title: string): boolean {
+  return DLC_TITLE_PATTERN.test(title) || DLC_BUNDLE_PATTERN.test(title);
+}
+
+/** Some full games appear on Microsoft's add-on deal list; keep those as games. */
+function standaloneGameOnAddonList(
+  product: Record<string, unknown> | undefined,
+  appsEntry: Record<string, unknown> | undefined,
+  title: string,
+): boolean {
+  if (titleSuggestsAddOn(title)) return false;
+  if (appsEntry?.isCoreGame === true) return true;
+  if (/^(Minecraft: Java|Candy Crush|Township|Gardenscapes|Homescapes|Fishdom|Call of Duty®: Modern Warfare)/i.test(title)) {
+    return true;
+  }
+  const properties = product?.Properties as { HasAddOns?: boolean } | undefined;
+  if (properties?.HasAddOns === true && !/\b(bundle|dlc|add)\b/i.test(title)) return true;
+  return false;
+}
+
+/** Classify using Display Catalog fields, list provenance, and add-on title cues. */
+export function classifyMicrosoftProductKind(
+  product: Record<string, unknown> | undefined,
+  appsEntry: Record<string, unknown> | undefined,
+  sources: readonly MicrosoftDealListSource[],
+  title = "",
+): XboxDealProductKind {
+  const catalogKind = String(product?.ProductKind ?? "");
+  if (NON_GAME_PRODUCT_KINDS.has(catalogKind)) return "dlc";
+
+  const productType = String(product?.ProductType ?? "");
+  if (productType && productType !== "Game") return "dlc";
+
+  if (catalogParentProduct(product)) return "dlc";
+  if (catalogSkuTypes(product).some((sku) => NON_GAME_SKU_TYPES.has(sku))) return "dlc";
+
+  const group = String((product?.Properties as { ProductGroupName?: string } | undefined)?.ProductGroupName ?? "");
+  const category = String((product?.Properties as { Category?: string } | undefined)?.Category ?? "");
+  if (/\b(add-?on|dlc|consumable|durable)\b/i.test(`${group} ${category}`)) return "dlc";
+
+  const addonOnly = sources.includes("addon-deal") && !sources.includes("game-deal");
+  if (addonOnly) {
+    if (titleSuggestsAddOn(title) || /\bupgrade\b/i.test(title)) return "dlc";
+    if (!standaloneGameOnAddonList(product, appsEntry, title)) {
+      // Add-on deal list provenance: treat unknown items as DLC unless catalog says game and title is a full title.
+      if (catalogKind === "Game" && !/\b(pack|bundle|coin|credit)\b/i.test(title)) return "game";
+      return "dlc";
+    }
+    return "game";
+  }
+
+  if (titleSuggestsAddOn(title)) return "dlc";
+
+  return "game";
+}
+
+export function xboxDealKindCounts(deals: readonly XboxDeal[]): { game: number; dlc: number } {
+  let game = 0;
+  let dlc = 0;
+  for (const deal of deals) {
+    if (deal.productKind === "game") game += 1;
+    else dlc += 1;
+  }
+  return { game, dlc };
+}
+
+export function hasMultipleDealKinds(deals: readonly XboxDeal[]): boolean {
+  const { game, dlc } = xboxDealKindCounts(deals);
+  return game > 0 && dlc > 0;
 }
 
 function saleEndFromCatalog(product: Record<string, unknown> | undefined): string | null {
@@ -79,6 +155,7 @@ function coverFromApps(entry: Record<string, unknown>): string | null {
 export function xboxDealFromDisplayCatalog(
   product: Record<string, unknown>,
   gameIdByBigId: ReadonlyMap<string, string>,
+  sources: readonly MicrosoftDealListSource[] = ["game-deal"],
 ): XboxDeal | null {
   const bigId = String(product.ProductId ?? "").toUpperCase();
   if (!isXboxBigId(bigId)) return null;
@@ -101,7 +178,7 @@ export function xboxDealFromDisplayCatalog(
     )),
   );
   if (!priced || priced.regularPrice <= priced.price) return null;
-  const productKind = productKindFromCatalog(product);
+  const productKind = classifyMicrosoftProductKind(product, undefined, sources, title);
   return {
     bigId,
     title,
@@ -122,20 +199,33 @@ export function xboxDealFromAppsListItem(
   entry: Record<string, unknown>,
   gameIdByBigId: ReadonlyMap<string, string>,
   catalogById?: ReadonlyMap<string, Record<string, unknown>>,
+  sources: readonly MicrosoftDealListSource[] = ["game-deal"],
 ): XboxDeal | null {
   const bigId = String(entry.productId ?? "").toUpperCase();
   if (!isXboxBigId(bigId)) return null;
   const title = typeof entry.title === "string" ? entry.title : "";
   if (!title) return null;
+  const catalog = catalogById?.get(bigId);
+  const fromCatalog = catalog ? xboxDealFromDisplayCatalog(catalog, gameIdByBigId, sources) : null;
+  if (fromCatalog) {
+    return {
+      ...fromCatalog,
+      coverUrl: fromCatalog.coverUrl ?? coverFromApps(entry),
+      storeUrl: xboxStoreProductUrl(
+        bigId,
+        typeof entry.encodedTitle === "string" ? entry.encodedTitle : undefined,
+        fromCatalog.title,
+      ),
+    };
+  }
+
   const priceInfo = entry.priceInfo as { price?: number; msrp?: number } | undefined;
   const price = typeof priceInfo?.price === "number" ? priceInfo.price : typeof entry.price === "number" ? entry.price : null;
   const regularPrice = typeof priceInfo?.msrp === "number" ? priceInfo.msrp : price;
   if (price == null || regularPrice == null || regularPrice <= price) return null;
 
-  const catalog = catalogById?.get(bigId);
-  const productKind = catalog ? productKindFromCatalog(catalog) : productKindFromApps(entry);
+  const productKind = classifyMicrosoftProductKind(catalog, entry, sources, title);
   const coverUrl = coverFromCatalog(catalog) ?? coverFromApps(entry);
-  const saleEndsAt = catalog ? saleEndFromCatalog(catalog) : null;
 
   return {
     bigId,
@@ -146,7 +236,7 @@ export function xboxDealFromAppsListItem(
     discountPercent: discountPercent(price, regularPrice),
     currency: "EUR",
     productKind,
-    saleEndsAt,
+    saleEndsAt: null,
     storeUrl: xboxStoreProductUrl(bigId, typeof entry.encodedTitle === "string" ? entry.encodedTitle : undefined, title),
     gameId: gameIdByBigId.get(bigId) ?? null,
   };

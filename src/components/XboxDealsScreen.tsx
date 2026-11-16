@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
 import type { XboxDealKindFilter, XboxDealSort, XboxDealsPayload } from "@/data/xbox-deals-types";
-import { filterXboxDeals, sortXboxDeals } from "@/data/xbox-deals-normalize";
+import { filterXboxDeals, hasMultipleDealKinds, sortXboxDeals } from "@/data/xbox-deals-normalize";
 
 interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
@@ -27,6 +27,7 @@ const SOURCE_LABEL: Record<XboxDealsPayload["source"], string> = {
 export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
+  const showKindFilters = hasMultipleDealKinds(initial.deals);
 
   const visible = useMemo(
     () => sortXboxDeals(filterXboxDeals(initial.deals, kind), sort),
@@ -65,28 +66,31 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
               <option value="title-asc">Title (A–Z)</option>
             </select>
           </div>
-          <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by product type">
-              {([
-                ["all", "All"],
-                ["game", "Games"],
-                ["dlc", "DLC"],
-              ] as const).map(([value, label]) => (
-                <button
-                  key={value}
-                  type="button"
-                  aria-pressed={kind === value}
-                  onClick={() => setKind(value)}
-                  className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                    kind === value ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
+          {showKindFilters ? (
+            <div className="flex flex-col gap-1">
+              <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>
+              <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by product type">
+                {([
+                  ["all", "All"],
+                  ["game", "Games"],
+                  ["dlc", "DLC"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    data-xbox-deal-kind={value}
+                    aria-pressed={kind === value}
+                    onClick={() => setKind(value)}
+                    className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                      kind === value ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          ) : null}
           <p className="text-sm text-muted sm:ml-auto" aria-live="polite">
             Showing {visible.length} of {initial.deals.length} deals
           </p>

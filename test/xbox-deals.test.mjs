@@ -4,6 +4,7 @@ import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const {
+  classifyMicrosoftProductKind,
   discountPercent,
   filterXboxDeals,
   parseDealsBigIdsScript,
@@ -40,6 +41,46 @@ test("normalizes display catalog products into deals", () => {
   assert.equal(first.gameId, "100");
   assert.ok(first.discountPercent > 0);
   assert.equal(first.currency, "EUR");
+});
+
+test("classifies DLC bundles and add-on list entries", () => {
+  const dlcBundle = readJson("microsoft-displaycatalog-dlc-bundle.json").Products[0];
+  assert.equal(
+    classifyMicrosoftProductKind(
+      dlcBundle,
+      { isGame: true, isCoreGame: false },
+      ["addon-deal"],
+      "Minecraft Dungeons Ultimate DLC Bundle - Windows 10",
+    ),
+    "dlc",
+  );
+
+  const addons = readJson("microsoft-apps-dealaddons-page1.json").productsList ?? [];
+  const javaEdition = addons.find((entry) => /Java & Bedrock/i.test(entry.title ?? ""));
+  assert.ok(javaEdition);
+  assert.equal(
+    classifyMicrosoftProductKind(undefined, javaEdition, ["addon-deal"], javaEdition.title),
+    "game",
+  );
+
+  const durableFixture = {
+    ProductId: "9NTESTDURAB1",
+    ProductKind: "Durable",
+    ProductType: "Durable",
+    LocalizedProperties: [{ ProductTitle: "Sample Add-on" }],
+    DisplaySkuAvailabilities: [
+      {
+        Sku: { SkuType: "full" },
+        Availabilities: [{
+          Actions: ["Purchase"],
+          RemediationRequired: false,
+          OrderManagementData: { Price: { CurrencyCode: "EUR", ListPrice: 4.99, MSRP: 9.99 } },
+        }],
+      },
+    ],
+  };
+  const deal = xboxDealFromDisplayCatalog(durableFixture, new Map());
+  assert.equal(deal?.productKind, "dlc");
 });
 
 test("normalizes apps.microsoft list items", () => {
