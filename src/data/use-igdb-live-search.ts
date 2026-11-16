@@ -23,6 +23,9 @@ const LIVE_SEARCH_SKELETON_COUNT = 8;
 
 export interface IgdbLiveSearchState {
   loading: boolean;
+  /** False while a live IGDB merge is in flight — catalogue-only rows must stay hidden. */
+  resultsReady: boolean;
+  catalogueMatchCount: number;
   games: CatalogueCard[];
   sections?: HybridSearchWallSection[];
   showSkeletons: boolean;
@@ -100,14 +103,19 @@ export function useIgdbLiveSearch(
     [activeHits],
   );
 
+  const resultsReady = !shouldSearch || !stillLoading;
+  const catalogueMatchCount = catalogueGames.length;
+
   const games = useMemo(() => {
+    if (!resultsReady) return [];
     if (!shouldSearch || igdbGameHits.length === 0) {
       return [...catalogueGames];
     }
     return mergeCatalogueAndIgdbSearch(trimmed, catalogueGames, igdbGameHits);
-  }, [trimmed, catalogueGames, igdbGameHits, shouldSearch]);
+  }, [trimmed, catalogueGames, igdbGameHits, shouldSearch, resultsReady]);
 
   const sections = useMemo(() => {
+    if (!resultsReady) return undefined;
     if (!catalogueSections || catalogueSections.length === 0) return undefined;
     if (!shouldSearch || activeHits.length === 0) {
       return catalogueSections.map((section) => ({
@@ -116,13 +124,20 @@ export function useIgdbLiveSearch(
       }));
     }
     return mergeSearchWallSections(trimmed, catalogueSections, activeHits);
-  }, [trimmed, catalogueSections, activeHits, shouldSearch]);
+  }, [trimmed, catalogueSections, activeHits, shouldSearch, resultsReady]);
+
+  const pendingSkeletons = shouldSearch && !resultsReady;
+  const skeletonCount = pendingSkeletons
+    ? Math.max(catalogueMatchCount, LIVE_SEARCH_SKELETON_COUNT)
+    : LIVE_SEARCH_SKELETON_COUNT;
 
   return {
     loading: stillLoading,
+    resultsReady,
+    catalogueMatchCount,
     games,
     sections,
-    showSkeletons: stillLoading,
-    skeletonCount: LIVE_SEARCH_SKELETON_COUNT,
+    showSkeletons: pendingSkeletons || stillLoading,
+    skeletonCount,
   };
 }

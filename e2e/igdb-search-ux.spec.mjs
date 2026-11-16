@@ -9,7 +9,7 @@ test("live search shows skeleton placeholders while IGDB is delayed", async ({ p
   await expect(page.getByRole("heading", { name: /Search results for "syndicate"/i })).toBeVisible({
     timeout: 20_000,
   });
-  const skeletonCards = page.locator('section[aria-labelledby="game-wall-games"] ul [aria-hidden="true"]');
+  const skeletonCards = page.locator('section[aria-labelledby="game-wall-heading"] ul [aria-hidden="true"]');
   await expect(skeletonCards.first()).toBeVisible({ timeout: 5000 });
   await expect(page.getByText("Searching…")).toBeVisible();
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
@@ -38,6 +38,6 @@ test("IGDB card without cover shows initials placeholder", async ({ page }) => {
     timeout: 20_000,
   });
   await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
-  await expect(page.getByRole("link", { name: /Syndicate Boyfriend/i })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Syndicate Boyfriend/i })).toBeVisible();
   await expect(page.getByText("SB", { exact: true })).toBeVisible();
 });

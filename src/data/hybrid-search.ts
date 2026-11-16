@@ -1,5 +1,5 @@
 import type { CatalogueCard } from "./catalogue-card";
-import { searchMatchTier, sortSearchResults } from "./search-rank";
+import { searchMatchTier, sortAndFilterSearchResults, sortSearchResults } from "./search-rank";
 import { normalizeTitle } from "./store-match";
 import { foldUnlinkedIgdbPorts, type PortFoldRow } from "./port-fold";
 import { dropIgdbSearchNoise } from "@/lib/igdb/search-hit-quality";
@@ -121,7 +121,7 @@ export function mergeCatalogueAndIgdbSearch(
       merged.set(hit.id, igdbSearchHitToCard(hit));
     }
   }
-  return sortSearchResults(query, [...merged.values()]);
+  return sortAndFilterSearchResults(query, [...merged.values()]);
 }
 
 function mergeDlcSection(

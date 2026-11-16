@@ -634,10 +634,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     type="button"
                     onClick={() => handleVariantSelect(variant)}
                     aria-pressed={effectiveVariant === variant || effectiveVariantRoot === variant}
-                    className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                    className={`inline-flex h-6 flex-shrink-0 items-center rounded-full px-2 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                       effectiveVariant === variant
-                        ? "bg-white/10 text-foreground"
-                        : "text-muted hover:bg-white/5 hover:text-foreground"
+                        ? "bg-muted text-foreground"
+                        : "text-muted hover:bg-muted/60 hover:text-foreground"
                     }`}
                   >
                     <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
@@ -650,10 +650,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                       href="/deals"
                       prefetch={false}
                       aria-current={pathname === "/deals" ? "page" : undefined}
-                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                      className={`inline-flex h-6 flex-shrink-0 items-center rounded-full px-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                         pathname === "/deals"
-                          ? "bg-white/10 text-foreground"
-                          : "text-muted hover:bg-white/5 hover:text-foreground"
+                          ? "bg-muted text-foreground"
+                          : "text-muted hover:bg-muted/60 hover:text-foreground"
                       }`}
                     >
                       Deals
@@ -669,10 +669,10 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                       type="button"
                       onClick={() => handleVariantSelect(variant)}
                       aria-pressed={effectiveVariant === variant}
-                      className={`inline-flex flex-shrink-0 items-center rounded-full px-2 py-1 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                      className={`inline-flex h-6 flex-shrink-0 items-center rounded-full px-2 text-xs transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                         effectiveVariant === variant
-                          ? "bg-white/10 text-foreground"
-                          : "text-muted hover:bg-white/5 hover:text-foreground"
+                          ? "bg-muted text-foreground"
+                          : "text-muted hover:bg-muted/60 hover:text-foreground"
                       }`}
                     >
                       <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
@@ -791,8 +791,8 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                           aria-current={pathname === "/deals" ? "page" : undefined}
                           className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
                             pathname === "/deals"
-                              ? "bg-white/10 text-foreground"
-                              : "text-muted hover:bg-white/5 hover:text-foreground"
+                              ? "bg-muted text-foreground"
+                              : "text-muted hover:bg-muted/60 hover:text-foreground"
                           }`}
                         >
                           Deals

@@ -293,9 +293,12 @@ export function filterXboxDeals(deals: readonly XboxDeal[], kind: XboxDealKindFi
   return deals.filter((deal) => (kind === "game" ? deal.productKind === "game" : deal.productKind === "dlc"));
 }
 
+const FAR_FUTURE_SALE_YEAR = 2040;
+
 export function formatSaleEndNl(iso: string | null): string | null {
   if (!iso) return null;
   const parsed = Date.parse(iso);
   if (!Number.isFinite(parsed)) return null;
+  if (new Date(parsed).getUTCFullYear() >= FAR_FUTURE_SALE_YEAR) return null;
   return new Intl.DateTimeFormat("nl-NL", { dateStyle: "medium", timeStyle: "short" }).format(parsed);
 }
