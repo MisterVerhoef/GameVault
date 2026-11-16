@@ -198,7 +198,6 @@ export default function ListsScreen() {
                 )}
                 {missingIds.length > 0 && (
                   <div className={knownGames.length ? "mt-5" : undefined}>
-                    <p className="text-xs text-muted">Not in the catalogue</p>
                     <ul className="mt-2 flex flex-wrap gap-2">
                       {missingIds.map((id) => <li key={id}><button type="button" onClick={() => removeGame(activeList.id, id)} className="inline-flex min-h-11 items-center rounded-full bg-accent/15 px-3 text-xs text-accent hover:bg-accent/25 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">Remove {id}</button></li>)}
                     </ul>

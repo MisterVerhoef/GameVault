@@ -1,23 +1,40 @@
+import { unstable_cache } from "next/cache";
+import { foldUnlinkedIgdbPorts } from "@/data/port-fold";
 import { groupIgdbSearchHits } from "@/data/search-grouping";
+import { cataloguePortPeersForTitles } from "./catalogue-port-peers";
+import { dropIgdbSearchNoise } from "./search-hit-quality";
+import { isExcludedIgdbLiveSearchGameType } from "./search-hit-types";
 import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
 import { LruCache } from "./lru-cache";
 import { mapIgdbApiRecord } from "./map-record";
-import { igdbMockEnabled, mockIgdbGame, mockIgdbSearch } from "./mock";
+import {
+  igdbMockEnabled,
+  mockIgdbGame,
+  mockIgdbSearchExact,
+  mockIgdbSearchFuzzy,
+} from "./mock";
 import { normalizeIgdbQuery } from "./normalize-query";
 import { RequestThrottle } from "./throttle";
-import { buildIgdbSearchBody } from "./search-api";
+import {
+  buildIgdbExactNameSearchBody,
+  buildIgdbSearchBody,
+  IGDB_LIVE_SEARCH_RESULT_CAP,
+  mergeIgdbLiveSearchRows,
+} from "./search-api";
 import { mapIgdbBasicRecord } from "./map-basic-record";
 import { mockIgdbGamesByIds } from "./mock";
 import { TtlCache } from "./ttl-cache";
 import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
 
 export {
+  buildIgdbExactNameSearchBody,
   buildIgdbSearchBody,
   igdbSearchCacheControl,
   IGDB_SEARCH_CACHE_CONTROL,
   IGDB_SEARCH_CACHE_CONTROL_EMPTY,
+  mergeIgdbLiveSearchRows,
 } from "./search-api";
 
 const throttle = new RequestThrottle(4);
@@ -27,6 +44,12 @@ const basicGameCache = new TtlCache<IgdbBasicGame | null>({
   missTtlMs: 60_000,
   maxEntries: 4096,
 });
+const liveGameCache = new TtlCache<IgdbLiveGame | null>({
+  hitTtlMs: 86_400_000,
+  missTtlMs: 60_000,
+  maxEntries: 2048,
+});
+const LIVE_GAME_CACHE_SECONDS = 86_400;
 
 const IGDB_BATCH_LIMIT = 500;
 const basicGameFields = "id,name,cover.url,first_release_date,platforms.name";
@@ -91,10 +114,15 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       cover?: { url?: string };
       first_release_date?: number;
       rating?: number;
+      total_rating_count?: number;
+      game_type?: number;
       parent_game?: { id?: number };
       version_parent?: { id?: number };
+      platforms?: unknown[];
+      involved_companies?: unknown[];
     };
     if (!record.id || !record.name) continue;
+    if (isExcludedIgdbLiveSearchGameType(record.game_type)) continue;
     const coverUrl = record.cover?.url?.replace(/^\/\//, "https://");
     const releaseYear =
       typeof record.first_release_date === "number" && Number.isFinite(record.first_release_date)
@@ -109,6 +137,12 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
       title: record.name,
       ...(releaseYear != null ? { releaseYear } : {}),
       ...(typeof record.rating === "number" ? { rating: record.rating } : {}),
+      ...(typeof record.total_rating_count === "number"
+        ? { ratingCount: record.total_rating_count }
+        : {}),
+      ...(typeof record.game_type === "number" ? { gameType: record.game_type } : {}),
+      hasPlatforms: Array.isArray(record.platforms) && record.platforms.length > 0,
+      hasCompanies: Array.isArray(record.involved_companies) && record.involved_companies.length > 0,
       ...(parentGameId ? { parentGameId } : {}),
       ...(versionParentId ? { versionParentId } : {}),
       ...(coverUrl ? { cover: { url: coverUrl.replace(/\/t_[^/]+\//, "/t_cover_big/") } } : {}),
@@ -117,9 +151,21 @@ function mapSearchRows(rows: unknown[]): IgdbSearchHit[] {
   return hits;
 }
 
+function dropIgdbPortsCoveredByCatalogue(hits: IgdbSearchHit[]): IgdbSearchHit[] {
+  const catalogueIds = getCatalogueIgdbIds();
+  return hits.filter((hit) => {
+    const parent = hit.versionParentId ?? hit.parentGameId;
+    return !(parent && catalogueIds.has(parent));
+  });
+}
+
 function finalizeIgdbSearchHits(query: string, hits: IgdbSearchHit[]): IgdbSearchHit[] {
-  const grouped = groupIgdbSearchHits(hits);
-  return sortSearchResults(query, grouped).slice(0, 12);
+  const deduped = dropIgdbPortsCoveredByCatalogue(hits);
+  const cataloguePeers = cataloguePortPeersForTitles(deduped.map((hit) => hit.title));
+  const folded = foldUnlinkedIgdbPorts(deduped, cataloguePeers);
+  const cleaned = dropIgdbSearchNoise(query, folded);
+  const grouped = groupIgdbSearchHits(cleaned);
+  return sortSearchResults(query, grouped).slice(0, IGDB_LIVE_SEARCH_RESULT_CAP);
 }
 
 export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
@@ -130,10 +176,12 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (cached) return cached;
 
   if (igdbMockEnabled()) {
-    const hits = finalizeIgdbSearchHits(
-      query,
-      dedupeIgdbAgainstCatalogue(mockIgdbSearch(query), getCatalogueIgdbIds()),
+    const catalogueIds = getCatalogueIgdbIds();
+    const combined = mergeIgdbLiveSearchRows(
+      dedupeIgdbAgainstCatalogue(mockIgdbSearchExact(query), catalogueIds),
+      dedupeIgdbAgainstCatalogue(mockIgdbSearchFuzzy(query), catalogueIds),
     );
+    const hits = finalizeIgdbSearchHits(query, combined);
     searchCache.set(normalized, hits);
     return hits;
   }
@@ -141,24 +189,33 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   if (!credentials()) return [];
 
   try {
-    const body = buildIgdbSearchBody(query);
-    const response = await igdbPost("games", body);
-    if (!response) {
+    const [fuzzyResponse, exactResponse] = await Promise.all([
+      igdbPost("games", buildIgdbSearchBody(query)),
+      igdbPost("games", buildIgdbExactNameSearchBody(query)),
+    ]);
+    if (!fuzzyResponse && !exactResponse) {
       console.warn("[igdb] search skipped: missing credentials or auth token");
       return [];
     }
-    if (!response.ok) {
-      console.error(`[igdb] search HTTP ${response.status} for query length ${query.trim().length}`);
+    const rowsFrom = async (response: Response | null) => {
+      if (!response || !response.ok) return [] as unknown[];
+      const rows = await response.json();
+      return Array.isArray(rows) ? rows : [];
+    };
+    const exactRows = await rowsFrom(exactResponse);
+    const fuzzyRows = await rowsFrom(fuzzyResponse);
+    if (!fuzzyResponse?.ok && !exactResponse?.ok) {
+      console.error(
+        `[igdb] search HTTP fuzzy=${fuzzyResponse?.status ?? "none"} exact=${exactResponse?.status ?? "none"}`,
+      );
       return [];
     }
-    const rows = await response.json();
-    if (!Array.isArray(rows)) {
-      console.error("[igdb] search response was not a JSON array");
-      return [];
-    }
-    const mapped = mapSearchRows(rows);
-    const deduped = dedupeIgdbAgainstCatalogue(mapped, getCatalogueIgdbIds());
-    const hits = finalizeIgdbSearchHits(query, deduped);
+    const catalogueIds = getCatalogueIgdbIds();
+    const combined = mergeIgdbLiveSearchRows(
+      dedupeIgdbAgainstCatalogue(mapSearchRows(exactRows), catalogueIds),
+      dedupeIgdbAgainstCatalogue(mapSearchRows(fuzzyRows), catalogueIds),
+    );
+    const hits = finalizeIgdbSearchHits(query, combined);
     searchCache.set(normalized, hits);
     return hits;
   } catch (error) {
@@ -268,13 +325,7 @@ export async function fetchIgdbGamesByIds(ids: readonly string[]): Promise<Map<s
   return out;
 }
 
-export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
-  if (!/^\d+$/.test(id)) return null;
-
-  if (igdbMockEnabled()) {
-    return mockIgdbGame(id);
-  }
-
+async function fetchIgdbGameByIdUncached(id: string): Promise<IgdbLiveGame | null> {
   if (!credentials()) return null;
 
   try {
@@ -288,6 +339,35 @@ export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null
   }
 }
 
+async function fetchIgdbGameByIdServerCached(id: string): Promise<IgdbLiveGame | null> {
+  const cached = liveGameCache.get(id);
+  if (cached !== undefined) return cached;
+
+  let value: IgdbLiveGame | null;
+  try {
+    value = await unstable_cache(
+      () => fetchIgdbGameByIdUncached(id),
+      ["igdb-live-game", id],
+      { revalidate: LIVE_GAME_CACHE_SECONDS, tags: [`igdb-game-${id}`] },
+    )();
+  } catch {
+    value = await fetchIgdbGameByIdUncached(id);
+  }
+
+  liveGameCache.set(id, value, value !== null);
+  return value;
+}
+
+export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
+  if (!/^\d+$/.test(id)) return null;
+
+  if (igdbMockEnabled()) {
+    return mockIgdbGame(id);
+  }
+
+  return fetchIgdbGameByIdServerCached(id);
+}
+
 /** Test hooks */
 export function __testSearchCache(): LruCache<IgdbSearchHit[]> {
   return searchCache;
@@ -299,4 +379,8 @@ export function __testThrottle(): RequestThrottle {
 
 export function __testBasicGameCache(): TtlCache<IgdbBasicGame | null> {
   return basicGameCache;
+}
+
+export function __testLiveGameCache(): TtlCache<IgdbLiveGame | null> {
+  return liveGameCache;
 }

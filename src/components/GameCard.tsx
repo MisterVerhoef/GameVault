@@ -10,6 +10,7 @@ import {
   type Platform,
 } from "@/data/platforms";
 import { useRouter } from "next/navigation";
+import { GameCoverPlaceholder } from "./cover-placeholder";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
 
@@ -69,8 +70,11 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
     >
       {/* Cover */}
       <div className="relative h-full w-full overflow-hidden rounded-lg bg-card shadow-lg ring-1 ring-white/10 transition-all duration-300 group-hover:ring-2 group-hover:ring-accent/60 group-hover:shadow-2xl group-hover:shadow-accent/20 group-focus-visible:ring-2 group-focus-visible:ring-accent group-active:ring-2 group-active:ring-accent">
-        {/* Placeholder gradient if image fails */}
-        <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" />
+        {game.cover?.url ? (
+          <div className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
+        ) : (
+          <GameCoverPlaceholder title={game.title} className="absolute inset-0" />
+        )}
 
         {game.cover?.url && (
           <Image

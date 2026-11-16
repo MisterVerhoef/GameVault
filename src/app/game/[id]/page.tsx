@@ -22,6 +22,7 @@ import IgdbOnlyGameDetail from "@/components/IgdbOnlyGameDetail";
 import { fetchIgdbGameById } from "@/lib/igdb/client";
 import SimilarGamesSection, { type SimilarGameItem } from "@/components/SimilarGamesSection";
 import { listGroupedVariants, type GroupableGame } from "@/data/search-grouping";
+import { staticGamePageIds } from "@/data/static-game-pages";
 
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
 
@@ -177,7 +178,7 @@ export const dynamicParams = true;
 export const revalidate = 86400;
 
 export function generateStaticParams() {
-  return allGames.map((game) => ({ id: game.id }));
+  return staticGamePageIds().map((id) => ({ id }));
 }
 
 export default async function GameDetailPage({ params }: GameDetailPageProps) {

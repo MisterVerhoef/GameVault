@@ -32,7 +32,7 @@ export interface CalendarSourceGame {
 export interface CalendarEntry {
   id: string;
   title: string;
-  /** Missing when the wishlist id is not in the catalogue. */
+  /** Missing when the wishlist id has no release metadata in the local index. */
   href?: string;
   cover?: string;
   date?: string;

@@ -108,14 +108,9 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
 
           <div className="flex flex-1 flex-col gap-4">
             <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
-                  {game.title}
-                </h2>
-                <span className="rounded-full border border-foreground/15 bg-card px-3 py-1 text-sm font-semibold text-foreground dark:border-white/15 dark:bg-white/5">
-                  Not in catalogue
-                </span>
-              </div>
+              <h2 className="text-2xl font-bold tracking-tight sm:text-3xl lg:text-4xl">
+                {game.title}
+              </h2>
               <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
                 {game.releaseYear != null && <span>{game.releaseYear}</span>}
                 {game.releaseYear != null && game.genres.length > 0 && (
@@ -142,8 +137,6 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
             </div>
 
             {game.description ? <GameDescription text={game.description} /> : null}
-
-            <p className="text-sm text-muted">Prices and vault not yet available for this game.</p>
           </div>
         </section>
 

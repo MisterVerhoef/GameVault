@@ -110,8 +110,7 @@ function VaultShelf({
       )}
       {missing.length > 0 && (
         <div className={known.length > 0 ? "mt-4" : undefined}>
-          <p className="text-xs text-muted">Not in the catalogue</p>
-          <ul className="mt-2 flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2">
             {missing.map((item) => (
               <li key={item.gameId}>
                 <button

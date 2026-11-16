@@ -9,10 +9,9 @@ test("off-catalogue similar games link to live game pages", async ({ page }) => 
   );
   await page.goto("/game/423352");
   await enrich;
-  const similar = page.getByRole("link", { name: /Open Soulstone Survivors\. Not in catalogue\./i });
+  const similar = page.getByRole("link", { name: /Open Soulstone Survivors/i });
   await expect(similar).toBeVisible({ timeout: 20_000 });
   await similar.click();
   await expect(page).toHaveURL(/\/game\/210585$/);
   await expect(page.getByRole("heading", { level: 1, name: /Soulstone Survivors/i })).toBeVisible();
-  await expect(page.getByText("Not in catalogue").first()).toBeVisible();
 });

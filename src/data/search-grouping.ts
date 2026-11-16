@@ -277,8 +277,18 @@ export function groupIgdbSearchHits<T extends IgdbGroupableHit>(hits: readonly T
   }
   for (const bucket of byTitle.values()) {
     if (bucket.length < 2) continue;
-    for (let index = 1; index < bucket.length; index += 1) {
-      union.union(bucket[0].id, bucket[index].id);
+    const byYear = new Map<number | "unknown", T[]>();
+    for (const hit of bucket) {
+      const yearKey = hit.releaseYear ?? "unknown";
+      const yearBucket = byYear.get(yearKey) ?? [];
+      yearBucket.push(hit);
+      byYear.set(yearKey, yearBucket);
+    }
+    for (const yearBucket of byYear.values()) {
+      if (yearBucket.length < 2) continue;
+      for (let index = 1; index < yearBucket.length; index += 1) {
+        union.union(yearBucket[0].id, yearBucket[index].id);
+      }
     }
   }
 
@@ -291,8 +301,18 @@ export function groupIgdbSearchHits<T extends IgdbGroupableHit>(hits: readonly T
   }
   for (const bucket of byStripped.values()) {
     if (bucket.length < 2) continue;
-    for (let index = 1; index < bucket.length; index += 1) {
-      union.union(bucket[0].id, bucket[index].id);
+    const byYear = new Map<number | "unknown", T[]>();
+    for (const hit of bucket) {
+      const yearKey = hit.releaseYear ?? "unknown";
+      const yearBucket = byYear.get(yearKey) ?? [];
+      yearBucket.push(hit);
+      byYear.set(yearKey, yearBucket);
+    }
+    for (const yearBucket of byYear.values()) {
+      if (yearBucket.length < 2) continue;
+      for (let index = 1; index < yearBucket.length; index += 1) {
+        union.union(yearBucket[0].id, yearBucket[index].id);
+      }
     }
   }
 

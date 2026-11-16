@@ -67,6 +67,7 @@ export interface BrowseGame {
   releaseYear?: number;
   releaseOn?: string;
   rating?: number;
+  ratingCount?: number;
   aggregatedRating?: number;
   genres: string[];
   themes: string[];
@@ -206,6 +207,7 @@ export function toCard(game: BrowseGame): CatalogueCard {
     platformVariants: game.platformVariants,
     releaseYear: game.releaseYear,
     rating: game.rating,
+    ...(game.ratingCount != null ? { ratingCount: game.ratingCount } : {}),
     cloudServices: cloudServiceNames(cloudServicesForGame(cloudStreamingIndex, game.id)),
   };
 }

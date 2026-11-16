@@ -21,7 +21,7 @@ function SimilarGameCard({ item }: { item: SimilarGameItem }) {
     <Link
       href={href}
       className={className}
-      aria-label={item.inCatalogue ? `Open ${title}` : `Open ${title}. Not in catalogue.`}
+      aria-label={`Open ${title}`}
       data-roving-card=""
       data-card-id={item.hrefId}
     >
@@ -39,7 +39,7 @@ function SimilarGameCard({ item }: { item: SimilarGameItem }) {
       <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/10" />
       <div className="relative">
         <span className="text-xs font-medium uppercase tracking-wider text-white/70">
-          {item.inCatalogue ? "Similar" : "Not in catalogue"}
+          Similar
         </span>
         <span className="mt-1 line-clamp-2 text-sm font-medium text-white">{title}</span>
       </div>

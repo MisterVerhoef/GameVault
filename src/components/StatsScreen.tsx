@@ -49,8 +49,8 @@ function platformBrowseHref(label: string) {
 
 function unmatchedNote(missing: number, mix: string) {
   if (missing <= 0) return null;
-  if (missing === 1) return `1 game is not in the catalogue, so it is left out of ${mix}.`;
-  return `${missing} games are not in the catalogue, so they are left out of ${mix}.`;
+  if (missing === 1) return `1 saved game has no genre data, so it is left out of ${mix}.`;
+  return `${missing} saved games have no genre data, so they are left out of ${mix}.`;
 }
 
 function completionLine(stats: VaultStats) {
@@ -328,7 +328,7 @@ function PlatformMix({ stats, catalogueFailed }: { stats: VaultStats; catalogueF
   );
 }
 
-function RecentRow({ item, catalogueFailed }: { item: RecentVaultUpdate; catalogueFailed: boolean }) {
+function RecentRow({ item }: { item: RecentVaultUpdate }) {
   const when = formatVaultUpdated(item.updatedAt);
   const dated = !Number.isNaN(Date.parse(item.updatedAt));
   const status = LIBRARY_STATUS_LABELS[item.status];
@@ -340,9 +340,6 @@ function RecentRow({ item, catalogueFailed }: { item: RecentVaultUpdate; catalog
         {" · "}
         {dated ? <time dateTime={item.updatedAt}>{when}</time> : when}
       </span>
-      {!item.inCatalogue && !catalogueFailed ? (
-        <span className="mt-0.5 block text-sm text-foreground/75">Not in the catalogue</span>
-      ) : null}
     </span>
   );
 
@@ -376,7 +373,7 @@ function RecentUpdates({ stats, catalogueFailed }: { stats: VaultStats; catalogu
         <ol className="mt-2 list-none divide-y divide-foreground/10">
           {stats.recent.map((item) => (
             <li key={item.gameId}>
-              <RecentRow item={item} catalogueFailed={catalogueFailed} />
+              <RecentRow item={item} />
             </li>
           ))}
         </ol>

@@ -1,12 +1,18 @@
 import { test, expect } from "@playwright/test";
 
 test("Zelda search shows one card per grouped title in catalogue results", async ({ page }) => {
+  const liveSearch = page.waitForResponse(
+    (response) => response.url().includes("/api/igdb/search") && response.ok(),
+    { timeout: 20_000 },
+  );
   await page.goto("/?search=Zelda");
   await expect(page.getByRole("heading", { name: /Search results for "Zelda"/i })).toBeVisible({
     timeout: 30_000,
   });
+  await liveSearch.catch(() => {});
+  await expect(page.getByText("Searching…")).toHaveCount(0, { timeout: 20_000 });
 
-  const titles = await page.locator("main ul a span.line-clamp-2").evaluateAll((nodes) =>
+  const titles = await page.locator('section[aria-labelledby="game-wall-heading"] ul a span.line-clamp-2').evaluateAll((nodes) =>
     nodes.map((node) => node.textContent?.trim() ?? "").filter(Boolean),
   );
   const normalized = titles.map((title) => title.trim().toLowerCase());

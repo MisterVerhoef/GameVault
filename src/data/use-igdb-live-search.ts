@@ -1,46 +1,52 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CatalogueCard } from "./catalogue-card";
+import {
+  mergeCatalogueAndIgdbSearch,
+  mergeSearchWallSections,
+  shouldQueryIgdbLiveSearch,
+} from "./hybrid-search";
+import { partitionIgdbSearchHits } from "@/lib/igdb/search-hit-types";
+import type { IgdbSearchHit } from "@/lib/igdb/types";
+
+export interface HybridSearchWallSection {
+  id: string;
+  title: string;
+  kind: "games" | "dlc";
+  games: CatalogueCard[];
+}
 
 const DEBOUNCE_MS = 350;
-const SKELETON_DELAY_MS = 300;
 const MIN_QUERY = 3;
-const MAX_CATALOGUE_HITS = 3;
+const LIVE_SEARCH_SKELETON_COUNT = 8;
 
 export interface IgdbLiveSearchState {
   loading: boolean;
   games: CatalogueCard[];
-  visible: boolean;
+  sections?: HybridSearchWallSection[];
   showSkeletons: boolean;
+  skeletonCount: number;
 }
 
 export function useIgdbLiveSearch(
   query: string,
-  catalogueHitCount: number,
+  catalogueGames: readonly CatalogueCard[],
+  catalogueSections: readonly HybridSearchWallSection[] | undefined,
   enabled: boolean,
 ): IgdbLiveSearchState {
   const trimmed = query.trim();
   const shouldSearch =
-    enabled && trimmed.length >= MIN_QUERY && catalogueHitCount < MAX_CATALOGUE_HITS;
+    enabled &&
+    trimmed.length >= MIN_QUERY &&
+    shouldQueryIgdbLiveSearch(trimmed, catalogueGames);
 
   const [fetchKey, setFetchKey] = useState("");
   const [loading, setLoading] = useState(false);
-  const [skeletonDelayed, setSkeletonDelayed] = useState(false);
-  const [games, setGames] = useState<CatalogueCard[]>([]);
+  const [igdbHits, setIgdbHits] = useState<IgdbSearchHit[]>([]);
   const abortRef = useRef<AbortController | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const skeletonTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const clearSkeletonTimer = () => {
-    if (skeletonTimerRef.current) clearTimeout(skeletonTimerRef.current);
-    skeletonTimerRef.current = null;
-  };
-
   const stopLoading = useCallback(() => {
-    if (skeletonTimerRef.current) clearTimeout(skeletonTimerRef.current);
-    skeletonTimerRef.current = null;
-    setSkeletonDelayed(false);
     setLoading(false);
   }, []);
 
@@ -49,7 +55,6 @@ export function useIgdbLiveSearch(
       abortRef.current?.abort();
       abortRef.current = null;
       if (timerRef.current) clearTimeout(timerRef.current);
-      clearSkeletonTimer();
       return;
     }
 
@@ -61,28 +66,18 @@ export function useIgdbLiveSearch(
       abortRef.current = controller;
       setFetchKey(nextKey);
       setLoading(true);
-      setSkeletonDelayed(false);
-      clearSkeletonTimer();
-      skeletonTimerRef.current = setTimeout(() => setSkeletonDelayed(true), SKELETON_DELAY_MS);
       const params = new URLSearchParams({ q: trimmed });
       fetch(`/api/igdb/search?${params}`, { signal: controller.signal })
         .then((response) => (response.ok ? response.json() : { games: [] }))
-        .then((body: { games?: { id: string; title: string; cover?: { url: string } }[] }) => {
+        .then((body: { games?: IgdbSearchHit[] }) => {
           if (controller.signal.aborted) return;
           const rows = Array.isArray(body.games) ? body.games : [];
-          setGames(
-            rows.map((row) => ({
-              id: row.id,
-              title: row.title,
-              platforms: ["Other"],
-              ...(row.cover ? { cover: row.cover } : {}),
-            })),
-          );
+          setIgdbHits(rows);
           stopLoading();
         })
         .catch(() => {
           if (controller.signal.aborted) return;
-          setGames([]);
+          setIgdbHits([]);
           stopLoading();
         });
     }, DEBOUNCE_MS);
@@ -90,21 +85,44 @@ export function useIgdbLiveSearch(
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current);
       abortRef.current?.abort();
-      clearSkeletonTimer();
     };
   }, [shouldSearch, stopLoading, trimmed]);
 
-  if (!shouldSearch) {
-    return { loading: false, games: [], visible: false, showSkeletons: false };
-  }
-
   const stale = fetchKey !== trimmed;
-  const stillLoading = loading || stale;
-  const visible = stillLoading || games.length > 0;
+  const stillLoading = shouldSearch && (loading || stale);
+  const activeHits = useMemo(
+    () => (fetchKey === trimmed ? igdbHits : []),
+    [fetchKey, trimmed, igdbHits],
+  );
+
+  const igdbGameHits = useMemo(
+    () => partitionIgdbSearchHits(activeHits).games,
+    [activeHits],
+  );
+
+  const games = useMemo(() => {
+    if (!shouldSearch || igdbGameHits.length === 0) {
+      return [...catalogueGames];
+    }
+    return mergeCatalogueAndIgdbSearch(trimmed, catalogueGames, igdbGameHits);
+  }, [trimmed, catalogueGames, igdbGameHits, shouldSearch]);
+
+  const sections = useMemo(() => {
+    if (!catalogueSections || catalogueSections.length === 0) return undefined;
+    if (!shouldSearch || activeHits.length === 0) {
+      return catalogueSections.map((section) => ({
+        ...section,
+        games: [...section.games],
+      }));
+    }
+    return mergeSearchWallSections(trimmed, catalogueSections, activeHits);
+  }, [trimmed, catalogueSections, activeHits, shouldSearch]);
+
   return {
     loading: stillLoading,
-    games: fetchKey === trimmed ? games : [],
-    visible,
-    showSkeletons: stillLoading && skeletonDelayed,
+    games,
+    sections,
+    showSkeletons: stillLoading,
+    skeletonCount: LIVE_SEARCH_SKELETON_COUNT,
   };
 }

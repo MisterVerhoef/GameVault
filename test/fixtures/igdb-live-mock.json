@@ -1,10 +1,61 @@
 {
-  "search": [
+  "searchFuzzy": [
     {
       "id": "999999001",
       "title": "Vault Mock Exclusief Spel",
+      "releaseYear": 2026,
+      "ratingCount": 120,
       "cover": {
         "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "213754",
+      "title": "Syndicate",
+      "releaseYear": 1993,
+      "ratingCount": 0,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "213570",
+      "title": "Syndicate",
+      "releaseYear": 1994,
+      "ratingCount": 2,
+      "rating": 60,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "213885",
+      "title": "Syndicate",
+      "releaseYear": 1995,
+      "ratingCount": 1,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      }
+    },
+    {
+      "id": "214456",
+      "title": "Syndicate Wars",
+      "releaseYear": 1997,
+      "ratingCount": 0,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5443.jpg"
+      }
+    }
+  ],
+  "searchExact": [
+    {
+      "id": "1006",
+      "title": "Syndicate",
+      "releaseYear": 2012,
+      "rating": 73.4,
+      "ratingCount": 120,
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2srt.webp"
       }
     }
   ],
@@ -28,6 +79,89 @@
       "rating": 82.5,
       "ratingCount": 120,
       "releases": [{ "platform": "Windows", "date": "2026-03-01" }]
+    },
+    "1006": {
+      "id": "1006",
+      "slug": "syndicate--3",
+      "title": "Syndicate",
+      "summary": "2012 Syndicate reboot mock",
+      "description": "2012 Syndicate reboot mock",
+      "releaseYear": 2012,
+      "genres": ["Shooter"],
+      "themes": ["Science fiction"],
+      "platforms": ["PC"],
+      "platformVariants": ["Windows"],
+      "developers": [{ "id": "500010", "name": "Starbreeze Studios" }],
+      "publishers": [{ "id": "500011", "name": "Electronic Arts" }],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co2srt.webp"
+      },
+      "rating": 73.4,
+      "releases": [{ "platform": "Windows", "date": "2012-02-21" }]
+    },
+    "213754": {
+      "id": "213754",
+      "slug": "syndicate-amiga",
+      "title": "Syndicate",
+      "releaseYear": 1993,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["Amiga"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "213570": {
+      "id": "213570",
+      "slug": "syndicate-snes",
+      "title": "Syndicate",
+      "releaseYear": 1994,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["SNES"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "213885": {
+      "id": "213885",
+      "slug": "syndicate-md",
+      "title": "Syndicate",
+      "releaseYear": 1995,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["Mega Drive"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "releases": []
+    },
+    "214456": {
+      "id": "214456",
+      "slug": "syndicate-wars-ps",
+      "title": "Syndicate Wars",
+      "releaseYear": 1997,
+      "genres": ["Strategy"],
+      "themes": [],
+      "platforms": ["Other"],
+      "platformVariants": ["PlayStation"],
+      "developers": [],
+      "publishers": [],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co5443.jpg"
+      },
+      "releases": []
     },
     "210585": {
       "id": "210585",

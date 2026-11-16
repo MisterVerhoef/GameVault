@@ -8,6 +8,8 @@ const { RequestThrottle } = loadTsModule("src/lib/igdb/throttle.ts");
 const { normalizeIgdbQuery } = loadTsModule("src/lib/igdb/normalize-query.ts");
 const {
   buildIgdbSearchBody,
+  buildIgdbExactNameSearchBody,
+  mergeIgdbLiveSearchRows,
   igdbSearchCacheControl,
   IGDB_SEARCH_CACHE_CONTROL,
   IGDB_SEARCH_CACHE_CONTROL_EMPTY,
@@ -57,11 +59,30 @@ test("LruCache evicts oldest entries", () => {
 
 test("buildIgdbSearchBody uses game_type filter and escapes quotes", () => {
   const body = buildIgdbSearchBody('Say "Hello"');
-  assert.match(body, /game_type = \(0,8,9,10,11\)/);
+  assert.match(body, /game_type != \(3,5,6,7,11,12,14\)/);
+  assert.match(body, /game_type = null/);
   assert.doesNotMatch(body, /category =/);
   assert.match(body, /search "Say \\"Hello\\"";/);
-  assert.match(body, /parent_game,version_parent/);
-  assert.doesNotMatch(body, /version_parent = null/);
+  assert.match(body, /total_rating_count,game_type,parent_game,version_parent/);
+  assert.match(body, /version_parent = null/);
+});
+
+test("buildIgdbExactNameSearchBody escapes titles for exact-name lookup", () => {
+  const body = buildIgdbExactNameSearchBody('Say "Hello"');
+  assert.match(body, /name ~ "Say \\"Hello\\""/);
+  assert.doesNotMatch(body, /^\s*search /m);
+  assert.match(body, /sort total_rating_count desc;/);
+});
+
+test("mergeIgdbLiveSearchRows keeps exact-name rows ahead of fuzzy rows", () => {
+  const merged = mergeIgdbLiveSearchRows(
+    [{ id: "1", title: "A" }],
+    [{ id: "2", title: "B" }, { id: "1", title: "A dup" }],
+  );
+  assert.deepEqual(
+    merged.map((row) => row.id),
+    ["1", "2"],
+  );
 });
 
 test("igdbSearchCacheControl uses long TTL for hits and short for empty", () => {
