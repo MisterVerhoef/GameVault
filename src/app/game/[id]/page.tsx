@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ExternalLink } from "@/data/games";
+import { allGames, findGameByProviderId, formatRating, Platform, PLATFORM_COLORS, type ExternalLink, type Game } from "@/data/games";
 import { formatCountLabel, formatPlayTime, formatReleaseDay, multiplayerPhrases } from "@/data/game-facts";
 import { guideLinks } from "@/data/websites";
 import { listedSystemNames } from "@/data/platforms";
@@ -20,7 +20,6 @@ import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
 import Navbar from "@/components/Navbar";
-import IgdbOnlyGameDetail from "@/components/IgdbOnlyGameDetail";
 import { fetchIgdbGameById } from "@/lib/igdb/client";
 import SimilarGamesSection, { type SimilarGameItem } from "@/components/SimilarGamesSection";
 import { listGroupedVariants, type GroupableGame } from "@/data/search-grouping";
@@ -163,6 +162,27 @@ function FactChips({ items }: { items: readonly string[] }) {
   );
 }
 
+function igdbOnlyGroupedVariants(game: Game) {
+  const variants: ReturnType<typeof listGroupedVariants> = [];
+  for (const edition of game.editions) {
+    variants.push({
+      id: edition.id,
+      title: edition.title,
+      releaseYear: undefined,
+      platformLabel: "Edition",
+    });
+  }
+  for (const port of game.platformPorts ?? []) {
+    variants.push({
+      id: port.id,
+      title: port.title,
+      releaseYear: undefined,
+      platformLabel: "Port",
+    });
+  }
+  return variants;
+}
+
 function LabeledContentGrid({ items }: { items: readonly (readonly [string, string])[] }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -186,13 +206,10 @@ export function generateStaticParams() {
 export default async function GameDetailPage({ params }: GameDetailPageProps) {
   // Resolve params promise for SSR compatibility
   const resolvedParams = await params;
-  const game = allGames.find(g => g.id === resolvedParams.id);
-
-  if (!game) {
-    const live = await fetchIgdbGameById(resolvedParams.id);
-    if (!live) notFound();
-    return <IgdbOnlyGameDetail game={live} />;
-  }
+  const catalogueGame = allGames.find((g) => g.id === resolvedParams.id);
+  const game =
+    catalogueGame ?? (await fetchIgdbGameById(resolvedParams.id));
+  if (!game) notFound();
 
   const { game: display, offers, captions } = await presentCatalogueGameLive(game);
   const cloudServices = cloudServicesForGame(cloudStreamingIndex, game.id);
@@ -223,7 +240,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
     portIds: entry.portIds,
     relatedGames: entry.relatedGames,
   }));
-  const groupedVariants = listGroupedVariants(game.id, catalogueForGrouping);
+  const groupedVariants = catalogueGame
+    ? listGroupedVariants(game.id, catalogueForGrouping)
+    : igdbOnlyGroupedVariants(game);
 
   const similarGames: SimilarGameItem[] = game.similarGames.map((ref) => {
     const catalogueGame = findGameByProviderId(ref.id);
@@ -669,7 +688,10 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           </section>
         ) : null}
 
-        {(game.dlc.length > 0 || game.expansions.length > 0 || game.editions.length > 0 || game.relatedGames.length > 0) && (
+        {(game.dlc.length > 0
+          || game.expansions.length > 0
+          || game.editions.length > 0
+          || game.relatedGames.length > 0) && (
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Related content</h2>
             <LabeledContentGrid

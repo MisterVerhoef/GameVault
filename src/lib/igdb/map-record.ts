@@ -1,96 +1,20 @@
-import { dedupeReleaseRows } from "@/data/release-dedupe";
-import { igdbPlatformLabel, platformVariantFromIgdb, resolveIgdbPlatform, type Platform } from "@/data/platforms";
-import type { IgdbLiveGame } from "./types";
+import { normalizeExternalGame } from "@/data/catalogue";
+import type { Game } from "@/data/games";
+import { normalizeIgdbRecord } from "./normalize-record";
 
-function imageUrl(image: { url?: string } | undefined, size = "t_cover_big"): string | undefined {
-  const raw = image?.url?.replace(/^\/\//, "https://");
-  if (!raw) return undefined;
-  return raw.replace(/\/t_[^/]+\//, `/${size}/`);
-}
-
-function companies(
-  involvedCompanies: { developer?: boolean; publisher?: boolean; company?: { id?: number; name?: string } }[] | undefined,
-  role: "developer" | "publisher",
-) {
-  const seen = new Set<string>();
-  const result: { id: string; name: string }[] = [];
-  for (const entry of involvedCompanies ?? []) {
-    if (!entry?.company?.id || !entry.company.name || entry[role] !== true) continue;
-    const id = String(entry.company.id);
-    if (seen.has(id)) continue;
-    seen.add(id);
-    result.push({ id, name: entry.company.name });
-  }
-  return result;
-}
-
-function platformReleases(
-  dates: {
-    date?: number;
-    human?: string;
-    platform?: { name?: string; id?: number };
-  }[] | undefined,
-) {
-  const rows: { platform: string; date?: string; label?: string; platformId?: number }[] = [];
-  for (const entry of dates ?? []) {
-    const rawName = entry?.platform?.name;
-    if (typeof rawName !== "string" || !rawName.trim()) continue;
-    const platformId = typeof entry?.platform?.id === "number" ? entry.platform.id : undefined;
-    const platform = igdbPlatformLabel(rawName, platformId);
-    const date = typeof entry.date === "number" && Number.isFinite(entry.date)
-      ? new Date(entry.date * 1000).toISOString().slice(0, 10)
-      : undefined;
-    const label = typeof entry.human === "string" ? entry.human.trim() : "";
-    if (!date && !label) continue;
-    rows.push({
-      platform,
-      ...(platformId != null ? { platformId } : {}),
-      ...(date ? { date } : {}),
-      ...(!date && label ? { label } : {}),
-    });
-  }
-  return dedupeReleaseRows(rows).slice(0, 12);
-}
-
+/** Map a raw IGDB games API record into the canonical {@link Game} shape. */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function mapIgdbApiRecord(record: any): IgdbLiveGame | null {
+export function mapIgdbApiRecord(record: any): Game | null {
   if (!record?.id || !record?.name) return null;
-  const resolvedPlatforms = (record.platforms ?? [])
-    .filter(
-      (platform: { name?: string }) => typeof platform?.name === "string" && platform.name.length > 0,
-    )
-    .map((platform: { name?: string; id?: number }) =>
-      resolveIgdbPlatform(platformVariantFromIgdb(platform.name!, platform.id)),
+  const normalized = normalizeIgdbRecord(record);
+  if (normalized.platforms.length === 0) return null;
+  try {
+    return normalizeExternalGame(
+      normalized,
+      "igdb",
+      new Date().toISOString().slice(0, 10),
     );
-  const platforms = [...new Set(resolvedPlatforms.map((entry: ReturnType<typeof resolveIgdbPlatform>) => entry.family))] as Platform[];
-  const platformVariants = [...new Set(resolvedPlatforms.map((entry: ReturnType<typeof resolveIgdbPlatform>) => entry.variant))] as string[];
-  if (platforms.length === 0) return null;
-  const year = record.first_release_date
-    ? new Date(record.first_release_date * 1000).getUTCFullYear()
-    : undefined;
-  const cover = imageUrl(record.cover);
-  return {
-    id: String(record.id),
-    slug: typeof record.slug === "string" ? record.slug : String(record.id),
-    title: record.name,
-    summary: typeof record.summary === "string" ? record.summary : undefined,
-    description: typeof record.storyline === "string" ? record.storyline : typeof record.summary === "string" ? record.summary : undefined,
-    releaseYear: year,
-    genres: (record.genres ?? [])
-      .map((g: { name?: string }) => g?.name)
-      .filter((name: string | undefined): name is string => Boolean(name)),
-    themes: (record.themes ?? [])
-      .map((t: { name?: string }) => t?.name)
-      .filter((name: string | undefined): name is string => Boolean(name)),
-    platforms,
-    platformVariants,
-    developers: companies(record.involved_companies, "developer"),
-    publishers: companies(record.involved_companies, "publisher"),
-    cover: cover ? { url: cover } : undefined,
-    rating: typeof record.rating === "number" ? record.rating : undefined,
-    ratingCount: typeof record.rating_count === "number" ? record.rating_count : undefined,
-    aggregatedRating: typeof record.aggregated_rating === "number" ? record.aggregated_rating : undefined,
-    aggregatedRatingCount: typeof record.aggregated_rating_count === "number" ? record.aggregated_rating_count : undefined,
-    releases: platformReleases(record.release_dates),
-  };
+  } catch {
+    return null;
+  }
 }

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { normalizeTitle } from "@/data/store-match";
+import type { Game } from "@/data/games";
 import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
 import { normalizeIgdbQuery } from "./normalize-query";
 
@@ -55,9 +56,35 @@ export function mockIgdbSearchExact(query: string): IgdbSearchHit[] {
   );
 }
 
+function withGameDefaults(entry: Partial<Game> & Pick<Game, "id" | "title" | "platforms">): Game {
+  return {
+    slug: entry.slug ?? entry.id,
+    genres: entry.genres ?? [],
+    themes: entry.themes ?? [],
+    developers: entry.developers ?? [],
+    publishers: entry.publishers ?? [],
+    platformVariants: entry.platformVariants ?? [],
+    screenshots: entry.screenshots ?? [],
+    videos: entry.videos ?? [],
+    websites: entry.websites ?? [],
+    dlc: entry.dlc ?? [],
+    expansions: entry.expansions ?? [],
+    editions: entry.editions ?? [],
+    relatedGames: entry.relatedGames ?? [],
+    similarGames: entry.similarGames ?? [],
+    franchises: entry.franchises ?? [],
+    collections: entry.collections ?? [],
+    source: entry.source ?? [{ provider: "igdb", id: entry.id }],
+    updatedAt: entry.updatedAt ?? "2026-01-01",
+    ...entry,
+  };
+}
+
 export function mockIgdbGame(id: string): IgdbLiveGame | null {
   const fixture = loadMockFile();
-  return fixture.games[id] ?? null;
+  const entry = fixture.games[id];
+  if (!entry) return null;
+  return withGameDefaults(entry);
 }
 
 function mockHitById(fixture: MockFile, id: string): IgdbSearchHit | undefined {
@@ -79,7 +106,7 @@ export function mockIgdbGamesByIds(ids: readonly string[]): Map<string, IgdbBasi
         title: full.title,
         ...(full.cover ? { cover: full.cover } : {}),
         ...(full.releaseYear != null ? { releaseYear: full.releaseYear } : {}),
-        ...(full.platformVariants.length > 0 ? { platforms: full.platformVariants } : {}),
+        ...(full.platformVariants && full.platformVariants.length > 0 ? { platforms: full.platformVariants } : {}),
       });
       continue;
     }

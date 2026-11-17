@@ -27,6 +27,42 @@ export const IGDB_CATALOG_GAME_FIELDS = [
   "franchises.name,collections.name;",
 ].join(" ");
 
+/** Keywords only — editions and time-to-beat use other IGDB endpoints. */
+const IGDB_LIVE_GAME_EXTRA_FIELDS = "keywords.name";
+
+/** Full live detail selection (valid expanded fields on the games endpoint). */
+export function igdbLiveGameFieldClause(): string {
+  return IGDB_CATALOG_GAME_FIELDS.replace(
+    /ports,\s*/,
+    "ports.id,ports.name,ports.cover.url,",
+  ).replace(/;\s*$/, `,${IGDB_LIVE_GAME_EXTRA_FIELDS};`);
+}
+
+export function buildIgdbLiveGameByIdQuery(id: string): string {
+  return `${igdbLiveGameFieldClause()} where id = ${id}; limit 1;`;
+}
+
+/** Smaller games query used when the rich field list is rejected by IGDB. */
+export function buildIgdbLiveGameCoreByIdQuery(id: string): string {
+  const fields = [
+    "id,name,slug,summary,storyline,first_release_date,rating,rating_count,aggregated_rating,aggregated_rating_count,",
+    "genres.name,themes.name,platforms.id,platforms.name,cover.url,",
+    "involved_companies.developer,involved_companies.publisher,involved_companies.company.id,involved_companies.company.name,",
+    "screenshots.url,screenshots.width,screenshots.height,",
+    "videos.id,videos.name,videos.video_id,",
+    "release_dates.date,release_dates.human,release_dates.platform.id,release_dates.platform.name,",
+    "similar_games.id,similar_games.name,similar_games.cover.url,",
+    "websites.url,websites.category,websites.type.type,",
+    "dlcs.id,dlcs.name,expansions.id,expansions.name,",
+    "remakes.id,remakes.name,remasters.id,remasters.name,",
+    "franchises.name,collections.name,",
+    "ports.id,ports.name,ports.cover.url,",
+    "parent_game,version_parent,",
+    "keywords.name;",
+  ].join("");
+  return `fields ${fields} where id = ${id}; limit 1;`;
+}
+
 export type RecentSyncConfig = {
   pastMonths: number;
   futureMonths: number;
