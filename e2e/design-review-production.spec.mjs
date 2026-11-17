@@ -40,7 +40,7 @@ test("deals load-more grows the visible grid by 48", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/deals");
   await expect(page.getByRole("heading", { name: "Xbox deals" })).toBeVisible({ timeout: 30_000 });
-  const showing = page.getByText(/Showing \d+ of \d+ deals/);
+  const showing = page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals/);
   await expect(showing).toBeVisible();
   const total = Number.parseInt((await showing.textContent())?.match(/of (\d+) deals/)?.[1] ?? "0", 10);
   test.skip(total <= 48, "E2E deals fixture needs more than 48 rows for pagination coverage.");

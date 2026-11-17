@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import XboxDealsScreen from "@/components/XboxDealsScreen";
+import { Suspense } from "react";
+import XboxDealsScreen, { XboxDealsSkeleton } from "@/components/XboxDealsScreen";
 import { getXboxDeals } from "@/data/xbox-deals-fetch";
 
 export const metadata: Metadata = {
@@ -11,5 +12,9 @@ export const dynamic = "force-dynamic";
 
 export default async function DealsPage() {
   const payload = await getXboxDeals();
-  return <XboxDealsScreen initial={payload} />;
+  return (
+    <Suspense fallback={<XboxDealsSkeleton />}>
+      <XboxDealsScreen initial={payload} />
+    </Suspense>
+  );
 }

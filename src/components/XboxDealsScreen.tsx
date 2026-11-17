@@ -1,10 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
 import type { XboxDealKindFilter, XboxDealSort, XboxDealsPayload } from "@/data/xbox-deals-types";
-import { filterXboxDeals, hasMultipleDealKinds, sortXboxDeals } from "@/data/xbox-deals-normalize";
+import {
+  filterXboxDeals,
+  filterXboxDealsByPublisher,
+  hasMultipleDealKinds,
+  listXboxDealPublishers,
+  sortXboxDeals,
+} from "@/data/xbox-deals-normalize";
 
 interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
@@ -26,15 +33,42 @@ const SOURCE_LABEL: Record<XboxDealsPayload["source"], string> = {
   empty: "Unavailable",
 };
 
+function readPublisherSlug(params: { get(name: string): string | null }, options: ReturnType<typeof listXboxDealPublishers>) {
+  const slug = params.get("publisher");
+  if (!slug) return null;
+  return options.some((option) => option.slug === slug) ? slug : null;
+}
+
 export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const publisherOptions = useMemo(() => listXboxDealPublishers(initial.deals), [initial.deals]);
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
+  const [publisher, setPublisher] = useState<string | null>(() => readPublisherSlug(params, publisherOptions));
   const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
+  const showPublisherFilter = publisherOptions.length > 1;
+
+  useEffect(() => {
+    setPublisher(readPublisherSlug(params, publisherOptions));
+  }, [params, publisherOptions]);
+
+  const replaceQuery = useCallback((nextPublisher: string | null) => {
+    const next = new URLSearchParams(params.toString());
+    if (nextPublisher) next.set("publisher", nextPublisher);
+    else next.delete("publisher");
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [params, pathname, router]);
 
   const visible = useMemo(
-    () => sortXboxDeals(filterXboxDeals(initial.deals, kind), sort),
-    [initial.deals, kind, sort],
+    () => sortXboxDeals(
+      filterXboxDealsByPublisher(filterXboxDeals(initial.deals, kind), publisher),
+      sort,
+    ),
+    [initial.deals, kind, publisher, sort],
   );
 
   const displayed = visible.slice(0, visibleCount);
@@ -75,6 +109,31 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
               <option value="title-asc">Title (A–Z)</option>
             </select>
           </div>
+          {showPublisherFilter ? (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="xbox-deals-publisher" className="text-xs font-medium uppercase tracking-wide text-muted">
+                Publisher
+              </label>
+              <select
+                id="xbox-deals-publisher"
+                value={publisher ?? ""}
+                onChange={(event) => {
+                  const next = event.target.value || null;
+                  setPublisher(next);
+                  replaceQuery(next);
+                  setVisibleCount(DEALS_PAGE_SIZE);
+                }}
+                className="min-h-11 max-w-full rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:max-w-xs"
+              >
+                <option value="">All publishers</option>
+                {publisherOptions.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.name} ({option.count})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           {showKindFilters ? (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>

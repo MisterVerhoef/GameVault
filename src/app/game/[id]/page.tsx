@@ -8,6 +8,7 @@ import { listedSystemNames } from "@/data/platforms";
 import { dedupeReleaseRows } from "@/data/release-dedupe";
 import { PlatformName } from "@/components/platform-icons";
 import { StudioLogo } from "@/components/studio-logos";
+import { publisherHref } from "@/data/publisher-profile";
 import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
 import { presentCatalogueGameLive } from "@/data/store-offers";
 import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
@@ -458,7 +459,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                   {game.publishers.map((company, index) => (
                     <span key={company.id} className="inline-flex items-center">
                       <Link
-                        href={`/studio/${encodeURIComponent(company.id)}`}
+                        href={publisherHref(company.id)}
                         className="inline-flex items-center gap-1.5 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                       >
                         <StudioLogo name={company.name} logo={company.logo} />

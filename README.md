@@ -64,6 +64,7 @@ static indexes, runs the TypeScript check and ESLint, and builds the application
 - `/franchise/[id]` — Franchise catalogue
 - `/collection/[id]` — Collection catalogue
 - `/studio/[id]` — Studio catalogue
+- `/publisher/[id]` — Publisher overview (catalogue + live IGDB titles merged on the server)
 - `/calendar` — Release calendar
 - `/stats` — Personal completion, genre, platform, rating, and recent-game statistics
 

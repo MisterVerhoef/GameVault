@@ -93,9 +93,14 @@ test("deals page renders, filters and sorts mocked deals", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "All", exact: true }).click();
-  await page.locator("#xbox-deals-sort").selectOption("price-asc");
+  await page.getByLabel("Sort").selectOption("price-asc");
   const titles = await page.locator("article h3").allTextContents();
   expect(titles[0]).toMatch(/Charlie/);
+
+  await page.getByLabel("Publisher").selectOption("alpha-interactive");
+  await expect(page).toHaveURL(/publisher=alpha-interactive/);
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 2 of 2 deals")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bravo DLC Pack" })).toHaveCount(0);
 });
 
 test("type filter pills show visible accent focus ring", async ({ page }) => {

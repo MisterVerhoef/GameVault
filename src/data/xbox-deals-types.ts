@@ -24,6 +24,14 @@ export interface XboxDeal {
   storeUrl: string;
   /** Catalogue game id when matched by Xbox bigId. */
   gameId: string | null;
+  /** Microsoft Store or catalogue publisher label, when known. */
+  publisherName: string | null;
+}
+
+export interface XboxDealPublisherOption {
+  slug: string;
+  name: string;
+  count: number;
 }
 
 export interface XboxDealsPayload {

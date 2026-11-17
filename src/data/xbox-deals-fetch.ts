@@ -6,14 +6,37 @@ import { buildXboxBigIdGameIndex } from "./xbox-deals-match";
 import {
   parseDealsBigIdsScript,
   parseRecoDealIds,
+  publisherNameFromDisplayCatalog,
   xboxDealFromAppsListItem,
   xboxDealFromDisplayCatalog,
   xboxStoreProductUrl,
   discountPercent,
 } from "./xbox-deals-normalize";
+import { allGames } from "./games";
 import type { XboxDeal, XboxDealSource, XboxDealsPayload } from "./xbox-deals-types";
 
 const REVALIDATE_SECONDS = 10_800;
+
+const primaryPublisherByGameId = new Map(
+  allGames.map((game) => [game.id, game.publishers[0]?.name?.trim() || null]),
+);
+
+function completeDealPublisher(
+  deal: XboxDeal,
+  catalogProduct?: Record<string, unknown>,
+): XboxDeal {
+  const publisherName = deal.publisherName
+    ?? publisherNameFromDisplayCatalog(catalogProduct)
+    ?? (deal.gameId ? primaryPublisherByGameId.get(deal.gameId) ?? null : null);
+  return publisherName === deal.publisherName ? deal : { ...deal, publisherName };
+}
+
+function completeDealsPublishers(
+  deals: readonly XboxDeal[],
+  catalog?: ReadonlyMap<string, Record<string, unknown>>,
+): XboxDeal[] {
+  return deals.map((deal) => completeDealPublisher(deal, catalog?.get(deal.bigId)));
+}
 const RECO_URL =
   "https://reco-public.rec.mp.microsoft.com/channels/Reco/V8.0/Lists/Computed/Deal?Market=NL&Language=NL&ItemTypes=Game&deviceFamily=Windows.Xbox";
 const APPS_GAME_DEALS_URL =
@@ -140,7 +163,7 @@ async function dealsFromBigIds(
   return {
     source,
     updatedAt: new Date().toISOString(),
-    deals,
+    deals: completeDealsPublishers(deals, catalog),
   };
 }
 
@@ -160,7 +183,7 @@ async function dealsFromAppsList(gameIdByBigId: ReadonlyMap<string, string>): Pr
   return {
     source: "microsoft-apps-store",
     updatedAt: new Date().toISOString(),
-    deals,
+    deals: completeDealsPublishers(deals, catalog),
   };
 }
 
@@ -207,6 +230,7 @@ function dealsFromCatalogueCache(gameIdByBigId: ReadonlyMap<string, string>): Xb
         saleEndsAt: null,
         storeUrl: offer.url || xboxStoreProductUrl(bigId, undefined, title),
         gameId: gameIdByBigId.get(bigId) ?? gameId,
+        publisherName: primaryPublisherByGameId.get(gameId) ?? null,
       });
     }
   }
@@ -282,6 +306,11 @@ function readE2eFixture(): XboxDealsPayload | null {
 
 export async function getXboxDeals(): Promise<XboxDealsPayload> {
   const fixture = readE2eFixture();
-  if (fixture) return fixture;
-  return unstable_cache(fetchXboxDealsLive, ["xbox-deals-nl-v2"], { revalidate: REVALIDATE_SECONDS })();
+  if (fixture) {
+    return {
+      ...fixture,
+      deals: completeDealsPublishers(fixture.deals),
+    };
+  }
+  return unstable_cache(fetchXboxDealsLive, ["xbox-deals-nl-v3"], { revalidate: REVALIDATE_SECONDS })();
 }
