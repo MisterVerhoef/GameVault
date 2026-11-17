@@ -368,6 +368,76 @@ export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null
   return fetchIgdbGameByIdServerCached(id);
 }
 
+const PUBLISHER_GAMES_CACHE_SECONDS = LIVE_GAME_CACHE_SECONDS;
+const PUBLISHER_GAMES_LIMIT = 500;
+
+async function fetchIgdbPublisherGamesUncached(companyId: string): Promise<IgdbBasicGame[]> {
+  if (!credentials()) return [];
+
+  const body = `fields ${basicGameFields}; where involved_companies.company = ${companyId} & involved_companies.publisher = true & (game_type != (3,5,6,7,11,12,14) | game_type = null); sort first_release_date desc; limit ${PUBLISHER_GAMES_LIMIT};`;
+
+  try {
+    const response = await igdbPost("games", body);
+    if (!response || !response.ok) return [];
+    const rows = await response.json();
+    if (!Array.isArray(rows)) return [];
+    const catalogueIds = getCatalogueIgdbIds();
+    const games: IgdbBasicGame[] = [];
+    for (const row of rows) {
+      const mapped = mapIgdbBasicRecord(row);
+      if (!mapped || catalogueIds.has(mapped.id)) continue;
+      games.push(mapped);
+    }
+    return games;
+  } catch {
+    return [];
+  }
+}
+
+async function fetchIgdbPublisherProfileUncached(companyId: string): Promise<{ name: string } | null> {
+  if (!credentials()) return null;
+  try {
+    const response = await igdbPost("companies", `fields name; where id = ${companyId}; limit 1;`);
+    if (!response || !response.ok) return null;
+    const rows = await response.json();
+    if (!Array.isArray(rows) || rows.length === 0) return null;
+    const name = (rows[0] as { name?: string }).name;
+    return typeof name === "string" && name.trim() ? { name: name.trim() } : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function fetchIgdbPublisherGames(companyId: string): Promise<IgdbBasicGame[]> {
+  if (!/^\d+$/.test(companyId)) return [];
+  if (igdbMockEnabled()) return [];
+
+  try {
+    return await unstable_cache(
+      () => fetchIgdbPublisherGamesUncached(companyId),
+      ["igdb-publisher-games", companyId],
+      { revalidate: PUBLISHER_GAMES_CACHE_SECONDS, tags: [`igdb-publisher-${companyId}`] },
+    )();
+  } catch {
+    return fetchIgdbPublisherGamesUncached(companyId);
+  }
+}
+
+export async function fetchIgdbPublisherProfile(companyId: string): Promise<{ name: string } | null> {
+  if (!/^\d+$/.test(companyId)) return null;
+  if (igdbMockEnabled()) return null;
+
+  try {
+    return await unstable_cache(
+      () => fetchIgdbPublisherProfileUncached(companyId),
+      ["igdb-publisher-profile", companyId],
+      { revalidate: PUBLISHER_GAMES_CACHE_SECONDS, tags: [`igdb-publisher-${companyId}`] },
+    )();
+  } catch {
+    return fetchIgdbPublisherProfileUncached(companyId);
+  }
+}
+
 /** Test hooks */
 export function __testSearchCache(): LruCache<IgdbSearchHit[]> {
   return searchCache;

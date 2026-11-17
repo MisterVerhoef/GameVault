@@ -1,5 +1,11 @@
 import { selectMicrosoftPrice, isXboxBigId, plainText } from "./store-match";
-import type { XboxDeal, XboxDealKindFilter, XboxDealProductKind, XboxDealSort } from "./xbox-deals-types";
+import type {
+  XboxDeal,
+  XboxDealKindFilter,
+  XboxDealProductKind,
+  XboxDealPublisherOption,
+  XboxDealSort,
+} from "./xbox-deals-types";
 
 export type MicrosoftDealListSource = "game-deal" | "addon-deal";
 
@@ -36,6 +42,25 @@ export function xboxStoreProductUrl(bigId: string, encodedTitle?: string, title?
   const slug = (encodedTitle ? slugFromEncodedTitle(encodedTitle) : null)
     ?? plainText(title ?? "game", 80).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   return `https://www.xbox.com/nl-NL/games/store/${slug}/${id}`;
+}
+
+export function publisherNameSlug(name: string) {
+  const slug = name
+    .trim()
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "publisher";
+}
+
+export function publisherNameFromDisplayCatalog(
+  product?: Record<string, unknown>,
+): string | null {
+  const localized = (product?.LocalizedProperties as Record<string, unknown>[] | undefined)?.[0];
+  const publisher = localized?.PublisherName;
+  return typeof publisher === "string" && publisher.trim() ? publisher.trim() : null;
 }
 
 export function discountPercent(price: number, regularPrice: number): number {
@@ -202,6 +227,7 @@ export function xboxDealFromDisplayCatalog(
     saleEndsAt: saleEndFromCatalog(product),
     storeUrl: xboxStoreProductUrl(bigId, undefined, title),
     gameId: gameIdByBigId.get(bigId) ?? null,
+    publisherName: publisherNameFromDisplayCatalog(product),
   };
 }
 
@@ -222,6 +248,7 @@ export function xboxDealFromAppsListItem(
     return {
       ...fromCatalog,
       coverUrl: fromCatalog.coverUrl ?? coverFromApps(entry),
+      publisherName: fromCatalog.publisherName ?? publisherNameFromDisplayCatalog(catalog),
       storeUrl: xboxStoreProductUrl(
         bigId,
         typeof entry.encodedTitle === "string" ? entry.encodedTitle : undefined,
@@ -250,6 +277,7 @@ export function xboxDealFromAppsListItem(
     saleEndsAt: null,
     storeUrl: xboxStoreProductUrl(bigId, typeof entry.encodedTitle === "string" ? entry.encodedTitle : undefined, title),
     gameId: gameIdByBigId.get(bigId) ?? null,
+    publisherName: publisherNameFromDisplayCatalog(catalog),
   };
 }
 
@@ -302,6 +330,30 @@ export function sortXboxDeals(deals: readonly XboxDeal[], sort: XboxDealSort): X
 export function filterXboxDeals(deals: readonly XboxDeal[], kind: XboxDealKindFilter): XboxDeal[] {
   if (kind === "all") return [...deals];
   return deals.filter((deal) => (kind === "game" ? deal.productKind === "game" : deal.productKind === "dlc"));
+}
+
+export function filterXboxDealsByPublisher(
+  deals: readonly XboxDeal[],
+  publisherSlug: string | null,
+): XboxDeal[] {
+  if (!publisherSlug) return [...deals];
+  return deals.filter(
+    (deal) => deal.publisherName && publisherNameSlug(deal.publisherName) === publisherSlug,
+  );
+}
+
+export function listXboxDealPublishers(deals: readonly XboxDeal[]): XboxDealPublisherOption[] {
+  const buckets = new Map<string, { name: string; count: number }>();
+  for (const deal of deals) {
+    if (!deal.publisherName) continue;
+    const slug = publisherNameSlug(deal.publisherName);
+    const existing = buckets.get(slug);
+    if (existing) existing.count += 1;
+    else buckets.set(slug, { name: deal.publisherName, count: 1 });
+  }
+  return [...buckets.entries()]
+    .map(([slug, value]) => ({ slug, name: value.name, count: value.count }))
+    .sort((left, right) => left.name.localeCompare(right.name, "nl"));
 }
 
 const FAR_FUTURE_SALE_YEAR = 2040;

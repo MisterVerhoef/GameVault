@@ -1,13 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
 import type { XboxDealKindFilter, XboxDealSort, XboxDealsPayload } from "@/data/xbox-deals-types";
-import { filterXboxDeals, hasMultipleDealKinds, sortXboxDeals } from "@/data/xbox-deals-normalize";
+import {
+  filterXboxDeals,
+  filterXboxDealsByPublisher,
+  hasMultipleDealKinds,
+  listXboxDealPublishers,
+  sortXboxDeals,
+} from "@/data/xbox-deals-normalize";
 
 interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
+  initialPublisherSlug?: string | null;
 }
 
 const DEALS_PAGE_SIZE = 48;
@@ -26,15 +34,58 @@ const SOURCE_LABEL: Record<XboxDealsPayload["source"], string> = {
   empty: "Unavailable",
 };
 
-export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
+function readPublisherSlug(params: { get(name: string): string | null }, options: ReturnType<typeof listXboxDealPublishers>) {
+  const slug = params.get("publisher");
+  if (!slug) return null;
+  return options.some((option) => option.slug === slug) ? slug : null;
+}
+
+function DealsQuerySync({
+  publisherOptions,
+  onPublisherChange,
+}: {
+  publisherOptions: ReturnType<typeof listXboxDealPublishers>;
+  onPublisherChange: (slug: string | null) => void;
+}) {
+  const params = useSearchParams();
+  useEffect(() => {
+    onPublisherChange(readPublisherSlug(params, publisherOptions));
+  }, [params, publisherOptions, onPublisherChange]);
+  return null;
+}
+
+export default function XboxDealsScreen({ initial, initialPublisherSlug = null }: XboxDealsScreenProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const publisherOptions = useMemo(() => listXboxDealPublishers(initial.deals), [initial.deals]);
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
+  const [publisher, setPublisher] = useState<string | null>(
+    () => readPublisherSlug({ get: (key) => (key === "publisher" ? initialPublisherSlug : null) }, publisherOptions),
+  );
   const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
+  const showPublisherFilter = publisherOptions.length > 1;
+
+  const syncPublisherFromUrl = useCallback(
+    (slug: string | null) => setPublisher(slug),
+    [],
+  );
+
+  const replaceQuery = useCallback((nextPublisher: string | null) => {
+    const next = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
+    if (nextPublisher) next.set("publisher", nextPublisher);
+    else next.delete("publisher");
+    const query = next.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [pathname, router]);
 
   const visible = useMemo(
-    () => sortXboxDeals(filterXboxDeals(initial.deals, kind), sort),
-    [initial.deals, kind, sort],
+    () => sortXboxDeals(
+      filterXboxDealsByPublisher(filterXboxDeals(initial.deals, kind), publisher),
+      sort,
+    ),
+    [initial.deals, kind, publisher, sort],
   );
 
   const displayed = visible.slice(0, visibleCount);
@@ -42,6 +93,9 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <Suspense fallback={null}>
+        <DealsQuerySync publisherOptions={publisherOptions} onPublisherChange={syncPublisherFromUrl} />
+      </Suspense>
       <Navbar />
       <main id="main" className="gv-layout-container py-6 lg:py-10">
         <header className="mb-6 flex flex-col gap-2">
@@ -75,6 +129,31 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
               <option value="title-asc">Title (A–Z)</option>
             </select>
           </div>
+          {showPublisherFilter ? (
+            <div className="flex flex-col gap-1">
+              <label htmlFor="xbox-deals-publisher" className="text-xs font-medium uppercase tracking-wide text-muted">
+                Publisher
+              </label>
+              <select
+                id="xbox-deals-publisher"
+                value={publisher ?? ""}
+                onChange={(event) => {
+                  const next = event.target.value || null;
+                  setPublisher(next);
+                  replaceQuery(next);
+                  setVisibleCount(DEALS_PAGE_SIZE);
+                }}
+                className="min-h-11 max-w-full rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:max-w-xs"
+              >
+                <option value="">All publishers</option>
+                {publisherOptions.map((option) => (
+                  <option key={option.slug} value={option.slug}>
+                    {option.name} ({option.count})
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
           {showKindFilters ? (
             <div className="flex flex-col gap-1">
               <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>

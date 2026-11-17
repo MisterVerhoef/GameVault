@@ -11,6 +11,10 @@ const {
   parseDealsBigIdsScript,
   parseRecoDealIds,
   sortXboxDeals,
+  filterXboxDealsByPublisher,
+  listXboxDealPublishers,
+  publisherNameFromDisplayCatalog,
+  publisherNameSlug,
   xboxDealFromAppsListItem,
   xboxDealFromDisplayCatalog,
 } = loadTsModule("src/data/xbox-deals-normalize.ts");
@@ -42,6 +46,65 @@ test("normalizes display catalog products into deals", () => {
   assert.equal(first.gameId, "100");
   assert.ok(first.discountPercent > 0);
   assert.equal(first.currency, "EUR");
+  assert.equal(first.publisherName, "PandaSoftwares");
+});
+
+test("publisher filter uses stable slugs from store or catalogue names", () => {
+  const product = readJson("microsoft-displaycatalog-deals-sample.json").Products[0];
+  assert.equal(publisherNameFromDisplayCatalog(product), "PandaSoftwares");
+  assert.equal(publisherNameSlug("Xbox Game Studios"), "xbox-game-studios");
+
+  const deals = [
+    {
+      bigId: "1",
+      title: "A",
+      publisherName: "Alpha Interactive",
+      price: 1,
+      regularPrice: 2,
+      discountPercent: 50,
+      productKind: "game",
+      currency: "EUR",
+      coverUrl: null,
+      saleEndsAt: null,
+      storeUrl: "https://example.test/a",
+      gameId: null,
+    },
+    {
+      bigId: "2",
+      title: "B",
+      publisherName: "Bravo Publishing",
+      price: 1,
+      regularPrice: 2,
+      discountPercent: 50,
+      productKind: "game",
+      currency: "EUR",
+      coverUrl: null,
+      saleEndsAt: null,
+      storeUrl: "https://example.test/b",
+      gameId: null,
+    },
+    {
+      bigId: "3",
+      title: "C",
+      publisherName: "Alpha Interactive",
+      price: 1,
+      regularPrice: 2,
+      discountPercent: 50,
+      productKind: "dlc",
+      currency: "EUR",
+      coverUrl: null,
+      saleEndsAt: null,
+      storeUrl: "https://example.test/c",
+      gameId: null,
+    },
+  ];
+
+  const options = listXboxDealPublishers(deals);
+  assert.deepEqual(
+    options.map((option) => option.slug),
+    ["alpha-interactive", "bravo-publishing"],
+  );
+  assert.equal(filterXboxDealsByPublisher(deals, "alpha-interactive").length, 2);
 });
 
 test("classifies DLC bundles and add-on list entries", () => {

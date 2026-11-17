@@ -93,9 +93,31 @@ test("deals page renders, filters and sorts mocked deals", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" })).toHaveCount(0);
 
   await page.getByRole("button", { name: "All", exact: true }).click();
-  await page.locator("#xbox-deals-sort").selectOption("price-asc");
+  await page.getByLabel("Sort").selectOption("price-asc");
   const titles = await page.locator("article h3").allTextContents();
   expect(titles[0]).toMatch(/Charlie/);
+
+  await page.getByLabel("Publisher").selectOption("alpha-interactive");
+  await expect(page).toHaveURL(/publisher=alpha-interactive/);
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 2 of 2 deals")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Bravo DLC Pack" })).toHaveCount(0);
+});
+
+test("fresh navigation renders deals immediately without client-side follow-up", async ({ page }) => {
+  const response = await page.goto("/deals", { waitUntil: "load" });
+  expect(response?.ok()).toBeTruthy();
+  await expect(page.getByRole("heading", { name: "Xbox deals", exact: true })).toBeVisible();
+  await expect(page.locator("main article").first()).toBeVisible();
+  await expect(
+    page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals/),
+  ).toBeVisible();
+});
+
+test("fresh load with publisher query renders filtered deals", async ({ page }) => {
+  await page.goto("/deals?publisher=alpha-interactive", { waitUntil: "load" });
+  await expect(page.getByLabel("Publisher")).toHaveValue("alpha-interactive");
+  await expect(page.locator("main article")).toHaveCount(2);
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 2 of 2 deals")).toBeVisible();
 });
 
 test("type filter pills show visible accent focus ring", async ({ page }) => {

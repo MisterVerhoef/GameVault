@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { GameCoverPlaceholder } from "@/components/cover-placeholder";
 import GameDescription from "@/components/GameDescription";
 import { StudioLogo } from "@/components/studio-logos";
+import { publisherHref } from "@/data/publisher-profile";
 import { formatRating, PLATFORM_COLORS } from "@/data/games";
 import { formatReleaseDay } from "@/data/game-facts";
 import { dedupeReleaseRows } from "@/data/release-dedupe";
@@ -173,9 +174,14 @@ export default function IgdbOnlyGameDetail({ game }: { game: IgdbLiveGame }) {
                 </dt>
                 <dd className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-sm text-foreground/90">
                   {game.publishers.map((company, index) => (
-                    <span key={company.id} className="inline-flex items-center gap-1.5">
-                      <StudioLogo name={company.name} />
-                      {company.name}
+                    <span key={company.id} className="inline-flex items-center">
+                      <Link
+                        href={publisherHref(company.id)}
+                        className="inline-flex items-center gap-1.5 rounded transition hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                      >
+                        <StudioLogo name={company.name} />
+                        {company.name}
+                      </Link>
                       {index < game.publishers.length - 1 ? ", " : ""}
                     </span>
                   ))}

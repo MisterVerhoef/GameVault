@@ -9,7 +9,19 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DealsPage() {
+export default async function DealsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const rawPublisher = params.publisher;
+  const initialPublisherSlug = typeof rawPublisher === "string" ? rawPublisher : null;
   const payload = await getXboxDeals();
-  return <XboxDealsScreen initial={payload} />;
+  return (
+    <XboxDealsScreen
+      initial={payload}
+      initialPublisherSlug={initialPublisherSlug}
+    />
+  );
 }

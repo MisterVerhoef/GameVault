@@ -13,7 +13,8 @@
       "productKind": "game",
       "saleEndsAt": "2026-12-01T23:59:59.000Z",
       "storeUrl": "https://www.xbox.com/nl-NL/games/store/alpha-deal-game/9NE2E2E01AAA",
-      "gameId": "42"
+      "gameId": "42",
+      "publisherName": "Alpha Interactive"
     },
     {
       "bigId": "9NE2E2E01BBB",
@@ -26,7 +27,8 @@
       "productKind": "dlc",
       "saleEndsAt": null,
       "storeUrl": "https://www.xbox.com/nl-NL/games/store/bravo-dlc-pack/9NE2E2E01BBB",
-      "gameId": null
+      "gameId": null,
+      "publisherName": "Bravo Publishing"
     },
     {
       "bigId": "9NE2E2E01CCC",
@@ -39,7 +41,8 @@
       "productKind": "game",
       "saleEndsAt": "2026-12-15T23:59:59.000Z",
       "storeUrl": "https://www.xbox.com/nl-NL/games/store/charlie-value-game/9NE2E2E01CCC",
-      "gameId": "7"
+      "gameId": "7",
+      "publisherName": "Alpha Interactive"
     }
   ]
 }
