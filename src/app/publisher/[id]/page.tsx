@@ -174,9 +174,9 @@ export default async function PublisherPage({ params }: PublisherPageProps) {
 
         <div className="mt-10">
           <PublisherGamesWall
+            key={`publisher:${id}`}
             title="Published games"
             games={mergedGames}
-            resetKey={`publisher:${id}`}
           />
         </div>
       </main>

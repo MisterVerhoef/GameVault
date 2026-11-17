@@ -7,9 +7,11 @@ import { GameCoverPlaceholder } from "./cover-placeholder";
 
 interface XboxDealCardProps {
   deal: XboxDealRow;
+  coverPriority?: "default" | "high";
 }
 
-export default function XboxDealCard({ deal }: XboxDealCardProps) {
+export default function XboxDealCard({ deal, coverPriority = "default" }: XboxDealCardProps) {
+  const loadEager = coverPriority === "high";
   const href = deal.gameId ? `/game/${deal.gameId}` : deal.storeUrl;
   const external = !deal.gameId;
   const saleEnds = formatSaleEndNl(deal.saleEndsAt);
@@ -32,6 +34,16 @@ export default function XboxDealCard({ deal }: XboxDealCardProps) {
             sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 220px"
             className="object-cover transition duration-300 group-hover:scale-[1.02]"
             unoptimized
+            loading={loadEager ? "eager" : "lazy"}
+            fetchPriority={loadEager ? "high" : undefined}
+            style={loadEager ? { opacity: 0 } : undefined}
+            onLoad={
+              loadEager
+                ? (event) => {
+                    event.currentTarget.style.opacity = "1";
+                  }
+                : undefined
+            }
           />
         ) : (
           <GameCoverPlaceholder title={deal.title} className="absolute inset-0" />
