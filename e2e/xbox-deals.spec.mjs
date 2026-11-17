@@ -148,6 +148,38 @@ test("fresh load with comma-separated publisher query renders combined list", as
   await expect(page.getByRole("button", { name: "Remove Bravo Publishing" })).toBeVisible();
 });
 
+test("publisher chip removal keeps remaining slugs in the URL", async ({ page }) => {
+  await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });
+  await page.getByRole("button", { name: "Remove Alpha Interactive" }).click();
+  await expect(page).toHaveURL(/publisher=bravo-publishing(?:%2C|,)delta-studios/);
+  await expect(page.getByRole("button", { name: "Remove Bravo Publishing" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Delta Studios" })).toBeVisible();
+});
+
+test("publisher panel keeps list and footer inside panel bounds", async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 800 });
+  await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });
+  await page.getByRole("button", { name: "Publisher", exact: true }).click();
+  const panel = page.getByTestId("xbox-deals-publisher-panel");
+  await expect(panel).toBeVisible();
+  const panelBox = await panel.boundingBox();
+  expect(panelBox).toBeTruthy();
+  const lastOption = panel.getByRole("option").last();
+  const footer = panel.getByRole("button", { name: "Clear selection" });
+  await expect(lastOption).toBeVisible();
+  await expect(footer).toBeVisible();
+  const epsilon = 2;
+  for (const locator of [lastOption, footer]) {
+    const box = await locator.boundingBox();
+    expect(box).toBeTruthy();
+    expect(box.x).toBeGreaterThanOrEqual(panelBox.x - epsilon);
+    expect(box.y).toBeGreaterThanOrEqual(panelBox.y - epsilon);
+    expect(box.x + box.width).toBeLessThanOrEqual(panelBox.x + panelBox.width + epsilon);
+    expect(box.y + box.height).toBeLessThanOrEqual(panelBox.y + panelBox.height + epsilon);
+  }
+  await page.keyboard.press("Escape");
+});
+
 test("publisher panel overlay does not shift deal controls", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 800 });
   await page.goto("/deals");

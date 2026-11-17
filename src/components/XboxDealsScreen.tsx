@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
@@ -73,8 +73,15 @@ export default function XboxDealsScreen({ initial, initialPublisherSlugs = [] }:
   const [eagerFromIndex, setEagerFromIndex] = useState<number | null>(null);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
   const showPublisherFilter = publisherOptions.length > 1;
+  const pendingPublisherQuery = useRef<string | null>(null);
 
   const syncPublisherFromUrl = useCallback((slugs: string[]) => {
+    const pending = pendingPublisherQuery.current;
+    if (pending !== null) {
+      const fromUrl = serializePublisherQueryParam(slugs) ?? "";
+      if (fromUrl !== pending) return;
+      pendingPublisherQuery.current = null;
+    }
     setPublisherSlugs((current) => (publishersEqual(current, slugs) ? current : slugs));
   }, []);
 
@@ -88,6 +95,7 @@ export default function XboxDealsScreen({ initial, initialPublisherSlugs = [] }:
   }, [pathname, router]);
 
   const applyPublisherSelection = useCallback((slugs: string[]) => {
+    pendingPublisherQuery.current = serializePublisherQueryParam(slugs) ?? "";
     setPublisherSlugs(slugs);
     replacePublisherQuery(slugs);
     setVisibleCount(DEALS_PAGE_SIZE);
