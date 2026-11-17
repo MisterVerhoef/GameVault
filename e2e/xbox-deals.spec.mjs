@@ -48,6 +48,16 @@ async function accentRingPixelsDelta(page, buttonLocator, beforeBytes, afterByte
   }, { beforePng: [...beforeBytes], afterPng: [...afterBytes] });
 }
 
+test("store-only deal card shows external link badge and new-tab aria-label", async ({ page }) => {
+  await page.goto("/deals");
+  const card = page.locator("article").filter({ has: page.getByRole("heading", { name: "Bravo DLC Pack" }) });
+  const storeLink = card.getByRole("link", { name: /Bravo DLC Pack on Microsoft Store \(opens in new tab\)/i });
+  await expect(storeLink).toBeVisible();
+  await expect(storeLink).toHaveAttribute("target", "_blank");
+  await expect(storeLink).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(storeLink.getByTestId("external-link-indicator")).toBeVisible();
+});
+
 test("Xbox family shows Deals to the right of Original Xbox", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto("/?family=Xbox");
