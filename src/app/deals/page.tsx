@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import XboxDealsScreen from "@/components/XboxDealsScreen";
 import { getXboxDeals } from "@/data/xbox-deals-fetch";
+import { listXboxDealPublishers, parsePublisherQueryParam } from "@/data/xbox-deals-normalize";
 
 export const metadata: Metadata = {
   title: "Xbox deals · GameVault",
@@ -15,13 +16,13 @@ export default async function DealsPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const rawPublisher = params.publisher;
-  const initialPublisherSlug = typeof rawPublisher === "string" ? rawPublisher : null;
   const payload = await getXboxDeals();
+  const publisherOptions = listXboxDealPublishers(payload.deals);
+  const initialPublisherSlugs = parsePublisherQueryParam(params.publisher, publisherOptions);
   return (
     <XboxDealsScreen
       initial={payload}
-      initialPublisherSlug={initialPublisherSlug}
+      initialPublisherSlugs={initialPublisherSlugs}
     />
   );
 }

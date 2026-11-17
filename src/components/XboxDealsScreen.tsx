@@ -4,19 +4,22 @@ import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
+import XboxDealsPublisherFilter from "@/components/XboxDealsPublisherFilter";
 import type { XboxDealKindFilter, XboxDealSort, XboxDealsPayload } from "@/data/xbox-deals-types";
 import {
   filterXboxDeals,
   filterXboxDealsByPublisher,
   hasMultipleDealKinds,
   listXboxDealPublishers,
+  readPublisherSlugsFromSearchParams,
+  serializePublisherQueryParam,
   sortXboxDeals,
 } from "@/data/xbox-deals-normalize";
 import { formatAllShown, formatShowingOf } from "@/data/pluralize";
 
 interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
-  initialPublisherSlug?: string | null;
+  initialPublisherSlugs?: string[];
 }
 
 const DEALS_PAGE_SIZE = 48;
@@ -36,10 +39,12 @@ const SOURCE_LABEL: Record<XboxDealsPayload["source"], string> = {
   empty: "Unavailable",
 };
 
-function readPublisherSlug(params: { get(name: string): string | null }, options: ReturnType<typeof listXboxDealPublishers>) {
-  const slug = params.get("publisher");
-  if (!slug) return null;
-  return options.some((option) => option.slug === slug) ? slug : null;
+function publishersEqual(left: readonly string[], right: readonly string[]): boolean {
+  if (left.length !== right.length) return false;
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return false;
+  }
+  return true;
 }
 
 function DealsQuerySync({
@@ -47,49 +52,55 @@ function DealsQuerySync({
   onPublisherChange,
 }: {
   publisherOptions: ReturnType<typeof listXboxDealPublishers>;
-  onPublisherChange: (slug: string | null) => void;
+  onPublisherChange: (slugs: string[]) => void;
 }) {
   const params = useSearchParams();
   useEffect(() => {
-    onPublisherChange(readPublisherSlug(params, publisherOptions));
+    onPublisherChange(readPublisherSlugsFromSearchParams(params, publisherOptions));
   }, [params, publisherOptions, onPublisherChange]);
   return null;
 }
 
-export default function XboxDealsScreen({ initial, initialPublisherSlug = null }: XboxDealsScreenProps) {
+export default function XboxDealsScreen({ initial, initialPublisherSlugs = [] }: XboxDealsScreenProps) {
   const router = useRouter();
   const pathname = usePathname();
   const publisherOptions = useMemo(() => listXboxDealPublishers(initial.deals), [initial.deals]);
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
-  const [publisher, setPublisher] = useState<string | null>(
-    () => readPublisherSlug({ get: (key) => (key === "publisher" ? initialPublisherSlug : null) }, publisherOptions),
-  );
+  const [publisherSlugs, setPublisherSlugs] = useState<string[]>(initialPublisherSlugs);
   const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const [loadMoreCount, setLoadMoreCount] = useState(0);
   const [eagerFromIndex, setEagerFromIndex] = useState<number | null>(null);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
   const showPublisherFilter = publisherOptions.length > 1;
 
-  const syncPublisherFromUrl = useCallback(
-    (slug: string | null) => setPublisher(slug),
-    [],
-  );
+  const syncPublisherFromUrl = useCallback((slugs: string[]) => {
+    setPublisherSlugs((current) => (publishersEqual(current, slugs) ? current : slugs));
+  }, []);
 
-  const replaceQuery = useCallback((nextPublisher: string | null) => {
+  const replacePublisherQuery = useCallback((slugs: string[]) => {
     const next = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-    if (nextPublisher) next.set("publisher", nextPublisher);
-    else next.delete("publisher");
+    next.delete("publisher");
+    const serialized = serializePublisherQueryParam(slugs);
+    if (serialized) next.set("publisher", serialized);
     const query = next.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }, [pathname, router]);
 
+  const applyPublisherSelection = useCallback((slugs: string[]) => {
+    setPublisherSlugs(slugs);
+    replacePublisherQuery(slugs);
+    setVisibleCount(DEALS_PAGE_SIZE);
+    setLoadMoreCount(0);
+    setEagerFromIndex(null);
+  }, [replacePublisherQuery]);
+
   const visible = useMemo(
     () => sortXboxDeals(
-      filterXboxDealsByPublisher(filterXboxDeals(initial.deals, kind), publisher),
+      filterXboxDealsByPublisher(filterXboxDeals(initial.deals, kind), publisherSlugs),
       sort,
     ),
-    [initial.deals, kind, publisher, sort],
+    [initial.deals, kind, publisherSlugs, sort],
   );
 
   const displayed = visible.slice(0, visibleCount);
@@ -140,31 +151,11 @@ export default function XboxDealsScreen({ initial, initialPublisherSlug = null }
             </select>
           </div>
           {showPublisherFilter ? (
-            <div className="flex flex-col gap-1">
-              <label htmlFor="xbox-deals-publisher" className="text-xs font-medium uppercase tracking-wide text-muted">
-                Publisher
-              </label>
-              <select
-                id="xbox-deals-publisher"
-                value={publisher ?? ""}
-                onChange={(event) => {
-                  const next = event.target.value || null;
-                  setPublisher(next);
-                  replaceQuery(next);
-                  setVisibleCount(DEALS_PAGE_SIZE);
-                  setLoadMoreCount(0);
-                  setEagerFromIndex(null);
-                }}
-                className="min-h-11 max-w-full rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:max-w-xs"
-              >
-                <option value="">All publishers</option>
-                {publisherOptions.map((option) => (
-                  <option key={option.slug} value={option.slug}>
-                    {option.name} ({option.count})
-                  </option>
-                ))}
-              </select>
-            </div>
+            <XboxDealsPublisherFilter
+              options={publisherOptions}
+              selectedSlugs={publisherSlugs}
+              onChange={applyPublisherSelection}
+            />
           ) : null}
           {showKindFilters ? (
             <div className="flex flex-col gap-1">

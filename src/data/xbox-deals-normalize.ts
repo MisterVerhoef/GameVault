@@ -332,13 +332,56 @@ export function filterXboxDeals(deals: readonly XboxDeal[], kind: XboxDealKindFi
   return deals.filter((deal) => (kind === "game" ? deal.productKind === "game" : deal.productKind === "dlc"));
 }
 
+function splitPublisherQueryTokens(value: string): string[] {
+  return value
+    .split(",")
+    .map((token) => token.trim())
+    .filter((token) => token.length > 0);
+}
+
+export function parsePublisherQueryParam(
+  raw: string | string[] | undefined,
+  options: readonly XboxDealPublisherOption[],
+): string[] {
+  if (raw === undefined) return [];
+  const validSlugs = new Set(options.map((option) => option.slug));
+  const tokens = Array.isArray(raw)
+    ? raw.flatMap((item) => splitPublisherQueryTokens(item))
+    : splitPublisherQueryTokens(raw);
+  const seen = new Set<string>();
+  const selected: string[] = [];
+  for (const token of tokens) {
+    if (validSlugs.has(token) && !seen.has(token)) {
+      seen.add(token);
+      selected.push(token);
+    }
+  }
+  return selected;
+}
+
+export function serializePublisherQueryParam(slugs: readonly string[]): string | null {
+  if (slugs.length === 0) return null;
+  return [...slugs].join(",");
+}
+
+export function readPublisherSlugsFromSearchParams(
+  params: Pick<URLSearchParams, "getAll">,
+  options: readonly XboxDealPublisherOption[],
+): string[] {
+  const values = params.getAll("publisher");
+  if (values.length === 0) return [];
+  if (values.length === 1) return parsePublisherQueryParam(values[0], options);
+  return parsePublisherQueryParam(values, options);
+}
+
 export function filterXboxDealsByPublisher(
   deals: readonly XboxDeal[],
-  publisherSlug: string | null,
+  publisherSlugs: readonly string[] | null,
 ): XboxDeal[] {
-  if (!publisherSlug) return [...deals];
+  if (!publisherSlugs || publisherSlugs.length === 0) return [...deals];
+  const slugs = new Set(publisherSlugs);
   return deals.filter(
-    (deal) => deal.publisherName && publisherNameSlug(deal.publisherName) === publisherSlug,
+    (deal) => deal.publisherName && slugs.has(publisherNameSlug(deal.publisherName)),
   );
 }
 

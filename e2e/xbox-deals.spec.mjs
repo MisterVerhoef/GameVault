@@ -97,7 +97,8 @@ test("deals page renders, filters and sorts mocked deals", async ({ page }) => {
   const titles = await page.locator("article h3").allTextContents();
   expect(titles[0]).toMatch(/Charlie/);
 
-  await page.getByLabel("Publisher").selectOption("alpha-interactive");
+  await page.getByRole("button", { name: "Publisher", exact: true }).click();
+  await page.getByRole("option", { name: /Alpha Interactive/ }).locator('input[type="checkbox"]').check();
   await expect(page).toHaveURL(/publisher=alpha-interactive/);
   await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 2 of 2 deals")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bravo DLC Pack" })).toHaveCount(0);
@@ -121,9 +122,30 @@ test("deals omits all-shown note when everything fits the first page", async ({ 
 
 test("fresh load with publisher query renders filtered deals", async ({ page }) => {
   await page.goto("/deals?publisher=alpha-interactive", { waitUntil: "load" });
-  await expect(page.getByLabel("Publisher")).toHaveValue("alpha-interactive");
+  await expect(page.getByRole("button", { name: "Publisher", exact: true })).toContainText("1 publisher selected");
+  await expect(page.getByRole("button", { name: "Remove Alpha Interactive" })).toBeVisible();
   await expect(page.locator("main article")).toHaveCount(2);
   await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 2 of 2 deals")).toBeVisible();
+});
+
+test("multi-publisher filter uses OR logic and updates URL", async ({ page }) => {
+  await page.goto("/deals");
+  await page.getByRole("button", { name: "Publisher", exact: true }).click();
+  await page.getByRole("option", { name: /Alpha Interactive/ }).locator('input[type="checkbox"]').check();
+  await page.getByRole("option", { name: /Bravo Publishing/ }).locator('input[type="checkbox"]').check();
+  await expect(page).toHaveURL(/publisher=alpha-interactive%2Cbravo-publishing|publisher=alpha-interactive,bravo-publishing/);
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 3 of 3 deals")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Remove Alpha Interactive" }).click();
+  await expect(page).toHaveURL(/publisher=bravo-publishing/);
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 1 of 1 deal")).toBeVisible();
+});
+
+test("fresh load with comma-separated publisher query renders combined list", async ({ page }) => {
+  await page.goto("/deals?publisher=alpha-interactive,bravo-publishing", { waitUntil: "load" });
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 3 of 3 deals")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Alpha Interactive" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Remove Bravo Publishing" })).toBeVisible();
 });
 
 test("type filter pills show visible accent focus ring", async ({ page }) => {
