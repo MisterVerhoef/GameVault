@@ -42,6 +42,7 @@ function loadTsx(relativePath) {
 const { GameStorePrice } = loadTsx("src/components/GameStorePrice.tsx");
 const { formatRating } = loadTsModule("src/data/format-rating.ts");
 const { formatCount } = loadTsModule("src/data/game-facts.ts");
+const { formatAllShown, formatShowingOf, pluralNoun } = loadTsModule("src/data/pluralize.ts");
 
 test("formatRating returns an empty string for missing or invalid ratings", () => {
   assert.equal(formatRating(undefined), "");
@@ -85,6 +86,17 @@ test("game page shows Price unavailable when a matched store offer has no price"
   assert.match(html, /class="text-muted"/);
   assert.match(html, />Price unavailable</);
   assert.doesNotMatch(html, /font-semibold/);
+});
+
+test("pluralize helpers use singular nouns when total is 1", () => {
+  assert.equal(pluralNoun(1, "deals"), "deal");
+  assert.equal(pluralNoun(1, "games"), "game");
+  assert.equal(pluralNoun(2, "deals"), "deals");
+  assert.equal(formatShowingOf(1, 1, "deals"), "Showing 1 of 1 deal");
+  assert.equal(formatShowingOf(48, 307, "deals"), "Showing 48 of 307 deals");
+  assert.equal(formatShowingOf(2, 2, "games"), "Showing 2 of 2 games");
+  assert.equal(formatAllShown(279, "games"), "All 279 games shown");
+  assert.equal(formatAllShown(1, "game"), "All 1 game shown");
 });
 
 test("game page still shows Free and euro amounts when a store offer has a price", () => {

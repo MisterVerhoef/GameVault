@@ -29,16 +29,21 @@ export default function GameDescription({
 }) {
   const textId = useId();
   const measureRef = useRef<HTMLParagraphElement>(null);
+  const visibleRef = useRef<HTMLParagraphElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [totalLines, setTotalLines] = useState<number | null>(null);
   const [shownLines, setShownLines] = useState<number | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  const measureOnVisibleOnly = collapseDesktop === false && isDesktop;
 
   useLayoutEffect(() => {
-    const node = measureRef.current;
+    const node = measureOnVisibleOnly ? visibleRef.current : measureRef.current;
     if (!node) return;
     const desktop = window.matchMedia(DESKTOP_QUERY);
 
     const measure = () => {
+      setIsDesktop(desktop.matches);
       const lineHeight = lineHeightOf(getComputedStyle(node));
       const lines = Math.max(1, Math.round(node.scrollHeight / lineHeight));
       const shown = visibleLineCount(lines, desktop.matches, collapseDesktop);
@@ -54,7 +59,7 @@ export default function GameDescription({
       observer.disconnect();
       desktop.removeEventListener("change", measure);
     };
-  }, [text, collapseDesktop]);
+  }, [text, collapseDesktop, measureOnVisibleOnly]);
 
   const canToggle = totalLines != null && shownLines != null && shownLines < totalLines;
   const collapsed = canToggle && !expanded;
@@ -71,13 +76,16 @@ export default function GameDescription({
         </h3>
       ) : null}
       <div className="relative mt-2">
-        <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 top-0 h-0 overflow-hidden">
-          <p ref={measureRef} className="text-sm leading-relaxed">
-            {text}
-          </p>
-        </div>
+        {!measureOnVisibleOnly ? (
+          <div aria-hidden="true" inert className="pointer-events-none absolute inset-x-0 top-0 h-0 overflow-hidden">
+            <p ref={measureRef} className="text-sm leading-relaxed">
+              {text}
+            </p>
+          </div>
+        ) : null}
         <p
           id={textId}
+          ref={visibleRef}
           className="text-sm leading-relaxed text-foreground/80"
           style={collapsed ? {
             display: "-webkit-box",

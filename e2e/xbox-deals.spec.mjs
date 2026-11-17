@@ -83,12 +83,12 @@ test("deals page renders, filters and sorts mocked deals", async ({ page }) => {
   await page.goto("/deals");
   await expect(page.getByRole("heading", { name: "Xbox deals", exact: true })).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals/),
+    page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals?/),
   ).toBeVisible();
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" }).first()).toBeVisible();
 
   await page.getByRole("button", { name: "DLC", exact: true }).click();
-  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 1 of 1 deals")).toBeVisible();
+  await expect(page.getByRole("region", { name: "Deal controls" }).getByText("Showing 1 of 1 deal")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Bravo DLC Pack" }).first()).toBeVisible();
   await expect(page.getByRole("heading", { name: "Alpha Deal Game" })).toHaveCount(0);
 
@@ -109,8 +109,14 @@ test("fresh navigation renders deals immediately without client-side follow-up",
   await expect(page.getByRole("heading", { name: "Xbox deals", exact: true })).toBeVisible();
   await expect(page.locator("main article").first()).toBeVisible();
   await expect(
-    page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals/),
+    page.getByRole("region", { name: "Deal controls" }).getByText(/Showing \d+ of \d+ deals?/),
   ).toBeVisible();
+});
+
+test("deals omits all-shown note when everything fits the first page", async ({ page }) => {
+  await page.goto("/deals");
+  await expect(page.getByRole("heading", { name: "Xbox deals", exact: true })).toBeVisible();
+  await expect(page.getByText(/^All \d+ deals? shown$/)).toHaveCount(0);
 });
 
 test("fresh load with publisher query renders filtered deals", async ({ page }) => {
