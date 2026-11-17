@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import XboxDealsScreen, { XboxDealsSkeleton } from "@/components/XboxDealsScreen";
+import XboxDealsScreen from "@/components/XboxDealsScreen";
 import { getXboxDeals } from "@/data/xbox-deals-fetch";
 
 export const metadata: Metadata = {
@@ -10,11 +9,19 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DealsPage() {
+export default async function DealsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const rawPublisher = params.publisher;
+  const initialPublisherSlug = typeof rawPublisher === "string" ? rawPublisher : null;
   const payload = await getXboxDeals();
   return (
-    <Suspense fallback={<XboxDealsSkeleton />}>
-      <XboxDealsScreen initial={payload} />
-    </Suspense>
+    <XboxDealsScreen
+      initial={payload}
+      initialPublisherSlug={initialPublisherSlug}
+    />
   );
 }

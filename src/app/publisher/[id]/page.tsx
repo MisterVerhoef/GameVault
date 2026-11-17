@@ -4,10 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import GameDescription from "@/components/GameDescription";
-import GameWall from "@/components/GameWall";
+import PublisherGamesWall from "@/components/PublisherGamesWall";
 import type { CatalogueCard } from "@/data/catalogue-card";
 import { allPublishers, getPublisher } from "@/data/publishers";
-import { publisherMetadata, sortPublisherGames } from "@/data/publisher-profile";
+import { describePublisher, publisherMetadata, sortPublisherGames } from "@/data/publisher-profile";
 import { StudioLogo } from "@/components/studio-logos";
 import {
   fetchIgdbPublisherGames,
@@ -81,16 +81,20 @@ export default async function PublisherPage({ params }: PublisherPageProps) {
   const yearEnd = cataloguePublisher?.yearEnd
     ?? (years.length > 0 ? Math.max(...years) : undefined);
 
+  const gameCount = mergedGames.length;
   const metadata = publisherMetadata({
-    gameCount: mergedGames.length,
+    gameCount,
     yearStart,
     yearEnd,
   });
 
-  const summary = cataloguePublisher?.summary
-    ?? (mergedGames.length > 0
-      ? `${name} is a publisher with ${mergedGames.length} ${mergedGames.length === 1 ? "game" : "games"} in this overview.`
-      : `${name} is a publisher.`);
+  const summary = describePublisher({
+    name,
+    publishedCount: gameCount,
+    yearStart,
+    yearEnd,
+    notableTitles: mergedGames.slice(0, 3).map((game) => game.title),
+  });
 
   return (
     <div className="relative min-h-screen">
@@ -166,27 +170,14 @@ export default async function PublisherPage({ params }: PublisherPageProps) {
             inset="quarter"
             collapseDesktop={false}
           />
-          {cataloguePublisher ? (
-            <p className="mt-2 text-xs text-muted">Summary from the GameVault catalogue.</p>
-          ) : null}
         </div>
 
         <div className="mt-10">
-          {mergedGames.length === 0 ? (
-            <div className="mx-auto max-w-[1920px] px-4 pb-12 sm:px-6 lg:px-8">
-              <div className="rounded-xl border border-white/10 bg-card p-8 text-center text-sm text-muted">
-                No published games are listed for this publisher yet.
-              </div>
-            </div>
-          ) : (
-            <GameWall
-              title="Published games"
-              games={mergedGames}
-              resetKey={`publisher:${id}`}
-              titleLevel="h2"
-              focusTitle={false}
-            />
-          )}
+          <PublisherGamesWall
+            title="Published games"
+            games={mergedGames}
+            resetKey={`publisher:${id}`}
+          />
         </div>
       </main>
     </div>

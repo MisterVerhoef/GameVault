@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
@@ -15,6 +15,7 @@ import {
 
 interface XboxDealsScreenProps {
   initial: XboxDealsPayload;
+  initialPublisherSlug?: string | null;
 }
 
 const DEALS_PAGE_SIZE = 48;
@@ -39,29 +40,45 @@ function readPublisherSlug(params: { get(name: string): string | null }, options
   return options.some((option) => option.slug === slug) ? slug : null;
 }
 
-export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
+function DealsQuerySync({
+  publisherOptions,
+  onPublisherChange,
+}: {
+  publisherOptions: ReturnType<typeof listXboxDealPublishers>;
+  onPublisherChange: (slug: string | null) => void;
+}) {
+  const params = useSearchParams();
+  useEffect(() => {
+    onPublisherChange(readPublisherSlug(params, publisherOptions));
+  }, [params, publisherOptions, onPublisherChange]);
+  return null;
+}
+
+export default function XboxDealsScreen({ initial, initialPublisherSlug = null }: XboxDealsScreenProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const params = useSearchParams();
   const publisherOptions = useMemo(() => listXboxDealPublishers(initial.deals), [initial.deals]);
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
-  const [publisher, setPublisher] = useState<string | null>(() => readPublisherSlug(params, publisherOptions));
+  const [publisher, setPublisher] = useState<string | null>(
+    () => readPublisherSlug({ get: (key) => (key === "publisher" ? initialPublisherSlug : null) }, publisherOptions),
+  );
   const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const showKindFilters = hasMultipleDealKinds(initial.deals);
   const showPublisherFilter = publisherOptions.length > 1;
 
-  useEffect(() => {
-    setPublisher(readPublisherSlug(params, publisherOptions));
-  }, [params, publisherOptions]);
+  const syncPublisherFromUrl = useCallback(
+    (slug: string | null) => setPublisher(slug),
+    [],
+  );
 
   const replaceQuery = useCallback((nextPublisher: string | null) => {
-    const next = new URLSearchParams(params.toString());
+    const next = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
     if (nextPublisher) next.set("publisher", nextPublisher);
     else next.delete("publisher");
     const query = next.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [params, pathname, router]);
+  }, [pathname, router]);
 
   const visible = useMemo(
     () => sortXboxDeals(
@@ -76,6 +93,9 @@ export default function XboxDealsScreen({ initial }: XboxDealsScreenProps) {
 
   return (
     <div className="min-h-screen bg-background">
+      <Suspense fallback={null}>
+        <DealsQuerySync publisherOptions={publisherOptions} onPublisherChange={syncPublisherFromUrl} />
+      </Suspense>
       <Navbar />
       <main id="main" className="gv-layout-container py-6 lg:py-10">
         <header className="mb-6 flex flex-col gap-2">

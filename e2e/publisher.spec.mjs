@@ -8,6 +8,7 @@ test("publisher overview is linked from a catalogue game page", async ({ page })
   await expect(page).toHaveURL(/\/publisher\/70$/);
   await expect(page.getByRole("heading", { name: "Nintendo", level: 2 })).toBeVisible();
   await expect(page.getByText(/Publisher · /)).toBeVisible();
+  await expect(page.getByText(/Showing \d+ of \d+ games/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Ocarina of Time/i }).first()).toBeVisible();
 });
 

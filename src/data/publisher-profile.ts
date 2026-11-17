@@ -30,13 +30,13 @@ export function describePublisher(input: {
   const count = input.publishedCount === 1 ? "1 game" : `${input.publishedCount} games`;
   const years = input.yearStart != null && input.yearEnd != null
     ? input.yearStart === input.yearEnd
-      ? ` Catalogue releases are from ${input.yearStart}.`
-      : ` Catalogue releases run from ${input.yearStart} to ${input.yearEnd}.`
+      ? ` Releases run from ${input.yearStart}.`
+      : ` Releases run from ${input.yearStart} to ${input.yearEnd}.`
     : "";
   const notable = input.notableTitles.length > 0
     ? ` Notable titles include ${joinList(input.notableTitles)}.`
     : "";
-  return `${input.name} is a publisher in the GameVault catalogue, with ${count} published here.${years}${notable}`;
+  return `${input.name} is a publisher with ${count} in this overview.${years}${notable}`;
 }
 
 export function publisherMetadata(input: {
