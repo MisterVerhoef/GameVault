@@ -144,6 +144,8 @@ export interface Game {
   versionParentId?: string;
   /** IGDB ports grouped under this parent (optional until sync). */
   portIds?: string[];
+  /** Expanded port titles from live IGDB detail (optional). */
+  platformPorts?: ContentRef[];
   updatedAt: string;
 }
 

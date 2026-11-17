@@ -78,7 +78,36 @@
       },
       "rating": 82.5,
       "ratingCount": 120,
-      "releases": [{ "platform": "Windows", "date": "2026-03-01" }]
+      "releases": [{ "platform": "Windows", "date": "2026-03-01" }],
+      "screenshots": [
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_screenshot_huge/scmock1.jpg",
+          "width": 1920,
+          "height": 1080
+        },
+        {
+          "url": "https://images.igdb.com/igdb/image/upload/t_screenshot_huge/scmock2.jpg",
+          "width": 1920,
+          "height": 1080
+        }
+      ],
+      "videos": [
+        {
+          "id": "900001",
+          "name": "Launch trailer",
+          "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+        }
+      ],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [{ "provider": "igdb", "id": "999999001" }],
+      "updatedAt": "2026-01-01"
     },
     "1006": {
       "id": "1006",

@@ -8,6 +8,7 @@ import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
 import { LruCache } from "./lru-cache";
+import { buildIgdbLiveGameByIdQuery } from "./catalog-sync-selection";
 import { mapIgdbApiRecord } from "./map-record";
 import {
   igdbMockEnabled,
@@ -26,7 +27,8 @@ import {
 import { mapIgdbBasicRecord } from "./map-basic-record";
 import { mockIgdbGamesByIds } from "./mock";
 import { TtlCache } from "./ttl-cache";
-import type { IgdbBasicGame, IgdbLiveGame, IgdbSearchHit } from "./types";
+import type { Game } from "@/data/games";
+import type { IgdbBasicGame, IgdbSearchHit } from "./types";
 
 export {
   buildIgdbExactNameSearchBody,
@@ -44,7 +46,7 @@ const basicGameCache = new TtlCache<IgdbBasicGame | null>({
   missTtlMs: 60_000,
   maxEntries: 4096,
 });
-const liveGameCache = new TtlCache<IgdbLiveGame | null>({
+const liveGameCache = new TtlCache<Game | null>({
   hitTtlMs: 86_400_000,
   missTtlMs: 60_000,
   maxEntries: 2048,
@@ -224,15 +226,6 @@ export async function searchIgdbLive(query: string): Promise<IgdbSearchHit[]> {
   }
 }
 
-const detailFields = [
-  "id", "name", "slug", "summary", "storyline", "first_release_date",
-  "rating", "rating_count", "aggregated_rating", "aggregated_rating_count",
-  "genres.name", "themes.name", "platforms.id", "platforms.name",
-  "involved_companies.developer", "involved_companies.publisher",
-  "involved_companies.company.id", "involved_companies.company.name",
-  "cover.url", "release_dates.date", "release_dates.human", "release_dates.platform.id", "release_dates.platform.name",
-].join(",");
-
 function numericIgdbIds(ids: readonly string[]): string[] {
   const numeric: string[] = [];
   const seen = new Set<string>();
@@ -325,11 +318,11 @@ export async function fetchIgdbGamesByIds(ids: readonly string[]): Promise<Map<s
   return out;
 }
 
-async function fetchIgdbGameByIdUncached(id: string): Promise<IgdbLiveGame | null> {
+async function fetchIgdbGameByIdUncached(id: string): Promise<Game | null> {
   if (!credentials()) return null;
 
   try {
-    const response = await igdbPost("games", `fields ${detailFields}; where id = ${id}; limit 1;`);
+    const response = await igdbPost("games", buildIgdbLiveGameByIdQuery(id));
     if (!response || !response.ok) return null;
     const rows = await response.json();
     if (!Array.isArray(rows) || rows.length === 0) return null;
@@ -339,11 +332,11 @@ async function fetchIgdbGameByIdUncached(id: string): Promise<IgdbLiveGame | nul
   }
 }
 
-async function fetchIgdbGameByIdServerCached(id: string): Promise<IgdbLiveGame | null> {
+async function fetchIgdbGameByIdServerCached(id: string): Promise<Game | null> {
   const cached = liveGameCache.get(id);
   if (cached !== undefined) return cached;
 
-  let value: IgdbLiveGame | null;
+  let value: Game | null;
   try {
     value = await unstable_cache(
       () => fetchIgdbGameByIdUncached(id),
@@ -358,7 +351,7 @@ async function fetchIgdbGameByIdServerCached(id: string): Promise<IgdbLiveGame |
   return value;
 }
 
-export async function fetchIgdbGameById(id: string): Promise<IgdbLiveGame | null> {
+export async function fetchIgdbGameById(id: string): Promise<Game | null> {
   if (!/^\d+$/.test(id)) return null;
 
   if (igdbMockEnabled()) {
@@ -451,6 +444,6 @@ export function __testBasicGameCache(): TtlCache<IgdbBasicGame | null> {
   return basicGameCache;
 }
 
-export function __testLiveGameCache(): TtlCache<IgdbLiveGame | null> {
+export function __testLiveGameCache(): TtlCache<Game | null> {
   return liveGameCache;
 }

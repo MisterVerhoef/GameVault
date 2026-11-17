@@ -1,4 +1,4 @@
-import type { AgeRating, CompanyRef, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
+import type { AgeRating, CompanyRef, ExternalStoreId, Game, MultiplayerInfo, PlatformRelease, TimeToBeat } from "./games";
 import { dedupeReleaseRows } from "./release-dedupe";
 import type { Platform } from "./platforms";
 import { catalogueCompanyLogo } from "./studio-logo";
@@ -103,10 +103,11 @@ export interface ExternalGameRecord {
   collections?: string[];
   source?: { provider: string; id: string };
   sourceId?: string;
-  externalIds?: { store: "xbox" | "playstation" | "nintendo"; id: string }[];
+  externalIds?: ExternalStoreId[];
   parentGameId?: string;
   versionParentId?: string;
   portIds?: string[];
+  platformPorts?: { id: string; title: string; cover?: string | { url: string; width?: number; height?: number } }[];
   updatedAt?: string;
   warnings?: string[];
 }
@@ -361,6 +362,15 @@ export function normalizeExternalGame(record: ExternalGameRecord, provider: stri
     ...(record.parentGameId ? { parentGameId: record.parentGameId } : {}),
     ...(record.versionParentId ? { versionParentId: record.versionParentId } : {}),
     ...(record.portIds?.length ? { portIds: record.portIds } : {}),
+    ...(record.platformPorts?.length
+      ? {
+          platformPorts: record.platformPorts.map((port) => ({
+            id: port.id,
+            title: port.title,
+            cover: asImage(port.cover),
+          })).filter((port) => port.id && port.title),
+        }
+      : {}),
     updatedAt: record.updatedAt ?? updatedAt,
   };
 }

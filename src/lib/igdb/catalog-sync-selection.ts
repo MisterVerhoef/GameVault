@@ -27,6 +27,16 @@ export const IGDB_CATALOG_GAME_FIELDS = [
   "franchises.name,collections.name;",
 ].join(" ");
 
+/** Fields requested for a single live game page (catalog sync fields + detail-only expansions). */
+const IGDB_LIVE_GAME_EXTRA_FIELDS =
+  "keywords.name,editions.id,editions.name,ports.id,ports.name,ports.cover.url," +
+  "game_time_to_beats.hastily,game_time_to_beats.normally,game_time_to_beats.completely,game_time_to_beats.count";
+
+export function buildIgdbLiveGameByIdQuery(id: string): string {
+  const fields = IGDB_CATALOG_GAME_FIELDS.replace(/;\s*$/, `,${IGDB_LIVE_GAME_EXTRA_FIELDS};`);
+  return `${fields} where id = ${id}; limit 1;`;
+}
+
 export type RecentSyncConfig = {
   pastMonths: number;
   futureMonths: number;
