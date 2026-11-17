@@ -148,6 +148,39 @@ test("fresh load with comma-separated publisher query renders combined list", as
   await expect(page.getByRole("button", { name: "Remove Bravo Publishing" })).toBeVisible();
 });
 
+test("publisher panel overlay does not shift deal controls", async ({ page }) => {
+  await page.setViewportSize({ width: 400, height: 800 });
+  await page.goto("/deals");
+  const controls = page.getByRole("region", { name: "Deal controls" });
+  const before = await controls.boundingBox();
+  expect(before).toBeTruthy();
+  await page.getByRole("button", { name: "Publisher", exact: true }).click();
+  const after = await controls.boundingBox();
+  expect(after).toBeTruthy();
+  expect(after.y).toBeCloseTo(before.y, 0);
+  expect(after.height).toBeCloseTo(before.height, 0);
+  await page.keyboard.press("Escape");
+});
+
+test("publisher chip removal moves focus for consecutive keyboard dismissals", async ({ page }) => {
+  await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });
+  const removeAlpha = page.getByRole("button", { name: "Remove Alpha Interactive" });
+  const removeBravo = page.getByRole("button", { name: "Remove Bravo Publishing" });
+  const removeDelta = page.getByRole("button", { name: "Remove Delta Studios" });
+  const publisherTrigger = page.getByRole("button", { name: "Publisher", exact: true });
+
+  await removeAlpha.focus();
+  await page.keyboard.press("Enter");
+  await expect(removeBravo).toBeFocused();
+
+  await page.keyboard.press(" ");
+  await expect(removeDelta).toBeFocused();
+
+  await page.keyboard.press("Enter");
+  await expect(publisherTrigger).toBeFocused();
+  await expect(page).toHaveURL(/^[^?]*\/deals$/);
+});
+
 test("type filter pills show visible accent focus ring", async ({ page }) => {
   await page.addInitScript(() => {
     document.documentElement.classList.add("dark");
