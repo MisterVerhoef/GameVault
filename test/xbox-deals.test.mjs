@@ -13,8 +13,11 @@ const {
   sortXboxDeals,
   filterXboxDealsByPublisher,
   listXboxDealPublishers,
+  parsePublisherQueryParam,
   publisherNameFromDisplayCatalog,
   publisherNameSlug,
+  readPublisherSlugsFromSearchParams,
+  serializePublisherQueryParam,
   xboxDealFromAppsListItem,
   xboxDealFromDisplayCatalog,
 } = loadTsModule("src/data/xbox-deals-normalize.ts");
@@ -104,7 +107,47 @@ test("publisher filter uses stable slugs from store or catalogue names", () => {
     options.map((option) => option.slug),
     ["alpha-interactive", "bravo-publishing"],
   );
-  assert.equal(filterXboxDealsByPublisher(deals, "alpha-interactive").length, 2);
+  assert.equal(filterXboxDealsByPublisher(deals, ["alpha-interactive"]).length, 2);
+  assert.equal(
+    filterXboxDealsByPublisher(deals, ["alpha-interactive", "bravo-publishing"]).length,
+    3,
+  );
+  assert.equal(filterXboxDealsByPublisher(deals, []).length, 3);
+  assert.equal(filterXboxDealsByPublisher(deals, null).length, 3);
+});
+
+test("publisher query param parses comma-separated and repeated values", () => {
+  const options = [
+    { slug: "alpha-interactive", name: "Alpha Interactive", count: 2 },
+    { slug: "bravo-publishing", name: "Bravo Publishing", count: 1 },
+    { slug: "charlie-studios", name: "Charlie Studios", count: 1 },
+  ];
+  assert.deepEqual(parsePublisherQueryParam("alpha-interactive", options), ["alpha-interactive"]);
+  assert.deepEqual(
+    parsePublisherQueryParam("alpha-interactive,bravo-publishing", options),
+    ["alpha-interactive", "bravo-publishing"],
+  );
+  assert.deepEqual(
+    parsePublisherQueryParam(["alpha-interactive", "bravo-publishing"], options),
+    ["alpha-interactive", "bravo-publishing"],
+  );
+  assert.deepEqual(
+    parsePublisherQueryParam("alpha-interactive,unknown-slug", options),
+    ["alpha-interactive"],
+  );
+  assert.equal(serializePublisherQueryParam(["alpha-interactive", "bravo-publishing"]), "alpha-interactive,bravo-publishing");
+  assert.equal(serializePublisherQueryParam([]), null);
+
+  const params = new URLSearchParams("publisher=alpha-interactive&publisher=bravo-publishing");
+  assert.deepEqual(
+    readPublisherSlugsFromSearchParams(params, options),
+    ["alpha-interactive", "bravo-publishing"],
+  );
+  const commaParams = new URLSearchParams("publisher=alpha-interactive,bravo-publishing");
+  assert.deepEqual(
+    readPublisherSlugsFromSearchParams(commaParams, options),
+    ["alpha-interactive", "bravo-publishing"],
+  );
 });
 
 test("classifies DLC bundles and add-on list entries", () => {
