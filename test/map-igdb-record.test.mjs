@@ -3,7 +3,11 @@ import { test } from "node:test";
 import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const { mapIgdbApiRecord } = loadTsModule("src/lib/igdb/map-record.ts");
-const { buildIgdbLiveGameByIdQuery } = loadTsModule("src/lib/igdb/catalog-sync-selection.ts");
+const {
+  buildIgdbLiveGameByIdQuery,
+  buildIgdbLiveGameCoreByIdQuery,
+  igdbLiveGameFieldClause,
+} = loadTsModule("src/lib/igdb/catalog-sync-selection.ts");
 
 test("buildIgdbLiveGameByIdQuery requests catalogue sync fields and live detail expansions", () => {
   const body = buildIgdbLiveGameByIdQuery(133305);
@@ -11,6 +15,21 @@ test("buildIgdbLiveGameByIdQuery requests catalogue sync fields and live detail 
   assert.match(body, /videos\.video_id/);
   assert.match(body, /keywords\.name/);
   assert.match(body, /where id = 133305;/);
+});
+
+test("live game field clause excludes invalid games-endpoint expansions", () => {
+  const clause = igdbLiveGameFieldClause();
+  assert.doesNotMatch(clause, /\beditions\./);
+  assert.doesNotMatch(clause, /game_time_to_beats\./);
+  assert.doesNotMatch(clause, /\bports,\s/);
+});
+
+test("buildIgdbLiveGameCoreByIdQuery keeps screenshots, videos, and similar games", () => {
+  const body = buildIgdbLiveGameCoreByIdQuery(133305);
+  assert.match(body, /screenshots\.url/);
+  assert.match(body, /videos\.video_id/);
+  assert.match(body, /similar_games\.id/);
+  assert.doesNotMatch(body, /\beditions\./);
 });
 
 test("mapIgdbApiRecord maps screenshots, trailers, and metadata into Game", () => {

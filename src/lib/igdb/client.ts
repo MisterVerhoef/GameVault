@@ -8,7 +8,10 @@ import { sortSearchResults } from "@/data/search-rank";
 import { dedupeIgdbAgainstCatalogue } from "./dedupe";
 import { getCatalogueIgdbIds } from "./catalogue-ids";
 import { LruCache } from "./lru-cache";
-import { buildIgdbLiveGameByIdQuery } from "./catalog-sync-selection";
+import {
+  buildIgdbLiveGameByIdQuery,
+  buildIgdbLiveGameCoreByIdQuery,
+} from "./catalog-sync-selection";
 import { mapIgdbApiRecord } from "./map-record";
 import {
   igdbMockEnabled,
@@ -318,16 +321,57 @@ export async function fetchIgdbGamesByIds(ids: readonly string[]): Promise<Map<s
   return out;
 }
 
+async function fetchIgdbGameRecord(id: string, body: string): Promise<unknown | null> {
+  const response = await igdbPost("games", body);
+  if (!response) {
+    console.warn(`[igdb] game ${id} skipped: missing credentials or auth token`);
+    return null;
+  }
+  if (!response.ok) {
+    const detail = await response.text().catch(() => "");
+    console.error(
+      `[igdb] game ${id} HTTP ${response.status}${detail ? `: ${detail.slice(0, 240)}` : ""}`,
+    );
+    return null;
+  }
+  const rows = await response.json();
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0];
+}
+
+async function attachTimeToBeatToRecord(record: Record<string, unknown>, id: string) {
+  try {
+    const response = await igdbPost(
+      "game_time_to_beats",
+      `fields game_id,hastily,normally,completely,count; where game_id = ${id}; limit 1;`,
+    );
+    if (!response?.ok) return;
+    const rows = await response.json();
+    if (Array.isArray(rows) && rows[0] && typeof rows[0] === "object") {
+      record.game_time_to_beats = [rows[0]];
+    }
+  } catch (error) {
+    console.warn(
+      `[igdb] game_time_to_beats for ${id} failed:`,
+      error instanceof Error ? error.message : error,
+    );
+  }
+}
+
 async function fetchIgdbGameByIdUncached(id: string): Promise<Game | null> {
   if (!credentials()) return null;
 
   try {
-    const response = await igdbPost("games", buildIgdbLiveGameByIdQuery(id));
-    if (!response || !response.ok) return null;
-    const rows = await response.json();
-    if (!Array.isArray(rows) || rows.length === 0) return null;
-    return mapIgdbApiRecord(rows[0]);
-  } catch {
+    let record = await fetchIgdbGameRecord(id, buildIgdbLiveGameByIdQuery(id));
+    if (!record) {
+      console.warn(`[igdb] game ${id} rich query failed; retrying with core fields`);
+      record = await fetchIgdbGameRecord(id, buildIgdbLiveGameCoreByIdQuery(id));
+    }
+    if (!record || typeof record !== "object") return null;
+    await attachTimeToBeatToRecord(record as Record<string, unknown>, id);
+    return mapIgdbApiRecord(record);
+  } catch (error) {
+    console.error("[igdb] game by id request failed:", error instanceof Error ? error.message : error);
     return null;
   }
 }
