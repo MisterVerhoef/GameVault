@@ -26,14 +26,20 @@ function unavailablePayload(message: string): PlayStationDealsPayload {
   };
 }
 
-function readE2eFixture(): PlayStationDealsPayload | null {
-  if (process.env.GAMEVAULT_E2E_PLAYSTATION_DEALS !== "1") return null;
-  const path = join(process.cwd(), "test/fixtures/playstation-deals-e2e-smoke.json");
+function readE2eFixtureFile(variant: "smoke" | "unavailable"): PlayStationDealsPayload | null {
+  const fileName = variant === "unavailable"
+    ? "playstation-deals-e2e-unavailable.json"
+    : "playstation-deals-e2e-smoke.json";
+  const path = join(process.cwd(), "test/fixtures", fileName);
   try {
     return JSON.parse(readFileSync(path, "utf8")) as PlayStationDealsPayload;
   } catch {
     return null;
   }
+}
+
+function resolveE2eFixtureVariant(override: string | undefined): "smoke" | "unavailable" {
+  return override === "unavailable" ? "unavailable" : "smoke";
 }
 
 export function readPlayStationDealsSnapshot(): PlayStationDealsSnapshotFile | null {
@@ -82,9 +88,11 @@ export async function fetchPlayStationDealsLive(): Promise<PlayStationDealsPaylo
   };
 }
 
-export async function getPlayStationDeals(): Promise<PlayStationDealsPayload> {
-  const fixture = readE2eFixture();
-  if (fixture) return fixture;
+export async function getPlayStationDeals(e2eFixtureOverride?: string): Promise<PlayStationDealsPayload> {
+  if (process.env.GAMEVAULT_E2E_PLAYSTATION_DEALS === "1") {
+    const fixture = readE2eFixtureFile(resolveE2eFixtureVariant(e2eFixtureOverride));
+    if (fixture) return fixture;
+  }
 
   try {
     return await unstable_cache(
