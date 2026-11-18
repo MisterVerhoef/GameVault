@@ -644,6 +644,30 @@ test("search terms keep phrase matches and hyphenated words", () => {
   assert.equal(matchesSearchTerms("castle action", "god of war"), false);
 });
 
+test("search index terms include every catalogue id and title token", () => {
+  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const search = JSON.parse(readFileSync(path.join(root, "public/catalog/search-index.json"), "utf8"));
+  const byId = new Map(search.games.map((entry) => [entry.id, entry]));
+  const tokenize = (value) => String(value).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+
+  for (const game of catalogue.games) {
+    const entry = byId.get(game.id);
+    assert.ok(entry, `search index is missing catalogue id ${game.id}`);
+    const terms = new Set(entry.terms.split(" "));
+    assert.ok(
+      tokenize(game.id).every((token) => terms.has(token)),
+      `search terms omit id token for ${game.id}`,
+    );
+    assert.ok(
+      matchesSearchTerms(entry.terms, game.id),
+      `search terms do not match catalogue id ${game.id}`,
+    );
+    for (const token of tokenize(game.title)) {
+      assert.ok(terms.has(token), `search terms omit title token "${token}" for ${game.id} (${game.title})`);
+    }
+  }
+});
+
 test("browse index stays a light card catalogue", () => {
   const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
   const browse = JSON.parse(readFileSync(path.join(root, "public/catalog/browse-index.json"), "utf8"));

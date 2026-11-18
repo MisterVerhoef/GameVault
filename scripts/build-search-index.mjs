@@ -19,7 +19,6 @@ const index = catalogue.games
       game.slug,
       game.title,
       game.summary ?? "",
-      game.description ?? "",
       ...(game.genres ?? []),
       ...(game.themes ?? []),
       ...(game.keywords ?? []),
