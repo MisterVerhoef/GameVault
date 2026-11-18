@@ -8,5 +8,10 @@ test("IGDB-only game page shows screenshots and trailers from the mock fixture",
   await expect(page.getByRole("link", { name: /Open full-size Vault Mock Exclusief Spel screenshot/i })).toHaveCount(2);
 
   await expect(page.getByRole("heading", { name: "Trailers" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Launch trailer/i })).toBeVisible();
+  const trailerLink = page.getByRole("link", {
+    name: /Watch Launch trailer on YouTube \(opens in new tab\)/i,
+  });
+  await expect(trailerLink).toBeVisible();
+  await expect(trailerLink).toHaveAttribute("rel", "noopener noreferrer");
+  await expect(trailerLink.getByTestId("external-link-indicator")).toBeVisible();
 });

@@ -16,6 +16,7 @@ import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
+import { ExternalLinkBadge } from "@/components/ExternalLinkBadge";
 import GameDescription from "@/components/GameDescription";
 import LibraryControls from "@/components/LibraryControls";
 import ListControls from "@/components/ListControls";
@@ -628,12 +629,16 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
           <section className="mb-12">
             <h2 className="mb-4 text-lg font-bold tracking-tight text-foreground">Trailers</h2>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {display.videos.map((video) => (
+              {display.videos.map((video) => {
+                const trailerName = video.name || `${game.title} trailer`;
+                const trailerLinkLabel = `Watch ${trailerName} on YouTube (opens in new tab)`;
+                return (
                 <a
                   key={video.id}
                   href={video.url}
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
+                  aria-label={trailerLinkLabel}
                   className="group flex flex-col overflow-hidden rounded-xl bg-card shadow-lg shadow-black/40 ring-1 ring-white/10 transition duration-300 hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-black/50 hover:ring-2 hover:ring-accent/60 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
                 >
                   <span className="relative aspect-video overflow-hidden bg-black/40">
@@ -656,12 +661,16 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
                         <path d="M8 5.14v13.72a1 1 0 0 0 1.54.84l11.04-6.86a1 1 0 0 0 0-1.68L9.54 4.3A1 1 0 0 0 8 5.14Z" />
                       </svg>
                     </span>
+                    <span className="pointer-events-none absolute bottom-2 left-2">
+                      <ExternalLinkBadge label="YouTube" />
+                    </span>
                   </span>
                   <span className="border-t border-white/10 px-3 py-2.5 text-sm font-semibold text-foreground">
-                    {video.name || `${game.title} trailer`}
+                    {trailerName}
                   </span>
                   </a>
-                ))}
+                );
+              })}
             </div>
           </section>
         )}

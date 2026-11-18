@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatEuro } from "@/data/store-offer-index";
 import { formatSaleEndNl } from "@/data/xbox-deals-normalize";
 import type { XboxDeal as XboxDealRow } from "@/data/xbox-deals-types";
+import { ExternalLinkBadge } from "./ExternalLinkBadge";
 import { GameCoverPlaceholder } from "./cover-placeholder";
 
 interface XboxDealCardProps {
@@ -16,6 +17,7 @@ export default function XboxDealCard({ deal, coverPriority = "default" }: XboxDe
   const external = !deal.gameId;
   const saleEnds = formatSaleEndNl(deal.saleEndsAt);
   const label = `${deal.title}, ${deal.discountPercent}% off, now ${formatEuro(deal.price)}`;
+  const storeLinkLabel = `${deal.title} on Microsoft Store (opens in new tab)`;
 
   return (
     <article className="flex h-full flex-col rounded-lg bg-card shadow-lg ring-1 ring-black/10 dark:ring-white/10">
@@ -24,7 +26,7 @@ export default function XboxDealCard({ deal, coverPriority = "default" }: XboxDe
         target={external ? "_blank" : undefined}
         rel={external ? "noopener noreferrer" : undefined}
         className="group relative block aspect-[3/4] overflow-hidden rounded-t-lg bg-card focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        aria-label={external ? `${label}. Opens Microsoft Store in a new tab` : `${label}. Open in GameVault`}
+        aria-label={external ? storeLinkLabel : `${label}. Open in GameVault`}
       >
         {deal.coverUrl ? (
           <Image
@@ -51,6 +53,11 @@ export default function XboxDealCard({ deal, coverPriority = "default" }: XboxDe
         <span className="absolute right-2 top-2 rounded-full bg-accent px-2 py-0.5 text-xs font-semibold text-white shadow">
           -{deal.discountPercent}%
         </span>
+        {external ? (
+          <span className="pointer-events-none absolute bottom-2 left-2">
+            <ExternalLinkBadge label="Microsoft Store" />
+          </span>
+        ) : null}
       </Link>
       <div className="flex flex-1 flex-col gap-2 p-3">
         <h3 className="line-clamp-2 text-sm font-semibold text-foreground">{deal.title}</h3>
