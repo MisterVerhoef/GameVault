@@ -7,7 +7,7 @@ import XboxDealCard from "@/components/XboxDealCard";
 import PlayStationDealCard from "@/components/PlayStationDealCard";
 import DealsDroppedFiltersNotice from "@/components/DealsDroppedFiltersNotice";
 import DealsPlatformTabs from "@/components/DealsPlatformTabs";
-import XboxDealsPublisherFilter from "@/components/XboxDealsPublisherFilter";
+import XboxDealsPublisherFilter, { XboxDealsPublisherChips } from "@/components/XboxDealsPublisherFilter";
 import { dealsPlatformLabel, type DealsPlatform } from "@/data/deals-platform";
 import { serializeDealsSearchParams, type DealsUrlPublishers } from "@/data/deals-query";
 import {
@@ -261,69 +261,78 @@ export default function DealsScreen({
         {droppedNote ? <DealsDroppedFiltersNotice message={droppedNote} /> : null}
 
         {!psUnavailable ? (
-          <section aria-label="Deal controls" className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
-            <div className="flex flex-col gap-1">
-              <label htmlFor="deals-sort" className="text-xs font-medium uppercase tracking-wide text-muted">
-                Sort
-              </label>
-              <select
-                id="deals-sort"
-                value={sort}
-                onChange={(event) => {
-                  setSort(event.target.value as XboxDealSort);
-                  setVisibleCount(DEALS_PAGE_SIZE);
-                  setLoadMoreCount(0);
-                  setEagerFromIndex(null);
-                }}
-                className="min-h-11 rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <option value="discount-desc">Discount (high to low)</option>
-                <option value="price-asc">Price (low to high)</option>
-                <option value="price-desc">Price (high to low)</option>
-                <option value="title-asc">Title (A–Z)</option>
-              </select>
+          <section aria-label="Deal controls" className="mb-5 flex flex-col gap-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
+              <div className="flex flex-col gap-1">
+                <label htmlFor="deals-sort" className="text-xs font-medium uppercase tracking-wide text-muted">
+                  Sort
+                </label>
+                <select
+                  id="deals-sort"
+                  value={sort}
+                  onChange={(event) => {
+                    setSort(event.target.value as XboxDealSort);
+                    setVisibleCount(DEALS_PAGE_SIZE);
+                    setLoadMoreCount(0);
+                    setEagerFromIndex(null);
+                  }}
+                  className="min-h-11 rounded-lg border border-white/10 bg-card px-3 py-2 text-sm text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <option value="discount-desc">Discount (high to low)</option>
+                  <option value="price-asc">Price (low to high)</option>
+                  <option value="price-desc">Price (high to low)</option>
+                  <option value="title-asc">Title (A–Z)</option>
+                </select>
+              </div>
+              {showPublisherFilter ? (
+                <XboxDealsPublisherFilter
+                  options={publisherOptions}
+                  selectedSlugs={publisherSlugs}
+                  onChange={applyPublisherSelection}
+                />
+              ) : null}
+              {showKindFilters ? (
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>
+                  <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by product type">
+                    {([
+                      ["all", "All"],
+                      ["game", "Games"],
+                      ["dlc", "DLC"],
+                    ] as const).map(([value, label]) => (
+                      <button
+                        key={value}
+                        type="button"
+                        data-deal-kind={value}
+                        aria-pressed={kind === value}
+                        onClick={() => {
+                          setKind(value);
+                          setVisibleCount(DEALS_PAGE_SIZE);
+                          setLoadMoreCount(0);
+                          setEagerFromIndex(null);
+                        }}
+                        className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                          kind === value ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
+                        }`}
+                      >
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+              {visible.length > 0 ? (
+                <p className="text-sm text-muted sm:ml-auto" aria-live="polite">
+                  {formatShowingOf(displayed.length, visible.length, "deals")}
+                </p>
+              ) : null}
             </div>
-            {showPublisherFilter ? (
-              <XboxDealsPublisherFilter
+            {showPublisherFilter && publisherSlugs.length > 0 ? (
+              <XboxDealsPublisherChips
                 options={publisherOptions}
                 selectedSlugs={publisherSlugs}
                 onChange={applyPublisherSelection}
               />
-            ) : null}
-            {showKindFilters ? (
-              <div className="flex flex-col gap-1">
-                <span className="text-xs font-medium uppercase tracking-wide text-muted">Type</span>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by product type">
-                  {([
-                    ["all", "All"],
-                    ["game", "Games"],
-                    ["dlc", "DLC"],
-                  ] as const).map(([value, label]) => (
-                    <button
-                      key={value}
-                      type="button"
-                      data-deal-kind={value}
-                      aria-pressed={kind === value}
-                      onClick={() => {
-                        setKind(value);
-                        setVisibleCount(DEALS_PAGE_SIZE);
-                        setLoadMoreCount(0);
-                        setEagerFromIndex(null);
-                      }}
-                      className={`inline-flex min-h-11 items-center rounded-full px-4 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
-                        kind === value ? "bg-accent text-white" : "bg-card text-muted hover:text-foreground"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-            {visible.length > 0 ? (
-              <p className="text-sm text-muted sm:ml-auto" aria-live="polite">
-                {formatShowingOf(displayed.length, visible.length, "deals")}
-              </p>
             ) : null}
           </section>
         ) : null}

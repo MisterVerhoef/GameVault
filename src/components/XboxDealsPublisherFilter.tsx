@@ -3,75 +3,48 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { XboxDealPublisherOption } from "@/data/xbox-deals-types";
 
-interface XboxDealsPublisherFilterProps {
+export interface XboxDealsPublisherFilterProps {
   options: XboxDealPublisherOption[];
   selectedSlugs: string[];
   onChange: (slugs: string[]) => void;
 }
 
 export default function XboxDealsPublisherFilter({
-  options,
+  options: _options,
   selectedSlugs,
-  onChange,
+  onChange: _onChange,
 }: XboxDealsPublisherFilterProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const triggerRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const chipRemoveRefs = useRef(new Map<string, HTMLButtonElement>());
   const listId = useId();
   const selectedSet = useMemo(() => new Set(selectedSlugs), [selectedSlugs]);
 
   const filteredOptions = useMemo(() => {
     const needle = query.trim().toLowerCase();
-    if (!needle) return options;
-    return options.filter(
+    if (!needle) return _options;
+    return _options.filter(
       (option) =>
         option.name.toLowerCase().includes(needle) || option.slug.includes(needle),
     );
-  }, [options, query]);
-
-  const selectedOptions = useMemo(
-    () => options.filter((option) => selectedSet.has(option.slug)),
-    [options, selectedSet],
-  );
+  }, [_options, query]);
 
   const toggleSlug = (slug: string) => {
     if (selectedSet.has(slug)) {
-      onChange(selectedSlugs.filter((entry) => entry !== slug));
+      _onChange(selectedSlugs.filter((entry) => entry !== slug));
     } else {
-      onChange([...selectedSlugs, slug]);
+      _onChange([...selectedSlugs, slug]);
     }
   };
 
-  const clearSelection = () => onChange([]);
+  const clearSelection = () => _onChange([]);
 
   const closePanel = () => {
     setOpen(false);
     setQuery("");
     triggerRef.current?.focus();
   };
-
-  const focusChipRemoveAfterRemoval = useCallback((removedIndex: number, remainingSlugs: string[]) => {
-    requestAnimationFrame(() => {
-      const remainingOptions = options.filter((option) => remainingSlugs.includes(option.slug));
-      if (remainingOptions.length === 0) {
-        triggerRef.current?.focus();
-        return;
-      }
-      const focusIndex = removedIndex < remainingOptions.length ? removedIndex : removedIndex - 1;
-      const targetSlug = remainingOptions[focusIndex]?.slug;
-      if (targetSlug) chipRemoveRefs.current.get(targetSlug)?.focus();
-    });
-  }, [options]);
-
-  const removeSlugAtIndex = useCallback((slug: string, index: number) => {
-    setOpen(false);
-    setQuery("");
-    const remaining = selectedSlugs.filter((entry) => entry !== slug);
-    onChange(remaining);
-    focusChipRemoveAfterRemoval(index, remaining);
-  }, [focusChipRemoveAfterRemoval, onChange, selectedSlugs]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,7 +66,7 @@ export default function XboxDealsPublisherFilter({
   return (
     <div
       data-testid="deals-publisher-filter"
-      className="flex w-full max-w-full flex-col gap-2 sm:w-auto sm:min-w-80 sm:shrink-0"
+      className="flex w-full max-w-full flex-col sm:w-80 sm:min-w-80 sm:max-w-80 sm:shrink-0"
     >
       <div className="relative flex w-full flex-col gap-1">
         <span id={`${listId}-label`} className="text-xs font-medium uppercase tracking-wide text-muted">
@@ -193,44 +166,81 @@ export default function XboxDealsPublisherFilter({
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
 
-      {selectedOptions.length > 0 ? (
-        <div className="flex flex-wrap items-center gap-2">
-          {selectedOptions.map((option, index) => (
-            <span
-              key={option.slug}
-              className="inline-flex max-w-full items-center gap-1 rounded-full border border-white/10 bg-card py-1 pl-2.5 pr-1 text-xs text-foreground"
-            >
-              <span className="truncate">{option.name}</span>
-              <button
-                ref={(node) => {
-                  if (node) chipRemoveRefs.current.set(option.slug, node);
-                  else chipRemoveRefs.current.delete(option.slug);
-                }}
-                type="button"
-                aria-label={`Remove ${option.name}`}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  removeSlugAtIndex(option.slug, index);
-                }}
-                className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-strong transition hover:bg-white/10 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                <span aria-hidden="true" className="text-sm font-semibold leading-none">×</span>
-              </button>
-            </span>
-          ))}
+export function XboxDealsPublisherChips({
+  options,
+  selectedSlugs,
+  onChange,
+}: XboxDealsPublisherFilterProps) {
+  const chipRemoveRefs = useRef(new Map<string, HTMLButtonElement>());
+  const selectedSet = useMemo(() => new Set(selectedSlugs), [selectedSlugs]);
+  const selectedOptions = useMemo(
+    () => options.filter((option) => selectedSet.has(option.slug)),
+    [options, selectedSet],
+  );
+
+  const focusChipRemoveAfterRemoval = useCallback((removedIndex: number, remainingSlugs: string[]) => {
+    requestAnimationFrame(() => {
+      const remainingOptions = options.filter((option) => remainingSlugs.includes(option.slug));
+      if (remainingOptions.length === 0) {
+        document.getElementById("xbox-deals-publisher")?.focus();
+        return;
+      }
+      const focusIndex = removedIndex < remainingOptions.length ? removedIndex : removedIndex - 1;
+      const targetSlug = remainingOptions[focusIndex]?.slug;
+      if (targetSlug) chipRemoveRefs.current.get(targetSlug)?.focus();
+    });
+  }, [options]);
+
+  const removeSlugAtIndex = useCallback((slug: string, index: number) => {
+    const remaining = selectedSlugs.filter((entry) => entry !== slug);
+    onChange(remaining);
+    focusChipRemoveAfterRemoval(index, remaining);
+  }, [focusChipRemoveAfterRemoval, onChange, selectedSlugs]);
+
+  if (selectedOptions.length === 0) return null;
+
+  return (
+    <div
+      data-testid="deals-publisher-chips"
+      className="flex w-full min-w-0 max-w-full flex-wrap items-center gap-x-2 gap-y-2"
+    >
+      {selectedOptions.map((option, index) => (
+        <span
+          key={option.slug}
+          className="inline-flex max-w-full items-center gap-1 rounded-full border border-white/10 bg-card py-1 pl-2.5 pr-1 text-xs text-foreground"
+        >
+          <span className="truncate">{option.name}</span>
           <button
-            type="button"
-            onClick={() => {
-              onChange([]);
-              requestAnimationFrame(() => triggerRef.current?.focus());
+            ref={(node) => {
+              if (node) chipRemoveRefs.current.set(option.slug, node);
+              else chipRemoveRefs.current.delete(option.slug);
             }}
-            className="text-xs font-medium text-muted-strong underline-offset-2 transition hover:text-foreground hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            type="button"
+            aria-label={`Remove ${option.name}`}
+            onClick={(event) => {
+              event.stopPropagation();
+              removeSlugAtIndex(option.slug, index);
+            }}
+            className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-muted-strong transition hover:bg-white/10 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            Clear
+            <span aria-hidden="true" className="text-sm font-semibold leading-none">×</span>
           </button>
-        </div>
-      ) : null}
+        </span>
+      ))}
+      <button
+        type="button"
+        onClick={() => {
+          onChange([]);
+          requestAnimationFrame(() => document.getElementById("xbox-deals-publisher")?.focus());
+        }}
+        className="text-xs font-medium text-muted-strong underline-offset-2 transition hover:text-foreground hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+      >
+        Clear
+      </button>
     </div>
   );
 }
