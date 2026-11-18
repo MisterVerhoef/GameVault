@@ -166,6 +166,45 @@ test("publisher chip removal keeps remaining slugs in the URL", async ({ page })
   await expect(page.getByRole("button", { name: "Remove Delta Studios" })).toBeVisible();
 });
 
+test("publisher filter has comfortable width on desktop and fits mobile viewport", async ({ page }) => {
+  const minDesktopWidthPx = 16 * 16;
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/deals");
+  const filter = page.getByTestId("deals-publisher-filter");
+  const trigger = page.locator("#xbox-deals-publisher");
+  await expect(filter).toBeVisible();
+  const desktopBox = await filter.boundingBox();
+  expect(desktopBox).toBeTruthy();
+  expect(desktopBox.width).toBeGreaterThanOrEqual(minDesktopWidthPx);
+
+  await trigger.click();
+  const panel = page.getByTestId("xbox-deals-publisher-panel");
+  await expect(panel).toBeVisible();
+  const panelBox = await panel.boundingBox();
+  const triggerBox = await trigger.boundingBox();
+  expect(panelBox).toBeTruthy();
+  expect(triggerBox).toBeTruthy();
+  expect(panelBox.width).toBeGreaterThanOrEqual(triggerBox.width - 2);
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 380, height: 800 });
+  await page.goto("/deals", { waitUntil: "load" });
+  const controls = page.getByRole("region", { name: "Deal controls" });
+  const mobileFilterBox = await filter.boundingBox();
+  const controlsBox = await controls.boundingBox();
+  expect(mobileFilterBox).toBeTruthy();
+  expect(controlsBox).toBeTruthy();
+  expect(mobileFilterBox.width).toBeLessThanOrEqual(controlsBox.width + 1);
+  expect(mobileFilterBox.x + mobileFilterBox.width).toBeLessThanOrEqual(controlsBox.x + controlsBox.width + 1);
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/deals?platform=ps", { waitUntil: "load" });
+  const psBox = await filter.boundingBox();
+  expect(psBox).toBeTruthy();
+  expect(psBox.width).toBeGreaterThanOrEqual(minDesktopWidthPx);
+});
+
 test("publisher panel keeps list and footer inside panel bounds", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 800 });
   await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });

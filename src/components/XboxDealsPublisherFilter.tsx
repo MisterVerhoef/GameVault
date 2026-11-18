@@ -91,8 +91,11 @@ export default function XboxDealsPublisherFilter({
       : `${selectedSlugs.length} publisher${selectedSlugs.length === 1 ? "" : "s"} selected`;
 
   return (
-    <div className="flex min-w-0 flex-col gap-2 sm:max-w-md">
-      <div className="relative flex flex-col gap-1">
+    <div
+      data-testid="deals-publisher-filter"
+      className="flex w-full max-w-full flex-col gap-2 sm:w-auto sm:min-w-80 sm:shrink-0"
+    >
+      <div className="relative flex w-full flex-col gap-1">
         <span id={`${listId}-label`} className="text-xs font-medium uppercase tracking-wide text-muted">
           Publisher
         </span>
@@ -127,7 +130,7 @@ export default function XboxDealsPublisherFilter({
             aria-labelledby={`${listId}-label`}
             aria-multiselectable="true"
             data-testid="xbox-deals-publisher-panel"
-            className="absolute left-0 top-full z-50 mt-1 flex w-full max-h-[min(16rem,calc(100dvh-10rem))] max-w-[min(20rem,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-white/10 bg-[var(--card)] p-2 shadow-xl shadow-black/40"
+            className="absolute left-0 top-full z-50 mt-1 flex w-full min-w-full max-h-[min(16rem,calc(100dvh-10rem))] max-w-[min(100%,calc(100vw-2rem))] flex-col overflow-hidden rounded-xl border border-white/10 bg-[var(--card)] p-2 shadow-xl shadow-black/40"
             onKeyDown={(event) => {
               if (event.key === "Escape") {
                 event.preventDefault();
@@ -167,7 +170,7 @@ export default function XboxDealsPublisherFilter({
                             onChange={() => toggleSlug(option.slug)}
                             className="h-4 w-4 accent-accent"
                           />
-                          <span className="min-w-0 flex-1 truncate">{option.name}</span>
+                          <span className="min-w-0 flex-1">{option.name}</span>
                           <span className="shrink-0 text-xs text-muted-strong">({option.count})</span>
                         </label>
                       </li>
