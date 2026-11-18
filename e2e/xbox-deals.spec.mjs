@@ -166,6 +166,60 @@ test("publisher chip removal keeps remaining slugs in the URL", async ({ page })
   await expect(page.getByRole("button", { name: "Remove Delta Studios" })).toBeVisible();
 });
 
+test("publisher filter has comfortable width on desktop and fits mobile viewport", async ({ page }) => {
+  const desktopPublisherWidthPx = 20 * 16;
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/deals");
+  const filter = page.getByTestId("deals-publisher-filter");
+  const trigger = page.locator("#xbox-deals-publisher");
+  await expect(filter).toBeVisible();
+  const desktopBox = await filter.boundingBox();
+  expect(desktopBox).toBeTruthy();
+  expect(desktopBox.width).toBeGreaterThanOrEqual(desktopPublisherWidthPx - 2);
+  expect(desktopBox.width).toBeLessThanOrEqual(desktopPublisherWidthPx + 2);
+
+  await trigger.click();
+  const panel = page.getByTestId("xbox-deals-publisher-panel");
+  await expect(panel).toBeVisible();
+  const panelBox = await panel.boundingBox();
+  const triggerBox = await trigger.boundingBox();
+  expect(panelBox).toBeTruthy();
+  expect(triggerBox).toBeTruthy();
+  expect(panelBox.width).toBeGreaterThanOrEqual(triggerBox.width - 2);
+  await page.keyboard.press("Escape");
+
+  await page.setViewportSize({ width: 380, height: 800 });
+  await page.goto("/deals", { waitUntil: "load" });
+  const controls = page.getByRole("region", { name: "Deal controls" });
+  const mobileFilterBox = await filter.boundingBox();
+  const controlsBox = await controls.boundingBox();
+  expect(mobileFilterBox).toBeTruthy();
+  expect(controlsBox).toBeTruthy();
+  expect(mobileFilterBox.width).toBeLessThanOrEqual(controlsBox.width + 1);
+  expect(mobileFilterBox.x + mobileFilterBox.width).toBeLessThanOrEqual(controlsBox.x + controlsBox.width + 1);
+  const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
+  const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(scrollWidth).toBeLessThanOrEqual(viewportWidth + 1);
+
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });
+  await expect(page.getByTestId("deals-publisher-chips")).toBeVisible();
+  const multiFilterBox = await filter.boundingBox();
+  expect(multiFilterBox).toBeTruthy();
+  expect(multiFilterBox.width).toBeGreaterThanOrEqual(desktopPublisherWidthPx - 2);
+  expect(multiFilterBox.width).toBeLessThanOrEqual(desktopPublisherWidthPx + 2);
+
+  const sortBox = await page.locator("#deals-sort").boundingBox();
+  const multiTriggerBox = await trigger.boundingBox();
+  const typeBox = await page.locator('[data-deal-kind="all"]').boundingBox();
+  expect(sortBox).toBeTruthy();
+  expect(multiTriggerBox).toBeTruthy();
+  expect(typeBox).toBeTruthy();
+  expect(sortBox.y).toBeCloseTo(multiTriggerBox.y, 2);
+  expect(typeBox.y).toBeCloseTo(multiTriggerBox.y, 2);
+});
+
 test("publisher panel keeps list and footer inside panel bounds", async ({ page }) => {
   await page.setViewportSize({ width: 400, height: 800 });
   await page.goto("/deals?publisher=alpha-interactive,bravo-publishing,delta-studios", { waitUntil: "load" });
