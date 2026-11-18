@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gamesIndexPath } from "./catalogue-paths.mjs";
 import { loadTsModule } from "./load-ts-module.mjs";
 
 const {
@@ -11,7 +12,7 @@ const {
 } = loadTsModule("src/data/cloud-streaming.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
+const cataloguePath = gamesIndexPath(root);
 const outputPath = path.join(root, "public", "catalog", "cloud-streaming.json");
 const today = new Date().toISOString().slice(0, 10);
 const xboxUrl = "https://www.xbox.com/play";

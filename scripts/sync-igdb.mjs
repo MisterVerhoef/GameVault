@@ -205,7 +205,8 @@ try {
   if (!Array.isArray(imported.games) || imported.games.length < minimumGames) {
     throw new Error(`IGDB sync produced ${imported.games?.length ?? 0} games; refusing to publish fewer than ${minimumGames}.`);
   }
-  fs.copyFileSync(temporaryOutput, path.join(root, "public", "catalog", "games-index.json"));
+  fs.mkdirSync(path.join(root, "data", "catalog"), { recursive: true });
+  fs.copyFileSync(temporaryOutput, path.join(root, "data", "catalog", "games-index.json"));
   const indexBuilder = spawnSync(process.execPath, ["scripts/build-search-index.mjs"], {
     cwd: root,
     encoding: "utf8",

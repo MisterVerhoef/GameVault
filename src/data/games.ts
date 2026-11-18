@@ -1,5 +1,6 @@
-import generatedCatalogue from "../../public/catalog/games-index.json";
+import { readFileSync } from "node:fs";
 import { normalizeCatalogue } from "./catalogue";
+import { gamesIndexAbsolutePath } from "./games-index-path";
 import { collectDownloadableIds, partitionDownloadableContent } from "./downloadable";
 import type { CatalogueCompanyLogo } from "./studio-logo";
 import type { ExternalLinkCategory } from "./websites";
@@ -620,32 +621,49 @@ export const fallbackGames: Game[] = sourceGames.reduce<Game[]>((games, sourceGa
   return games;
 }, []);
 
-export const allGames: Game[] = normalizeCatalogue(generatedCatalogue, fallbackGames);
-
-const downloadableIds = collectDownloadableIds(allGames);
-
-/** Split search hits into base games and catalogue entries listed as DLC or expansions. */
-export function partitionSearchResults(results: readonly Game[]) {
-  return partitionDownloadableContent(results, downloadableIds);
+function readGamesIndexFile(): unknown {
+  return JSON.parse(readFileSync(gamesIndexAbsolutePath(), "utf8"));
 }
 
-const gamesById = new Map(allGames.map((game) => [game.id, game]));
-const gamesBySourceId = new Map<string, Game>();
-for (const game of allGames) {
-  for (const source of game.source) {
-    if (!gamesById.has(source.id) && !gamesBySourceId.has(source.id)) {
-      gamesBySourceId.set(source.id, game);
-    }
-  }
+function lazyGameArrayProxy(resolve: () => Game[]): Game[] {
+  return new Proxy([] as Game[], {
+    get(_target, prop, receiver) {
+      const games = resolve();
+      const value = Reflect.get(games, prop, receiver);
+      if (typeof value === "function") {
+        return (value as (...args: unknown[]) => unknown).bind(games);
+      }
+      return value;
+    },
+    has(_target, prop) {
+      return prop in resolve();
+    },
+    ownKeys() {
+      return Reflect.ownKeys(resolve());
+    },
+    getOwnPropertyDescriptor(_target, prop) {
+      return Object.getOwnPropertyDescriptor(resolve(), prop);
+    },
+  });
 }
 
-/**
- * IGDB similar-game ids are provider ids. A catalogue id wins over a source id,
- * matching `findCatalogueEntry`.
- */
-export function findGameByProviderId(providerId: string): Game | undefined {
-  return gamesById.get(providerId) ?? gamesBySourceId.get(providerId);
-}
+type GamesRuntime = {
+  allGames: Game[];
+  downloadableIds: ReturnType<typeof collectDownloadableIds>;
+  gamesById: Map<string, Game>;
+  gamesBySourceId: Map<string, Game>;
+  pcGames: Game[];
+  ps5Games: Game[];
+  xboxGames: Game[];
+  switchGames: Game[];
+  recentlyPlayed: Game[];
+  actionGames: Game[];
+  rpgGames: Game[];
+  indieGames: Game[];
+  multiplayerGames: Game[];
+};
+
+let gamesRuntime: GamesRuntime | null = null;
 
 const SEED_TITLE_HINTS: Record<string, string> = {
   bg3: "baldur's gate iii",
@@ -661,23 +679,49 @@ const SEED_TITLE_HINTS: Record<string, string> = {
   "black-myth": "black myth",
 };
 
-function resolveGameSeed(seed: string): Game | undefined {
+function hasMetadata(game: Game, value: string) {
+  const metadata = [
+    ...game.genres,
+    ...game.themes,
+    ...(game.keywords ?? []),
+    ...(game.gameModes ?? []),
+    game.summary ?? "",
+    game.description ?? "",
+  ]
+    .join(" ")
+    .toLowerCase();
+  return metadata.includes(value);
+}
+
+function resolveGameSeed(
+  seed: string,
+  allGames: Game[],
+  gamesById: Map<string, Game>,
+): Game | undefined {
   const direct = gamesById.get(seed);
   if (direct) return direct;
 
   const slugNeedle = seed.toLowerCase();
-  const bySlug = allGames.find((game) => game.slug.toLowerCase() === slugNeedle || game.slug.toLowerCase().includes(slugNeedle.replace(/-/g, "")));
+  const bySlug = allGames.find(
+    (game) =>
+      game.slug.toLowerCase() === slugNeedle
+      || game.slug.toLowerCase().includes(slugNeedle.replace(/-/g, "")),
+  );
   if (bySlug) return bySlug;
 
   const titleHint = SEED_TITLE_HINTS[seed] ?? seed.replace(/-/g, " ").toLowerCase();
   return allGames.find((game) => game.title.toLowerCase().includes(titleHint));
 }
 
-function resolveGameSeeds(seeds: string[]) {
+function resolveGameSeeds(
+  seeds: string[],
+  allGames: Game[],
+  gamesById: Map<string, Game>,
+) {
   const resolved: Game[] = [];
   const seen = new Set<string>();
   for (const seed of seeds) {
-    const game = resolveGameSeed(seed);
+    const game = resolveGameSeed(seed, allGames, gamesById);
     if (game && !seen.has(game.id)) {
       seen.add(game.id);
       resolved.push(game);
@@ -686,58 +730,127 @@ function resolveGameSeeds(seeds: string[]) {
   return resolved;
 }
 
-const getGames = (ids: string[]) => resolveGameSeeds(ids);
-const getCategoryGames = (
+function getCategoryGames(
+  allGames: Game[],
+  gamesById: Map<string, Game>,
   ids: string[],
   predicate: (game: Game) => boolean,
   limit = 12,
-) => {
-  const selected = getGames(ids);
+) {
+  const selected = resolveGameSeeds(ids, allGames, gamesById);
   const matching = allGames.filter((game) => predicate(game) && !selected.includes(game));
-  return [...selected, ...matching, ...allGames.filter((game) => !selected.includes(game) && !matching.includes(game))]
-    .slice(0, limit);
-};
-const hasMetadata = (game: Game, value: string) => {
-  const metadata = [
-    ...game.genres,
-    ...game.themes,
-    ...(game.keywords ?? []),
-    ...(game.gameModes ?? []),
-    game.summary ?? "",
-    game.description ?? "",
-  ].join(" ").toLowerCase();
-  return metadata.includes(value);
-};
-
-export const pcGames = getGamesByPlatform("PC");
-export const ps5Games = getGamesByPlatform("PS5");
-export const xboxGames = getGamesByPlatform("Xbox");
-export const switchGames = getGamesByPlatform("Switch");
-const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
-export const recentlyPlayed = getGames(recentGameIds);
-if (recentlyPlayed.length === 0) {
-  recentlyPlayed.push(
-    ...[...allGames]
-      .sort((left, right) => (right.rating ?? 0) - (left.rating ?? 0) || (right.releaseYear ?? 0) - (left.releaseYear ?? 0))
-      .slice(0, 5),
-  );
+  return [
+    ...selected,
+    ...matching,
+    ...allGames.filter((game) => !selected.includes(game) && !matching.includes(game)),
+  ].slice(0, limit);
 }
-export const actionGames = getCategoryGames(
-  ["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"],
-  (game) => hasMetadata(game, "action"),
-);
-export const rpgGames = getCategoryGames(
-  ["bg3", "ff16", "starfield", "black-myth", "elden-ring"],
-  (game) => hasMetadata(game, "rpg") || hasMetadata(game, "role-playing"),
-);
-export const indieGames = getCategoryGames(
-  indieGamesSource.map((game) => game.id),
-  (game) => hasMetadata(game, "indie"),
-);
-export const multiplayerGames = getCategoryGames(
-  multiplayerGamesSource.map((game) => game.id),
-  (game) => ["multiplayer", "co-op", "cooperative", "online"].some((value) => hasMetadata(game, value)),
-);
+
+function buildGamesRuntime(): GamesRuntime {
+  const allGames = normalizeCatalogue(readGamesIndexFile(), fallbackGames);
+  const downloadableIds = collectDownloadableIds(allGames);
+  const gamesById = new Map(allGames.map((game) => [game.id, game]));
+  const gamesBySourceId = new Map<string, Game>();
+  for (const game of allGames) {
+    for (const source of game.source) {
+      if (!gamesById.has(source.id) && !gamesBySourceId.has(source.id)) {
+        gamesBySourceId.set(source.id, game);
+      }
+    }
+  }
+
+  const filterByPlatform = (platform: Platform) =>
+    allGames.filter((game) => game.platforms.includes(platform));
+
+  const recentGameIds = ["bg3", "god-of-war", "forza-horizon-5", "zelda-totk", "cyberpunk"];
+  const recentlyPlayed = resolveGameSeeds(recentGameIds, allGames, gamesById);
+  if (recentlyPlayed.length === 0) {
+    recentlyPlayed.push(
+      ...[...allGames]
+        .sort(
+          (left, right) =>
+            (right.rating ?? 0) - (left.rating ?? 0)
+            || (right.releaseYear ?? 0) - (left.releaseYear ?? 0),
+        )
+        .slice(0, 5),
+    );
+  }
+
+  return {
+    allGames,
+    downloadableIds,
+    gamesById,
+    gamesBySourceId,
+    pcGames: filterByPlatform("PC"),
+    ps5Games: filterByPlatform("PS5"),
+    xboxGames: filterByPlatform("Xbox"),
+    switchGames: filterByPlatform("Switch"),
+    recentlyPlayed,
+    actionGames: getCategoryGames(
+      allGames,
+      gamesById,
+      ["elden-ring", "spider-man-2", "halo-infinite", "zelda-totk", "cyberpunk"],
+      (game) => hasMetadata(game, "action"),
+    ),
+    rpgGames: getCategoryGames(
+      allGames,
+      gamesById,
+      ["bg3", "ff16", "starfield", "black-myth", "elden-ring"],
+      (game) => hasMetadata(game, "rpg") || hasMetadata(game, "role-playing"),
+    ),
+    indieGames: getCategoryGames(
+      allGames,
+      gamesById,
+      indieGamesSource.map((game) => game.id),
+      (game) => hasMetadata(game, "indie"),
+    ),
+    multiplayerGames: getCategoryGames(
+      allGames,
+      gamesById,
+      multiplayerGamesSource.map((game) => game.id),
+      (game) =>
+        ["multiplayer", "co-op", "cooperative", "online"].some((value) => hasMetadata(game, value)),
+    ),
+  };
+}
+
+function getGamesRuntime(): GamesRuntime {
+  if (!gamesRuntime) {
+    gamesRuntime = buildGamesRuntime();
+  }
+  return gamesRuntime;
+}
+
+/** Full catalogue for server routes; read from disk once per process (not bundled). */
+export function getAllGames(): Game[] {
+  return getGamesRuntime().allGames;
+}
+
+export const allGames: Game[] = lazyGameArrayProxy(() => getAllGames());
+
+/** Split search hits into base games and catalogue entries listed as DLC or expansions. */
+export function partitionSearchResults(results: readonly Game[]) {
+  return partitionDownloadableContent(results, getGamesRuntime().downloadableIds);
+}
+
+/**
+ * IGDB similar-game ids are provider ids. A catalogue id wins over a source id,
+ * matching `findCatalogueEntry`.
+ */
+export function findGameByProviderId(providerId: string): Game | undefined {
+  const { gamesById, gamesBySourceId } = getGamesRuntime();
+  return gamesById.get(providerId) ?? gamesBySourceId.get(providerId);
+}
+
+export const pcGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().pcGames);
+export const ps5Games: Game[] = lazyGameArrayProxy(() => getGamesRuntime().ps5Games);
+export const xboxGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().xboxGames);
+export const switchGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().switchGames);
+export const recentlyPlayed: Game[] = lazyGameArrayProxy(() => getGamesRuntime().recentlyPlayed);
+export const actionGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().actionGames);
+export const rpgGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().rpgGames);
+export const indieGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().indieGames);
+export const multiplayerGames: Game[] = lazyGameArrayProxy(() => getGamesRuntime().multiplayerGames);
 
 // ============================================
 // HELPER FUNCTIONS
@@ -745,7 +858,7 @@ export const multiplayerGames = getCategoryGames(
 
 // Get games by platform
 export function getGamesByPlatform(platform: Platform): Game[] {
-  return allGames.filter(game => game.platforms.includes(platform));
+  return getAllGames().filter((game) => game.platforms.includes(platform));
 }
 
 /** Navbar labels mapped to the platform names stored on each game. */
@@ -801,17 +914,20 @@ const platformLabelNames: Record<string, readonly string[]> = {
 
 export function getGamesByPlatformLabel(label: string): Game[] {
   const names = platformLabelNames[label] ?? [label];
-  return allGames.filter((game) => names.some((name) => game.platformVariants?.includes(name)));
+  return getAllGames().filter((game) => names.some((name) => game.platformVariants?.includes(name)));
 }
 
 // Get featured game (first from recently played)
 export function getFeaturedGame(): Game {
-  return recentlyPlayed[0] ?? allGames[0];
+  const played = getGamesRuntime().recentlyPlayed;
+  return played[0] ?? getAllGames()[0];
 }
 
 // Get games by genre
 export function getGamesByGenre(genre: string): Game[] {
-  return allGames.filter(game => game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()));
+  return getAllGames().filter((game) =>
+    game.genres.some((value) => value.toLowerCase() === genre.toLowerCase()),
+  );
 }
 
 function buildSearchText(game: Game) {
@@ -837,7 +953,8 @@ function buildSearchText(game: Game) {
 // Search games across the generated catalogue metadata.
 export function searchGames(query: string): Game[] {
   const lowerQuery = query.trim().toLowerCase();
-  if (!lowerQuery) return allGames;
+  const catalogue = getAllGames();
+  if (!lowerQuery) return catalogue;
 
-  return allGames.filter((game) => buildSearchText(game).includes(lowerQuery));
+  return catalogue.filter((game) => buildSearchText(game).includes(lowerQuery));
 }

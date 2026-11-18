@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { gamesIndexAbsolutePath } from "./games-index-path";
 import { isXboxBigId, parseStoreUrl, type StoreIdentity } from "./store-match";
 
 let cachedIndex: Map<string, string> | null = null;
@@ -17,7 +17,7 @@ function addIdentity(
 /** Map Xbox Store bigIds to catalogue game ids from the committed games index. */
 export function buildXboxBigIdGameIndex(): ReadonlyMap<string, string> {
   if (cachedIndex) return cachedIndex;
-  const path = join(process.cwd(), "public/catalog/games-index.json");
+  const path = gamesIndexAbsolutePath();
   const map = new Map<string, string>();
   try {
     const file = JSON.parse(readFileSync(path, "utf8")) as {

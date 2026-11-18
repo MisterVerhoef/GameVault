@@ -59,7 +59,7 @@ test("publisher helpers format links and sorting", () => {
 });
 
 test("catalogue includes Nintendo publisher record", () => {
-  const catalogue = JSON.parse(readFileSync(`${root}/public/catalog/games-index.json`, "utf8"));
+  const catalogue = JSON.parse(readFileSync(`${root}/data/catalog/games-index.json`, "utf8"));
   const publishers = collectPublishers(catalogue.games);
   const nintendo = publishers.find((entry) => entry.id === "70");
   assert.ok(nintendo);

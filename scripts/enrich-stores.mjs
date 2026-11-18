@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gamesIndexPath } from "./catalogue-paths.mjs";
 import { loadTsModule } from "./load-ts-module.mjs";
 import { createCircuit, createLimiter, isMiss } from "./stores/http.mjs";
 import {
@@ -40,7 +41,7 @@ const {
 const { recordAttemptPrices } = loadTsModule("src/data/price-history.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
+const cataloguePath = gamesIndexPath(root);
 const offersPath = path.join(root, "public", "catalog", "store-offers.json");
 const stores = ["xbox", "playstation", "nintendo", "steam", "epic", "gog"];
 const requestedStores = (process.env.STORE_STORES ?? "").split(",").map((store) => store.trim()).filter(Boolean);

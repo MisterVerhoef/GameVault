@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { gamesIndexAbsolutePath } from "./games-index-path";
 import { parsePlayStationConceptId } from "./cloud-streaming";
 import type { StoreIdentity } from "./store-match";
 
@@ -38,7 +38,7 @@ function productIdFromUrl(url: string | undefined): string | undefined {
 /** Map PlayStation concept and product ids to catalogue game ids (exact ids only). */
 export function buildPlayStationStoreIdGameIndex(): ReadonlyMap<string, string> {
   if (cachedIndex) return cachedIndex;
-  const path = join(process.cwd(), "public/catalog/games-index.json");
+  const path = gamesIndexAbsolutePath();
   const map = new Map<string, string>();
   try {
     const file = JSON.parse(readFileSync(path, "utf8")) as {

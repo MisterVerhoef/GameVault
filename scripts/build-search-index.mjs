@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { gamesIndexPath } from "./catalogue-paths.mjs";
 import { loadTsModule } from "./load-ts-module.mjs";
 
 const { criticScore, gameMatchesGenre, releaseOnForGame } = loadTsModule("src/data/browse.ts");
@@ -8,7 +9,7 @@ const { collectDownloadableIds } = loadTsModule("src/data/downloadable.ts");
 const { toReleaseDateRecord } = loadTsModule("src/data/release-calendar.ts");
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const cataloguePath = path.join(root, "public", "catalog", "games-index.json");
+const cataloguePath = gamesIndexPath(root);
 const outputPath = path.join(root, "public", "catalog", "search-index.json");
 const browsePath = path.join(root, "public", "catalog", "browse-index.json");
 const catalogue = JSON.parse(fs.readFileSync(cataloguePath, "utf8"));

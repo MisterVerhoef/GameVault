@@ -1,13 +1,29 @@
 import type { NextConfig } from "next";
 
+const gamesIndexInclude = "./data/catalog/games-index.json";
+
 const nextConfig: NextConfig = {
   // The dev server binds to 0.0.0.0 while browsers open 127.0.0.1.
   allowedDevOrigins: ["127.0.0.1"],
-  // List pages read these at runtime instead of bundling games-index.json.
+  // List pages read browse/search JSON at runtime; the full games index is server-only on disk.
   outputFileTracingIncludes: {
     "/api/igdb/search": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
-    "/api/igdb/similar-games": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
-    "/game/[id]": ["./public/catalog/search-index.json", "./test/fixtures/igdb-live-mock.json"],
+    "/api/igdb/similar-games": [
+      "./public/catalog/search-index.json",
+      "./test/fixtures/igdb-live-mock.json",
+      gamesIndexInclude,
+    ],
+    "/api/store-prices/live": [gamesIndexInclude],
+    "/game/[id]": [
+      "./public/catalog/search-index.json",
+      "./test/fixtures/igdb-live-mock.json",
+      gamesIndexInclude,
+    ],
+    "/studio/[id]": [gamesIndexInclude],
+    "/publisher/[id]": [gamesIndexInclude],
+    "/franchise/[id]": [gamesIndexInclude],
+    "/collection/[id]": [gamesIndexInclude],
+    "/deals": [gamesIndexInclude],
     "/": ["./public/catalog/browse-index.json", "./public/catalog/search-index.json"],
     "/vault": ["./public/catalog/browse-index.json"],
     "/lists": ["./public/catalog/browse-index.json"],

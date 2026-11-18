@@ -80,7 +80,7 @@ fs.writeFileSync(reportPath, `${JSON.stringify(quality, null, 2)}\n`);
 
 const outputPath = outputPathArg
   ? path.resolve(process.cwd(), outputPathArg)
-  : path.join(root, "public", "catalog", "games-index.json");
+  : path.join(root, "data", "catalog", "games-index.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 const sourceChecksum = crypto.createHash("sha256").update(inputText).digest("hex");
 fs.writeFileSync(

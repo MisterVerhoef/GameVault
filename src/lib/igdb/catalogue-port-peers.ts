@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { gamesIndexAbsolutePath } from "@/data/games-index-path";
 import type { PortFoldRow } from "@/data/port-fold";
 import { normalizeTitle } from "@/data/store-match";
 
@@ -8,7 +9,7 @@ let peersByNormalizedTitle: Map<string, PortFoldRow[]> | null = null;
 function loadPeersByTitle(): Map<string, PortFoldRow[]> {
   if (peersByNormalizedTitle) return peersByNormalizedTitle;
   const searchPath = join(process.cwd(), "public/catalog/search-index.json");
-  const gamesPath = join(process.cwd(), "public/catalog/games-index.json");
+  const gamesPath = gamesIndexAbsolutePath();
   const search = JSON.parse(readFileSync(searchPath, "utf8")) as {
     games?: { id: string; title: string }[];
   };
