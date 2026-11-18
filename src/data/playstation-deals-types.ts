@@ -4,7 +4,7 @@ export type PlayStationDealProductKind = "game" | "dlc";
 
 export type PlayStationDealSource =
   | "playstation-category-grid"
-  | "disk-cache"
+  | "catalog-snapshot"
   | "fixture"
   | "unavailable";
 

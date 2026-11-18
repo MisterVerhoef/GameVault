@@ -26,7 +26,6 @@ e2e-output.log
 
 # misc
 .DS_Store
-/.cache/
 *.pem
 
 # debug

@@ -66,83 +66,77 @@ test("schema failure surfaces as validation error for fallbacks", () => {
   assert.throws(() => assertPlayStationExperience({ data: {} }));
 });
 
-test("unavailable state when live fetch fails without disk cache", async () => {
+test("live fetch throws on network failure", async () => {
+  const { fetchPlayStationDealsLive } = loadTsModule("src/data/playstation-deals-fetch.ts");
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => {
+    throw new Error("network down");
+  };
+  try {
+    await assert.rejects(
+      () => fetchPlayStationDealsLive(),
+      /network down/,
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("snapshot fallback is unavailable when snapshot is missing", () => {
   const tmp = mkdtempSync(join(tmpdir(), "gv-ps-deals-"));
   const prev = process.cwd();
   process.chdir(tmp);
   try {
-    const { fetchPlayStationDealsLive } = loadTsModule("src/data/playstation-deals-fetch.ts");
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = async () => {
-      throw new Error("network down");
-    };
-    try {
-      const payload = await fetchPlayStationDealsLive();
-      assert.equal(payload.status, "unavailable");
-      assert.equal(payload.deals.length, 0);
-      assert.match(payload.error ?? "", /could not be loaded/i);
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    const { playStationDealsFallbackFromError } = loadTsModule("src/data/playstation-deals-fetch.ts");
+    const payload = playStationDealsFallbackFromError(new Error("live down"));
+    assert.equal(payload.status, "unavailable");
+    assert.equal(payload.deals.length, 0);
+    assert.match(payload.error ?? "", /snapshot is missing/i);
   } finally {
     process.chdir(prev);
     rmSync(tmp, { recursive: true, force: true });
   }
 });
 
-test("returns cached payload when schema validation fails but cache exists", async () => {
+test("snapshot fallback returns cached payload when snapshot exists", () => {
   const tmp = mkdtempSync(join(tmpdir(), "gv-ps-deals-"));
   const prev = process.cwd();
   process.chdir(tmp);
   try {
-    mkdirSync(join(tmp, ".cache"), { recursive: true });
+    mkdirSync(join(tmp, "public/catalog"), { recursive: true });
     writeFileSync(
-      join(tmp, ".cache/playstation-deals-nl.json"),
+      join(tmp, "public/catalog/playstation-deals-snapshot.json"),
       JSON.stringify({
-        lastUpdated: "2026-01-01T00:00:00.000Z",
-        payload: {
-          source: "playstation-category-grid",
-          status: "live",
-          updatedAt: "2026-01-01T00:00:00.000Z",
-          deals: [
-            {
-              platform: "playstation",
-              productId: "EP9000-PPSA00000_00-TESTDEAL000000",
-              conceptId: null,
-              title: "Cached Deal",
-              coverUrl: null,
-              price: 9.99,
-              regularPrice: 19.99,
-              discountPercent: 50,
-              currency: "EUR",
-              productKind: "game",
-              platformTags: ["PS5"],
-              psPlusPrice: null,
-              storeUrl: "https://store.playstation.com/nl-nl/product/EP9000-PPSA00000_00-TESTDEAL000000",
-              gameId: null,
-            },
-          ],
-        },
+        schemaVersion: 1,
+        region: "NL",
+        generatedAt: "2026-01-01T00:00:00.000Z",
+        deals: [
+          {
+            platform: "playstation",
+            productId: "EP9000-PPSA00000_00-TESTDEAL000000",
+            conceptId: null,
+            title: "Cached Deal",
+            coverUrl: null,
+            price: 9.99,
+            regularPrice: 19.99,
+            discountPercent: 50,
+            currency: "EUR",
+            productKind: "game",
+            platformTags: ["PS5"],
+            psPlusPrice: null,
+            storeUrl: "https://store.playstation.com/nl-nl/product/EP9000-PPSA00000_00-TESTDEAL000000",
+            gameId: null,
+          },
+        ],
       }),
       "utf8",
     );
-    const { fetchPlayStationDealsLive } = loadTsModule("src/data/playstation-deals-fetch.ts");
-    const originalFetch = globalThis.fetch;
-    globalThis.fetch = async () => ({
-      ok: true,
-      async json() {
-        return { errors: [{ message: "broken" }] };
-      },
-    });
-    try {
-      const payload = await fetchPlayStationDealsLive();
-      assert.equal(payload.status, "cached");
-      assert.equal(payload.source, "disk-cache");
-      assert.equal(payload.deals[0].title, "Cached Deal");
-      assert.equal(payload.lastUpdated, "2026-01-01T00:00:00.000Z");
-    } finally {
-      globalThis.fetch = originalFetch;
-    }
+    const { playStationDealsFallbackFromError } = loadTsModule("src/data/playstation-deals-fetch.ts");
+    const payload = playStationDealsFallbackFromError(new Error("broken"));
+    assert.equal(payload.status, "cached");
+    assert.equal(payload.source, "catalog-snapshot");
+    assert.equal(payload.deals[0].title, "Cached Deal");
+    assert.equal(payload.lastUpdated, "2026-01-01T00:00:00.000Z");
   } finally {
     process.chdir(prev);
     rmSync(tmp, { recursive: true, force: true });
