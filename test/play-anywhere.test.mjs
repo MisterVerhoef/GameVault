@@ -4,6 +4,7 @@ import { loadTsModule } from "../scripts/load-ts-module.mjs";
 
 const {
   indexPlayAnywhere,
+  catalogueJsonModule,
   normalizeXboxBigId,
   playAnywhereForGame,
   productSupportsXboxPlayAnywhere,
@@ -20,6 +21,12 @@ const {
 } = loadTsModule("src/data/xbox-series-features.ts");
 
 const { indexCloudStreaming } = loadTsModule("src/data/cloud-streaming.ts");
+
+test("catalogueJsonModule unwraps default JSON imports", () => {
+  const body = { schemaVersion: 1, region: "NL", generatedAt: "2026-01-01", games: {} };
+  assert.equal(catalogueJsonModule(body), body);
+  assert.equal(catalogueJsonModule({ default: body }), body);
+});
 
 test("normalizeXboxBigId uppercases Microsoft product ids", () => {
   assert.equal(normalizeXboxBigId("9n8cd0xzklp4"), "9N8CD0XZKLP4");

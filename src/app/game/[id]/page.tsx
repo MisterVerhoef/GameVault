@@ -15,7 +15,7 @@ import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
 import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
 import playAnywhereCatalogue from "../../../../public/catalog/play-anywhere.json";
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
-import { indexPlayAnywhere } from "@/data/play-anywhere";
+import { catalogueJsonModule, indexPlayAnywhere } from "@/data/play-anywhere";
 import { hasKnownXboxSeriesFeature, xboxSeriesFeatureStatus } from "@/data/xbox-series-features";
 import XboxSeriesFeatures from "@/components/XboxSeriesFeatures";
 import { collectionHref, franchiseHref } from "@/data/series";
@@ -30,8 +30,12 @@ import SimilarGamesSection, { type SimilarGameItem } from "@/components/SimilarG
 import { listGroupedVariants, type GroupableGame } from "@/data/search-grouping";
 import { staticGamePageIds } from "@/data/static-game-pages";
 
-const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
-const playAnywhereIndex = indexPlayAnywhere(playAnywhereCatalogue);
+const cloudStreamingIndex = indexCloudStreaming(
+  catalogueJsonModule(cloudStreamingCatalogue) ?? catalogueJsonModule({ default: cloudStreamingCatalogue }),
+);
+const playAnywhereIndex = indexPlayAnywhere(
+  catalogueJsonModule(playAnywhereCatalogue) ?? catalogueJsonModule({ default: playAnywhereCatalogue }),
+);
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;

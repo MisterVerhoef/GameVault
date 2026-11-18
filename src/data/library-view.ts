@@ -14,7 +14,7 @@ import type { CatalogueCard } from "./catalogue-card";
 import cloudStreamingCatalogue from "../../public/catalog/cloud-streaming.json";
 import playAnywhereCatalogue from "../../public/catalog/play-anywhere.json";
 import { cloudServiceNames, cloudServicesForGame, indexCloudStreaming } from "./cloud-streaming";
-import { indexPlayAnywhere } from "./play-anywhere";
+import { catalogueJsonModule, indexPlayAnywhere } from "./play-anywhere";
 import {
   gameHasXboxSeries,
   xboxCloudGamingAvailability,
@@ -31,8 +31,11 @@ import { sortAndFilterSearchResults } from "./search-rank";
 import { matchesSearchTerms } from "./search-terms";
 
 const PLATFORMS: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
-const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
-const playAnywhereIndex = indexPlayAnywhere(playAnywhereCatalogue);
+const cloudStreamingIndex = indexCloudStreaming(catalogueJsonModule(cloudStreamingCatalogue));
+const playAnywhereIndex = indexPlayAnywhere(
+  catalogueJsonModule(playAnywhereCatalogue)
+    ?? catalogueJsonModule({ default: playAnywhereCatalogue }),
+);
 
 function xboxSeriesFeatureBadges(game: BrowseGame): ("play-anywhere" | "cloud-gaming")[] | undefined {
   if (!gameHasXboxSeries(game.platformVariants)) return undefined;

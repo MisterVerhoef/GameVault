@@ -17,7 +17,12 @@ Module._resolveFilename = function resolveTsAlias(request, parent, isMain, optio
 Module._extensions[".ts"] = (loadedModule, filename) => {
   const source = fs.readFileSync(filename, "utf8");
   const compiled = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+      esModuleInterop: true,
+      resolveJsonModule: true,
+    },
   }).outputText;
   loadedModule._compile(compiled, filename);
 };
@@ -26,7 +31,12 @@ export function loadTsModule(relativePath) {
   const sourcePath = path.join(root, relativePath);
   const source = fs.readFileSync(sourcePath, "utf8");
   const compiled = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 },
+    compilerOptions: {
+      module: ts.ModuleKind.CommonJS,
+      target: ts.ScriptTarget.ES2020,
+      esModuleInterop: true,
+      resolveJsonModule: true,
+    },
   }).outputText;
   const loadedModule = new Module(sourcePath);
   loadedModule.filename = sourcePath;

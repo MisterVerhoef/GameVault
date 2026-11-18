@@ -1,3 +1,17 @@
+/** Normalize JSON default imports across bundlers and Node test loaders. */
+export function catalogueJsonModule(raw: unknown): unknown {
+  if (raw && typeof raw === "object" && !Array.isArray(raw) && "schemaVersion" in raw) {
+    return raw;
+  }
+  if (raw && typeof raw === "object" && "default" in raw) {
+    const nested = catalogueJsonModule((raw as { default: unknown }).default);
+    if (nested && typeof nested === "object" && !Array.isArray(nested) && "schemaVersion" in nested) {
+      return nested;
+    }
+  }
+  return raw;
+}
+
 /** Offline catalogue: Xbox Play Anywhere flags matched by Microsoft Store product id. */
 
 export interface PlayAnywhereGameEntry {

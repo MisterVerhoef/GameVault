@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { GameCoverPlaceholder } from "./cover-placeholder";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
+import CloudStreamingBadge from "./CloudStreamingBadge";
 import XboxSeriesFeatureBadges from "./XboxSeriesFeatureBadges";
 
 interface GameCardProps {
@@ -46,7 +47,7 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
     typeof progress === "number" && progress > 0 ? `${progress}% progress` : "",
     game.cloudServices?.length ? `cloud streaming via ${game.cloudServices.join(", ")}` : "",
     game.xboxSeriesFeatures?.length
-      ? `Xbox features: ${game.xboxSeriesFeatures.map((f) => (f === "play-anywhere" ? "Play Anywhere" : "Cloud Gaming")).join(", ")}`
+      ? `Xbox features: ${game.xboxSeriesFeatures.map((f) => (f === "play-anywhere" ? "Xbox Play Anywhere" : "Xbox Cloud Gaming")).join(", ")}`
       : "",
   ].filter(Boolean);
 
@@ -101,28 +102,11 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
 
         {game.xboxSeriesFeatures && game.xboxSeriesFeatures.length > 0 ? (
-          <XboxSeriesFeatureBadges features={game.xboxSeriesFeatures} />
+          <XboxSeriesFeatureBadges features={game.xboxSeriesFeatures} compact={size !== "lg"} />
         ) : null}
 
         {game.cloudServices && game.cloudServices.length > 0 ? (
-          <span
-            className="absolute right-1.5 top-1.5 z-20 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"
-            title={`Cloud streaming: ${game.cloudServices.join(", ")}`}
-            aria-label={`Cloud streaming available via ${game.cloudServices.join(", ")}`}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M7.5 18.5h10a4 4 0 0 0 .5-8 6 6 0 0 0-11.5-1.2A4.4 4.4 0 0 0 7.5 18.5Z" />
-            </svg>
-          </span>
+          <CloudStreamingBadge services={game.cloudServices} />
         ) : null}
 
         {personalRating ? (
