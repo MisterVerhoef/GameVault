@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import DealsScreen from "@/components/DealsScreen";
 import { parseDealsPlatform } from "@/data/deals-platform";
-import { reconcilePublisherQuery } from "@/data/deals-publishers";
+import { buildCleanPublisherRedirect, readDealsUrlPublishers } from "@/data/deals-query";
 import { getPlayStationDeals } from "@/data/playstation-deals-fetch";
 import { listPlayStationDealPublishers } from "@/data/playstation-deals-normalize";
 import { getXboxDeals } from "@/data/xbox-deals-fetch";
@@ -43,13 +44,23 @@ export default async function DealsPage({
     getXboxDeals(),
     getPlayStationDeals(e2ePsFixture),
   ]);
-  const publisherOptions = platform === "ps"
-    ? listPlayStationDealPublishers(playstation.deals)
-    : listXboxDealPublishers(xbox.deals);
-  const { slugs: initialPublisherSlugs, droppedCount: initialDroppedPublisherCount } = reconcilePublisherQuery(
-    params.publisher,
-    publisherOptions,
+  const xboxPublisherOptions = listXboxDealPublishers(xbox.deals);
+  const psPublisherOptions = listPlayStationDealPublishers(playstation.deals);
+  const publisherOptions = platform === "ps" ? psPublisherOptions : xboxPublisherOptions;
+
+  const cleanRedirect = buildCleanPublisherRedirect(
+    platform,
+    params,
+    xboxPublisherOptions,
+    psPublisherOptions,
   );
+  if (cleanRedirect) redirect(cleanRedirect);
+
+  const urlPublishers = readDealsUrlPublishers(params, platform, publisherOptions);
+  const preserveQuery: Record<string, string> = {};
+  if (typeof params.e2e_ps_fixture === "string") {
+    preserveQuery.e2e_ps_fixture = params.e2e_ps_fixture;
+  }
 
   return (
     <DealsScreen
@@ -57,8 +68,10 @@ export default async function DealsPage({
       platform={platform}
       xbox={xbox}
       playstation={playstation}
-      initialPublisherSlugs={initialPublisherSlugs}
-      initialDroppedPublisherCount={initialDroppedPublisherCount}
+      xboxPublisherOptions={xboxPublisherOptions}
+      psPublisherOptions={psPublisherOptions}
+      urlPublishers={urlPublishers}
+      preserveQuery={preserveQuery}
     />
   );
 }

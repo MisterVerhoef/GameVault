@@ -1,4 +1,4 @@
-import { parsePublisherQueryParam } from "./xbox-deals-normalize";
+import { parsePublisherQueryParam, serializePublisherQueryParam } from "./xbox-deals-normalize";
 
 export interface DealPublisherOption {
   slug: string;
@@ -19,6 +19,25 @@ export function publisherTokensFromQueryParam(raw: string | string[] | undefined
   return splitPublisherQueryTokens(raw);
 }
 
+export function parsePublisherStashParam(raw: string | string[] | undefined): string[] {
+  return publisherTokensFromQueryParam(raw);
+}
+
+export function mergePublisherSlugs(
+  ...groups: readonly (readonly string[])[]
+): string[] {
+  const seen = new Set<string>();
+  const merged: string[] = [];
+  for (const group of groups) {
+    for (const slug of group) {
+      if (seen.has(slug)) continue;
+      seen.add(slug);
+      merged.push(slug);
+    }
+  }
+  return merged;
+}
+
 export function reconcilePublisherQuery(
   raw: string | string[] | undefined,
   options: readonly DealPublisherOption[],
@@ -28,6 +47,16 @@ export function reconcilePublisherQuery(
   const slugs = parsePublisherQueryParam(raw, options);
   const droppedCount = tokens.filter((token) => !valid.has(token)).length;
   return { slugs, droppedCount };
+}
+
+export function publisherQueryNeedsCleanup(
+  raw: string | string[] | undefined,
+  options: readonly DealPublisherOption[],
+): boolean {
+  const tokens = publisherTokensFromQueryParam(raw);
+  if (tokens.length === 0) return false;
+  const valid = new Set(options.map((option) => option.slug));
+  return tokens.some((token) => !valid.has(token));
 }
 
 export function dropPublisherSlugsForOptions(
@@ -44,3 +73,5 @@ export function formatDroppedFiltersNote(droppedCount: number, platformLabel: st
   const noun = droppedCount === 1 ? "filter didn't apply" : "filters didn't apply";
   return `${droppedCount} ${noun} to ${platformLabel}`;
 }
+
+export { serializePublisherQueryParam };

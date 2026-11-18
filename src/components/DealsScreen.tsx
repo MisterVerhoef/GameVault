@@ -1,13 +1,15 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import XboxDealCard from "@/components/XboxDealCard";
 import PlayStationDealCard from "@/components/PlayStationDealCard";
-import XboxDealsPublisherFilter from "@/components/XboxDealsPublisherFilter";
+import DealsDroppedFiltersNotice from "@/components/DealsDroppedFiltersNotice";
 import DealsPlatformTabs from "@/components/DealsPlatformTabs";
+import XboxDealsPublisherFilter from "@/components/XboxDealsPublisherFilter";
 import { dealsPlatformLabel, type DealsPlatform } from "@/data/deals-platform";
+import { serializeDealsSearchParams, type DealsUrlPublishers } from "@/data/deals-query";
 import {
   formatDroppedFiltersNote,
   type DealPublisherOption,
@@ -17,7 +19,6 @@ import {
   filterPlayStationDeals,
   filterPlayStationDealsByPublisher,
   hasMultiplePlayStationDealKinds,
-  listPlayStationDealPublishers,
   sortPlayStationDeals,
 } from "@/data/playstation-deals-normalize";
 import type { XboxDeal, XboxDealKindFilter, XboxDealSort, XboxDealsPayload } from "@/data/xbox-deals-types";
@@ -25,7 +26,6 @@ import {
   filterXboxDeals,
   filterXboxDealsByPublisher,
   hasMultipleDealKinds,
-  listXboxDealPublishers,
   readPublisherSlugsFromSearchParams,
   serializePublisherQueryParam,
   sortXboxDeals,
@@ -36,8 +36,10 @@ interface DealsScreenProps {
   platform: DealsPlatform;
   xbox: XboxDealsPayload;
   playstation: PlayStationDealsPayload;
-  initialPublisherSlugs?: string[];
-  initialDroppedPublisherCount?: number;
+  xboxPublisherOptions: DealPublisherOption[];
+  psPublisherOptions: DealPublisherOption[];
+  urlPublishers: DealsUrlPublishers & { droppedCount: number };
+  preserveQuery?: Record<string, string>;
 }
 
 const DEALS_PAGE_SIZE = 48;
@@ -84,25 +86,22 @@ export default function DealsScreen({
   platform,
   xbox,
   playstation,
-  initialPublisherSlugs = [],
-  initialDroppedPublisherCount = 0,
+  xboxPublisherOptions,
+  psPublisherOptions,
+  urlPublishers,
+  preserveQuery = {},
 }: DealsScreenProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const payload = platform === "ps" ? playstation : xbox;
   const platformLabel = dealsPlatformLabel(platform);
   const deals = payload.deals;
 
-  const publisherOptions = useMemo((): DealPublisherOption[] => (
-    platform === "ps"
-      ? listPlayStationDealPublishers(playstation.deals)
-      : listXboxDealPublishers(xbox.deals)
-  ), [platform, playstation.deals, xbox.deals]);
+  const publisherOptions = platform === "ps" ? psPublisherOptions : xboxPublisherOptions;
+  const { xboxPublisherStash, psPublisherStash } = urlPublishers;
 
   const [sort, setSort] = useState<XboxDealSort>("discount-desc");
   const [kind, setKind] = useState<XboxDealKindFilter>("all");
-  const [publisherSlugs, setPublisherSlugs] = useState<string[]>(initialPublisherSlugs);
-  const [droppedPublisherCount, setDroppedPublisherCount] = useState(initialDroppedPublisherCount);
+  const [publisherSlugs, setPublisherSlugs] = useState<string[]>(urlPublishers.publisherSlugs);
   const [visibleCount, setVisibleCount] = useState(DEALS_PAGE_SIZE);
   const [loadMoreCount, setLoadMoreCount] = useState(0);
   const [eagerFromIndex, setEagerFromIndex] = useState<number | null>(null);
@@ -123,18 +122,17 @@ export default function DealsScreen({
   }, []);
 
   const replacePublisherQuery = useCallback((slugs: string[]) => {
-    const next = new URLSearchParams(typeof window === "undefined" ? "" : window.location.search);
-    next.delete("publisher");
-    const serialized = serializePublisherQueryParam(slugs);
-    if (serialized) next.set("publisher", serialized);
-    const query = next.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [pathname, router]);
+    const nextPath = `/deals${serializeDealsSearchParams(platform, {
+      publisherSlugs: slugs,
+      xboxPublisherStash,
+      psPublisherStash,
+    }, preserveQuery)}`;
+    router.replace(nextPath, { scroll: false });
+  }, [platform, preserveQuery, psPublisherStash, router, xboxPublisherStash]);
 
   const applyPublisherSelection = useCallback((slugs: string[]) => {
     pendingPublisherQuery.current = serializePublisherQueryParam(slugs) ?? "";
     setPublisherSlugs(slugs);
-    setDroppedPublisherCount(0);
     replacePublisherQuery(slugs);
     setVisibleCount(DEALS_PAGE_SIZE);
     setLoadMoreCount(0);
@@ -167,7 +165,13 @@ export default function DealsScreen({
     && (loadMoreCount > 0 || visible.length > DEALS_PAGE_SIZE);
 
   const psUnavailable = platform === "ps" && playstation.status === "unavailable";
-  const droppedNote = formatDroppedFiltersNote(droppedPublisherCount, platformLabel);
+  const stashedOtherPlatformCount = platform === "ps"
+    ? xboxPublisherStash.length
+    : psPublisherStash.length;
+  const droppedNote = formatDroppedFiltersNote(
+    Math.max(urlPublishers.droppedCount, stashedOtherPlatformCount),
+    platformLabel,
+  );
 
   const title = platform === "ps" ? "PlayStation deals" : "Xbox deals";
   const subtitle = platform === "ps"
@@ -179,8 +183,6 @@ export default function DealsScreen({
       ? playstation.lastUpdated
       : payload.updatedAt,
   );
-
-  const publisherQuery = serializePublisherQueryParam(publisherSlugs);
 
   const emptyMessage = (() => {
     if (psUnavailable) return null;
@@ -202,7 +204,17 @@ export default function DealsScreen({
       </Suspense>
       <Navbar dealsStorePlatform={platform} />
       <main id="main" className="gv-layout-container py-6 lg:py-10">
-        <DealsPlatformTabs platform={platform} publisherQuery={publisherQuery} />
+        <DealsPlatformTabs
+          platform={platform}
+          publishers={{
+            publisherSlugs,
+            xboxPublisherStash,
+            psPublisherStash,
+          }}
+          xboxPublisherOptions={xboxPublisherOptions}
+          psPublisherOptions={psPublisherOptions}
+          preserveQuery={preserveQuery}
+        />
 
         <header className="mb-6 flex flex-col gap-2">
           <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">{title}</h1>
@@ -224,7 +236,8 @@ export default function DealsScreen({
               {subtitle}
               {updatedLabel ? (
                 <>
-                  {" "}Last updated{" "}
+                  {" · "}
+                  Last updated{" "}
                   <time dateTime={payload.updatedAt}>{updatedLabel}</time>
                 </>
               ) : null}
@@ -245,11 +258,7 @@ export default function DealsScreen({
           )}
         </header>
 
-        {droppedNote ? (
-          <p className="mb-4 text-sm text-muted" role="status">
-            {droppedNote}
-          </p>
-        ) : null}
+        {droppedNote ? <DealsDroppedFiltersNotice message={droppedNote} /> : null}
 
         {!psUnavailable ? (
           <section aria-label="Deal controls" className="mb-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-end">
