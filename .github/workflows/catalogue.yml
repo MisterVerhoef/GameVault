@@ -48,14 +48,14 @@ jobs:
           IGDB_PAGES: "10"
       - run: npm run catalogue:enrich:cloud
       - run: |
-          if git diff --quiet -- public/catalog/games-index.json public/catalog/browse-index.json public/catalog/search-index.json public/catalog/release-dates.json public/catalog/store-offers.json public/catalog/cloud-streaming.json; then
+          if git diff --quiet -- data/catalog/games-index.json public/catalog/browse-index.json public/catalog/search-index.json public/catalog/release-dates.json public/catalog/store-offers.json public/catalog/cloud-streaming.json; then
             echo "Catalogue is already up to date."
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/catalog/games-index.json public/catalog/browse-index.json public/catalog/search-index.json public/catalog/release-dates.json public/catalog/store-offers.json public/catalog/cloud-streaming.json
-          if git diff --cached --quiet -- public/catalog/games-index.json public/catalog/release-dates.json; then
+          git add data/catalog/games-index.json public/catalog/browse-index.json public/catalog/search-index.json public/catalog/release-dates.json public/catalog/store-offers.json public/catalog/cloud-streaming.json
+          if git diff --cached --quiet -- data/catalog/games-index.json public/catalog/release-dates.json; then
             if git diff --cached --quiet -- public/catalog/store-offers.json; then
               git commit -m "chore: refresh cloud streaming availability"
             else

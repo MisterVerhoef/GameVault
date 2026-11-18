@@ -406,7 +406,7 @@ test("studio pages group developed and published catalogue games", () => {
     notableTitles: ["Alpha"],
   }), /Studio Nine is a developer and publisher/);
 
-  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogue = JSON.parse(readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"));
   const nintendo = collectStudios(catalogue.games).find((studio) => studio.id === "70");
   assert.ok(nintendo);
   assert.equal(nintendo.name, "Nintendo");
@@ -558,7 +558,7 @@ test("franchise and collection pages group catalogue series", () => {
   assert.deepEqual(collections.map((series) => series.name), ["Halo", "Halo Wars"]);
   assert.deepEqual(collections.find((series) => series.name === "Halo")?.gameIds, ["1"]);
 
-  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogue = JSON.parse(readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"));
   const catalogueFranchises = collectSeries(catalogue.games, "franchise");
   const catalogueCollections = collectSeries(catalogue.games, "collection");
   const halo = catalogueFranchises.find((series) => series.name === "Halo");
@@ -586,7 +586,7 @@ test("franchise and collection pages group catalogue series", () => {
 });
 
 test("search treats catalogue entries listed as DLC or expansions as DLC", () => {
-  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogue = JSON.parse(readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"));
   const ids = collectDownloadableIds(catalogue.games);
   const byTitle = (title) => catalogue.games.find((game) => game.title === title);
   const citadel = byTitle("Mass Effect 3: Citadel");
@@ -645,7 +645,7 @@ test("search terms keep phrase matches and hyphenated words", () => {
 });
 
 test("search index terms include every catalogue id and title token", () => {
-  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogue = JSON.parse(readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"));
   const search = JSON.parse(readFileSync(path.join(root, "public/catalog/search-index.json"), "utf8"));
   const byId = new Map(search.games.map((entry) => [entry.id, entry]));
   const tokenize = (value) => String(value).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
@@ -669,7 +669,7 @@ test("search index terms include every catalogue id and title token", () => {
 });
 
 test("browse index stays a light card catalogue", () => {
-  const catalogue = JSON.parse(readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"));
+  const catalogue = JSON.parse(readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"));
   const browse = JSON.parse(readFileSync(path.join(root, "public/catalog/browse-index.json"), "utf8"));
   assert.equal(browse.schemaVersion, 1);
   assert.equal(browse.games.length, catalogue.games.length);
@@ -706,8 +706,15 @@ test("search index rebuild is idempotent against the committed catalogue", () =>
   assert.equal(readFileSync(releaseDatesPath, "utf8"), releaseBefore);
 });
 
+test("games.ts reads the catalogue from disk instead of statically importing JSON", () => {
+  const source = readFileSync(path.join(root, "src/data/games.ts"), "utf8");
+  assert.doesNotMatch(source, /from\s+["'][^"']*games-index\.json["']/);
+  assert.match(source, /readFileSync/);
+  assert.match(source, /gamesIndexAbsolutePath/);
+});
+
 test("demo catalogue generation does not overwrite the published IGDB index", () => {
-  const publishedPath = path.join(root, "public", "catalog", "games-index.json");
+  const publishedPath = path.join(root, "data", "catalog", "games-index.json");
   const before = readFileSync(publishedPath, "utf8");
   const result = spawnSync(process.execPath, ["scripts/generate-catalogue.mjs"], {
     cwd: root,

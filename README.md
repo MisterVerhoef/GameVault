@@ -97,9 +97,9 @@ Copy `.env.example` to `.env.local` only if you sync the catalogue on your machi
 | `IGDB_SEARCH_TERMS` | No | Optional comma-separated franchise searches. Default: `halo,the witcher` |
 | `IGDB_QUERY` | No | Optional replacement for the built-in IGDB popular-games query |
 
-Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule at 04:17 UTC). The workflow runs `npm ci` and `npm run catalogue:sync:igdb`, then commits `public/catalog/games-index.json`, `public/catalog/browse-index.json`, `public/catalog/search-index.json`, `public/catalog/release-dates.json`, and `public/catalog/store-offers.json` when they change. After it pushes to `main`, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
+Weekly and manual catalogue updates stay on GitHub Actions (`workflow_dispatch` and the Monday schedule at 04:17 UTC). The workflow runs `npm ci` and `npm run catalogue:sync:igdb`, then commits `data/catalog/games-index.json`, `public/catalog/browse-index.json`, `public/catalog/search-index.json`, `public/catalog/release-dates.json`, and `public/catalog/store-offers.json` when they change. After it pushes to `main`, Vercel rebuilds from the updated files. Add `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` under the repository's Actions secrets, not in Vercel. Store enrichment does not need secrets.
 
-`public/catalog/games-index.json` is about 34 MB, `browse-index.json` about 1.7 MB, `search-index.json` about 3.6 MB, and `store-offers.json` about 0.8 MB. `release-dates.json` is the day-level subset (`releases[].date`) used by the release calendar. Home and search use the browse index and the search index. My vault uses the browse index, and fetches `store-offers.json` only when the wishlist is on screen. The release calendar fetches the browse index and `release-dates.json`. Game and studio pages read the full games index on the server. The home page does not import store offers.
+`data/catalog/games-index.json` is about 34 MB and is read on the server only (not exposed under `/catalog/`). `browse-index.json` about 1.7 MB and `search-index.json` about 3.6 MB live in `public/catalog/` for client fetches. `store-offers.json` is about 0.8 MB. `release-dates.json` is the day-level subset (`releases[].date`) used by the release calendar. Home and search use the browse index and the search index. My vault uses the browse index, and fetches `store-offers.json` only when the wishlist is on screen. The release calendar fetches the browse index and `release-dates.json`. Game and studio pages read the full games index on the server. The home page does not import store offers.
 
 ## Project Structure
 
@@ -117,21 +117,25 @@ src/
 └── data/
     ├── catalogue.ts    # Catalogue validation and fallback normalisation
     └── games.ts        # Canonical development source and catalogue access
+data/
+└── catalog/
+    └── games-index.json # Full IGDB catalogue (server-only, not in `public/`)
 public/
 └── catalog/
-    └── games-index.json # Generated static catalogue consumed by the UI
+    ├── browse-index.json
+    └── search-index.json # Slimmer indexes fetched by the client
 ```
 
 ## Customization
 
-- The checked-in catalogue at `public/catalog/games-index.json` is the published artefact (usually synced from IGDB). Weekly GitHub Actions sync is the only automated writer of that file.
+- The checked-in catalogue at `data/catalog/games-index.json` is the published artefact (usually synced from IGDB). Weekly GitHub Actions sync is the only automated writer of that file.
 - Demo/bootstrap titles live in `fallbackGames` inside `src/data/games.ts`. Regenerate a local demo index without touching the published catalogue:
 
 ```bash
 npm run catalogue:generate
 ```
 
-By default this writes `test/fixtures/demo-games-index.json`. Pass `--output public/catalog/games-index.json` only when you intentionally replace the published index with demo data.
+By default this writes `test/fixtures/demo-games-index.json`. Pass `--output data/catalog/games-index.json` only when you intentionally replace the published index with demo data.
 
 - Import a provider export without adding a backend. The input can be a JSON array or an object with a `games` array:
 
@@ -139,7 +143,7 @@ By default this writes `test/fixtures/demo-games-index.json`. Pass `--output pub
 npm run catalogue:import -- --input ./path/to/provider-export.json --provider igdb
 ```
 
-The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, community and critic ratings, age ratings, game modes, player perspectives, a short keyword list, multiplayer modes, per-platform release dates, time to beat, companies and their logos, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `public/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
+The first provider adapter targets IGDB exports and maps `id`, `name`, genres, themes, supported platforms, cover/artwork URLs, community and critic ratings, age ratings, game modes, player perspectives, a short keyword list, multiplayer modes, per-platform release dates, time to beat, companies and their logos, screenshots, videos, websites, and game relationships. Add `--source-version` when importing a versioned export and `--report ./reports/igdb-quality.json` to choose the quality report path. The importer rejects missing IDs, titles, supported platforms, and duplicate IDs, records provider provenance plus a SHA-256 input checksum, writes a quality report, then overwrites `data/catalog/games-index.json`. Provider API calls and credentials remain outside the application.
 
 To sync directly from IGDB during a trusted build or CI job, configure `IGDB_CLIENT_ID` and `IGDB_CLIENT_SECRET` as environment variables and run:
 

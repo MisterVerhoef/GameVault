@@ -516,7 +516,7 @@ test("browse records keep a critic score separate from the user rating", () => {
 
 test("committed browse index stores critic scores and first-release tokens without the full catalogue", () => {
   const catalogue = JSON.parse(
-    readFileSync(path.join(root, "public/catalog/games-index.json"), "utf8"),
+    readFileSync(path.join(root, "data/catalog/games-index.json"), "utf8"),
   );
   const browse = JSON.parse(
     readFileSync(path.join(root, "public/catalog/browse-index.json"), "utf8"),
