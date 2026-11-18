@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import type { DealsPlatform } from "@/data/deals-platform";
 import { browseQuery, platformFilterHref } from "@/data/browse";
 import { PLATFORM_COLORS, PLATFORM_FAMILIES, type Platform } from "@/data/platforms";
 import { measureHeaderFit, nextHeaderFit } from "./header-fit.mjs";
@@ -19,11 +20,13 @@ interface NavbarProps {
   onSearchPrepare?: () => void;
   /** Current `search` query. The field keeps its own value while it is focused. */
   searchQuery?: string;
+  /** When on `/deals`, which store tab is active (server-known on the deals page). */
+  dealsStorePlatform?: DealsPlatform;
 }
 
 const platformFamilies = PLATFORM_FAMILIES;
 
-export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery }: NavbarProps) {
+export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPlatformVariantSelect, onSearch, onSearchPrepare, searchQuery, dealsStorePlatform = "xbox" }: NavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
   const isDeals = pathname === "/deals";
@@ -51,7 +54,9 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
   const storesToggleRef = useRef<HTMLButtonElement>(null);
   const [selectedFamilyKey, setSelectedFamilyKey] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
-  const effectiveFamilyKey = isDeals ? "xbox" : selectedFamilyKey;
+  const effectiveFamilyKey = isDeals
+    ? (dealsStorePlatform === "ps" ? "playstation" : "xbox")
+    : selectedFamilyKey;
   const effectiveVariant = isDeals ? null : selectedVariant;
   const effectiveFamily = platformFamilies.find((family) => family.key === effectiveFamilyKey) ?? null;
   const breakdownFamily = effectiveFamily;
@@ -643,15 +648,25 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                     <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                   </button>
                 ))}
-                {breakdownFamily.key === "xbox" ? (
+                {breakdownFamily.key === "xbox" || breakdownFamily.key === "playstation" ? (
                   <>
                     <span className="ml-3 h-4 w-px flex-shrink-0 bg-white/10" aria-hidden="true" />
                     <Link
-                      href="/deals"
+                      href={breakdownFamily.key === "playstation" ? "/deals?platform=ps" : "/deals"}
                       prefetch={false}
-                      aria-current={pathname === "/deals" ? "page" : undefined}
+                      aria-current={
+                        isDeals
+                        && (breakdownFamily.key === "playstation"
+                          ? dealsStorePlatform === "ps"
+                          : dealsStorePlatform !== "ps")
+                          ? "page"
+                          : undefined
+                      }
                       className={`inline-flex h-6 flex-shrink-0 items-center rounded-full px-2 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                        pathname === "/deals"
+                        isDeals
+                        && (breakdownFamily.key === "playstation"
+                          ? dealsStorePlatform === "ps"
+                          : dealsStorePlatform !== "ps")
                           ? "bg-muted text-foreground"
                           : "text-muted hover:bg-muted/60 hover:text-foreground"
                       }`}
@@ -783,14 +798,24 @@ export default function Navbar({ onPlatformSelect, onPlatformFamilySelect, onPla
                       <PlatformName name={variant} iconClassName="h-[18px] w-[18px]" className="gap-1" />
                     </button>
                   ))}
-                  {family.key === "xbox" ? (
+                  {family.key === "xbox" || family.key === "playstation" ? (
                         <Link
-                          href="/deals"
+                          href={family.key === "playstation" ? "/deals?platform=ps" : "/deals"}
                           prefetch={false}
                           onClick={() => setMenuOpen(false)}
-                          aria-current={pathname === "/deals" ? "page" : undefined}
+                          aria-current={
+                            isDeals
+                            && (family.key === "playstation"
+                              ? dealsStorePlatform === "ps"
+                              : dealsStorePlatform !== "ps")
+                              ? "page"
+                              : undefined
+                          }
                           className={`inline-flex min-h-11 items-center rounded px-3 py-1 text-xs font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                            pathname === "/deals"
+                            isDeals
+                            && (family.key === "playstation"
+                              ? dealsStorePlatform === "ps"
+                              : dealsStorePlatform !== "ps")
                               ? "bg-muted text-foreground"
                               : "text-muted hover:bg-muted/60 hover:text-foreground"
                           }`}

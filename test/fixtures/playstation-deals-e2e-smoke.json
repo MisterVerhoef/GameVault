@@ -1,0 +1,59 @@
+{
+  "source": "fixture",
+  "status": "live",
+  "updatedAt": "2026-11-16T12:00:00.000Z",
+  "lastUpdated": "2026-11-16T12:00:00.000Z",
+  "deals": [
+    {
+      "platform": "playstation",
+      "productId": "PS-E2E-ALPHA",
+      "conceptId": null,
+      "title": "Alpha PS Deal",
+      "coverUrl": "https://image.api.playstation.com/example-alpha.png",
+      "price": 19.99,
+      "regularPrice": 59.99,
+      "discountPercent": 67,
+      "currency": "EUR",
+      "productKind": "game",
+      "platformTags": ["PS4", "PS5"],
+      "psPlusPrice": null,
+      "storeUrl": "https://store.playstation.com/nl-nl/product/PS-E2E-ALPHA",
+      "gameId": "42",
+      "publisherName": "Alpha Interactive"
+    },
+    {
+      "platform": "playstation",
+      "productId": "PS-E2E-BRAVO",
+      "conceptId": null,
+      "title": "Bravo PS DLC",
+      "coverUrl": null,
+      "price": 4.99,
+      "regularPrice": 9.99,
+      "discountPercent": 50,
+      "currency": "EUR",
+      "productKind": "dlc",
+      "platformTags": ["PS5"],
+      "psPlusPrice": null,
+      "storeUrl": "https://store.playstation.com/nl-nl/product/PS-E2E-BRAVO",
+      "gameId": null,
+      "publisherName": "Bravo Publishing"
+    },
+    {
+      "platform": "playstation",
+      "productId": "PS-E2E-PLUS",
+      "conceptId": null,
+      "title": "Charlie Plus Price",
+      "coverUrl": null,
+      "price": 39.99,
+      "regularPrice": 39.99,
+      "discountPercent": 0,
+      "currency": "EUR",
+      "productKind": "game",
+      "platformTags": ["PS4"],
+      "psPlusPrice": 9.99,
+      "storeUrl": "https://store.playstation.com/nl-nl/product/PS-E2E-PLUS",
+      "gameId": null,
+      "publisherName": "Charlie Games"
+    }
+  ]
+}

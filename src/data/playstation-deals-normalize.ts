@@ -1,4 +1,4 @@
-import { discountPercent } from "./xbox-deals-normalize";
+import { discountPercent, publisherNameSlug } from "./xbox-deals-normalize";
 import type {
   CategoryGridRetrievePayload,
   CategoryGridRow,
@@ -8,6 +8,7 @@ import type {
   PlayStationDealPlatform,
   PlayStationDealProductKind,
 } from "./playstation-deals-types";
+import type { XboxDealKindFilter, XboxDealSort } from "./xbox-deals-types";
 
 const DLC_CLASSIFICATIONS = new Set([
   "ADD_ON_PACK",
@@ -184,4 +185,71 @@ export function playStationDealsFromCategoryGrid(
     deals.push(deal);
   }
   return deals;
+}
+
+export interface PlayStationDealPublisherOption {
+  slug: string;
+  name: string;
+  count: number;
+}
+
+export function hasMultiplePlayStationDealKinds(deals: readonly PlayStationDeal[]): boolean {
+  let hasGame = false;
+  let hasDlc = false;
+  for (const deal of deals) {
+    if (deal.productKind === "game") hasGame = true;
+    if (deal.productKind === "dlc") hasDlc = true;
+    if (hasGame && hasDlc) return true;
+  }
+  return false;
+}
+
+export function sortPlayStationDeals(deals: readonly PlayStationDeal[], sort: XboxDealSort): PlayStationDeal[] {
+  const copy = [...deals];
+  copy.sort((left, right) => {
+    switch (sort) {
+      case "price-asc":
+        return left.price - right.price || left.title.localeCompare(right.title, "nl");
+      case "price-desc":
+        return right.price - left.price || left.title.localeCompare(right.title, "nl");
+      case "discount-desc":
+        return right.discountPercent - left.discountPercent
+          || left.price - right.price
+          || left.title.localeCompare(right.title, "nl");
+      case "title-asc":
+      default:
+        return left.title.localeCompare(right.title, "nl");
+    }
+  });
+  return copy;
+}
+
+export function filterPlayStationDeals(deals: readonly PlayStationDeal[], kind: XboxDealKindFilter): PlayStationDeal[] {
+  if (kind === "all") return [...deals];
+  return deals.filter((deal) => (kind === "game" ? deal.productKind === "game" : deal.productKind === "dlc"));
+}
+
+export function filterPlayStationDealsByPublisher(
+  deals: readonly PlayStationDeal[],
+  publisherSlugs: readonly string[] | null,
+): PlayStationDeal[] {
+  if (!publisherSlugs || publisherSlugs.length === 0) return [...deals];
+  const slugs = new Set(publisherSlugs);
+  return deals.filter(
+    (deal) => deal.publisherName && slugs.has(publisherNameSlug(deal.publisherName)),
+  );
+}
+
+export function listPlayStationDealPublishers(deals: readonly PlayStationDeal[]): PlayStationDealPublisherOption[] {
+  const buckets = new Map<string, { name: string; count: number }>();
+  for (const deal of deals) {
+    if (!deal.publisherName) continue;
+    const slug = publisherNameSlug(deal.publisherName);
+    const existing = buckets.get(slug);
+    if (existing) existing.count += 1;
+    else buckets.set(slug, { name: deal.publisherName, count: 1 });
+  }
+  return [...buckets.entries()]
+    .map(([slug, value]) => ({ slug, name: value.name, count: value.count }))
+    .sort((left, right) => left.name.localeCompare(right.name, "nl"));
 }
