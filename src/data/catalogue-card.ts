@@ -10,4 +10,6 @@ export interface CatalogueCard {
   ratingCount?: number;
   /** Cloud streaming services matched by the offline Netherlands catalogue. */
   cloudServices?: readonly string[];
+  /** Supported Xbox Series features (shown as badges on Xbox Series browse). */
+  xboxSeriesFeatures?: readonly ("play-anywhere" | "cloud-gaming")[];
 }

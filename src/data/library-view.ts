@@ -12,7 +12,14 @@ import {
 } from "./browse";
 import type { CatalogueCard } from "./catalogue-card";
 import cloudStreamingCatalogue from "../../public/catalog/cloud-streaming.json";
+import playAnywhereCatalogue from "../../public/catalog/play-anywhere.json";
 import { cloudServiceNames, cloudServicesForGame, indexCloudStreaming } from "./cloud-streaming";
+import { indexPlayAnywhere } from "./play-anywhere";
+import {
+  gameHasXboxSeries,
+  xboxCloudGamingAvailability,
+  xboxPlayAnywhereAvailability,
+} from "./xbox-series-features";
 import {
   gameIsPlatformExclusive,
   gameMatchesPlatformVariant,
@@ -25,6 +32,19 @@ import { matchesSearchTerms } from "./search-terms";
 
 const PLATFORMS: readonly Platform[] = ["PC", "PS5", "Xbox", "Switch", "Other"];
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
+const playAnywhereIndex = indexPlayAnywhere(playAnywhereCatalogue);
+
+function xboxSeriesFeatureBadges(game: BrowseGame): ("play-anywhere" | "cloud-gaming")[] | undefined {
+  if (!gameHasXboxSeries(game.platformVariants)) return undefined;
+  const badges: ("play-anywhere" | "cloud-gaming")[] = [];
+  if (xboxPlayAnywhereAvailability(playAnywhereIndex, game.id) === "supported") {
+    badges.push("play-anywhere");
+  }
+  if (xboxCloudGamingAvailability(cloudStreamingIndex, game.id) === "supported") {
+    badges.push("cloud-gaming");
+  }
+  return badges.length > 0 ? badges : undefined;
+}
 
 export interface BrowseRecord {
   id: string;
@@ -220,6 +240,7 @@ export function findBrowseGame(catalogue: BrowseCatalogue, id: string) {
 }
 
 export function toCard(game: BrowseGame): CatalogueCard {
+  const xboxSeriesFeatures = xboxSeriesFeatureBadges(game);
   return {
     id: game.id,
     title: game.title,
@@ -230,6 +251,7 @@ export function toCard(game: BrowseGame): CatalogueCard {
     rating: game.rating,
     ...(game.ratingCount != null ? { ratingCount: game.ratingCount } : {}),
     cloudServices: cloudServiceNames(cloudServicesForGame(cloudStreamingIndex, game.id)),
+    ...(xboxSeriesFeatures ? { xboxSeriesFeatures } : {}),
   };
 }
 

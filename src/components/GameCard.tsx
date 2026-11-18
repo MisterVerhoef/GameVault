@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { GameCoverPlaceholder } from "./cover-placeholder";
 import StarRating from "./StarRating";
 import { PlatformIcon, platformIconKind } from "./platform-icons";
+import XboxSeriesFeatureBadges from "./XboxSeriesFeatureBadges";
 
 interface GameCardProps {
   game: CatalogueCard;
@@ -44,6 +45,9 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
     personalRating ? `your rating ${personalRating} out of 5` : "",
     typeof progress === "number" && progress > 0 ? `${progress}% progress` : "",
     game.cloudServices?.length ? `cloud streaming via ${game.cloudServices.join(", ")}` : "",
+    game.xboxSeriesFeatures?.length
+      ? `Xbox features: ${game.xboxSeriesFeatures.map((f) => (f === "play-anywhere" ? "Play Anywhere" : "Cloud Gaming")).join(", ")}`
+      : "",
   ].filter(Boolean);
 
   // Responsive sizes: compact on portrait/mobile, full size from lg and up
@@ -95,6 +99,10 @@ export default function GameCard({ game, personalRating, progress, size = "md" }
 
         {/* Gradient overlay at bottom */}
         <div className="absolute inset-x-0 bottom-0 h-2/5 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+
+        {game.xboxSeriesFeatures && game.xboxSeriesFeatures.length > 0 ? (
+          <XboxSeriesFeatureBadges features={game.xboxSeriesFeatures} />
+        ) : null}
 
         {game.cloudServices && game.cloudServices.length > 0 ? (
           <span

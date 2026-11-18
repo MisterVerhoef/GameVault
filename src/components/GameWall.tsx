@@ -10,6 +10,7 @@ import type { CatalogueCard } from "@/data/catalogue-card";
 import { searchCardLabel } from "@/data/search-card-label";
 import { GameCoverPlaceholder } from "./cover-placeholder";
 import { PlatformIcon } from "./platform-icons";
+import XboxSeriesFeatureBadges from "./XboxSeriesFeatureBadges";
 
 const PAGE_SIZE = 48;
 /** Title block plus the grid's vertical gap, added under each cover. */
@@ -136,6 +137,9 @@ function SearchCoverCard({ game, label }: { game: CatalogueCard; label: string }
           ) : (
             <span className="absolute inset-0 bg-gradient-to-br from-zinc-800 via-zinc-900 to-black" aria-hidden="true" />
           )}
+          {game.xboxSeriesFeatures && game.xboxSeriesFeatures.length > 0 ? (
+            <XboxSeriesFeatureBadges features={game.xboxSeriesFeatures} />
+          ) : null}
           {game.cloudServices && game.cloudServices.length > 0 ? (
             <span
               className="absolute right-1.5 top-1.5 z-10 inline-flex items-center justify-center rounded-full bg-black/75 p-1.5 text-white shadow-sm"

@@ -13,7 +13,11 @@ import { LOWEST_RECORDED_NOTE } from "@/data/price-history";
 import { presentCatalogueGameLive } from "@/data/store-offers";
 import { StoreOfferPriceLink } from "@/components/StoreOfferPriceLink";
 import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.json";
+import playAnywhereCatalogue from "../../../../public/catalog/play-anywhere.json";
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
+import { indexPlayAnywhere } from "@/data/play-anywhere";
+import { hasKnownXboxSeriesFeature, xboxSeriesFeatureStatus } from "@/data/xbox-series-features";
+import XboxSeriesFeatures from "@/components/XboxSeriesFeatures";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
 import { ExternalLinkBadge } from "@/components/ExternalLinkBadge";
@@ -27,6 +31,7 @@ import { listGroupedVariants, type GroupableGame } from "@/data/search-grouping"
 import { staticGamePageIds } from "@/data/static-game-pages";
 
 const cloudStreamingIndex = indexCloudStreaming(cloudStreamingCatalogue);
+const playAnywhereIndex = indexPlayAnywhere(playAnywhereCatalogue);
 
 interface GameDetailPageProps {
   params: Promise<{ id: string }>;
@@ -214,6 +219,11 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
   const { game: display, offers, captions } = await presentCatalogueGameLive(game);
   const cloudServices = cloudServicesForGame(cloudStreamingIndex, game.id);
+  const xboxSeriesFeatures = xboxSeriesFeatureStatus(
+    game,
+    playAnywhereIndex,
+    cloudStreamingIndex,
+  );
   const ageRatings = game.ageRatings ?? [];
   const gameModes = game.gameModes ?? [];
   const perspectives = game.playerPerspectives ?? [];
@@ -399,6 +409,9 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
               <LibraryControls gameId={game.id} gameTitle={game.title} />
               <ListControls gameId={game.id} gameTitle={game.title} />
             </div>
+            {xboxSeriesFeatures && hasKnownXboxSeriesFeature(xboxSeriesFeatures) ? (
+              <XboxSeriesFeatures status={xboxSeriesFeatures} />
+            ) : null}
             {cloudServices.length > 0 && (
               <section className="mt-4 rounded-xl bg-card/80 p-4 ring-1 ring-white/10" aria-labelledby="cloud-streaming-heading">
                 <h3 id="cloud-streaming-heading" className="text-sm font-semibold text-foreground">Cloud streaming</h3>
