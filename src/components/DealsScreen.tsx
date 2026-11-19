@@ -176,7 +176,7 @@ export default function DealsScreen({
   const title = platform === "ps" ? "PlayStation deals" : "Xbox deals";
   const subtitle = platform === "ps"
     ? "Live PlayStation Store NL deals"
-  : "Live sale prices from the Microsoft Store (Netherlands, EUR).";
+    : "Live Microsoft Store NL deals (EUR).";
 
   const updatedLabel = formatUpdatedNl(
     platform === "ps" && playstation.status === "cached" && playstation.lastUpdated
@@ -232,7 +232,7 @@ export default function DealsScreen({
               .
             </p>
           ) : (
-            <p className="max-w-3xl text-sm text-muted">
+            <p className="max-w-3xl text-sm leading-5 text-muted sm:min-h-10">
               {subtitle}
               {updatedLabel ? (
                 <>
@@ -257,8 +257,6 @@ export default function DealsScreen({
             </p>
           )}
         </header>
-
-        {droppedNote ? <DealsDroppedFiltersNotice message={droppedNote} /> : null}
 
         {!psUnavailable ? (
           <section aria-label="Deal controls" className="mb-5 flex flex-col gap-3">
@@ -336,6 +334,8 @@ export default function DealsScreen({
             ) : null}
           </section>
         ) : null}
+
+        {droppedNote ? <DealsDroppedFiltersNotice message={droppedNote} /> : null}
 
         {emptyMessage ? (
           <div className="rounded-xl border border-white/10 bg-card p-8 text-center text-sm text-muted">
