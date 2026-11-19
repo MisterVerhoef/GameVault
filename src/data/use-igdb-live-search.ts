@@ -17,7 +17,7 @@ export interface HybridSearchWallSection {
   games: CatalogueCard[];
 }
 
-const DEBOUNCE_MS = 350;
+const DEBOUNCE_MS = 200;
 const MIN_QUERY = 3;
 const LIVE_SEARCH_SKELETON_COUNT = 8;
 
