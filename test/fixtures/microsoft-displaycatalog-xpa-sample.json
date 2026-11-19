@@ -1,0 +1,19 @@
+{
+  "Products": [
+    {
+      "ProductId": "9NKFS43DLFFL",
+      "Properties": {
+        "Attributes": [
+          { "Name": "XPA" },
+          { "Name": "SinglePlayer" }
+        ]
+      }
+    },
+    {
+      "ProductId": "9NGN7D8GJN02",
+      "Properties": {
+        "Attributes": [{ "Name": "SinglePlayer" }]
+      }
+    }
+  ]
+}

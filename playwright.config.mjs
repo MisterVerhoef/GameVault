@@ -25,6 +25,7 @@ export default defineConfig({
       IGDB_MOCK: "1",
       GAMEVAULT_E2E_XBOX_DEALS: "1",
       GAMEVAULT_E2E_PLAYSTATION_DEALS: "1",
+      GAMEVAULT_E2E_PLAY_ANYWHERE: "1",
     },
   },
   projects: [

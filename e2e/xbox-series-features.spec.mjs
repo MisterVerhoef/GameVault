@@ -16,6 +16,13 @@ test("browse cards distinguish Xbox Cloud pill from cloud streaming icon", async
   await expect(forza.getByLabel(/Cloud streaming available/i)).toBeVisible();
 });
 
+test("IGDB-only Xbox Series page resolves Play Anywhere from mocked Display Catalog", async ({ page }) => {
+  await page.goto("/game/999999002");
+  const section = page.getByRole("region", { name: /Xbox Series X\|S features/i });
+  await expect(section).toBeVisible();
+  await expect(section.getByText("Xbox Play Anywhere")).toBeVisible();
+});
+
 test("rail card Play Anywhere pill is tick-only without ellipsis at 200% zoom", async ({ page }) => {
   await page.setViewportSize({ width: 1400, height: 900 });
   await page.goto("/?platform=Xbox&variant=Xbox%20Series");
