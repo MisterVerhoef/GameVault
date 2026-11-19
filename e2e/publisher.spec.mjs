@@ -15,7 +15,7 @@ test("publisher overview is linked from a catalogue game page", async ({ page })
 
 test("publisher games wall shows all-shown note after load more", async ({ page }) => {
   await page.goto("/publisher/70");
-  const showing = page.getByText(/Showing \d+ of \d+ games?/);
+  const showing = page.getByText(/Showing \d+ of \d+ games?/).first();
   await expect(showing).toBeVisible({ timeout: 30_000 });
   const loadMore = page.getByRole("button", { name: "Load more" });
   const hasLoadMore = await loadMore.isVisible().catch(() => false);
@@ -26,7 +26,7 @@ test("publisher games wall shows all-shown note after load more", async ({ page 
   while (await loadMore.isVisible().catch(() => false)) {
     await loadMore.click();
   }
-  await expect(page.getByText(/^All \d[\d,]* games? shown$/)).toBeVisible();
+  await expect(page.getByText(/^All \d[\d,]* games? shown$/).first()).toBeVisible();
 });
 
 test("unknown publisher ids return not found", async ({ page }) => {
