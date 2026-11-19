@@ -12,6 +12,9 @@ export function catalogueJsonModule(raw: unknown): unknown {
   return raw;
 }
 
+import type { StoreId } from "./games";
+import { xboxIdentitiesOrdered } from "./store-match";
+
 /** Offline catalogue: Xbox Play Anywhere flags matched by Microsoft Store product id. */
 
 export interface PlayAnywhereGameEntry {
@@ -82,11 +85,34 @@ export function xboxExternalIds(game: { externalIds?: readonly { store: string; 
     .filter(Boolean);
 }
 
+/** Microsoft Store bigIds from IGDB external ids and official store URLs, in priority order. */
+export function xboxBigIdsFromGame(game: {
+  externalIds?: readonly { store: string; id: string }[];
+  websites?: readonly { url: string }[];
+}): string[] {
+  return xboxIdentitiesOrdered({
+    externalIds: game.externalIds
+      ? game.externalIds.map((entry) => ({ store: entry.store as StoreId, id: entry.id }))
+      : undefined,
+    websites: game.websites ? game.websites.map((entry) => ({ url: entry.url })) : undefined,
+  }).map((identity) => normalizeXboxBigId(identity.id));
+}
+
+export function playAnywhereAvailabilityFromEntry(
+  entry: PlayAnywhereGameEntry | undefined,
+): "supported" | "unsupported" | "unknown" {
+  if (!entry) return "unknown";
+  return entry.playAnywhere ? "supported" : "unsupported";
+}
+
 export function resolvePlayAnywhereForGame(
-  game: { externalIds?: readonly { store: string; id: string }[] },
+  game: {
+    externalIds?: readonly { store: string; id: string }[];
+    websites?: readonly { url: string }[];
+  },
   products: Map<string, boolean>,
 ): Omit<PlayAnywhereGameEntry, "checkedAt"> | undefined {
-  const ids = xboxExternalIds(game);
+  const ids = xboxBigIdsFromGame(game);
   let matchedId: string | undefined;
   let supported = false;
   for (const id of ids) {

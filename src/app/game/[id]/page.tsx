@@ -16,7 +16,8 @@ import cloudStreamingCatalogue from "../../../../public/catalog/cloud-streaming.
 import playAnywhereCatalogue from "../../../../public/catalog/play-anywhere.json";
 import { cloudServicesForGame, indexCloudStreaming } from "@/data/cloud-streaming";
 import { catalogueJsonModule, indexPlayAnywhere } from "@/data/play-anywhere";
-import { hasKnownXboxSeriesFeature, xboxSeriesFeatureStatus } from "@/data/xbox-series-features";
+import { hasKnownXboxSeriesFeature } from "@/data/xbox-series-features";
+import { xboxSeriesFeatureStatusForGamePage } from "@/data/play-anywhere-live";
 import XboxSeriesFeatures from "@/components/XboxSeriesFeatures";
 import { collectionHref, franchiseHref } from "@/data/series";
 import Image from "next/image";
@@ -223,7 +224,7 @@ export default async function GameDetailPage({ params }: GameDetailPageProps) {
 
   const { game: display, offers, captions } = await presentCatalogueGameLive(game);
   const cloudServices = cloudServicesForGame(cloudStreamingIndex, game.id);
-  const xboxSeriesFeatures = xboxSeriesFeatureStatus(
+  const xboxSeriesFeatures = await xboxSeriesFeatureStatusForGamePage(
     game,
     playAnywhereIndex,
     cloudStreamingIndex,

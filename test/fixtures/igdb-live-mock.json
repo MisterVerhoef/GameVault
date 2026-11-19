@@ -60,6 +60,37 @@
     }
   ],
   "games": {
+    "999999002": {
+      "id": "999999002",
+      "slug": "vault-mock-play-anywhere",
+      "title": "Vault Mock Play Anywhere",
+      "summary": "IGDB-only Xbox Series mock for Play Anywhere e2e.",
+      "description": "IGDB-only Xbox Series mock for Play Anywhere e2e.",
+      "releaseYear": 2026,
+      "genres": ["Adventure"],
+      "themes": [],
+      "platforms": ["Xbox"],
+      "platformVariants": ["Xbox Series X|S"],
+      "developers": [{ "id": "500001", "name": "Mock Studio" }],
+      "publishers": [{ "id": "500002", "name": "Mock Publisher" }],
+      "cover": {
+        "url": "https://images.igdb.com/igdb/image/upload/t_cover_big/co6wmo.jpg"
+      },
+      "externalIds": [{ "store": "xbox", "id": "E2EPLAYANY01" }],
+      "releases": [{ "platform": "Xbox Series", "date": "2026-03-01" }],
+      "screenshots": [],
+      "videos": [],
+      "websites": [],
+      "dlc": [],
+      "expansions": [],
+      "editions": [],
+      "relatedGames": [],
+      "similarGames": [],
+      "franchises": [],
+      "collections": [],
+      "source": [{ "provider": "igdb", "id": "999999002" }],
+      "updatedAt": "2026-01-01"
+    },
     "999999001": {
       "id": "999999001",
       "slug": "vault-mock-exclusief-spel",

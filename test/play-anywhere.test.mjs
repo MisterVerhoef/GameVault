@@ -6,11 +6,15 @@ const {
   indexPlayAnywhere,
   catalogueJsonModule,
   normalizeXboxBigId,
+  playAnywhereAvailabilityFromEntry,
   playAnywhereForGame,
   productSupportsXboxPlayAnywhere,
   resolvePlayAnywhereForGame,
+  xboxBigIdsFromGame,
   xboxExternalIds,
 } = loadTsModule("src/data/play-anywhere.ts");
+
+const { parseStoreUrl } = loadTsModule("src/data/store-match.ts");
 
 const {
   gameHasXboxSeries,
@@ -41,6 +45,43 @@ test("productSupportsXboxPlayAnywhere reads the XPA attribute", () => {
   };
   assert.equal(productSupportsXboxPlayAnywhere(withXpa), true);
   assert.equal(productSupportsXboxPlayAnywhere(withoutXpa), false);
+});
+
+test("xboxBigIdsFromGame includes Microsoft Store website urls", () => {
+  const url = "https://www.xbox.com/games/store/banishers-ghosts-of-new-eden/9NKFS43DLFFL";
+  const identity = parseStoreUrl(url);
+  assert.deepEqual(identity, { store: "xbox", id: "9NKFS43DLFFL" });
+  const game = {
+    externalIds: [],
+    websites: [{ url }],
+  };
+  assert.deepEqual(xboxBigIdsFromGame(game), ["9NKFS43DLFFL"]);
+});
+
+test("resolvePlayAnywhereForGame matches by store website url", () => {
+  const game = {
+    websites: [{ url: "https://www.xbox.com/games/store/example/9N8CD0XZKLP4" }],
+  };
+  const products = new Map([["9N8CD0XZKLP4", false]]);
+  const resolved = resolvePlayAnywhereForGame(game, products);
+  assert.deepEqual(resolved, {
+    playAnywhere: false,
+    xboxProductId: "9N8CD0XZKLP4",
+    match: "external-id",
+  });
+});
+
+test("playAnywhereAvailabilityFromEntry maps offline catalogue rows", () => {
+  assert.equal(playAnywhereAvailabilityFromEntry(undefined), "unknown");
+  assert.equal(
+    playAnywhereAvailabilityFromEntry({
+      playAnywhere: true,
+      xboxProductId: "ABC",
+      match: "external-id",
+      checkedAt: "2026-01-01",
+    }),
+    "supported",
+  );
 });
 
 test("resolvePlayAnywhereForGame matches by external store id", () => {
